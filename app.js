@@ -76,3 +76,6 @@ function fillBoard(row, column) {
   return player
 }
 
+function kitty () {
+  console.log('Meowth thats me!')
+}
