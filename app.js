@@ -107,10 +107,11 @@ function fillBoard(row, column, fill) {
   if(board[row][column] !== null) {
     return
   }
-
+  
   const player = switchPlayers(player1, player2)
-
-  fill.innerHTML = player.shape
+  // document.querySelector('div').firstElementChild
+  fill.firstElementChild.innerHTML = player.shape
+  // console.log(fill)
 
   console.log(player.name)
   
