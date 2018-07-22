@@ -56,20 +56,21 @@ main {
   padding: 20px;
   margin: 0 auto;
   display: flex;
-  width: 300px;
+  max-width: 500px;
   justify-content: center;
   flex-direction: column;
   margin-top: 100px;
 }
 
+
 .row {
   display: flex;
-  width: 500;
+  max-width: 500;
+  height: 100px;
   margin: 0 auto;
 }
 .row>div {
-  width: 100px;
-  height: 100px;
+  flex: 1;
   background: #ff00f205;
   margin: 0.5%;
   transition: cubic-bezier(0.075, 0.82, 0.165, 1);
@@ -79,6 +80,81 @@ main {
   background: #ff00f22c;
 }
 
+svg {
+  width: 100%;
+  height: 100%;
+}
+
+
+.right-dot {
+  opacity: 0;
+  animation: Right-Dot-A 0.5s cubic-bezier(0.4, 0, 0.58, 1);
+  transform-origin: 13.2291665px 13.2291665px;
+  transform: rotate(0deg); /*-> -90deg*/
+}
+
+.left-dot {
+  opacity: 0;
+  animation: Left-Dot-A 0.5s cubic-bezier(0.4, 0, 0.58, 1);
+  transform-origin: 13.2291665px 13.2291665px;
+  transform: rotate(0deg); /*-> -90deg*/
+}
+
+.left-line, .right-line {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: Lines-A 0.5s cubic-bezier(0.4, 0, 0.58, 1);
+  animation-delay: 0.5s;
+  animation-fill-mode: forwards;
+}
+
+
+.circle-left, .circle-right {
+  stroke-dasharray: 35;
+  stroke-dashoffset: 35;
+  animation: Circle-A 1s cubic-bezier(0.4, 0, 0.58, 1);
+  animation-fill-mode: forwards;
+}
+
+@keyframes Circle-A {
+  0% {
+    stroke-dashoffset: 35;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes Lines-A {
+  0% {
+    stroke-dashoffset: 30;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes Right-Dot-A {
+  0% {
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-90deg);
+  }
+}
+
+@keyframes Left-Dot-A {
+  0% {
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(90deg);
+  }
+}
 
 @media (min-width: 600px) {
 
