@@ -53,6 +53,7 @@ body {
   -o-background-size: cover;
   background-size: cover;
   font-family: 'Roboto', sans-serif;
+  overflow-y: hidden;
 }
 
 main {
@@ -60,13 +61,7 @@ main {
   margin-top: 50px;
 }
 
-.stats {
-  max-width: 700px;
-  margin: 0 auto;
-  text-align: center;
-  color: #ddd;
-  margin-top: 50px;
-}
+
 
 .board {
   background: linear-gradient(297deg, rgba(163,10,250,0.4) 0%, rgba(4,0,255,0.4) 100%);
@@ -111,7 +106,7 @@ main {
 svg {
   width: 100%;
   height: 100%;
-  transition: 0.5s cubic-bezier(0.4, 0, 0.58, 1);
+  /* transition: 0.5s cubic-bezier(0.4, 0, 0.58, 1); */
 }
 
 
@@ -145,6 +140,8 @@ svg {
   animation: Circle-A 1s cubic-bezier(0.4, 0, 0.58, 1);
   animation-fill-mode: forwards;
 }
+
+
 
 @keyframes Circle-A {
   0% {
@@ -191,3 +188,52 @@ svg {
 @media (min-width: 600px) {
 
 }
+
+.stats {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+  color: #ddd;
+  margin-top: 50px;
+}
+
+.line-svg {
+  max-width: 700px;
+  margin: 0 auto;
+  /* rediscovered how cool sticky is */
+  position: sticky;
+  bottom: 750px;
+  /* pointer-events: none; */
+}
+
+.line-long, .line-short {
+  opacity: 0;
+  stroke-dasharray: 50;
+  stroke-dashoffset: 50;
+  animation: Line-Win-A 1s cubic-bezier(0.4, 0, 0.58, 1);
+  animation-fill-mode: forwards;
+}
+
+
+@keyframes Line-Win-A {
+  0% {
+    opacity: 1;
+    stroke-dashoffset: 50;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+
+/* svg .scale {
+  transform-origin: 13.2291665px 13.2291665px;
+  transform: scaleX(1.4)
+} */
+
+/* line svg */
+
+/* rotation(90deg): every 8px on x horizontally */
+
+/* rotation(none): every 8px on x vertically, for some reason css rotation messes with coordinates */
