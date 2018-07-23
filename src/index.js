@@ -1,29 +1,11 @@
-import svg from './svg'
+import data from './gameData'
 
 const box = document.querySelectorAll('[data-col]')
 const stats = document.querySelector('.stats')
 
-function Player(name, shape, fill) {
-  this.name = name
-  this.shape = svg[shape]
-  this.score = 0
-  this.turn = false
-  this.fill = fill
-}
-
-const board = [
-  [null,null,null],
-  [null,null,null],
-  [null,null,null]
-]
-
-const player1 = new Player('Jerry', 'cross', 1)
-const player2 = new Player('Cece', 'circle', 0)
-
-let gameOver = false
 
 //Player One goes first
-player1.turn = true
+data.player1.turn = true
 
 
 
@@ -36,7 +18,7 @@ box.forEach((item) => {
     console.log(row, column)
 
     const player = fillBoard(row, column, fill)
-    console.log(board)
+    console.log(data.board)
 
     const animate = checkBoard(player)
     console.log(animate)
@@ -44,22 +26,27 @@ box.forEach((item) => {
 })
 
 function checkBoard(player) {
+  // returns when game is over or tile is already filled
+  if(!player) {
+    return null
+  }
+
   // check row
-  for(let row = 0; row < board.length; row++) {
-    if(board[row].every(item => item === player.fill)) {
+  for(let row = 0; row < data.board.length; row++) {
+    if(data.board[row].every(item => item === player.fill)) {
       stats.innerHTML = `${player.name} has won!`
-      gameOver = true
+      data.gameOver = true
       return `row${row}`
     }
 
     // check column
     let count = 0
-    for(let column = 0; column < board.length; column++) {
-      if(board[column][row] === player.fill) {
+    for(let column = 0; column < data.board.length; column++) {
+      if(data.board[column][row] === player.fill) {
         count++
-        if(count === board.length) {
+        if(count === data.board.length) {
           stats.innerHTML = `${player.name} has won!`
-          gameOver = true
+          data.gameOver = true
         }
       }
     }
@@ -70,20 +57,20 @@ function checkBoard(player) {
   let diagonal2 = 0
   // [0,0][1,1][2,2]
   // [0,2][1,1][2,0]
-  for(let i = 0; i < board.length; i++) {
-    if(board[i][i] === player.fill) {
+  for(let i = 0; i < data.board.length; i++) {
+    if(data.board[i][i] === player.fill) {
       diagonal1++
-      if(diagonal1 === board.length) {
+      if(diagonal1 === data.board.length) {
         stats.innerHTML = `${player.name} has won!`
-        gameOver = true
+        data.gameOver = true
       }
     }
     
-    if(board[i][board.length - 1 -i] === player.fill) {
+    if(data.board[i][data.board.length - 1 -i] === player.fill) {
       diagonal2++
-      if(diagonal2 === board.length) {
+      if(diagonal2 === data.board.length) {
         stats.innerHTML = `${player.name} has won!`
-        gameOver = true
+        data.gameOver = true
       }
     }
   }
@@ -101,18 +88,18 @@ function switchPlayers(player1, player2) {
 
 function fillBoard(row, column, fill) {
   // if board already filled return nothing
-  if(board[row][column] !== null || gameOver) {
-    return
+  if(data.board[row][column] !== null || data.gameOver) {
+    return null
   }
   
-  const player = switchPlayers(player1, player2)
+  const player = switchPlayers(data.player1, data.player2)
   // document.querySelector('div').firstElementChild
   fill.firstElementChild.innerHTML = player.shape
   // console.log(fill)
 
   stats.innerHTML = `${player.name}, it's your time to shine!`
   
-  board[row][column] = player.fill
+  data.board[row][column] = player.fill
 
 
   return player
