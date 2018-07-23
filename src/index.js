@@ -2,7 +2,7 @@ import data from './gameData'
 
 const box = document.querySelectorAll('[data-col]')
 const stats = document.querySelector('.stats')
-
+const line = document.querySelector('.line-svg')
 
 //Player One goes first
 data.player1.turn = true
@@ -11,8 +11,9 @@ data.player1.turn = true
 
 box.forEach((item) => {
   item.addEventListener('click', (e) => {
-    const row = e.target.parentNode.getAttribute('data-row')
-    const column = e.target.getAttribute('data-col')
+    // must refactor, i swapped variable names to fix bug
+    const column = e.target.parentNode.getAttribute('data-row')
+    const row = e.target.getAttribute('data-col')
     const fill = e.target
 
     console.log(row, column)
@@ -21,9 +22,50 @@ box.forEach((item) => {
     console.log(data.board)
 
     const animate = checkBoard(player)
-    console.log(animate)
+    animateLine(animate)
   })
 })
+
+
+function animateLine(animate) {
+  if(!animate) {
+    return null
+  }
+
+  if(animate === 'diag1') {
+    line.innerHTML = data.lines.lineLong   
+  }
+  if(animate === 'diag2') {
+    line.innerHTML = data.lines.lineLong
+    line.firstElementChild.getElementsByTagName('g')[0].style.transform = 'rotate(90deg)'
+  }
+  if(animate === 'row0') {
+    line.innerHTML = data.lines.lineShort
+    line.firstElementChild.getElementsByTagName('g')[0].style.transform = 'translateY(-9px)'
+  }
+  if(animate === 'row1') {
+    line.innerHTML = data.lines.lineShort
+  }
+  if(animate === 'row2') {
+    line.innerHTML = data.lines.lineShort
+    line.firstElementChild.getElementsByTagName('g')[0].style.transform = 'translateY(9px)'
+  }
+  if(animate === 'col0') {
+    line.innerHTML = data.lines.lineShort
+    line.firstElementChild.getElementsByTagName('g')[0].style.transform = 'rotate(90deg)'
+    line.firstElementChild.getElementsByTagName('g')[0].firstElementChild.style.transform = 'translateY(9px)'
+  }
+  if(animate === 'col1') {
+    line.innerHTML = data.lines.lineShort
+    line.firstElementChild.getElementsByTagName('g')[0].style.transform = 'rotate(90deg)'
+  }
+  if(animate === 'col2') {
+    line.innerHTML = data.lines.lineShort
+    line.firstElementChild.getElementsByTagName('g')[0].style.transform = 'rotate(90deg)'
+    line.firstElementChild.getElementsByTagName('g')[0].firstElementChild.style.transform = 'translateY(-9px)'
+  }
+  console.log(animate)
+}
 
 function checkBoard(player) {
   // returns when game is over or tile is already filled
@@ -47,6 +89,7 @@ function checkBoard(player) {
         if(count === data.board.length) {
           stats.innerHTML = `${player.name} has won!`
           data.gameOver = true
+          return `col${row}`
         }
       }
     }
@@ -63,6 +106,7 @@ function checkBoard(player) {
       if(diagonal1 === data.board.length) {
         stats.innerHTML = `${player.name} has won!`
         data.gameOver = true
+        return 'diag1'
       }
     }
     
@@ -71,6 +115,7 @@ function checkBoard(player) {
       if(diagonal2 === data.board.length) {
         stats.innerHTML = `${player.name} has won!`
         data.gameOver = true
+        return 'diag2'
       }
     }
   }
