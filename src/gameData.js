@@ -20,6 +20,10 @@ const data = {
   player1: new Player('Jerry', 'cross', 1),
   player2: new Player('Cece', 'circle', 0),
   gameOver: false,
+  lines: {
+    lineShort: svg.lineShort,
+    lineLong: svg.lineLong,
+  }
 }
 
 export default data

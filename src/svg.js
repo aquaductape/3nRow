@@ -1,4 +1,5 @@
 const svg = {
+  
   circle: `<svg
   xmlns:dc="http://purl.org/dc/elements/1.1/"
   xmlns:cc="http://creativecommons.org/ns#"
@@ -233,6 +234,140 @@ const svg = {
     </g>
  </g>
 </svg>`,
+  lineShort: `<svg
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:cc="http://creativecommons.org/ns#"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:svg="http://www.w3.org/2000/svg"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  id="svg8"
+  version="1.1"
+  viewBox="0 0 26.458333 26.458334"
+  height="100"
+  width="100">
+ <defs
+    id="defs2">
+   <linearGradient
+      id="linearGradient3722">
+     <stop
+        id="stop3718"
+        offset="0"
+        style="stop-color:#2a7fff;stop-opacity:1;" />
+     <stop
+        id="stop3720"
+        offset="1"
+        style="stop-color:#2ae4ff;stop-opacity:1" />
+   </linearGradient>
+   <linearGradient
+      gradientUnits="userSpaceOnUse"
+      y2="283.77082"
+      x2="25.593684"
+      y1="283.77082"
+      x1="0.86464937"
+      id="linearGradient3724"
+      xlink:href="#linearGradient3722" />
+   <linearGradient
+      gradientTransform="rotate(45,10.961313,289.24591)"
+      y2="283.77082"
+      x2="25.593684"
+      y1="283.77082"
+      x1="0.86464937"
+      gradientUnits="userSpaceOnUse"
+      id="linearGradient3738"
+      xlink:href="#linearGradient3722" />
+ </defs>
+ <metadata
+    id="metadata5">
+   <rdf:RDF>
+     <cc:Work
+        rdf:about="">
+       <dc:format>image/svg+xml</dc:format>
+       <dc:type
+          rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+       <dc:title></dc:title>
+     </cc:Work>
+   </rdf:RDF>
+ </metadata>
+   <g class="line-short"
+   style="transform-origin: 13.2291665px 13.2291665px;"
+   >
+     <g class="translate"
+       style="transform-origin: 13.2291665px 13.2291665px">
+       <path
+      class="path3716"
+      d="M 1.5355285,283.77082 H 24.922805"
+      style="fill:none;stroke:url(#linearGradient3724);stroke-width:1.32291667;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4" 
+      transform="translate(0,-270.54165)"/>
+     </g>
+   </g>
+   </svg>`,
+  lineLong: `<svg
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:cc="http://creativecommons.org/ns#"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:svg="http://www.w3.org/2000/svg"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  id="svg8"
+  version="1.1"
+  viewBox="0 0 26.458333 26.458334"
+  height="100"
+  width="100">
+ <defs
+    id="defs2">
+   <linearGradient
+      id="linearGradient3722">
+     <stop
+        id="stop3718"
+        offset="0"
+        style="stop-color:#2a7fff;stop-opacity:1;" />
+     <stop
+        id="stop3720"
+        offset="1"
+        style="stop-color:#2ae4ff;stop-opacity:1" />
+   </linearGradient>
+   <linearGradient
+      gradientUnits="userSpaceOnUse"
+      y2="283.77082"
+      x2="25.593684"
+      y1="283.77082"
+      x1="0.86464937"
+      id="linearGradient3724"
+      xlink:href="#linearGradient3722" />
+   <linearGradient
+      gradientTransform="rotate(45,10.961313,289.24591)"
+      y2="283.77082"
+      x2="25.593684"
+      y1="283.77082"
+      x1="0.86464937"
+      gradientUnits="userSpaceOnUse"
+      id="linearGradient3738"
+      xlink:href="#linearGradient3722" />
+ </defs>
+ <metadata
+    id="metadata5">
+   <rdf:RDF>
+     <cc:Work
+        rdf:about="">
+       <dc:format>image/svg+xml</dc:format>
+       <dc:type
+          rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+       <dc:title></dc:title>
+     </cc:Work>
+   </rdf:RDF>
+ </metadata>
+   <g class="line-long"
+   style="transform-origin: 13.2291665px 13.2291665px;"
+   >
+     <path
+      style="fill:none;stroke:url(#linearGradient3738);stroke-width:1.32291663;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1"
+      d="M 1.7532815,272.29493 24.705052,295.24671"
+      class="path3726" 
+      transform="translate(0,-270.54165)"/>
+   </g>
+</svg>`,
 }
+
 
 export default svg
