@@ -1,3 +1,5 @@
+import svg from './svg'
+
 const box = document.querySelectorAll('[data-col]')
 const stats = document.querySelector('.stats')
 
@@ -31,11 +33,6 @@ box.forEach((item) => {
     const column = e.target.getAttribute('data-col')
     const fill = e.target
 
-    const foo = { name: 'whatever'}
-    if(gameOver) {
-      return
-    }
-
     console.log(row, column)
 
     const player = fillBoard(row, column, fill)
@@ -50,7 +47,7 @@ function checkBoard(player) {
   // check row
   for(let row = 0; row < board.length; row++) {
     if(board[row].every(item => item === player.fill)) {
-      console.log(`${player.name} has won!`)
+      stats.innerHTML = `${player.name} has won!`
       gameOver = true
       return `row${row}`
     }
@@ -61,7 +58,7 @@ function checkBoard(player) {
       if(board[column][row] === player.fill) {
         count++
         if(count === board.length) {
-          console.log(`${player.name} has won!`)
+          stats.innerHTML = `${player.name} has won!`
           gameOver = true
         }
       }
@@ -77,7 +74,7 @@ function checkBoard(player) {
     if(board[i][i] === player.fill) {
       diagonal1++
       if(diagonal1 === board.length) {
-        console.log(`${player.name} has won!`)
+        stats.innerHTML = `${player.name} has won!`
         gameOver = true
       }
     }
@@ -85,7 +82,7 @@ function checkBoard(player) {
     if(board[i][board.length - 1 -i] === player.fill) {
       diagonal2++
       if(diagonal2 === board.length) {
-        console.log(`${player.name} has won!`)
+        stats.innerHTML = `${player.name} has won!`
         gameOver = true
       }
     }
@@ -104,7 +101,7 @@ function switchPlayers(player1, player2) {
 
 function fillBoard(row, column, fill) {
   // if board already filled return nothing
-  if(board[row][column] !== null) {
+  if(board[row][column] !== null || gameOver) {
     return
   }
   
@@ -113,7 +110,7 @@ function fillBoard(row, column, fill) {
   fill.firstElementChild.innerHTML = player.shape
   // console.log(fill)
 
-  console.log(player.name)
+  stats.innerHTML = `${player.name}, it's your time to shine!`
   
   board[row][column] = player.fill
 

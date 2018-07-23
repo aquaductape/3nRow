@@ -1,4 +1,5 @@
-const svg = {
+const svg
+export default svg = {
   circle: `<svg
   xmlns:dc="http://purl.org/dc/elements/1.1/"
   xmlns:cc="http://creativecommons.org/ns#"
@@ -234,3 +235,5 @@ const svg = {
  </g>
 </svg>`,
 }
+
+

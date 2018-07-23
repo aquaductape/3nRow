@@ -1,0 +1,25 @@
+{
+  "name": "3n-row",
+  "version": "1.0.0",
+  "description": "A Tic Tac Toe Game",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aquaductape/3n-row.git"
+  },
+  "author": "Caleb Taylor",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aquaductape/3n-row/issues"
+  },
+  "homepage": "https://github.com/aquaductape/3n-row#readme",
+  "devDependencies": {
+    "webpack": "^4.16.1",
+    "webpack-cli": "^3.1.0"
+  },
+  "dependencies": {}
+}
