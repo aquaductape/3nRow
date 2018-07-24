@@ -71,11 +71,11 @@ main {
   min-height: 100px;
 }
 
-.row {
+.column {
   flex: 1;
   text-align: center;
 }
-.row>div {
+.column>div {
   background: #ff00f205;
   position: relative;
   transition: cubic-bezier(0.075, 0.82, 0.165, 1);
@@ -89,15 +89,15 @@ main {
   pointer-events: none;
 }
 
-.row>div:hover {
+.column>div:hover {
   background: #ff00f22c;
 }
 
-.row>div:hover svg {
+.column>div:hover svg {
   transform: scale(1.1);
 }
 
-.row>div::before {
+.column>div::before {
   content: "";
   display: block;
   padding-bottom: 100%;
@@ -106,7 +106,7 @@ main {
 svg {
   width: 100%;
   height: 100%;
-  /* transition: 0.5s cubic-bezier(0.4, 0, 0.58, 1); */
+  transition: 0.5s cubic-bezier(0.4, 0, 0.58, 1);
 }
 
 
@@ -191,10 +191,9 @@ svg {
 
 .stats {
   max-width: 700px;
-  margin: 0 auto;
+  margin: 50px auto;
   text-align: center;
   color: #ddd;
-  margin-top: 50px;
 }
 
 .line-svg {
@@ -203,7 +202,7 @@ svg {
   /* rediscovered how cool sticky is */
   position: sticky;
   bottom: 750px;
-  /* pointer-events: none; */
+  pointer-events: none;
 }
 
 .line-long, .line-short {
@@ -226,14 +225,28 @@ svg {
   }
 }
 
+form {
+  max-width: 700px;
+  margin: 0 auto;
+}
 
-/* svg .scale {
-  transform-origin: 13.2291665px 13.2291665px;
-  transform: scaleX(1.4)
-} */
+form button {
+  transition: 0.5s ease-in-out;
+  display: block;
+  width: 100%;
+  margin: 0 auto;
+  border-style: none;
+  cursor: pointer;
+  padding: 15px 30px;
+  border-radius: 25px;
+  font-size: 20px;
+  background: #7c4dff;
+  color: #ddd;
+}
 
-/* line svg */
+form button:hover {
+  background: #ddd;
+  color: #7c4dff;
+  
+}
 
-/* rotation(90deg): every 8px on x horizontally */
-
-/* rotation(none): every 8px on x vertically, for some reason css rotation messes with coordinates */
