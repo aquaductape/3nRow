@@ -1,8 +1,9 @@
 import data from './gameData'
 
-const box = document.querySelectorAll('[data-col]')
+const box = document.querySelectorAll('[data-row]')
 const stats = document.querySelector('.stats')
 const line = document.querySelector('.line-svg')
+const btn = document.querySelector('button')
 
 //Player One goes first
 data.player1.turn = true
@@ -11,9 +12,9 @@ data.player1.turn = true
 
 box.forEach((item) => {
   item.addEventListener('click', (e) => {
-    // must refactor, i swapped variable names to fix bug
-    const column = e.target.parentNode.getAttribute('data-row')
-    const row = e.target.getAttribute('data-col')
+
+    const column = e.target.parentNode.getAttribute('data-column')
+    const row = e.target.getAttribute('data-row')
     const fill = e.target
 
     console.log(row, column)
@@ -149,3 +150,18 @@ function fillBoard(row, column, fill) {
 
   return player
 }
+
+btn.addEventListener('click', (e) => {
+  e.preventDefault()
+
+  box.forEach(item => {
+    item.firstElementChild.innerHTML = ''
+  })
+
+  stats.innerHTML = ''
+  line.innerHTML = ''
+
+  data.gameOver = false
+  data.board = data.board.map(item => item.map(item => item = null))
+  console.log(data.board);
+})
