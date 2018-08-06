@@ -121,6 +121,18 @@ function checkBoard(player) {
     }
   }
 
+  
+  // check cat's game
+  let countBoolean = 0
+  for(let i = 0; i < data.board.length; i++) {
+    if(data.board[i].every((item) => item !== null)) {
+      countBoolean++
+    }
+  }
+
+  if(countBoolean === 3) {
+    stats.innerHTML = `Cat's game!`
+  }
 }
 
 function switchPlayers(player1, player2) {
@@ -137,6 +149,8 @@ function fillBoard(row, column, fill) {
   if(data.board[row][column] !== null || data.gameOver) {
     return null
   }
+
+
   
   const player = switchPlayers(data.player1, data.player2)
   // document.querySelector('div').firstElementChild
