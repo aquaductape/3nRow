@@ -42,19 +42,19 @@ function animateLine(animate) {
   }
   if(animate === 'row0') {
     line.innerHTML = data.lines.lineShort
-    line.firstElementChild.getElementsByTagName('g')[0].style.transform = 'translateY(-9px)'
+    line.firstElementChild.getElementsByTagName('g')[0].style.transform = 'translateY(-33.4%)'
   }
   if(animate === 'row1') {
     line.innerHTML = data.lines.lineShort
   }
   if(animate === 'row2') {
     line.innerHTML = data.lines.lineShort
-    line.firstElementChild.getElementsByTagName('g')[0].style.transform = 'translateY(9px)'
+    line.firstElementChild.getElementsByTagName('g')[0].style.transform = 'translateY(33.4%)'
   }
   if(animate === 'col0') {
     line.innerHTML = data.lines.lineShort
     line.firstElementChild.getElementsByTagName('g')[0].style.transform = 'rotate(90deg)'
-    line.firstElementChild.getElementsByTagName('g')[0].firstElementChild.style.transform = 'translateY(9px)'
+    line.firstElementChild.getElementsByTagName('g')[0].firstElementChild.style.transform = 'translateY(33.4%)'
   }
   if(animate === 'col1') {
     line.innerHTML = data.lines.lineShort
@@ -63,7 +63,7 @@ function animateLine(animate) {
   if(animate === 'col2') {
     line.innerHTML = data.lines.lineShort
     line.firstElementChild.getElementsByTagName('g')[0].style.transform = 'rotate(90deg)'
-    line.firstElementChild.getElementsByTagName('g')[0].firstElementChild.style.transform = 'translateY(-9px)'
+    line.firstElementChild.getElementsByTagName('g')[0].firstElementChild.style.transform = 'translateY(-33.4%)'
   }
   console.log(animate)
 }
