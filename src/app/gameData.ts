@@ -23,8 +23,8 @@ const data = {
     [null, null, null],
     [null, null, null]
   ],
-  player1: new Player("Jerry", "cross", 1),
-  player2: new Player("Cece", "circle", 0),
+  player1: new Player("Player1", "cross", 1),
+  player2: new Player("Player2", "circle", 0),
   gameOver: false,
   lines: {
     lineShort: svg.lineShort,
