@@ -1,22 +1,30 @@
 @import "normalize";
 /* //////////////////////////////////// */
 
-@import url("https://fonts.googleapis.com/css?family=Roboto");
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
 
 body {
   background: url(../assets/img/background.svg) no-repeat center center fixed;
-  height: 100vh;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
   font-family: "Roboto", sans-serif;
   overflow-y: hidden;
+  font-size: 1rem;
 }
 
 main {
   box-sizing: border-box;
-  padding: 30px;
+  padding: 10px 30px;
+  margin: 0 auto;
+}
+
+.game-container {
   margin: 0 auto;
 }
 
@@ -28,8 +36,9 @@ main {
   );
   margin: 0 auto;
   display: flex;
-  max-width: 700px;
   min-height: 100px;
+  border-radius: 30px;
+  overflow: hidden;
 }
 
 .column {
@@ -51,12 +60,17 @@ main {
   pointer-events: none;
 }
 
-.column > div:hover {
-  background: #ff00f22c;
-}
-
-.column > div:hover svg {
-  transform: scale(1.1);
+.column {
+  & > div:hover,
+  & > div:focus {
+    background: #ff00f22c;
+    outline: none;
+  }
+  & > div:hover svg,
+  & > div:focus svg {
+    transform: scale(1.1);
+    outline: none;
+  }
 }
 
 .column > div::before {
@@ -145,18 +159,19 @@ svg {
   }
 }
 
-@media (min-width: 600px) {
-}
-
 .stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   max-width: 700px;
-  margin: 50px auto;
-  text-align: center;
+  margin: 0 auto;
+  padding-top: 15px;
+  height: 45px;
   color: #ddd;
+  font-size: 1.5rem;
 }
 
 .line-svg {
-  max-width: 700px;
   margin: 0 auto;
   /* rediscovered how cool sticky is */
   position: sticky;
@@ -185,25 +200,36 @@ svg {
 }
 
 .game-start {
-  max-width: 700px;
   margin: 0 auto;
 }
 
 .btn {
-  transition: 0.5s ease-in-out;
-  display: block;
-  width: 100%;
+  transition: 0.5s color ease-in-out, 0.5s background-color ease-in-out;
   margin: 0 auto;
   border-style: none;
   cursor: pointer;
-  padding: 15px 30px;
-  border-radius: 25px;
-  font-size: 20px;
-  background: #7c4dff;
-  color: #ddd;
 }
 
-.btn:hover {
-  background: #ddd;
-  color: #7c4dff;
+.btn-start {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 15px 30px;
+  border-radius: 25px;
+  background: #7c4dff;
+  color: #ddd;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 2px;
+
+  &:hover {
+    background: #ddd;
+    color: #7c4dff;
+  }
+}
+
+@media (min-width: 600px) {
+  body {
+    font-size: 1.25rem;
+  }
 }
