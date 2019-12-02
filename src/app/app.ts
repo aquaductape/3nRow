@@ -1,7 +1,8 @@
 import data from "./gameData";
 import { animateLine, addStartBtn } from "./animate";
+import { randomGen } from "./dialog";
 
-const box = document.querySelectorAll("[data-row]");
+const box: NodeListOf<HTMLDivElement> = document.querySelectorAll("[data-row]");
 const stats = document.querySelector(".stats");
 // const line = document.querySelector(".line-svg");
 
@@ -13,27 +14,37 @@ interface IPlayer {
   fill: number;
 }
 
-//Player One goes first
-data.player1.turn = true;
+export const gameInit = () => {
+  //Player One goes first
+  data.player1.turn = true;
+  if (!stats) return null;
+  stats.innerHTML = `Go ${data.player1.name}!`;
+};
+
+const onAction = (e: Event) => {
+  const target = <HTMLDivElement>e.currentTarget;
+  const targetParent = target.parentElement;
+  if (!targetParent) return;
+
+  const column = targetParent.getAttribute("data-column");
+  const row = target.getAttribute("data-row");
+  const fill = <HTMLDivElement>e.currentTarget;
+  if (!column || !fill || !row) return null;
+  // data;
+
+  const player = fillBoard(parseInt(row), parseInt(column), fill);
+
+  const animate = checkBoard(player);
+  animateLine(animate);
+};
 
 box.forEach(item => {
-  item.addEventListener("click", e => {
-    const target = <HTMLDivElement>e.currentTarget;
-    const targetParent = target.parentElement;
-    if (!targetParent) return;
-
-    const column = targetParent.getAttribute("data-column");
-    const row = target.getAttribute("data-row");
-    const fill = <HTMLDivElement>e.currentTarget;
-    if (!column || !fill || !row) return null;
-
-    console.log(row, column);
-
-    const player = fillBoard(parseInt(row), parseInt(column), fill);
-    console.log(data.board);
-
-    const animate = checkBoard(player);
-    animateLine(animate);
+  item.addEventListener("click", onAction);
+  item.addEventListener("keydown", e => {
+    const key = e.key;
+    if (key === "Enter" || key === " ") {
+      onAction(e);
+    }
   });
 });
 
@@ -115,7 +126,7 @@ const checkBoard = (player: IPlayer | null): null | string => {
 };
 
 const nextPlayerTurn = (player1: IPlayer, player2: IPlayer) => {
-  const player = player1.turn ? player1 : player2;
+  const player = player1.turn ? player2 : player1;
 
   player1.turn = !player1.turn;
   player2.turn = !player2.turn;
@@ -128,7 +139,6 @@ const fillBoard = (row: number, column: number, fill: HTMLDivElement) => {
   if (data.board[row][column] !== null || data.gameOver) {
     return null;
   }
-  console.log({ fill });
 
   const player = nextPlayerTurn(data.player1, data.player2);
   const fillFirstChild = fill.firstElementChild;
@@ -136,10 +146,8 @@ const fillBoard = (row: number, column: number, fill: HTMLDivElement) => {
 
   fillFirstChild.innerHTML = player.shape;
 
-  // console.log(fill)
-
   addAriaLabel(player, fill);
-  stats.innerHTML = `${player.name}, it's your time to shine!`;
+  stats.innerHTML = randomGen(player.name);
 
   data.board[row][column] = player.fill;
 

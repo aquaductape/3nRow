@@ -83,11 +83,11 @@ export const addStartBtn = () => {
 
   const btn = <HTMLDivElement>document.querySelector(".btn-start");
 
-  btn.addEventListener("click", e => {
+  const cleanUp = (e: Event) => {
     e.preventDefault();
 
     box.forEach(item => {
-      item.removeAttribute("aria-label");
+      item.setAttribute("aria-label", "empty");
 
       const itemChild = item.firstElementChild;
       if (itemChild) {
@@ -95,13 +95,16 @@ export const addStartBtn = () => {
       }
     });
 
+    const player = data.player1.turn ? data.player1 : data.player2;
     if (!stats || !line) return null;
-    stats.innerHTML = "";
+    stats.innerHTML = `Go ${player.name}!`;
     line.innerHTML = "";
 
     data.gameOver = false;
     data.board = data.board.map(item => item.map(item => (item = null)));
 
     gameStart.innerHTML = "";
-  });
+  };
+
+  btn.addEventListener("click", cleanUp);
 };
