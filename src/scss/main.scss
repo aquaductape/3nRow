@@ -5,6 +5,7 @@
 
 body {
   background: url(../assets/img/background.svg) no-repeat center center fixed;
+  height: 100vh;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -14,8 +15,9 @@ body {
 }
 
 main {
-  padding: 0 30px;
-  margin-top: 50px;
+  box-sizing: border-box;
+  padding: 30px;
+  margin: 0 auto;
 }
 
 .board {
