@@ -1,58 +1,15 @@
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
-menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	vertical-align: baseline;
-}
-
-article, aside, details, figcaption, figure, 
-footer, header, hgroup, menu, nav, section {
-	display: block;
-}
-body {
-	line-height: 1;
-}
-ol, ul {
-	list-style: none;
-}
-blockquote, q {
-	quotes: none;
-}
-blockquote:before, blockquote:after,
-q:before, q:after {
-	content: '';
-	content: none;
-}
-table {
-	border-collapse: collapse;
-	border-spacing: 0;
-}
-
+@import "normalize";
 /* //////////////////////////////////// */
 
-@import url('https://fonts.googleapis.com/css?family=Roboto');
+@import url("https://fonts.googleapis.com/css?family=Roboto");
 
 body {
-  background: url(../img/background.svg) no-repeat center center fixed; 
+  background: url(../assets/img/background.svg) no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   overflow-y: hidden;
 }
 
@@ -61,10 +18,12 @@ main {
   margin-top: 50px;
 }
 
-
-
 .board {
-  background: linear-gradient(297deg, rgba(163,10,250,0.4) 0%, rgba(4,0,255,0.4) 100%);
+  background: linear-gradient(
+    297deg,
+    rgba(163, 10, 250, 0.4) 0%,
+    rgba(4, 0, 255, 0.4) 100%
+  );
   margin: 0 auto;
   display: flex;
   max-width: 700px;
@@ -75,7 +34,7 @@ main {
   flex: 1;
   text-align: center;
 }
-.column>div {
+.column > div {
   background: #ff00f205;
   position: relative;
   transition: cubic-bezier(0.075, 0.82, 0.165, 1);
@@ -83,21 +42,22 @@ main {
 
 .content {
   position: absolute;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   height: 100%;
   width: 100%;
   pointer-events: none;
 }
 
-.column>div:hover {
+.column > div:hover {
   background: #ff00f22c;
 }
 
-.column>div:hover svg {
+.column > div:hover svg {
   transform: scale(1.1);
 }
 
-.column>div::before {
+.column > div::before {
   content: "";
   display: block;
   padding-bottom: 100%;
@@ -108,7 +68,6 @@ svg {
   height: 100%;
   transition: 0.5s cubic-bezier(0.4, 0, 0.58, 1);
 }
-
 
 .right-dot {
   opacity: 0;
@@ -124,7 +83,8 @@ svg {
   transform: rotate(0deg); /*-> -90deg*/
 }
 
-.left-line, .right-line {
+.left-line,
+.right-line {
   opacity: 0;
   stroke-dasharray: 30;
   stroke-dashoffset: 30;
@@ -133,15 +93,13 @@ svg {
   animation-fill-mode: forwards;
 }
 
-
-.circle-left, .circle-right {
+.circle-left,
+.circle-right {
   stroke-dasharray: 35;
   stroke-dashoffset: 35;
   animation: Circle-A 1s cubic-bezier(0.4, 0, 0.58, 1);
   animation-fill-mode: forwards;
 }
-
-
 
 @keyframes Circle-A {
   0% {
@@ -186,7 +144,6 @@ svg {
 }
 
 @media (min-width: 600px) {
-
 }
 
 .stats {
@@ -205,14 +162,14 @@ svg {
   pointer-events: none;
 }
 
-.line-long, .line-short {
+.line-long,
+.line-short {
   opacity: 0;
   stroke-dasharray: 50;
   stroke-dashoffset: 50;
   animation: Line-Win-A 1s cubic-bezier(0.4, 0, 0.58, 1);
   animation-fill-mode: forwards;
 }
-
 
 @keyframes Line-Win-A {
   0% {
@@ -225,12 +182,12 @@ svg {
   }
 }
 
-form {
+.game-start {
   max-width: 700px;
   margin: 0 auto;
 }
 
-form button {
+.btn {
   transition: 0.5s ease-in-out;
   display: block;
   width: 100%;
@@ -244,9 +201,7 @@ form button {
   color: #ddd;
 }
 
-form button:hover {
+.btn:hover {
   background: #ddd;
   color: #7c4dff;
-  
 }
-
