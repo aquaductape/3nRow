@@ -5,13 +5,13 @@ class Player {
   shape: string;
   score: number;
   turn: boolean;
-  fill: number;
-  constructor(name: string, shape: "cross" | "circle", fill: number) {
+  mark: number;
+  constructor(name: string, shape: "cross" | "circle", mark: number) {
     this.name = name;
     this.shape = svg[shape];
     this.score = 0;
     this.turn = false;
-    this.fill = fill;
+    this.mark = mark;
   }
 }
 
