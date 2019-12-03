@@ -1,20 +1,28 @@
 const svg = {
-  circle: `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100" height="100" viewBox="0 0 26.4583 26.4583">
-  <defs>
-    <linearGradient id="a">
-      <stop offset="0" stop-color="#ff0051"/>
-      <stop offset="1" stop-color="#ffc300"/>
+  circle: `
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100" height="100" viewBox="0 0 26.4583 26.4583" version="1.1" id="svg8">
+  <defs id="defs2">
+    <linearGradient id="linearGradient3789">
+      <stop id="stop3785" offset="0" stop-color="#ff0051" stop-opacity="1"/>
+      <stop id="stop3787" offset="1" stop-color="#ffc300" stop-opacity="1"/>
     </linearGradient>
-    <linearGradient id="b">
-      <stop offset="0" stop-color="#ff4900"/>
-      <stop offset="1" stop-color="#ffc300"/>
+    <linearGradient id="linearGradient3759">
+      <stop offset="0" id="stop3755" stop-color="#ff4900" stop-opacity="1"/>
+      <stop offset="1" id="stop3757" stop-color="#ffc300" stop-opacity="1"/>
     </linearGradient>
-    <linearGradient y2="247" x2="86.1912" y1="247" x1="13.8088" gradientTransform="matrix(0 .2635 .2635 0 -11.6131 -6.3685)" gradientUnits="userSpaceOnUse" id="c" xlink:href="#b"/>
-    <linearGradient y2="243.7928" x2="78.3068" y1="247" x1="13.8088" gradientTransform="matrix(0 .2635 -.2635 0 118.5518 -6.3685)" gradientUnits="userSpaceOnUse" id="d" xlink:href="#a"/>
+    <linearGradient xlink:href="#linearGradient3789" id="linearGradient3761" x1="13.8088" y1="247" x2="78.3068" y2="243.7928" gradientUnits="userSpaceOnUse" gradientTransform="matrix(0 .2635 -.2635 0 78.3119 .0543)"/>
+    <linearGradient xlink:href="#linearGradient3759" id="linearGradient3775" gradientUnits="userSpaceOnUse" gradientTransform="matrix(.2635 0 0 .2635 270.596 -51.853)" x1="13.8088" y1="247" x2="86.1912" y2="247"/>
+    <linearGradient y2="259.7645" x2="69.9669" y1="247" x1="13.8088" gradientTransform="matrix(0 .2635 .2635 0 -11.6131 -6.3685)" gradientUnits="userSpaceOnUse" id="linearGradient3736" xlink:href="#linearGradient3759"/>
+    <linearGradient y2="243.7928" x2="78.3068" y1="247" x1="13.8088" gradientTransform="matrix(0 .2635 -.2635 0 118.5518 -6.3685)" gradientUnits="userSpaceOnUse" id="linearGradient3756" xlink:href="#linearGradient3789"/>
+    <linearGradient xlink:href="#linearGradient3789" id="linearGradient841" x1="53.4693" y1="-1.5099" x2="53.4693" y2="13.7502" gradientUnits="userSpaceOnUse"/>
+    <linearGradient xlink:href="#linearGradient3759" id="linearGradient851" x1="53.5009" y1="-2.4148" x2="53.5009" y2="13.775" gradientUnits="userSpaceOnUse"/>
   </defs>
-  <path d="m 53.469328,15.12263 a 8.316061,8.3162622 0 0 0 7.20192,-4.15814 8.316061,8.3162622 0 0 0 0,-8.3162599 8.316061,8.3162622 0 0 0 -7.20192,-4.15813" class="circle-right" fill="none" stroke="url(#c)" stroke-width="2.6458" stroke-linecap="round" stroke-opacity=".9451" transform="translate(-40.2399 6.4228)"/>
-  <path d="m 53.469338,15.12263 a 8.316061,8.3162622 0 0 1 -8.049378,-6.2271099 8.316061,8.3162622 0 0 1 4.005148,-9.35577 8.316061,8.3162622 0 0 1 10.061675,1.52651" class="circle-left" fill="none" stroke="url(#d)" stroke-width="2.6458" stroke-linecap="round" stroke-opacity=".9451" transform="translate(-40.2399 6.4228)"/>
-</svg>`,
+  <g transform="translate(-40.2399 6.4228)" id="g3764">
+    <path d="m 53.469328,15.12263 a 8.316061,8.3162622 0 0 0 7.20192,-4.15814 8.316061,8.3162622 0 0 0 0,-8.3162599 8.316061,8.3162622 0 0 0 -7.20192,-4.15813" class="circle-left" id="path14" fill="none" fill-opacity=".9202" stroke="url(#linearGradient851)" stroke-width="2.6458" stroke-linecap="round" stroke-linejoin="miter" stroke-miterlimit="4" stroke-dasharray="none" stroke-opacity="1"/>
+    <path d="m 53.469338,15.12263 a 8.316061,8.3162622 0 0 1 -8.049378,-6.2271099 8.316061,8.3162622 0 0 1 4.005148,-9.35577 8.316061,8.3162622 0 0 1 10.061675,1.52651" class="circle-right" id="path16" opacity="1" fill="none" fill-opacity="1" stroke="url(#linearGradient841)" stroke-width="2.6458" stroke-linecap="round" stroke-linejoin="miter" stroke-miterlimit="4" stroke-dasharray="none" stroke-opacity="1"/>
+  </g>
+</svg>
+`,
   cross: `
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100" height="100" viewBox="0 0 26.4583 26.4583" version="1.1" id="svg8">
   <defs id="defs2">
