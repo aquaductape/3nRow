@@ -3,7 +3,7 @@ import data from "./gameData";
 const line = document.querySelector(".line-svg");
 const gameStart = <HTMLDivElement>document.querySelector(".game-start");
 const stats = document.querySelector(".stats");
-const box = document.querySelectorAll("[data-row]");
+const box = document.querySelectorAll("[data-column]");
 
 export const animateLine = (animate: string | null) => {
   if (!animate || !line) {

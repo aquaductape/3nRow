@@ -2,7 +2,9 @@ import data from "./gameData";
 import { animateLine, addStartBtn } from "./animate";
 import { randomGen } from "./dialog";
 
-const box: NodeListOf<HTMLDivElement> = document.querySelectorAll("[data-row]");
+const cells: NodeListOf<HTMLDivElement> = document.querySelectorAll(
+  "[data-column]"
+);
 const stats = document.querySelector(".stats");
 // const line = document.querySelector(".line-svg");
 
@@ -11,7 +13,7 @@ interface IPlayer {
   shape: string;
   score: number;
   turn: boolean;
-  fill: number;
+  mark: number;
 }
 
 export const gameInit = () => {
@@ -26,21 +28,21 @@ const onAction = (e: Event) => {
   const targetParent = target.parentElement;
   if (!targetParent) return;
 
-  const column = targetParent.getAttribute("data-column");
-  const row = target.getAttribute("data-row");
-  const fill = <HTMLDivElement>e.currentTarget;
-  if (!column || !fill || !row) return null;
+  const row = targetParent.getAttribute("data-row");
+  const column = target.getAttribute("data-column");
+  const cell = <HTMLDivElement>e.currentTarget;
+  if (!column || !cell || !row) return null;
   // data;
 
-  const player = fillBoard(parseInt(row), parseInt(column), fill);
+  const player = fillBoard(parseInt(row), parseInt(column), cell);
 
   const animate = checkBoard(player);
   animateLine(animate);
 };
 
-box.forEach(item => {
-  item.addEventListener("click", onAction);
-  item.addEventListener("keydown", e => {
+cells.forEach(cell => {
+  cell.addEventListener("click", onAction);
+  cell.addEventListener("keydown", e => {
     const key = e.key;
     if (key === "Enter" || key === " ") {
       onAction(e);
@@ -68,7 +70,7 @@ const checkBoard = (player: IPlayer | null): null | string => {
 
   // check row
   for (let row = 0; row < data.board.length; row++) {
-    if (data.board[row].every(item => item === player.fill)) {
+    if (data.board[row].every(item => item === player.mark)) {
       gameOver(player.name);
       return `row${row}`;
     }
@@ -76,7 +78,7 @@ const checkBoard = (player: IPlayer | null): null | string => {
     // check column
     let count = 0;
     for (let column = 0; column < data.board.length; column++) {
-      if (data.board[column][row] === player.fill) {
+      if (data.board[column][row] === player.mark) {
         count++;
         if (count === data.board.length) {
           gameOver(player.name);
@@ -92,7 +94,7 @@ const checkBoard = (player: IPlayer | null): null | string => {
   // [0,0][1,1][2,2]
   // [0,2][1,1][2,0]
   for (let i = 0; i < data.board.length; i++) {
-    if (data.board[i][i] === player.fill) {
+    if (data.board[i][i] === player.mark) {
       diagonal1++;
       if (diagonal1 === data.board.length) {
         gameOver(player.name);
@@ -100,7 +102,7 @@ const checkBoard = (player: IPlayer | null): null | string => {
       }
     }
 
-    if (data.board[i][data.board.length - 1 - i] === player.fill) {
+    if (data.board[i][data.board.length - 1 - i] === player.mark) {
       diagonal2++;
       if (diagonal2 === data.board.length) {
         gameOver(player.name);
@@ -134,26 +136,33 @@ const nextPlayerTurn = (player1: IPlayer, player2: IPlayer) => {
   return player;
 };
 
-const fillBoard = (row: number, column: number, fill: HTMLDivElement) => {
+const fillBoard = (row: number, column: number, cell: HTMLDivElement) => {
   // if board already filled return nothing
   if (data.board[row][column] !== null || data.gameOver) {
     return null;
   }
 
   const player = nextPlayerTurn(data.player1, data.player2);
-  const fillFirstChild = fill.firstElementChild;
+  const fillFirstChild = cell.firstElementChild;
   if (!fillFirstChild || !stats) return null;
 
   fillFirstChild.innerHTML = player.shape;
 
-  addAriaLabel(player, fill);
+  addAriaLabel(player, cell);
   stats.innerHTML = randomGen(player.name);
 
-  data.board[row][column] = player.fill;
+  data.board[row][column] = player.mark;
 
   return player;
 };
 
-const addAriaLabel = (player: IPlayer, fill: HTMLDivElement) => {
-  fill.setAttribute("aria-label", `Marked by ${player.name}`);
+const addAriaLabel = (player: IPlayer, cell: HTMLDivElement) => {
+  const parent = cell.parentElement;
+  if (!parent) return null;
+  const row = parent.getAttribute("data-row");
+  const col = cell.getAttribute("data-column");
+  cell.setAttribute(
+    "aria-label",
+    `Marked by ${player.name} on row ${row}, column ${col}`
+  );
 };
