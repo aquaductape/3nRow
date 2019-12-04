@@ -1,43 +1,42 @@
 import data from "./gameData";
 import { animateLine, addStartBtn } from "./animate";
 import { randomGen } from "./dialog";
+import { IPlayer, TCheckBoard } from "../models/index";
+import miniMax from "./miniMax";
+import { flattenArr, convertToRowCol } from "../utils/index";
 
 const cells: NodeListOf<HTMLDivElement> = document.querySelectorAll(
   "[data-column]"
 );
 const stats = document.querySelector(".stats");
-// const line = document.querySelector(".line-svg");
-
-interface IPlayer {
-  name: string;
-  shape: string;
-  score: number;
-  turn: boolean;
-  mark: number;
-}
 
 export const gameInit = () => {
   //Player One goes first
+  // data.player2.turn = true;
   data.player1.turn = true;
+  data.player2.ai = true;
+
+  // if (data.currentPlayer().ai) {
+  //   moveAi();
+  // }
+
   if (!stats) return null;
   stats.innerHTML = `Go ${data.player1.name}!`;
 };
 
 const onAction = (e: Event) => {
-  const target = <HTMLDivElement>e.currentTarget;
-  const targetParent = target.parentElement;
-  if (!targetParent) return;
+  if (data.gameOver) return null;
 
-  const row = targetParent.getAttribute("data-row");
-  const column = target.getAttribute("data-column");
-  const cell = <HTMLDivElement>e.currentTarget;
-  if (!column || !cell || !row) return null;
-  // data;
+  moveHuman(e);
 
-  const player = fillBoard(parseInt(row), parseInt(column), cell);
+  if (data.currentPlayer().ai) {
+    moveAi();
+  }
+};
 
-  const animate = checkBoard(player);
-  animateLine(animate);
+const postStats = () => {
+  if (!stats || data.gameOver || data.gameTie) return null;
+  stats.innerHTML = randomGen(data.currentPlayer().name);
 };
 
 cells.forEach(cell => {
@@ -50,110 +49,155 @@ cells.forEach(cell => {
   });
 });
 
-const gameOver = (playerName: string) => {
+const gameOver = () => {
+  animateLine();
   addStartBtn();
-  announceWinner(playerName);
+  announceWinner();
 };
 
-const announceWinner = (name: string) => {
+const announceWinner = () => {
   if (!stats) return null;
-  stats.innerHTML = `${name} won!`;
+  const player = data.currentPlayer();
+  stats.innerHTML = `${player.name} won!`;
   data.gameOver = true;
 };
 
-const checkBoard = (player: IPlayer | null): null | string => {
-  if (!stats) return null;
-  // returns when game is over or tile is already filled
-  if (!player) {
+const moveHuman = (e: Event) => {
+  const target = <HTMLDivElement>e.currentTarget;
+  const targetParent = target.parentElement;
+  if (!targetParent) return;
+
+  const row = targetParent.getAttribute("data-row");
+  const column = target.getAttribute("data-column");
+  const cell = <HTMLDivElement>e.currentTarget;
+  if (!column || !cell || !row) return null;
+  if (isCellMarked(parseInt(row), parseInt(column))) {
+    return null;
+  }
+
+  const player = data.currentPlayer();
+  const board = data.board;
+
+  markBoard(parseInt(row), parseInt(column), cell);
+  checkBoard(player, board);
+  data.nextPlayer();
+  postStats();
+};
+
+const delayAi = (time: number = 800) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => resolve(true), time);
+  });
+};
+
+const moveAi = async () => {
+  if (data.gameOver) return null;
+  // const isFinished = await delayAi();
+
+  const board = data.board;
+  const player = data.currentPlayer();
+  debugger;
+  const cellItem = miniMax(flattenArr(board), player.mark);
+  debugger;
+  const { row, column } = convertToRowCol(cellItem.index);
+  const cellParent = <HTMLDivElement>(
+    document.querySelector(`[data-row="${row}"]`)
+  );
+  const cell = <HTMLDivElement>(
+    cellParent.querySelector(`[data-column="${column}"]`)
+  );
+
+  markBoard(row, column, cell);
+  checkBoard(data.currentPlayer(), board);
+  data.nextPlayer();
+  postStats();
+};
+
+const checkBoard: TCheckBoard = (player, board) => {
+  if (data.gameOver || !stats) {
     return null;
   }
 
   // check row
-  for (let row = 0; row < data.board.length; row++) {
-    if (data.board[row].every(item => item === player.mark)) {
-      gameOver(player.name);
-      return `row${row}`;
+  for (let row = 0; row < board.length; row++) {
+    if (board[row].every(item => item === player.mark)) {
+      data.winPosition = `ROW_${row}`;
+      gameOver();
+      return null;
     }
 
     // check column
     let count = 0;
-    for (let column = 0; column < data.board.length; column++) {
-      if (data.board[column][row] === player.mark) {
+    for (let column = 0; column < board.length; column++) {
+      if (board[column][row] === player.mark) {
         count++;
         if (count === data.board.length) {
-          gameOver(player.name);
-          return `col${row}`;
+          data.winPosition = `COL_${row}`;
+          gameOver();
+          return null;
         }
       }
     }
   }
 
   //check diagonal
-  let diagonal1 = 0;
-  let diagonal2 = 0;
+  let diagTopLeft = 0;
+  let diagBotLeft = 0;
   // [0,0][1,1][2,2]
   // [0,2][1,1][2,0]
-  for (let i = 0; i < data.board.length; i++) {
-    if (data.board[i][i] === player.mark) {
-      diagonal1++;
-      if (diagonal1 === data.board.length) {
-        gameOver(player.name);
-        return "diagTopLeft";
+  for (let i = 0; i < board.length; i++) {
+    if (board[i][i] === player.mark) {
+      diagTopLeft++;
+      if (diagTopLeft === data.board.length) {
+        data.winPosition = "DIAG_TOP_LEFT";
+        gameOver();
+        return null;
       }
     }
-
-    if (data.board[i][data.board.length - 1 - i] === player.mark) {
-      diagonal2++;
-      if (diagonal2 === data.board.length) {
-        gameOver(player.name);
-        return "diagBotLeft";
+    if (board[i][data.board.length - 1 - i] === player.mark) {
+      diagBotLeft++;
+      if (diagBotLeft === data.board.length) {
+        data.winPosition = "DIAG_BOT_LEFT";
+        gameOver();
+        return null;
       }
     }
   }
 
   // check cat's game
   let countBoolean = 0;
-  for (let i = 0; i < data.board.length; i++) {
-    if (data.board[i].every(item => item !== null)) {
+  for (let i = 0; i < board.length; i++) {
+    if (board[i].every(item => typeof item !== "number")) {
       countBoolean++;
     }
   }
 
   if (countBoolean === 3) {
     addStartBtn();
+    data.gameTie = true;
     stats.innerHTML = `Cat's game!`;
   }
-
-  return null;
 };
 
-const nextPlayerTurn = (player1: IPlayer, player2: IPlayer) => {
-  const player = player1.turn ? player2 : player1;
-
-  player1.turn = !player1.turn;
-  player2.turn = !player2.turn;
-
-  return player;
+const isCellMarked = (row: number, column: number) => {
+  return typeof data.board[row][column] !== "number";
 };
 
-const fillBoard = (row: number, column: number, cell: HTMLDivElement) => {
+const markBoard = (row: number, column: number, cell: HTMLDivElement) => {
   // if board already filled return nothing
-  if (data.board[row][column] !== null || data.gameOver) {
+  if (isCellMarked(row, column) || data.gameOver) {
     return null;
   }
 
-  const player = nextPlayerTurn(data.player1, data.player2);
+  const player = data.currentPlayer();
   const fillFirstChild = cell.firstElementChild;
   if (!fillFirstChild || !stats) return null;
 
   fillFirstChild.innerHTML = player.shape;
 
   addAriaLabel(player, cell);
-  stats.innerHTML = randomGen(player.name);
 
   data.board[row][column] = player.mark;
-
-  return player;
 };
 
 const addAriaLabel = (player: IPlayer, cell: HTMLDivElement) => {
