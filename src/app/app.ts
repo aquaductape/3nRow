@@ -96,9 +96,7 @@ const moveAi = async () => {
 
   const board = data.board;
   const player = data.currentPlayer();
-  debugger;
   const cellItem = miniMax(flattenArr(board), player.mark);
-  debugger;
   const { row, column } = convertToRowCol(cellItem.index);
   const cellParent = <HTMLDivElement>(
     document.querySelector(`[data-row="${row}"]`)
