@@ -1,51 +1,57 @@
-import svg from "./svg";
 import { TBoard } from "../models/index";
+import { dom } from "./UI/dom";
 
 class Player {
-  name: string;
-  shape: string;
+  id: string;
+  displayName: string;
+  svgMark: string;
   score: number;
   turn: boolean;
   ai: boolean;
   mark: "X" | "O";
   constructor(
-    name: string,
+    id: string,
+    displayName: string,
     shape: "cross" | "circle",
     mark: "X" | "O",
     ai: boolean = false
   ) {
-    this.name = name;
-    this.shape = svg[shape];
+    this.displayName = displayName;
+    this.svgMark = dom.svg[shape];
     this.score = 0;
     this.turn = false;
     this.ai = ai;
     this.mark = mark;
+    this.id = id;
   }
 }
 
-const data = {
+const gameData = {
   board: <TBoard>[
     [0, 1, 2],
     [3, 4, 5],
     [6, 7, 8]
   ],
-  player1: new Player("Player1", "cross", "X"),
-  player2: new Player("Player2", "circle", "O"),
+  player1: new Player("P1", "Player1", "cross", "X"),
+  player2: new Player("P2", "Player2", "circle", "O"),
   gameOver: false,
   gameTie: false,
+  gameStart: false,
+  aiFinished: true,
+  aiSpeed: 900,
+  aiDifficulty: <"HARD" | "IMPOSSIBLE" | "CHEATER">"HARD",
   winPosition: "",
   lines: {
-    lineShort: svg.lineShort,
-    lineLong: svg.lineLong
+    lineShort: dom.svg.lineShort,
+    lineLong: dom.svg.lineLong
   },
   currentPlayer() {
     return this.player1.turn ? this.player1 : this.player2;
   },
-
   nextPlayer() {
     this.player1.turn = !this.player1.turn;
     this.player2.turn = !this.player2.turn;
   }
 };
 
-export default data;
+export default gameData;

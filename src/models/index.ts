@@ -16,8 +16,9 @@ export type TBoard = (number | "X" | "O")[][];
 export type TFlattenBoard = (number | "X" | "O")[];
 
 export interface IPlayer {
-  name: string;
-  shape: string;
+  id: string;
+  displayName: string;
+  svgMark: string;
   score: number;
   turn: boolean;
   ai: boolean;
@@ -25,3 +26,17 @@ export interface IPlayer {
 }
 
 export type TCheckBoard = (player: IPlayer, board: TBoard) => void;
+
+export interface IGameInit {
+  firstTurn?: "PLAYER1" | "PLAYER2";
+  ai?: boolean;
+  difficulty?: "HARD" | "IMPOSSIBLE" | "CHEATER";
+  player1Shape?: "cross" | "circle";
+  player2Shape?: "cross" | "circle";
+  aiSpeed?: number;
+}
+
+export interface ISetTilesAriaAll {
+  init?: boolean;
+  restart?: boolean;
+}

@@ -1,3 +1,5 @@
+import { TFlattenBoard } from "../models/index";
+
 export const flattenArr = <T>(arr: T[]): any[] => {
   const flatArr: any[] = [];
   arr.forEach(item => {
@@ -25,4 +27,35 @@ export const convertToRowCol = (idx: number) => {
   }
 
   return { row, column };
+};
+
+// older browsers such as IE do not support template elements
+// as of 2019, 94% of users are using browsers that support template
+export const stringToHTML = (string: string): Element => {
+  const template = document.createElement("template");
+  string = string.trim(); // Never return a text node of whitespace as the result
+  template.innerHTML = string;
+  return <Element>template.content.firstChild;
+};
+
+export const getElementById = (id: string) => {
+  return <HTMLElement>document.getElementById(id);
+};
+
+export const debounce = (cb: Function, time: number = 500) => {
+  let timeout = 0;
+
+  return function() {
+    clearTimeout(timeout);
+    timeout = window.setTimeout(cb, time);
+  };
+};
+
+export const randomRoundAmount = (rounds: number = 0) => {
+  return Math.floor(Math.random() * rounds);
+};
+
+// returns the available spots on the board
+export const emptyIndexies = (board: TFlattenBoard) => {
+  return board.filter(s => s !== "O" && s !== "X");
 };

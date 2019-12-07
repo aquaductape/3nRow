@@ -1,12 +1,17 @@
-export const randomGen = (name: string) => {
-  const randomCommands = [
-    `${name}, your time to shine!`,
+export const randomTurnTexts = (name: string) => {
+  const randomHumanCommands = [
+    `Your turn ${name}`,
     `Go ${name}!`,
     `Your move ${name}`
   ];
-  const length = randomCommands.length;
+
+  // const randomBotCommands = [
+  //   `${name} is thinking`,
+  //   `${name}`
+  // ]
+  const length = randomHumanCommands.length;
 
   const idx = Math.floor(Math.random() * length);
 
-  return randomCommands[idx];
+  return randomHumanCommands[idx];
 };

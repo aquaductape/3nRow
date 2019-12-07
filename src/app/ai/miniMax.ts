@@ -1,5 +1,6 @@
-import { TFlattenBoard, IMove } from "../models/index";
-import data from "./gameData";
+import { TFlattenBoard, IMove } from "../../models/index";
+import gameData from "../gameData";
+import { emptyIndexies } from "../../utils/index";
 
 const winning = (board: TFlattenBoard, playerMark: "X" | "O") => {
   if (
@@ -32,24 +33,21 @@ const winning = (board: TFlattenBoard, playerMark: "X" | "O") => {
   }
 };
 
-// returns the available spots on the board
-const emptyIndexies = (board: TFlattenBoard) => {
-  return board.filter(s => s !== "O" && s !== "X");
-};
-const humanPlayer = data.player1.mark;
-const aiPlayer = data.player2.mark;
+const humanPlayer = gameData.player1.mark;
+const aiPlayer = gameData.player2.mark;
 
 const miniMax = (newBoard: TFlattenBoard, player: "X" | "O") => {
   //available spots
   const availSpots = <number[]>emptyIndexies(newBoard);
 
   // checks for the terminal states such as win, lose, and tie and returning a value accordingly
+  // return index incase the board is already full, UI functions depend on return index
   if (winning(newBoard, humanPlayer)) {
-    return <IMove>{ score: -10 };
+    return <IMove>{ score: -10, index: 0 };
   } else if (winning(newBoard, aiPlayer)) {
-    return <IMove>{ score: 10 };
+    return <IMove>{ score: 10, index: 0 };
   } else if (availSpots.length === 0) {
-    return <IMove>{ score: 0 };
+    return <IMove>{ score: 0, index: 0 };
   }
 
   // an array to collect all the objects

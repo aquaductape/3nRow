@@ -1,0 +1,51 @@
+@keyframes Line-Win-A {
+  0% {
+    opacity: 1;
+    stroke-dashoffset: 50;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+@keyframes Circle-A {
+  0% {
+    stroke-dashoffset: 35;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes Lines-A {
+  0% {
+    opacity: 1;
+    stroke-dashoffset: 30;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes Right-Dot-A {
+  0% {
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-90deg);
+  }
+}
+
+@keyframes Left-Dot-A {
+  0% {
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(90deg);
+  }
+}
