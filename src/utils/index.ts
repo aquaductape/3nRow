@@ -31,7 +31,7 @@ export const convertToRowCol = (idx: number) => {
 
 // older browsers such as IE do not support template elements
 // as of 2019, 94% of users are using browsers that support template
-export const stringToHTML = (string: string): Element => {
+export const createHTMLFromString = (string: string): Element => {
   const template = document.createElement("template");
   string = string.trim(); // Never return a text node of whitespace as the result
   template.innerHTML = string;
@@ -58,4 +58,32 @@ export const randomRoundAmount = (rounds: number = 0) => {
 // returns the available spots on the board
 export const emptyIndexies = (board: TFlattenBoard) => {
   return board.filter(s => s !== "O" && s !== "X");
+};
+
+interface IUniqueIds {
+  svg: string;
+  id: string;
+  ignoreClass?: string[];
+}
+export const uniqueIds = ({ svg, id, ignoreClass }: IUniqueIds) => {
+  return svg
+    .replace(/(id|class)="([^"]*)"/g, (_, attribute, value) => {
+      if (ignoreClass) {
+        if (attribute === "class") {
+          if (ignoreClass.includes(value)) return _;
+        }
+      }
+      return `${attribute}="${value + id}"`;
+    })
+    .replace(/url\(([^)]*)\)/g, (_, url) => `url(${url + id})`)
+    .replace(
+      /(xlink:)?href="([^"]*)"/g,
+      (_, xlink, href) => `${xlink || ""}href="${href + id}"`
+    );
+};
+
+export const removeChild = (el: HTMLElement) => {
+  const parent = el.parentElement;
+  if (!parent) return null;
+  parent.removeChild(el);
 };
