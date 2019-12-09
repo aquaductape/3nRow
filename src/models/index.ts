@@ -23,6 +23,9 @@ export interface IPlayer {
   turn: boolean;
   ai: boolean;
   mark: "X" | "O";
+  shape: string;
+  primaryColor: string;
+  secondaryColor: string;
 }
 
 export type TCheckBoard = (player: IPlayer, board: TBoard) => void;
@@ -39,4 +42,31 @@ export interface IGameInit {
 export interface ISetTilesAriaAll {
   init?: boolean;
   restart?: boolean;
+}
+
+export interface IDefs {
+  openingDef: string;
+  closingDef: string;
+  circle: string;
+  cross: string;
+  triangle: string;
+  [key: string]: any;
+}
+
+export interface IallShapes {
+  circle: string;
+  cross: string;
+  triangle: string;
+  [key: string]: any;
+}
+
+export interface Isvg extends IallShapes {
+  defs: IDefs;
+}
+
+export interface IeventListenerOrder {
+  [key: string]: string;
+  player1BtnOptions: string;
+  player2BtnOptions: string;
+  dropDown: string;
 }
