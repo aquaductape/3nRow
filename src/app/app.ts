@@ -6,6 +6,18 @@ import { IPlayer } from "../models/index";
 import { setTilesAriaAll } from "./UI/aria";
 import { toggleDropDown, onDropDownSettings } from "./UI/dropDown";
 import { cleanUpGameStart, getColumnRow } from "./UI/board";
+import { addSVGDefs } from "./UI/svgDefs";
+import {
+  toggleOptions,
+  setPlayerSettings,
+  removePlayerOptions,
+  removeOptions
+} from "./UI/options";
+import {
+  otherEventsTriggered,
+  resetOtherEventsTriggered,
+  eventListenerOrder
+} from "./eventTriggers";
 
 const btnBot = <HTMLDivElement>document.getElementById(dom.id.btnBot);
 const btnHuman = <HTMLDivElement>document.getElementById(dom.id.btnHuman);
@@ -13,24 +25,55 @@ const cells: NodeListOf<HTMLDivElement> = document.querySelectorAll(
   dom.query.column
 );
 
+const player1BtnOptions = <HTMLElement>(
+  document.getElementById(dom.id.P1BtnOptions)
+);
+const player2BtnOptions = <HTMLElement>(
+  document.getElementById(dom.id.P2BtnOptions)
+);
+
+const closeAnyDropDowns = (e: Event) => {
+  // closes any dropdowns when clicked outside
+  // in order for this logic to work, this event
+  // needs to be fired last, since some browsers don't guarantee
+  // eventlisteners to be fired based on order of registration
+  // it's now depending on simple state object
+  if (otherEventsTriggered()) {
+    resetOtherEventsTriggered();
+    return null;
+  }
+
+  const el = <HTMLElement>e.target;
+  const options = el.closest("." + dom.class.options);
+  if (!options) {
+    removeOptions();
+  }
+};
+
 const appInit = () => {
   setPlayerSettings(gameData.player1);
   setPlayerSettings(gameData.player2);
   setTilesAriaAll({ init: true });
+  addSVGDefs();
 };
 
-const setPlayerSettings = (player: IPlayer) => {
-  const playerBtn = <Element>document.getElementById(player.id + "-btn");
-  const playerMark = <Element>(
-    playerBtn.querySelector("." + dom.class.playerMark)
-  );
-  // const playerName = <Element>(
-  //   playerBtn.querySelector("." + dom.class.playerName)
-  // );
+document.addEventListener("click", closeAnyDropDowns);
+document.addEventListener("keydown", closeAnyDropDowns);
 
-  playerMark.innerHTML = player.svgMark;
-  // playerName.innerHTML = player.displayName;
-};
+player1BtnOptions.addEventListener("click", e => {
+  eventListenerOrder.player1BtnOptions = "clicked";
+  const playerId = gameData.player1.id;
+
+  removePlayerOptions(gameData.player2.id);
+  toggleOptions({ e, playerId });
+});
+player2BtnOptions.addEventListener("click", e => {
+  eventListenerOrder.player2BtnOptions = "clicked";
+  const playerId = gameData.player2.id;
+
+  removePlayerOptions(gameData.player1.id);
+  toggleOptions({ e, playerId, aiHTML: dom.html.optionsAI });
+});
 
 btnBot.addEventListener("click", () => {
   toggleDropDown();
