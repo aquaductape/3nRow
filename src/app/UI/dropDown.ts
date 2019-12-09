@@ -1,5 +1,5 @@
 import { dom } from "./dom";
-import { stringToHTML, getElementById } from "../../utils/index";
+import { createHTMLFromString, getElementById } from "../../utils/index";
 import { startGame } from "../gameLogic";
 import { determineSpeed } from "../ai/ai";
 import { cleanUpGameStart } from "./board";
@@ -12,7 +12,7 @@ export const toggleDropDown = () => {
   const dropDown = document.getElementById(dom.id.btnBotDropdown);
   if (!dropDown) {
     const string = dom.html.btnBotDropdown;
-    const el = <Element>stringToHTML(string);
+    const el = <Element>createHTMLFromString(string);
     btnDropDown.appendChild(el);
     const isWithinView = withinViewPort(getElementById(el.id));
     moveElement(el, isWithinView ? "bottom" : "top");
