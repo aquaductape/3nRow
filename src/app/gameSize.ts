@@ -4,14 +4,19 @@ import { withinViewPort, moveElement } from "./UI/dropDown";
 
 const changeHeight = () => {
   const gameContainer = <HTMLDivElement | null>(
-    document.querySelector(".game-container")
+    document.querySelector("." + dom.class.gameContainer)
   );
   if (!gameContainer) return null;
   const browserInnerHeight =
     window.innerHeight || document.documentElement.clientHeight;
 
-  gameContainer.style.maxWidth = `${browserInnerHeight - 300}px`;
-  // }
+  if (browserInnerHeight < 600) {
+    gameContainer.style.maxWidth = `${browserInnerHeight - 200}px`;
+  } else if (browserInnerHeight < 900) {
+    gameContainer.style.maxWidth = `${browserInnerHeight - 250}px`;
+  } else if (browserInnerHeight < 1900) {
+    gameContainer.style.maxWidth = `${browserInnerHeight - 300}px`;
+  }
 };
 
 const dropDownPosition = () => {
