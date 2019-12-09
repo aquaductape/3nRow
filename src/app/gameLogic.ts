@@ -129,7 +129,6 @@ export const moveHuman = (
   if (isCellMarked(row, column) || !isAiFinished()) {
     return null;
   }
-  debugger;
   aiQueued();
   const player = gameData.currentPlayer();
   const board = gameData.board;
