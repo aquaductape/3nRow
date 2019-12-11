@@ -26,6 +26,7 @@ export interface IGameInit {
   player1Shape?: "cross" | "circle";
   player2Shape?: "cross" | "circle";
   aiSpeed?: number;
+  continueGame?: boolean;
 }
 
 export interface ISetTilesAriaAll {
@@ -47,6 +48,7 @@ export interface IallShapes {
   cross: string;
   triangle: string;
   heart: string;
+  antMenu: string;
   [key: string]: any;
 }
 
