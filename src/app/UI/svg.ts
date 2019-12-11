@@ -65,6 +65,13 @@ const svg: Isvg = {
     <path d="M 1.7532815,272.29493 24.705052,295.24671" class="path3726" transform="translate(0 -270.5417)" fill="none" stroke="url(#linearGradient3738)" stroke-width="1.3229" stroke-linecap="round"/>
   </g>
 </svg>`,
+  antMenu: `<svg xmlns="http://www.w3.org/2000/svg" width="315.0117" height="1464.7015" viewBox="0 0 83.3469 387.5356">
+  <g fill-rule="evenodd" transform="translate(686.7976 -48.9848)">
+    <circle fill="currentColor" r="41.6734" cy="90.6583" cx="-645.1242"/>
+    <circle fill="currentColor" cx="-645.1242" cy="242.7526" r="41.6734"/>
+    <circle fill="currentColor" r="41.6734" cy="394.847" cx="-645.1242"/>
+  </g>
+</svg>`,
   defs: {
     openingDef: `<svg xmlns="http://www.w3.org/2000/svg" height="0" width="0" viewBox="0 0 32 32">
     <defs>`,
