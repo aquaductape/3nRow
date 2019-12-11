@@ -64,8 +64,9 @@ interface IUniqueIds {
   svg: string;
   id: string;
   ignoreClass?: string[];
+  ignoreUrl?: string[];
 }
-export const uniqueIds = ({ svg, id, ignoreClass }: IUniqueIds) => {
+export const uniqueIds = ({ svg, id, ignoreClass, ignoreUrl }: IUniqueIds) => {
   return svg
     .replace(/(id|class)="([^"]*)"/g, (_, attribute, value) => {
       if (ignoreClass) {
@@ -75,7 +76,12 @@ export const uniqueIds = ({ svg, id, ignoreClass }: IUniqueIds) => {
       }
       return `${attribute}="${value + id}"`;
     })
-    .replace(/url\(([^)]*)\)/g, (_, url) => `url(${url + id})`)
+    .replace(/url\(([^)]*)\)/g, (_, url) => {
+      if (ignoreUrl) {
+        if (ignoreUrl.includes(url)) return _;
+      }
+      return `url(${url + id})`;
+    })
     .replace(
       /(xlink:)?href="([^"]*)"/g,
       (_, xlink, href) => `${xlink || ""}href="${href + id}"`
