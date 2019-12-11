@@ -44,8 +44,9 @@ export const cleanUp = (e: Event) => {
 };
 
 const removePlayerDataAttr = () => {
+  const board = <HTMLElement>document.querySelector("." + dom.class.board);
   const dataPlayerAll = <NodeListOf<HTMLElement>>(
-    document.querySelectorAll("[data-player]")
+    board.querySelectorAll("[data-player]")
   );
   dataPlayerAll.forEach(data => {
     data.removeAttribute("data-player");
