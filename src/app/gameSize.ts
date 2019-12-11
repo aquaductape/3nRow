@@ -20,7 +20,9 @@ const changeHeight = () => {
 };
 
 const dropDownPosition = () => {
-  const dropDown = document.getElementById(dom.id.dropDownDifficulty);
+  const dropDown = <HTMLElement>(
+    document.querySelector("." + dom.class.dropDownDifficulty)
+  );
   if (dropDown) {
     const isWithinView = withinViewPort(dropDown, 5);
     moveElement(dropDown, isWithinView ? "bottom" : "top");
