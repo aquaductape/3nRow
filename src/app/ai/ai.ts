@@ -1,4 +1,4 @@
-import gameData from "../gameData";
+import gameData, { Player } from "../gameData";
 import miniMax from "./miniMax";
 import {
   flattenArr,
@@ -7,7 +7,7 @@ import {
   emptyIndexies
 } from "../../utils/index";
 import { markBoard, checkBoard } from "../gameLogic";
-import { TFlattenBoard, IPlayer, TBoard } from "../../models/index";
+import { TFlattenBoard, TBoard } from "../../models/index";
 import { getCell, markBoardDOM, postStats } from "../UI/board";
 
 export const delayAi = (time: number = 900) => {
@@ -90,7 +90,7 @@ const pickRandom = (board: TFlattenBoard): number => {
   return randomIdx;
 };
 
-const decideMove = (board: TBoard, player: IPlayer) => {
+const decideMove = (board: TBoard, player: Player) => {
   // debugger;
   const flattenBoard = flattenArr(board);
   const playerMark = player.mark;
