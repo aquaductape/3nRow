@@ -113,27 +113,30 @@ export const markBoard = (row: number, column: number) => {
 };
 
 export const startGame = ({
-  firstTurn = "PLAYER1",
   ai = false,
   difficulty = "IMPOSSIBLE",
-  aiSpeed = 900
+  aiSpeed = 900,
+  continueGame
 }: IGameInit = {}) => {
   //Player One goes first
   // data.player2.turn = true;
-  if (firstTurn === "PLAYER1") {
-    gameData.player1.turn = true;
-  } else {
-    gameData.player2.turn = true;
-  }
+  // if (firstTurn === "PLAYER1") {
+  //   gameData.player1.turn = true;
+  // } else {
+  //   gameData.player2.turn = true;
+  // }
+  // debugger;
 
-  setTilesAriaAll({ restart: true });
+  if (!continueGame) {
+    setTilesAriaAll({ restart: true });
+  }
   gameData.aiSpeed = aiSpeed;
   gameData.aiDifficulty = difficulty;
 
   gameData.player2.ai = ai;
 
   if (gameData.player2.turn && isAiEnabled()) {
-    moveAi({});
+    moveAi();
   }
 };
 
