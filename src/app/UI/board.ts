@@ -3,6 +3,7 @@ import gameData from "../gameData";
 import { randomTurnTexts } from "../dialog";
 import { setTilesAriaAll, addAriaLabel, setTilesAriaPlayerTurn } from "./aria";
 import { isAiEnabled } from "../ai/ai";
+import { randomShapeColorAi } from "./options";
 
 const line = document.querySelector(dom.class.line);
 const gameStart = <HTMLDivElement>document.getElementById(dom.id.gameStart);
@@ -58,7 +59,10 @@ export const playAgainBtn = () => {
 
   const btn = <HTMLDivElement>document.getElementById("btn-play_again");
 
-  btn.addEventListener("click", cleanUp);
+  btn.addEventListener("click", e => {
+    cleanUp(e);
+    randomShapeColorAi();
+  });
 };
 
 export const isCellMarkedDOM = (cell: HTMLDivElement) => {
@@ -88,14 +92,13 @@ export const cleanUpGameStart = () => {
 };
 
 export const announceWinner = () => {
-  if (!stats) return null;
+  gameData.gameOver = true;
   if (gameData.gameTie) {
     stats.innerHTML = "Cat's Game!";
     return null;
   }
   const player = gameData.currentPlayer();
   stats.innerHTML = `${player.displayName} won!`;
-  gameData.gameOver = true;
   setTilesAriaAll();
 };
 
