@@ -28,6 +28,28 @@
   }
 }
 
+@keyframes Triangle-Second-Line-A {
+  0% {
+    opacity: 1;
+    stroke-dashoffset: -50;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes Triangle-First-Line-A {
+  0% {
+    opacity: 1;
+    stroke-dashoffset: 60;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
 @keyframes Right-Dot-A {
   0% {
     opacity: 1;
@@ -47,5 +69,16 @@
   100% {
     opacity: 1;
     transform: rotate(90deg);
+  }
+}
+
+@keyframes Heart-A {
+  0% {
+    opacity: 1;
+    stroke-dashoffset: -50;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
   }
 }
