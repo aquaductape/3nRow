@@ -38,10 +38,6 @@ export const createHTMLFromString = (string: string): Element => {
   return <Element>template.content.firstChild;
 };
 
-export const getElementById = (id: string) => {
-  return <HTMLElement>document.getElementById(id);
-};
-
 export const debounce = (cb: Function, time: number = 500) => {
   let timeout = 0;
 
@@ -92,4 +88,8 @@ export const removeChild = (el: HTMLElement) => {
   const parent = el.parentElement;
   if (!parent) return null;
   parent.removeChild(el);
+};
+
+export const randomItemFromArr = (arr: any[]) => {
+  return Math.floor(Math.random() * arr.length);
 };
