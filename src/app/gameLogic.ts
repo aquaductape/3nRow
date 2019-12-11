@@ -26,6 +26,7 @@ const setPlayerTurn = () => {
 };
 
 const increaseScore = () => {
+  if (gameData.gameTie) return null;
   const player = gameData.currentPlayer();
   player.addScore();
   localStorage.setItem(`${player.id}-score`, player.score.toString());
