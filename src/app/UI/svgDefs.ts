@@ -1,9 +1,15 @@
 import { createHTMLFromString, uniqueIds } from "../../utils/index";
 import { dom } from "./dom";
-import gameData from "../gameData";
-import { IPlayer } from "../../models/index";
+import gameData, { Player } from "../gameData";
 
-const shapes = ["cross", "circle", "triangle"];
+const shapesDefs = [
+  "cross",
+  "circle",
+  "triangle",
+  "heart",
+  "crossLeftDot",
+  "crossRightDot"
+];
 
 export const addSVGDefs = () => {
   const player1 = gameData.player1;
@@ -26,7 +32,7 @@ const createDef = (...defs: string[]) => {
 };
 
 const getStrShapesAll = (id: string) => {
-  return shapes
+  return shapesDefs
     .map(shape =>
       uniqueIds({
         id: `-${shape}-${id}`,
@@ -36,13 +42,13 @@ const getStrShapesAll = (id: string) => {
     .join("");
 };
 
-const setAllColors = (player: IPlayer) => {
-  for (let shape of shapes) {
+export const setAllColors = (player: Player) => {
+  for (let shape of shapesDefs) {
     setColor(player, shape);
   }
 };
 
-const setColor = (player: IPlayer, shape: string) => {
+const setColor = (player: Player, shape: string) => {
   const shapePrimary = `.${dom.class.shapeColorPrimary}-${shape}-${player.id}`;
   const shapeSecondary = `.${dom.class.shapeColorSecondary}-${shape}-${player.id}`;
   const colorPrimary = <NodeListOf<HTMLElement>>(
