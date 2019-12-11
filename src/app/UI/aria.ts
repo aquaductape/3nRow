@@ -43,7 +43,6 @@ export const setTilesAriaAll = ({ init, restart }: ISetTilesAriaAll = {}) => {
           `Game over. ${playerName} won. ` + getCurrentLabel(cell)
         );
       } else {
-        console.log("wut");
         cell.setAttribute("aria-label", `Game over. ${playerName} won. empty`);
       }
       return;
