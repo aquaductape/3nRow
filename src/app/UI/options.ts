@@ -1,13 +1,27 @@
 import { dom } from "./dom";
-import { createHTMLFromString, removeChild } from "../../utils/index";
+import {
+  createHTMLFromString,
+  removeChild,
+  randomItemFromArr
+} from "../../utils/index";
 import gameData, { Player } from "../gameData";
 import { blockAnimation, changeLineColor } from "./animate";
-import { valideKeyInput } from "./events/eventListeners";
+import { valideKeyInput, onBtnAi } from "./events/eventListeners";
 import { setAllColors } from "./svgDefs";
+import { cleanUp, cleanUpGameStart } from "./board";
+import { toggleDropDown, removeDropDown } from "./dropDown";
 import { startGame } from "../gameLogic";
-import { cleanUpGameStart, cleanUp } from "./board";
+import { isAiEnabled } from "../ai/ai";
 
-const shapes = ["circle", "cross", "heart", "triangle"];
+const shapes = ["cross", "circle", "heart", "triangle"];
+const colors = [
+  ["#0cf", "#5fd"],
+  ["#39f300ff", "#f3ff08ff"],
+  ["#ff0051", "#ffc300"],
+  ["#ff005b", "#ff00e4"],
+  ["#e600ffff", "#5f55ffff"],
+  ["#fff", "#ccc"]
+];
 
 interface Options {
   e: Event;
@@ -45,13 +59,38 @@ export const toggleOptions = ({ e, playerId, aiHTML = "" }: Options) => {
     playerId === "P1" ? gameData.player1 : gameData.player2
   );
 
+  renderAiDifficulty();
   renderResetScores();
   renderRestart();
+  renderOptionsFriend();
+};
+
+const renderOptionsFriend = () => {
+  const btnFriend = <HTMLElement>(
+    document.querySelector("." + dom.class.optionsFriend)
+  );
+  if (!btnFriend) return null;
+  btnFriend.addEventListener("click", () => {
+    startGame({ continueGame: true });
+    cleanUpGameStart();
+    removeOptions();
+    removeDropDown();
+  });
+};
+
+const renderAiDifficulty = () => {
+  const btnAi = <HTMLElement>document.querySelector("." + dom.class.btnAi);
+  if (!btnAi) return null;
+  btnAi.addEventListener("click", toggleDropDown);
 };
 
 const renderRestart = () => {
   const restart = <HTMLElement>document.getElementById(dom.id.optionsRestart);
-  restart.addEventListener("click", cleanUp);
+  restart.addEventListener("click", e => {
+    cleanUp(e);
+    removeOptions();
+    removeDropDown();
+  });
 };
 
 const renderResetScores = () => {
@@ -83,15 +122,6 @@ const renderShapeList = (shapeGroup: HTMLElement, playerId: string) => {
 };
 
 const renderColorsList = (colorGroup: HTMLElement, player: Player) => {
-  const colors = [
-    ["#0cf", "#5fd"],
-    ["#39f300ff", "#f3ff08ff"],
-    ["#ff0051", "#ffc300"],
-    ["#ff005b", "#ff00e4"],
-    ["#e600ffff", "#5f55ffff"],
-    ["#fff", "#ccc"]
-  ];
-
   for (let [primaryColor, secondaryColor] of colors) {
     const elStr = `<li class="color-list" tabindex="0"><div style="background: ${primaryColor}; height: 50%;"class="primary-color"></div><div style="background: ${secondaryColor}; height: 50%;"class="secondary-color"></div>`;
     const el = createHTMLFromString(elStr);
@@ -222,4 +252,30 @@ export const renderScore = (player?: Player) => {
   if (score !== 0) {
     playerScoreDOM.innerHTML = score.toString();
   }
+};
+
+export const randomShapeColorAi = () => {
+  if (!isAiEnabled()) return null;
+  const filteredShapes = shapes.filter(
+    shape => shape !== gameData.player1.shape
+  );
+  const filteredColors = colors.filter(
+    ([primaryColor]) => primaryColor !== gameData.player1.primaryColor
+  );
+  const shape = filteredShapes[randomItemFromArr(filteredShapes)];
+  const [primaryColor, secondaryColor] = filteredColors[
+    randomItemFromArr(filteredColors)
+  ];
+  const player = gameData.player2;
+  player.changeShape(shape);
+  player.primaryColor = primaryColor;
+  player.secondaryColor = secondaryColor;
+
+  const allMarks = document.querySelectorAll(`[data-player="${player.id}"]`);
+
+  allMarks.forEach(mark => {
+    replaceShape(player, mark);
+  });
+
+  setAllColors(player);
 };
