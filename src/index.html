@@ -14,13 +14,13 @@
   <main>
     <div class="game-container">
       <div class="player-btn-group">
-        <div id="P1-btn-options" class="player-btn-options">
-          <div class="player-mark"></div>
+        <div id="P1-btn-options" class="player-btn-options" tabindex="0">
+          <div class="player-mark" data-player="P1"></div>
           <div class="player-score">-</div>
           <div class="player-options"></div>
         </div>
-        <div id="P2-btn-options" class="player-btn-options">
-          <div class="player-mark"></div>
+        <div id="P2-btn-options" class="player-btn-options" tabindex="0">
+          <div class="player-mark" data-player="P2"></div>
           <div class="player-score">-</div>
           <div class="player-options"></div>
         </div>
@@ -64,19 +64,11 @@
       </div>
       <div class="stats"></div>
       <div id="game-start" class="game-start">
-        <!-- <button id="btn-play_again" class="btn btn-primary btn-start">Play Again?</button> -->
         <p class="game-start-info">Play Against</p>
-        <div id="btn-dropdown" class="btn-dropdown"><button id="btn-bot"
-            class="btn btn-primary btn-pick btn-pick__dropdown">Bot</button>
-          <!-- <div class="dropdown hide-v">
-            <ul class="dropdown-settings">
-              <li class="dropdown-settings-list" tabindex="0">hard</li>
-              <li class="dropdown-settings-list" tabindex="0">impossible</li>
-              <li class="dropdown-settings-list" tabindex="0">cheater</li>
-            </ul>
-          </div> -->
+        <div id="btn-dropdown-difficulty" class="btn-dropdown"><button id="btn-ai"
+            class="btn btn-primary btn-pick btn-pick__dropdown">AI</button>
         </div>
-        <button id="btn-human" class="btn btn-primary btn-pick">Human</button>
+        <button id="btn-human" class="btn btn-primary btn-pick">Friend</button>
       </div>
     </div>
   </main>
