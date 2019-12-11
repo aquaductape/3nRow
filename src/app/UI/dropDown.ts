@@ -3,13 +3,15 @@ import { createHTMLFromString, getElementById } from "../../utils/index";
 import { startGame } from "../gameLogic";
 import { determineSpeed } from "../ai/ai";
 import { cleanUpGameStart } from "./board";
+import { eventListenerOrder } from "./events/eventTriggers";
 
 const btnDropDown = <HTMLDivElement>(
-  document.getElementById(dom.id.btnBotDropdownContainer)
+  document.getElementById(dom.id.btnDifficultyDDContainer)
 );
 
 export const toggleDropDown = () => {
-  const dropDown = document.getElementById(dom.id.btnBotDropdown);
+  eventListenerOrder.dropDownDifficulty = true;
+  const dropDown = document.getElementById(dom.id.dropDownDifficulty);
   if (!dropDown) {
     const string = dom.html.btnBotDropdown;
     const el = <Element>createHTMLFromString(string);
@@ -19,6 +21,12 @@ export const toggleDropDown = () => {
   } else {
     btnDropDown.removeChild(dropDown);
   }
+};
+
+export const removeDropDown = () => {
+  const dropDown = document.getElementById(dom.id.dropDownDifficulty);
+  if (!dropDown) return null;
+  btnDropDown.removeChild(dropDown);
 };
 
 export const onDropDownSettings = () => {
