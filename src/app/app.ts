@@ -11,9 +11,10 @@ import {
   onPlayer1BtnOptions,
   onPlayer2BtnOptions
 } from "./UI/events/eventListeners";
+import { addAntMenu } from "./UI/antMenu";
 
-const btnAi = <HTMLElement>document.getElementById(dom.id.btnAi);
-const btnHuman = <HTMLElement>document.getElementById(dom.id.btnHuman);
+const btnAi = <HTMLElement>document.querySelector("." + dom.class.btnAi);
+const btnHuman = <HTMLElement>document.querySelector("." + dom.class.btnHuman);
 const cells: NodeListOf<HTMLElement> = document.querySelectorAll(
   dom.query.dataColumn
 );
@@ -30,6 +31,7 @@ const appInit = () => {
   setPlayerSettings(gameData.player2);
   setTilesAriaAll({ init: true });
   addSVGDefs();
+  addAntMenu();
 };
 
 document.addEventListener("click", onCloseAnyDropDowns);

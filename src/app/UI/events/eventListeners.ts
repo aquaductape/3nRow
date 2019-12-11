@@ -7,11 +7,7 @@ import {
 import { dom } from "../dom";
 import { removeOptions, removePlayerOptions, toggleOptions } from "../options";
 import gameData from "../../gameData";
-import {
-  toggleDropDown,
-  onDropDownSettings,
-  removeDropDown
-} from "../dropDown";
+import { removeDropDown } from "../dropDown";
 import { startGame, moveHuman } from "../../gameLogic";
 import { cleanUpGameStart, getColumnRow } from "../board";
 import { isAiFinished, isAiEnabled, startAi } from "../../ai/ai";
@@ -19,8 +15,6 @@ import { isAiFinished, isAiEnabled, startAi } from "../../ai/ai";
 export const onCloseAnyDropDowns = (e: Event) => {
   const eventType = e.type;
   const target = e.target;
-  const activeElement = document.activeElement;
-  console.log({ target, activeElement });
 
   // keyup instead of keydown, tabbing with keydown event listens
   // to current element before focusing to next element
@@ -37,7 +31,9 @@ export const onCloseAnyDropDowns = (e: Event) => {
   }
 
   const el = <HTMLElement>target;
-  const dropDownDifficulty = el.closest("#" + dom.id.btnDifficultyDDContainer);
+  const dropDownDifficulty = el.closest(
+    "." + dom.class.btnDifficultyDDContainer
+  );
   const options = el.closest("." + dom.class.options);
 
   // closes any dropdowns when clicked outside
@@ -78,14 +74,20 @@ export const onPlayer2BtnOptions = (e: Event) => {
   if (!valideKeyInput(e)) return null;
   eventListenerOrder.player2BtnOptions = true;
   const playerId = gameData.player2.id;
+  const optionsAiStr = dom.html.optionsAI;
 
   removePlayerOptions(gameData.player1.id);
-  toggleOptions({ e, playerId, aiHTML: dom.html.optionsAI });
+  toggleOptions({ e, playerId, aiHTML: optionsAiStr });
 };
 
 export const onBtnAi = (e: Event) => {
-  toggleDropDown();
-  onDropDownSettings();
+  // toggleDropDown();
+  // onDropDownSettings();
+  startGame({
+    ai: true,
+    difficulty: "IMPOSSIBLE"
+  });
+  cleanUpGameStart();
 };
 
 export const onBtnHuman = (e: Event) => {
@@ -97,6 +99,7 @@ export const onAction = (e: Event) => {
   if (!valideKeyInput(e)) return null;
 
   if (gameData.gameOver || !isAiFinished()) return null;
+  cleanUpGameStart();
 
   const { row, column, cell } = getColumnRow(e);
   moveHuman(row, column, cell);

@@ -1,31 +1,36 @@
 import { dom } from "./dom";
-import { createHTMLFromString, getElementById } from "../../utils/index";
+import { createHTMLFromString } from "../../utils/index";
 import { startGame } from "../gameLogic";
 import { determineSpeed } from "../ai/ai";
 import { cleanUpGameStart } from "./board";
 import { eventListenerOrder } from "./events/eventTriggers";
-
-const btnDropDown = <HTMLDivElement>(
-  document.getElementById(dom.id.btnDifficultyDDContainer)
-);
+import { removeOptions } from "./options";
 
 export const toggleDropDown = () => {
   eventListenerOrder.dropDownDifficulty = true;
-  const dropDown = document.getElementById(dom.id.dropDownDifficulty);
+  const btnDropDown = <HTMLDivElement>(
+    document.querySelector("." + dom.class.btnDifficultyDDContainer)
+  );
+  if (!btnDropDown) return null;
+  const dropDown = document.querySelector("." + dom.class.dropDownDifficulty);
   if (!dropDown) {
     const string = dom.html.btnBotDropdown;
-    const el = <Element>createHTMLFromString(string);
+    const el = <HTMLElement>createHTMLFromString(string);
     btnDropDown.appendChild(el);
-    const isWithinView = withinViewPort(getElementById(el.id));
+    const isWithinView = withinViewPort(el);
     moveElement(el, isWithinView ? "bottom" : "top");
+    onDropDownSettings();
   } else {
     btnDropDown.removeChild(dropDown);
   }
 };
 
 export const removeDropDown = () => {
-  const dropDown = document.getElementById(dom.id.dropDownDifficulty);
-  if (!dropDown) return null;
+  const btnDropDown = <HTMLDivElement>(
+    document.querySelector("." + dom.class.btnDifficultyDDContainer)
+  );
+  const dropDown = document.querySelector("." + dom.class.dropDownDifficulty);
+  if (!dropDown || !btnDropDown) return null;
   btnDropDown.removeChild(dropDown);
 };
 
@@ -43,8 +48,11 @@ export const onDropDownSettings = () => {
       startGame({
         ai: true,
         difficulty: <any>difficulty.toUpperCase(),
-        aiSpeed: speed
+        aiSpeed: speed,
+        continueGame: true
       });
+      removeOptions();
+      removeDropDown();
       cleanUpGameStart();
     });
   });
