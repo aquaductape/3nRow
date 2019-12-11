@@ -1,10 +1,8 @@
 @import "normalize";
 @import "animations";
+@import "variables";
 /* //////////////////////////////////// */
-$primary-color: #7c4dff;
-$primary-txt-color: #ddd;
-$primary-btn-color: $primary-color;
-$white: #ddd;
+
 html,
 body {
   height: 100%;
@@ -16,6 +14,7 @@ body {
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
+  -webkit-font-smoothing: antialiased;
   background-size: cover;
   font-family: "Roboto", sans-serif;
   overflow-y: hidden;
@@ -59,6 +58,9 @@ main {
   border-radius: 30px;
   overflow: hidden;
 
+  svg {
+    transition: 0.5s cubic-bezier(0.4, 0, 0.58, 1);
+  }
   .animate__first-line,
   .animate__second-line,
   .animate__third-line {
@@ -167,7 +169,6 @@ main {
 svg {
   width: 100%;
   height: 100%;
-  transition: 0.5s cubic-bezier(0.4, 0, 0.58, 1);
 }
 
 .stats {
@@ -176,11 +177,9 @@ svg {
   justify-content: center;
   align-items: center;
   max-width: 700px;
-  margin: 0 auto;
-  padding-top: 15px;
-  // height: 45px;
-  color: #ddd;
-  font-size: 1.5rem;
+  height: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .line-svg {
@@ -210,12 +209,12 @@ svg {
 .game-start-info {
   text-align: center;
   letter-spacing: 1px;
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   width: 100%;
 }
 
 .btn {
-  transition: 0.5s color ease-in-out, 0.5s background-color ease-in-out;
+  transition: 0.25s color ease-in-out, 0.25s background-color ease-in-out;
   border-style: none;
   cursor: pointer;
 }
@@ -251,10 +250,6 @@ svg {
   width: 45%;
 }
 
-.btn-pick__dropdown {
-  width: 100%;
-}
-
 .btn-pick,
 .btn-start {
   margin-top: 20px;
@@ -273,9 +268,11 @@ svg {
 
 .dropdown {
   position: absolute;
+  top: 42px;
   width: 100%;
   background: #ddd;
   color: #333;
+  border: 1.5px solid #000;
   border-radius: 10px;
   overflow: hidden;
 }
@@ -322,6 +319,7 @@ svg {
   border-radius: 10px;
   outline: none;
   cursor: pointer;
+  transition: 0.25s background-color;
 
   &:hover,
   &:focus,
@@ -333,8 +331,15 @@ svg {
     }
   }
 
-  & .active {
-    border-bottom: 4px solid blue;
+  &.active {
+    // border-bottom: 4px solid blue;
+    box-shadow: -3px 9px 0 3px #ddd;
+  }
+}
+
+#P1-btn-options {
+  &.active {
+    box-shadow: 3px 9px 0 3px #ddd;
   }
 }
 
@@ -342,6 +347,16 @@ svg {
   height: 100%;
   width: 30%;
   filter: grayscale(1) brightness(100) brightness(0.8);
+}
+
+.player-options {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  height: 100%;
+  width: 10%;
+  padding: 2%;
+  color: #667ae0;
 }
 
 .dropdown-options {
@@ -354,6 +369,10 @@ svg {
   border-radius: 30px;
   background: #eee;
   color: #333;
+}
+
+.options-dropdown {
+  width: 100%;
 }
 .P1-options {
   border-top-left-radius: 0;
@@ -369,6 +388,10 @@ svg {
 .options-btn {
   padding: 10px 20px;
   border-radius: 10px;
+  width: 100%;
+  margin-bottom: 5px;
+  font-size: 1.15rem;
+  text-transform: capitalize;
 }
 
 .shape-group {
@@ -417,6 +440,81 @@ svg {
   }
 }
 
+.options-title {
+  font-size: 1.5rem;
+  margin-right: 15px;
+}
+
+.options-ai-title-group {
+  display: flex;
+  align-items: center;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 30px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 6px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+  &:focus {
+    box-shadow: 0 0 0 12px #8169ff69;
+  }
+}
+
+input:checked + .slider {
+  background-color: #7c4dff;
+}
+
+input:focus + .slider:before {
+  box-shadow: 0 0 0 12px #8169ff69;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
 @media (min-width: 600px) {
   body {
     font-size: 1.25rem;
@@ -426,5 +524,8 @@ svg {
 @media (max-height: 475px) {
   .player-btn-group {
     height: 50px;
+  }
+  .dropdown-options {
+    top: 50px;
   }
 }
