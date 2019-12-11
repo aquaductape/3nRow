@@ -1,3 +1,5 @@
+import { Player } from "../app/gameData";
+
 export type cellCostItem = {
   score: number;
   cell: { row: number; column: number };
@@ -15,20 +17,7 @@ export interface IOptionsCheckBoard {
 export type TBoard = (number | "X" | "O")[][];
 export type TFlattenBoard = (number | "X" | "O")[];
 
-export interface IPlayer {
-  id: string;
-  displayName: string;
-  svgMark: string;
-  score: number;
-  turn: boolean;
-  ai: boolean;
-  mark: "X" | "O";
-  shape: string;
-  primaryColor: string;
-  secondaryColor: string;
-}
-
-export type TCheckBoard = (player: IPlayer, board: TBoard) => void;
+export type TCheckBoard = (player: Player, board: TBoard) => void;
 
 export interface IGameInit {
   firstTurn?: "PLAYER1" | "PLAYER2";
@@ -57,6 +46,7 @@ export interface IallShapes {
   circle: string;
   cross: string;
   triangle: string;
+  heart: string;
   [key: string]: any;
 }
 
@@ -65,8 +55,8 @@ export interface Isvg extends IallShapes {
 }
 
 export interface IeventListenerOrder {
-  [key: string]: string;
-  player1BtnOptions: string;
-  player2BtnOptions: string;
-  dropDown: string;
+  [key: string]: boolean;
+  player1BtnOptions: boolean;
+  player2BtnOptions: boolean;
+  dropDownDifficulty: boolean;
 }
