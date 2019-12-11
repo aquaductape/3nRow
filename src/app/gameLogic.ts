@@ -1,6 +1,6 @@
 import gameData from "./gameData";
 import { TCheckBoard, IGameInit } from "../models/index";
-import { animateLine } from "./UI/animate";
+import { animateLine, changeLineColor } from "./UI/animate";
 import { moveAi, isAiFinished, aiQueued, isAiEnabled } from "./ai/ai";
 import {
   playAgainBtn,
@@ -9,11 +9,27 @@ import {
   postStats
 } from "./UI/board";
 import { setTilesAriaPlayerTurn, setTilesAriaAll } from "./UI/aria";
+import { renderScore } from "./UI/options";
 
 export const gameOver = () => {
+  gameData.winner = gameData.currentPlayer();
   animateLine();
+  changeLineColor(gameData.currentPlayer());
   playAgainBtn();
   announceWinner();
+  increaseScore();
+  setPlayerTurn();
+};
+
+const setPlayerTurn = () => {
+  gameData.firstPlayerStart = gameData.currentPlayer().id;
+};
+
+const increaseScore = () => {
+  const player = gameData.currentPlayer();
+  player.addScore();
+  localStorage.setItem(`${player.id}-score`, player.score.toString());
+  renderScore();
 };
 
 export const checkBoard: TCheckBoard = (player, board) => {

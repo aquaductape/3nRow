@@ -1,9 +1,9 @@
 import { dom } from "./dom";
-import { ISetTilesAriaAll, IPlayer } from "../../models/index";
-import gameData from "../gameData";
+import { ISetTilesAriaAll } from "../../models/index";
+import gameData, { Player } from "../gameData";
 import { isCellMarkedDOM } from "./board";
 
-const cells = document.querySelectorAll(dom.query.column);
+const cells = document.querySelectorAll(dom.query.dataColumn);
 
 export const setTilesAriaAll = ({ init, restart }: ISetTilesAriaAll = {}) => {
   const playerName = gameData.currentPlayer().displayName;
@@ -68,7 +68,7 @@ export const setTilesAriaPlayerTurn = () => {
   });
 };
 
-export const addAriaLabel = (player: IPlayer, cell: HTMLDivElement) => {
+export const addAriaLabel = (player: Player, cell: HTMLDivElement) => {
   const parent = cell.parentElement;
   if (!parent) return null;
   const row = parent.getAttribute("data-row");
