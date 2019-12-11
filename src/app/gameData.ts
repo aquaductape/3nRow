@@ -61,7 +61,8 @@ export class Player {
         svg: dom.svg.heart,
         id: `-heart-${id}`,
         ignoreClass: ignoreHeartClasses
-      })
+      }),
+      antMenu: ""
     };
     this.displayName = displayName;
     this.svgMark = this.allShapes[shape];
