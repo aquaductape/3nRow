@@ -17,7 +17,7 @@ export const postStats = () => {
   stats.innerHTML = randomTurnTexts(gameData.currentPlayer().displayName);
 };
 
-const cleanUp = (e: Event) => {
+export const cleanUp = (e: Event) => {
   e.preventDefault();
 
   let player = gameData.player1.turn ? gameData.player1 : gameData.player2;
@@ -39,7 +39,17 @@ const cleanUp = (e: Event) => {
   gameData.board = gameData.board.map(item => item.map(_ => count++));
 
   setTilesAriaAll({ restart: true });
+  removePlayerDataAttr();
   gameStart.innerHTML = "";
+};
+
+const removePlayerDataAttr = () => {
+  const dataPlayerAll = <NodeListOf<HTMLElement>>(
+    document.querySelectorAll("[data-player]")
+  );
+  dataPlayerAll.forEach(data => {
+    data.removeAttribute("data-player");
+  });
 };
 
 export const playAgainBtn = () => {
@@ -63,9 +73,9 @@ export const markBoardDOM = (cell: HTMLDivElement) => {
   }
   const player = gameData.currentPlayer();
 
+  cell.setAttribute("data-player", player.id);
   const fillFirstChild = cell.firstElementChild;
   if (!fillFirstChild) return null;
-
   fillFirstChild.innerHTML = player.svgMark;
 
   addAriaLabel(player, cell);
