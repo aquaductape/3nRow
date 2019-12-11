@@ -19,7 +19,7 @@ export const delayAi = (time: number = 900) => {
 export const startAi = () => {
   if (isCheater()) {
     console.log("cheater");
-    const rounds = randomRoundAmount(3);
+    const rounds = randomRoundAmount(2);
     for (let i = 0; i < rounds; i++) {
       moveAi({ cheating: true });
     }
@@ -35,7 +35,7 @@ export const moveAi = async ({ cheating }: { cheating?: boolean } = {}) => {
 
   const board = gameData.board;
   const player = gameData.currentPlayer();
-  const cellIndex = decideMove(board, player);
+  const cellIndex = decideMove(board, player, cheating);
   const { row, column } = convertToRowCol(cellIndex);
   const cell = getCell(row, column);
   markBoard(row, column);
@@ -80,7 +80,7 @@ export const determineSpeed = (
 };
 
 const willPickRandom = () => {
-  return Math.floor(Math.random() * 2) === 0;
+  return Math.floor(Math.random() * 3) === 0;
 };
 
 const pickRandom = (board: TFlattenBoard): number => {
@@ -90,12 +90,18 @@ const pickRandom = (board: TFlattenBoard): number => {
   return randomIdx;
 };
 
-const decideMove = (board: TBoard, player: Player) => {
-  // debugger;
+const decideMove = (
+  board: TBoard,
+  player: Player,
+  cheating: boolean = false
+) => {
   const flattenBoard = flattenArr(board);
   const playerMark = player.mark;
   if (emptyIndexies(flattenBoard).length === 0) return 0;
-  if (gameData.aiDifficulty === "HARD" || gameData.aiDifficulty === "CHEATER") {
+  if (cheating) {
+    return pickRandom(flattenBoard);
+  }
+  if (gameData.aiDifficulty === "HARD") {
     if (willPickRandom()) {
       console.log("picking randomly");
       return pickRandom(flattenBoard);
