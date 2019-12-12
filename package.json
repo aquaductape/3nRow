@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/aquaductape/3n-row#readme",
   "devDependencies": {
+    "autoprefixer": "^9.7.3",
     "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^3.3.0",
     "file-loader": "^4.2.0",
@@ -26,6 +27,7 @@
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.8.0",
     "node-sass": "^4.13.0",
+    "postcss-loader": "^3.0.0",
     "sass-loader": "^8.0.0",
     "style-loader": "^1.0.0",
     "ts-loader": "^6.2.1",
@@ -35,5 +37,13 @@
     "webpack-dev-server": "^3.9.0",
     "webpack-merge": "^4.2.2"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "browserslist": [
+    "defaults",
+    "not ie < 11",
+    "last 2 versions",
+    "> 1%",
+    "iOS 7",
+    "last 3 iOS versions"
+  ]
 }
