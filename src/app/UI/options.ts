@@ -173,6 +173,13 @@ const addEventsShapeList = (
 const replaceShape = (player: Player, mark: Element) => {
   const svgMark = <SVGElement>mark.querySelector("svg");
   const parent = <HTMLElement>svgMark.parentElement;
+
+  if (parent.classList.contains(dom.class.playerMark)) {
+    parent.innerHTML = "";
+    setDualMarks(parent, player);
+    return null;
+  }
+
   parent.removeChild(svgMark);
   const newSvgMark = createHTMLFromString(player.svgMark);
   blockAnimation(newSvgMark);
@@ -184,13 +191,22 @@ export const setPlayerSettings = (player: Player) => {
   const playerBtn = <Element>(
     document.getElementById(player.id + "-btn-options")
   );
-  const playerMark = <Element>(
+  const playerMark = <HTMLElement>(
     playerBtn.querySelector("." + dom.class.playerMark)
   );
   setSettingsFromLocalStorage(player);
 
-  playerMark.innerHTML = player.svgMark;
+  setDualMarks(playerMark, player);
   renderScore(player);
+};
+
+const setDualMarks = (el: HTMLElement, player: Player) => {
+  const normal = createHTMLFromString(player.svgMark);
+  const monochrome = createHTMLFromString(player.svgMark);
+  monochrome.classList.add("monochrome");
+
+  el.appendChild(normal);
+  el.appendChild(monochrome);
 };
 
 const setSettingsFromLocalStorage = (player: Player) => {

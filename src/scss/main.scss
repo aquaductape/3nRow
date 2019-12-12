@@ -326,8 +326,10 @@ svg {
   &.active {
     color: #fff;
     background: #060540;
-    .player-mark {
-      filter: none;
+
+    .monochrome {
+      opacity: 0;
+      transition: opacity 0.25s;
     }
   }
 
@@ -344,9 +346,19 @@ svg {
 }
 
 .player-mark {
+  position: relative;
   height: 100%;
   width: 30%;
-  filter: grayscale(1) brightness(100) brightness(0.8);
+
+  .monochrome {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    path {
+      stroke: #ddd;
+    }
+  }
 }
 
 .player-options {
