@@ -1,29 +1,29 @@
 @keyframes Line-Win-A {
   0% {
     opacity: 1;
-    stroke-dashoffset: 50;
+    stroke-dashoffset: 50px;
   }
   100% {
-    stroke-dashoffset: 0;
+    stroke-dashoffset: 0px;
     opacity: 1;
   }
 }
 @keyframes Circle-A {
   0% {
-    stroke-dashoffset: 35;
+    stroke-dashoffset: 35px;
   }
   100% {
-    stroke-dashoffset: 0;
+    stroke-dashoffset: 0px;
   }
 }
 
 @keyframes Lines-A {
   0% {
     opacity: 1;
-    stroke-dashoffset: 30;
+    stroke-dashoffset: 30px;
   }
   100% {
-    stroke-dashoffset: 0;
+    stroke-dashoffset: 0px;
     opacity: 1;
   }
 }
@@ -31,10 +31,10 @@
 @keyframes Triangle-Second-Line-A {
   0% {
     opacity: 1;
-    stroke-dashoffset: -50;
+    stroke-dashoffset: -50px;
   }
   100% {
-    stroke-dashoffset: 0;
+    stroke-dashoffset: 0px;
     opacity: 1;
   }
 }
@@ -42,10 +42,10 @@
 @keyframes Triangle-First-Line-A {
   0% {
     opacity: 1;
-    stroke-dashoffset: 60;
+    stroke-dashoffset: 60px;
   }
   100% {
-    stroke-dashoffset: 0;
+    stroke-dashoffset: 0px;
     opacity: 1;
   }
 }
@@ -75,10 +75,10 @@
 @keyframes Heart-A {
   0% {
     opacity: 1;
-    stroke-dashoffset: -50;
+    stroke-dashoffset: -50px;
   }
   100% {
-    stroke-dashoffset: 0;
+    stroke-dashoffset: 0px;
     opacity: 1;
   }
 }
