@@ -59,8 +59,12 @@ const setColor = (player: Player, shape: string) => {
   );
   colorPrimary.forEach(el => {
     el.style.stopColor = player.primaryColor;
+    el.classList.add("repaintForSafari");
+    el.classList.remove("repaintForSafari");
   });
   colorSecondary.forEach(el => {
     el.style.stopColor = player.secondaryColor;
+    el.classList.add("repaintForSafari");
+    el.classList.remove("repaintForSafari");
   });
 };
