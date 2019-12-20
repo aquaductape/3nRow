@@ -27,6 +27,12 @@ export const addSVGDefs = () => {
   setAllColors(player2);
 };
 
+export const removeSVGDefs = () => {
+  const defs = <HTMLElement>document.querySelector(".defs-collection");
+  const body = <HTMLElement>document.querySelector("body");
+  body.removeChild(defs);
+};
+
 const createDef = (...defs: string[]) => {
   return dom.svg.defs.openingDef + defs.join("") + dom.svg.defs.closingDef;
 };
@@ -49,22 +55,19 @@ export const setAllColors = (player: Player) => {
 };
 
 const setColor = (player: Player, shape: string) => {
-  const shapePrimary = `.${dom.class.shapeColorPrimary}-${shape}-${player.id}`;
-  const shapeSecondary = `.${dom.class.shapeColorSecondary}-${shape}-${player.id}`;
-  const colorPrimary = <NodeListOf<HTMLElement>>(
-    document.querySelectorAll(shapePrimary)
+  const shapeColorPrimary = `.${dom.class.shapeColorPrimary}-${shape}-${player.id}`;
+  const shapeColorSecondary = `.${dom.class.shapeColorSecondary}-${shape}-${player.id}`;
+  const colorPrimary = <NodeListOf<SVGElement>>(
+    document.querySelectorAll(shapeColorPrimary)
   );
   const colorSecondary = <NodeListOf<HTMLElement>>(
-    document.querySelectorAll(shapeSecondary)
+    document.querySelectorAll(shapeColorSecondary)
   );
+
   colorPrimary.forEach(el => {
-    el.style.stopColor = player.primaryColor;
-    el.classList.add("repaintForSafari");
-    el.classList.remove("repaintForSafari");
+    el.setAttribute("stop-color", player.primaryColor);
   });
   colorSecondary.forEach(el => {
-    el.style.stopColor = player.secondaryColor;
-    el.classList.add("repaintForSafari");
-    el.classList.remove("repaintForSafari");
+    el.setAttribute("stop-color", player.secondaryColor);
   });
 };

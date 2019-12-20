@@ -73,7 +73,7 @@ const svg: Isvg = {
   </g>
 </svg>`,
   defs: {
-    openingDef: `<svg xmlns="http://www.w3.org/2000/svg" height="0" width="0" viewBox="0 0 32 32">
+    openingDef: `<svg xmlns="http://www.w3.org/2000/svg" class="defs-collection" height="0" width="0" viewBox="0 0 32 32">
     <defs>`,
     closingDef: `</defs></svg>`,
     crossLeftDot: `<linearGradient id="a">
