@@ -4,10 +4,10 @@ import { controllerColorList } from "../controllers/colorList";
 
 export const colors = [
   ["#0cf", "#5fd"],
-  ["#39f300ff", "#f3ff08ff"],
+  ["#39f300", "#f3ff08"],
   ["#ff0051", "#ffc300"],
   ["#ff005b", "#ff00e4"],
-  ["#e600ffff", "#5f55ffff"],
+  ["#e600ff", "#5f55ff"],
   ["#fff", "#ccc"]
 ];
 
