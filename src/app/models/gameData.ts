@@ -1,6 +1,6 @@
-import { TBoard, IallShapes } from "../models/index";
-import { dom } from "./UI/dom";
-import { uniqueIds } from "../utils/index";
+import { TBoard, IallShapes, IPlayer } from "../../models/index";
+import { dom } from "../views/dom";
+import { uniqueIds } from "../../utils/index";
 
 const ignoreTriangleClasses = [
   "animate__first-line",
@@ -17,19 +17,7 @@ const ignoreCrossClasses = [
 const ignoreCircleClasses = ["animate__circle-left", "animate__circle-right"];
 const ignoreUrl = ["%crossLeftDot%", "%crossRightDot%"];
 
-export class Player {
-  id: string;
-  displayName: string;
-  svgMark: string;
-  score: number;
-  turn: boolean;
-  ai: boolean;
-  allShapes: IallShapes;
-  shape: string;
-  mark: "X" | "O";
-  primaryColor: string;
-  secondaryColor: string;
-
+export class Player implements IPlayer {
   constructor(
     id: string,
     displayName: string,
@@ -76,6 +64,19 @@ export class Player {
     this.secondaryColor = secondaryColor;
     this.score = 0;
   }
+
+  id: string;
+  displayName: string;
+  svgMark: string;
+  score: number;
+  turn: boolean;
+  ai: boolean;
+  allShapes: IallShapes;
+  shape: string;
+  mark: "X" | "O";
+  primaryColor: string;
+  secondaryColor: string;
+
   changeShape(shape: string) {
     this.shape = shape;
     this.svgMark = this.allShapes[shape];

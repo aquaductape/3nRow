@@ -1,23 +1,26 @@
-import gameData from "./gameData";
-import { dom } from "./UI/dom";
-import { setTilesAriaAll } from "./UI/aria";
-import { addSVGDefs } from "./UI/svgDefs";
-import { setPlayerSettings } from "./UI/options";
+import gameData from "./models/gameData";
+import { dom } from "./views/dom";
+import { setTilesAriaAll } from "./views/aria";
+import { addSVGDefs } from "./views/svgDefs";
+import { setPlayerSettings } from "./views/playerOptions/playerOptions";
 import {
   onCloseAnyDropDowns,
   onAction,
   onBtnAi,
   onBtnHuman,
   onPlayer1BtnOptions,
-  onPlayer2BtnOptions
-} from "./UI/events/eventListeners";
-import { addAntMenu } from "./UI/antMenu";
+  onPlayer2BtnOptions,
+  onPlayAgain
+} from "./appControllers";
+import { renderAntMenu } from "./views/antMenu";
 
 const btnAi = <HTMLElement>document.querySelector("." + dom.class.btnAi);
 const btnHuman = <HTMLElement>document.querySelector("." + dom.class.btnHuman);
 const cells: NodeListOf<HTMLElement> = document.querySelectorAll(
   dom.query.dataColumn
 );
+const gameStart = <HTMLElement>document.getElementById(dom.id.gameStart);
+const board = <HTMLElement>document.querySelector(".board");
 const player1BtnOptions = <HTMLElement>(
   document.getElementById(dom.id.P1BtnOptions)
 );
@@ -31,7 +34,7 @@ const appInit = () => {
   setPlayerSettings(gameData.player2);
   setTilesAriaAll({ init: true });
   addSVGDefs();
-  addAntMenu();
+  renderAntMenu();
 };
 
 document.addEventListener("click", onCloseAnyDropDowns);
@@ -45,11 +48,22 @@ player2BtnOptions.addEventListener("keydown", onPlayer2BtnOptions);
 btnAi.addEventListener("click", onBtnAi);
 btnHuman.addEventListener("click", onBtnHuman);
 
-cells.forEach(cell => {
-  // mark cell when user clicks
-  cell.addEventListener("click", onAction);
-  // mark cell when user presses Enter/Space
-  cell.addEventListener("keydown", onAction);
+gameStart.addEventListener("click", e => {
+  const target = <HTMLElement>e.target;
+
+  if (target.closest("#btn-play_again")) {
+    onPlayAgain(e);
+  }
+});
+
+board.addEventListener("click", e => {
+  const target = <HTMLElement>e.target;
+  if (target.closest(dom.query.dataColumn)) onAction(e);
+});
+
+board.addEventListener("keydown", e => {
+  const target = <HTMLElement>e.target;
+  if (target.closest(dom.query.dataColumn)) onAction(e);
 });
 
 appInit();

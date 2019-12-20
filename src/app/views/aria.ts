@@ -1,6 +1,6 @@
 import { dom } from "./dom";
 import { ISetTilesAriaAll } from "../../models/index";
-import gameData, { Player } from "../gameData";
+import gameData, { Player } from "../models/gameData";
 import { isCellMarkedDOM } from "./board";
 
 const cells = document.querySelectorAll(dom.query.dataColumn);

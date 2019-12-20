@@ -1,10 +1,7 @@
-import { dom } from "./dom";
-import { createHTMLFromString } from "../../utils/index";
-import { startGame } from "../gameLogic";
-import { determineSpeed } from "../ai/ai";
-import { cleanUpGameStart } from "./board";
-import { eventListenerOrder } from "./events/eventTriggers";
-import { removeOptions } from "./options";
+import { dom } from "../dom";
+import { createHTMLFromString } from "../../../utils/index";
+import { eventListenerOrder } from "../events/eventTriggers";
+import { controllerList } from "./controllers/list";
 
 export const toggleDropDown = () => {
   eventListenerOrder.dropDownDifficulty = true;
@@ -39,23 +36,7 @@ export const onDropDownSettings = () => {
   if (!settings) return null;
   const list = settings.childNodes;
 
-  list.forEach(list => {
-    list.addEventListener("click", e => {
-      const target = <Element>e.target;
-      const difficulty = <string>target.textContent;
-      const speed = determineSpeed(<any>difficulty);
-
-      startGame({
-        ai: true,
-        difficulty: <any>difficulty.toUpperCase(),
-        aiSpeed: speed,
-        continueGame: true
-      });
-      removeOptions();
-      removeDropDown();
-      cleanUpGameStart();
-    });
-  });
+  list.forEach(list => controllerList(list as HTMLElement));
 };
 
 export const withinViewPort = (el: HTMLElement, spacing: number = 5) => {

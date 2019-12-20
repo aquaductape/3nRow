@@ -1,22 +1,11 @@
 import { dom } from "./dom";
-import gameData from "../gameData";
-import { randomTurnTexts } from "../dialog";
+import gameData from "../models/gameData";
 import { setTilesAriaAll, addAriaLabel, setTilesAriaPlayerTurn } from "./aria";
-import { isAiEnabled } from "../ai/ai";
-import { randomShapeColorAi } from "./options";
+import { isAiEnabled } from "../models/ai/ai";
 
 const line = document.querySelector(dom.class.line);
 const gameStart = <HTMLDivElement>document.getElementById(dom.id.gameStart);
 const stats = <HTMLDivElement>document.querySelector(dom.class.stats);
-
-export const postStats = () => {
-  if (!stats || gameData.gameOver || gameData.gameTie) return null;
-  if (gameData.currentPlayer().ai) {
-    stats.innerHTML = "";
-    return;
-  }
-  stats.innerHTML = randomTurnTexts(gameData.currentPlayer().displayName);
-};
 
 export const cleanUp = (e: Event) => {
   e.preventDefault();
@@ -51,17 +40,6 @@ const removePlayerDataAttr = () => {
   );
   dataPlayerAll.forEach(data => {
     data.removeAttribute("data-player");
-  });
-};
-
-export const playAgainBtn = () => {
-  gameStart.innerHTML = dom.html.btnPlayAgain;
-
-  const btn = <HTMLDivElement>document.getElementById("btn-play_again");
-
-  btn.addEventListener("click", e => {
-    cleanUp(e);
-    randomShapeColorAi();
   });
 };
 
@@ -103,12 +81,12 @@ export const announceWinner = () => {
 };
 
 export const getColumnRow = (e: Event) => {
-  const target = <HTMLDivElement>e.currentTarget;
+  const target = <HTMLDivElement>e.target;
   const targetParent = <HTMLDivElement>target.parentElement;
 
-  const stringRow = <string>targetParent.getAttribute("data-row");
-  const stringCol = <string>target.getAttribute("data-column");
-  const cell = <HTMLDivElement>e.currentTarget;
+  const stringRow = <string>targetParent.dataset.row;
+  const stringCol = <string>target.dataset.column;
+  const cell = target;
   const row = parseInt(stringRow);
   const column = parseInt(stringCol);
 

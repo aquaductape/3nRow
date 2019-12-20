@@ -5,10 +5,11 @@ import {
   convertToRowCol,
   randomRoundAmount,
   emptyIndexies
-} from "../../utils/index";
+} from "../../../utils/index";
 import { markBoard, checkBoard } from "../gameLogic";
-import { TFlattenBoard, TBoard } from "../../models/index";
-import { getCell, markBoardDOM, postStats } from "../UI/board";
+import { TFlattenBoard, TBoard } from "../../../models/index";
+import { getCell, markBoardDOM } from "../../views/board";
+import { postStats } from "../../views/stats";
 
 export const delayAi = (time: number = 900) => {
   return new Promise((resolve, reject) => {
@@ -18,7 +19,6 @@ export const delayAi = (time: number = 900) => {
 
 export const startAi = () => {
   if (isCheater()) {
-    console.log("cheater");
     const rounds = randomRoundAmount(2);
     for (let i = 0; i < rounds; i++) {
       moveAi({ cheating: true });
@@ -103,7 +103,6 @@ const decideMove = (
   }
   if (gameData.aiDifficulty === "HARD") {
     if (willPickRandom()) {
-      console.log("picking randomly");
       return pickRandom(flattenBoard);
     }
   }

@@ -1,4 +1,4 @@
-import gameData, { Player } from "../gameData";
+import gameData, { Player } from "../models/gameData";
 
 const line = document.querySelector(".line-svg");
 

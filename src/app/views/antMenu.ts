@@ -1,6 +1,6 @@
 import { dom } from "./dom";
 
-export const addAntMenu = () => {
+export const renderAntMenu = () => {
   const playerOptions = <NodeListOf<HTMLElement>>(
     document.querySelectorAll("." + dom.class.playerOptions)
   );

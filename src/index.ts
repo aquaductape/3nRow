@@ -1,3 +1,3 @@
 import "./scss/main.scss";
-import "./app/gameSize";
+import "./app/views/gameSize";
 import "./app/app";

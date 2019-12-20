@@ -1,6 +1,6 @@
-import { TFlattenBoard, IMove } from "../../models/index";
+import { TFlattenBoard, IMove } from "../../../models/index";
 import gameData from "../gameData";
-import { emptyIndexies } from "../../utils/index";
+import { emptyIndexies } from "../../../utils/index";
 
 const winning = (board: TFlattenBoard, playerMark: "X" | "O") => {
   if (

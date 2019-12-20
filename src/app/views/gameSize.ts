@@ -1,6 +1,6 @@
-import { dom } from "./UI/dom";
-import { debounce } from "../utils/index";
-import { withinViewPort, moveElement } from "./UI/dropDown";
+import { dom } from "../views/dom";
+import { debounce } from "../../utils/index";
+import { withinViewPort, moveElement } from "../views/dropDown/dropDown";
 
 const changeHeight = () => {
   const gameContainer = <HTMLDivElement | null>(

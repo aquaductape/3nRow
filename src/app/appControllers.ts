@@ -1,16 +1,21 @@
 import {
-  resetOtherEventsTriggered,
-  eventListenerOrder,
+  removeAllPlayerOptions,
+  removePlayerOptions,
+  toggleOptions,
+  randomShapeAndColorAi
+} from "./views/playerOptions/playerOptions";
+import { removeDropDown } from "./views/dropDown/dropDown";
+import { dom } from "./views/dom";
+import {
+  isTriggeredDifficultyDD,
   isTriggeredPlayerBtnOptions,
-  isTriggeredDifficultyDD
-} from "./eventTriggers";
-import { dom } from "../dom";
-import { removeOptions, removePlayerOptions, toggleOptions } from "../options";
-import gameData from "../../gameData";
-import { removeDropDown } from "../dropDown";
-import { startGame, moveHuman } from "../../gameLogic";
-import { cleanUpGameStart, getColumnRow } from "../board";
-import { isAiFinished, isAiEnabled, startAi } from "../../ai/ai";
+  resetOtherEventsTriggered,
+  eventListenerOrder
+} from "./views/events/eventTriggers";
+import gameData from "./models/gameData";
+import { startGame, moveHuman } from "./models/gameLogic";
+import { cleanUpGameStart, getColumnRow, cleanUp } from "./views/board";
+import { isAiFinished, isAiEnabled, startAi } from "./models/ai/ai";
 
 export const onCloseAnyDropDowns = (e: Event) => {
   const eventType = e.type;
@@ -22,7 +27,7 @@ export const onCloseAnyDropDowns = (e: Event) => {
   if (eventType === "keyup") {
     const key = (e as KeyboardEvent).key;
     if (key === "Escape") {
-      removeOptions();
+      removeAllPlayerOptions();
       removeDropDown();
     }
     if (key !== "Tab") {
@@ -45,7 +50,7 @@ export const onCloseAnyDropDowns = (e: Event) => {
     removeDropDown();
   }
   if (!isTriggeredPlayerBtnOptions() && !options) {
-    removeOptions();
+    removeAllPlayerOptions();
   }
 
   resetOtherEventsTriggered();
@@ -107,4 +112,9 @@ export const onAction = (e: Event) => {
   if (isAiEnabled()) {
     startAi();
   }
+};
+
+export const onPlayAgain = (e: Event) => {
+  cleanUp(e);
+  randomShapeAndColorAi();
 };

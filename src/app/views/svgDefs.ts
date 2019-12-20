@@ -1,6 +1,6 @@
 import { createHTMLFromString, uniqueIds } from "../../utils/index";
 import { dom } from "./dom";
-import gameData, { Player } from "../gameData";
+import gameData, { Player } from "../models/gameData";
 
 const shapesDefs = [
   "cross",
