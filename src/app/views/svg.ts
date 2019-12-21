@@ -11,11 +11,11 @@ const svg: Isvg = {
 `,
   cross: `
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100" height="100" viewBox="0 0 26.4583 26.4583" version="1.1" id="svg8">
-  <g class="animate__left-dot" fill="none" fill-opacity=".9202" stroke="url(%crossLeftDot%)" stroke-width="2.6458" stroke-linecap="round" stroke-linejoin="round">
-    <path d="m 6.4855042,19.986408 a 9.5368996,9.5368996 0 0 1 5.62e-5,-0.03275"/>
+  <g class="animate__left-dot" fill="url(%crossLeftDot%)">
+    <circle cx="6.4855" cy="19.9915" r="1.3368" />
   </g>
-  <g class="animate__right-dot" fill="none" fill-opacity=".9202" stroke="url(%crossRightDot%)" stroke-width="2.6458" stroke-linecap="round" stroke-linejoin="round">
-    <path transform="scale(-1 1)" d="m -19.972774,19.953657 a 9.5368996,9.5368996 0 0 1 -1.1e-5,-0.01438" class="circle3768"/>
+  <g class="animate__right-dot" fill="url(%crossRightDot%)">
+    <circle r="1.3368" cy="19.9915" cx="19.9756" />
   </g>
   <g fill="none" stroke-width="2.6458" stroke-linecap="round">
     <g stroke="url(#c)" transform="translate(0 -.0191)">
