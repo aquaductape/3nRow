@@ -43,11 +43,11 @@ const removePlayerDataAttr = () => {
   });
 };
 
-export const isCellMarkedDOM = (cell: HTMLDivElement) => {
+export const isCellMarkedDOM = (cell: HTMLElement) => {
   const fillFirstChild = cell.firstElementChild;
   if (!fillFirstChild) return null;
 
-  return fillFirstChild.innerHTML.length > 0;
+  return fillFirstChild.firstChild;
 };
 
 export const markBoardDOM = (cell: HTMLDivElement) => {

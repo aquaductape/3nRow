@@ -14,7 +14,12 @@ import {
 } from "./views/events/eventTriggers";
 import gameData from "./models/gameData";
 import { startGame, moveHuman } from "./models/gameLogic";
-import { cleanUpGameStart, getColumnRow, cleanUp } from "./views/board";
+import {
+  cleanUpGameStart,
+  getColumnRow,
+  cleanUp,
+  isCellMarkedDOM
+} from "./views/board";
 import { isAiFinished, isAiEnabled, startAi } from "./models/ai/ai";
 
 export const onCloseAnyDropDowns = (e: Event) => {
@@ -102,8 +107,12 @@ export const onBtnHuman = (e: Event) => {
 
 export const onAction = (e: Event) => {
   if (!valideKeyInput(e)) return null;
+  const target = <HTMLElement>e.target;
 
-  if (gameData.gameOver || !isAiFinished()) return null;
+  if (gameData.gameOver || !isAiFinished() || isCellMarkedDOM(target)) {
+    return null;
+  }
+
   cleanUpGameStart();
 
   const { row, column, cell } = getColumnRow(e);
