@@ -31,10 +31,10 @@
 @keyframes Triangle-Second-Line-A {
   0% {
     opacity: 1;
-    stroke-dashoffset: -50px;
+    stroke-dashoffset: 950px;
   }
   100% {
-    stroke-dashoffset: 0px;
+    stroke-dashoffset: 900px;
     opacity: 1;
   }
 }
@@ -75,7 +75,7 @@
 @keyframes Heart-A {
   0% {
     opacity: 1;
-    stroke-dashoffset: -50px;
+    stroke-dashoffset: 50px;
   }
   100% {
     stroke-dashoffset: 0px;
