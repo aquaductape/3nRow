@@ -28,11 +28,9 @@ const svg: Isvg = {
 </svg>
 `,
   triangle: `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 26.4583 26.4583" height="100" width="100">
-  <g fill="none" stroke-width="2.6458" stroke-linecap="round">
-    <path class="animate__first-line" d="M 21.666126,20.554903 H 4.792205" stroke="url(#e)"/>
-    <path class="animate__second-line" d="M 13.229166,5.941659 4.792205,20.554903" stroke="url(#f)"/>
-    <path class="animate__third-line" d="M 21.666125,20.554904 13.229166,5.941659" stroke="url(#g)"/>
-  </g>
+  <path class="animate__first-line" d="M 21.666126,20.554903 H 4.792205" fill="none" stroke="url(#b)" stroke-width="2.6458" stroke-linecap="round"/>
+  <path class="animate__second-line" d="M 4.792205,20.554903 13.229166,5.941659" fill="none" stroke="url(#c)" stroke-width="2.6458" stroke-linecap="round"/>
+  <path class="animate__third-line" d="m 13.229166,5.941659 8.436959,14.613245" fill="none" stroke="url(#d)" stroke-width="2.6458" stroke-linecap="round"/>
 </svg>`,
   heart: `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 26.4583 26.4583" height="100" width="100">
   <path class="animate__heart" d="m 17.32581,6.9713105 c -0.985,0.076646 -1.966443,0.5097125 -2.723879,1.2811742 L 13.230034,9.6509322 11.85814,8.2524847 C 10.351213,6.7175032 7.9449805,6.5197347 6.3838297,7.8320647 4.3324424,9.5589185 4.6270576,12.382265 6.091749,13.875045 l 6.981183,7.111733 v 0.0023 c 0.0507,0.0507 0.102415,0.07966 0.157102,0.07966 0.05469,0 0.106393,-0.02894 0.157105,-0.07966 v -0.0023 l 6.981183,-7.111733 C 21.821206,12.39407 22.123746,9.5545948 20.076241,7.8276394 19.299642,7.1734488 18.310811,6.8946648 17.32581,6.9713105 Z m 0.0023,0.059743 c 0.970403,-0.075607 1.946764,0.1996118 2.710601,0.8430526 2.020533,1.7042057 1.716631,4.5022909 0.287656,5.9588959 l -6.981183,7.111734 c -0.04482,0.04482 -0.08217,0.06417 -0.115062,0.06417 -0.03288,0 -0.06803,-0.01936 -0.11285,-0.06417 L 6.133843,13.833002 C 4.6927958,12.364321 4.3991053,9.5828389 6.4237113,7.8785318 7.9593611,6.5876383 10.329767,6.7804724 11.81615,8.2945263 l 1.413938,1.4427026 1.413938,-1.4427026 c 0.747181,-0.761017 1.713645,-1.1878654 2.684051,-1.2634724 z" style="line-height:normal;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-feature-settings:normal;text-indent:0;text-align:start;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000;text-transform:none;text-orientation:mixed;white-space:normal;shape-padding:0;isolation:auto;mix-blend-mode:normal;solid-color:#000;solid-opacity:1" color="#000" font-weight="400" font-family="sans-serif" overflow="visible" stroke-linecap="round" fill="none" stroke="url(#f)" stroke-width="2.6004"/>
@@ -98,13 +96,15 @@ const svg: Isvg = {
   </linearGradient>
   <linearGradient gradientUnits="userSpaceOnUse" y2="19.9728" x2="6.4856" y1="13.2292" x1="13.2292" id="d" xlink:href="#a"/>
   <linearGradient gradientUnits="userSpaceOnUse" y2="22.7431" x2="21.9646" y1="11.6221" x1="11.6221" id="c" xlink:href="#b"/>`,
-    triangle: `<linearGradient id="d">
+    triangle: `
+    <linearGradient id="a">
       <stop class="color-primary" offset="0" stop-color="#0cf"/>
       <stop class="color-secondary" offset="1" stop-color="#5fd"/>
     </linearGradient>
-    <linearGradient y2="22.7431" x2="21.9646" y1="11.6221" x1="11.6221" gradientTransform="rotate(135 12.262 17.1198)" gradientUnits="userSpaceOnUse" id="e" xlink:href="#d"/>
-    <linearGradient y2="22.7431" x2="21.9646" y1="11.6221" x1="11.6221" gradientTransform="rotate(75 12.0032 10.372)" gradientUnits="userSpaceOnUse" id="f" xlink:href="#d"/>
-    <linearGradient y2="22.7431" x2="21.9646" y1="11.6221" x1="11.6221" gradientTransform="rotate(-165 15.6774 13.4011)" gradientUnits="userSpaceOnUse" id="g" xlink:href="#d"/>`,
+    <linearGradient y2="22.7431" x2="21.9646" y1="11.6221" x1="11.6221" gradientTransform="rotate(135 12.262 17.1198)" gradientUnits="userSpaceOnUse" id="b" xlink:href="#a"/>
+    <linearGradient y2="2.5327" x2="14.1158" y1="17.7946" x1="17.659" gradientTransform="rotate(-105 11.2177 15.5445)" gradientUnits="userSpaceOnUse" id="c" xlink:href="#a"/>
+    <linearGradient y2="5.1297" x2="6.2886" y1="16.1127" x1="17.2162" gradientTransform="rotate(15 18.6084 26.6946)" gradientUnits="userSpaceOnUse" id="d" xlink:href="#a"/>
+`,
     heart: `<linearGradient id="e">
       <stop class="color-primary" offset="0" stop-color="#ff005b"/>
       <stop class="color-secondary" offset="1" stop-color="#ff00e4" stop-opacity=".9843"/>
