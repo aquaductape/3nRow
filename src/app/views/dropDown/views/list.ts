@@ -17,5 +17,5 @@ export const onList = (e: Event) => {
   });
   removeAllPlayerOptions();
   removeDropDown();
-  cleanUpGameStart();
+  // cleanUpGameStart();
 };

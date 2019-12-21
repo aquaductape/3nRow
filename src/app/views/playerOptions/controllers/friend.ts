@@ -11,7 +11,7 @@ export const controllerOptionsFriend = () => {
   if (!btnFriend) return null;
   btnFriend.addEventListener("click", () => {
     startGame({ continueGame: true });
-    cleanUpGameStart();
+    // cleanUpGameStart();
     removeAllPlayerOptions();
     removeDropDown();
   });
