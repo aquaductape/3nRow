@@ -8,33 +8,46 @@ import gameData, { Player } from "../../models/gameData";
 import { setAllColors } from "../svgDefs";
 import { isAiEnabled } from "../../models/ai/ai";
 import { controllerOptionsFriend } from "./controllers/friend";
-import { controllerAiDifficulty } from "./controllers/ai";
+import { controllerAiDifficulty } from "./controllers/aiDifficulty";
 import { controllerRestart } from "./controllers/restart";
 import { controllerResetScores } from "./controllers/resetScores";
 import { renderPlayerMark } from "./views/playerMark";
 import { renderShapeList, shapes, replaceShape } from "./views/shapeList";
 import { renderColorsList, colors } from "./views/colorList";
 import { Options } from "../../../models/index";
+import {
+  ariaCollapsePlayerOptionsDropdown,
+  ariaExpandPlayerOptionsDropdown
+} from "./views/aria";
+import { ariaCollapseDropdown } from "../dropDown/views/aria";
 
 export const toggleOptions = ({ e, playerId, aiHTML = "" }: Options) => {
+  const target = <HTMLElement>e.currentTarget;
+  const dropDownMenu = <HTMLElement>target.parentElement;
   const className = `.${playerId}-options`;
   const optionsExist = <HTMLElement>document.querySelector(className);
-  const target = <HTMLElement>e.currentTarget;
-  target.classList.add("active");
+  const dropDownOptionsContainer = <HTMLElement>(
+    dropDownMenu.querySelector("." + dom.class.dropDownOptionsContainer)
+  );
 
   if (optionsExist) {
     target.classList.remove("active");
+    ariaCollapsePlayerOptionsDropdown(target);
     removeChild(optionsExist);
     return null;
   }
 
+  target.classList.add("active");
+  ariaExpandPlayerOptionsDropdown(target);
+
   const optionsMenuStr = dom.html.options
-    .replace("%PLAYERID%", playerId)
-    .replace("%AI%", aiHTML);
+    .replace(/%PLAYERID%/, playerId)
+    .replace(/%AI%/, aiHTML);
   const optionsMenu = <HTMLElement>createHTMLFromString(optionsMenuStr);
 
   // inserting adjecent from sibling, that way tabbing is focused to options menu
-  target.insertAdjacentElement("afterend", optionsMenu);
+  // target.insertAdjacentElement("beforeend", optionsMenu);
+  dropDownOptionsContainer.insertAdjacentElement("beforeend", optionsMenu);
   const shapeGroup = <HTMLElement>(
     optionsMenu.querySelector("." + dom.class.shapeGroup)
   );
@@ -42,15 +55,14 @@ export const toggleOptions = ({ e, playerId, aiHTML = "" }: Options) => {
     optionsMenu.querySelector("." + dom.class.colorGroup)
   );
   renderShapeList(shapeGroup, playerId);
-  renderColorsList(
-    colorGroup,
-    playerId === "P1" ? gameData.player1 : gameData.player2
-  );
+  renderColorsList(colorGroup, playerId);
 
   controllerAiDifficulty();
   controllerResetScores();
   controllerRestart();
   controllerOptionsFriend();
+  // if there's ai settings rendered
+  ariaCollapseDropdown();
 };
 
 export const setPlayerSettings = (player: Player) => {
@@ -86,21 +98,38 @@ const setSettingsFromLocalStorage = (player: Player) => {
   }
 };
 
-export const removePlayerOptions = (playerId: string) => {
-  const className = `.${playerId}-options`;
-  const el = document.querySelector(className);
-  if (!el) return null;
-  const parent = <HTMLElement>el.parentElement;
-  parent.removeChild(el);
-
-  const playerBtnOptions = <NodeListOf<HTMLElement>>(
-    document.querySelectorAll("." + dom.class.playerBtnOptions)
+export const removeCurrentPlayerOption = (dropDownOptionsMenu: HTMLElement) => {
+  const playerBtnOption = <HTMLElement>(
+    dropDownOptionsMenu.querySelector("." + dom.class.playerBtnOptions)
   );
-  playerBtnOptions.forEach(btn => btn.classList.remove("active"));
+  const dropDownOptions = <HTMLElement>(
+    dropDownOptionsMenu.querySelector("." + dom.class.dropDownOptions)
+  );
+  if (!dropDownOptions) return null;
+
+  const parent = <HTMLElement>dropDownOptions.parentElement;
+
+  parent.removeChild(dropDownOptions);
+  playerBtnOption.classList.remove("active");
+  ariaCollapsePlayerOptionsDropdown(playerBtnOption);
+};
+
+export const removePlayerOptionsById = (playerId: string) => {
+  const id = `${playerId}-btn-options`;
+  const className = `${playerId}-options`;
+  const btnPlayerOption = <HTMLElement>document.getElementById(id);
+  const options = <HTMLElement>document.querySelector("." + className);
+
+  if (!options) return null;
+
+  const parent = <HTMLElement>options.parentElement;
+  parent.removeChild(options);
+  btnPlayerOption.classList.remove("active");
+  ariaCollapsePlayerOptionsDropdown(btnPlayerOption);
 };
 
 export const removeAllPlayerOptions = () => {
-  const className = `.${dom.class.options}`;
+  const className = `.${dom.class.dropDownOptions}`;
   const el = <HTMLElement>document.querySelector(className);
   if (!el) return null;
   const parent = <HTMLElement>el.parentElement;
@@ -109,7 +138,10 @@ export const removeAllPlayerOptions = () => {
   const playerBtnOptions = <NodeListOf<HTMLElement>>(
     document.querySelectorAll("." + dom.class.playerBtnOptions)
   );
-  playerBtnOptions.forEach(btn => btn.classList.remove("active"));
+  playerBtnOptions.forEach(btn => {
+    btn.classList.remove("active");
+    ariaCollapsePlayerOptionsDropdown(btn);
+  });
 };
 
 export const setScore = (player?: Player) => {

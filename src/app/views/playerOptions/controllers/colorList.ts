@@ -10,7 +10,9 @@ const changeShapeColor = (
   player: IPlayer
 ) => {
   if (!valideKeyInput(e)) return null;
-  // debugger;
+  e.preventDefault();
+  e.stopPropagation();
+
   player.primaryColor = primaryColor;
   player.secondaryColor = secondaryColor;
   localStorage.setItem(`${player.id}-primary-color`, primaryColor);

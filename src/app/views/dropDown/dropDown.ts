@@ -1,9 +1,15 @@
 import { dom } from "../dom";
-import { createHTMLFromString } from "../../../utils/index";
+import { createHTMLFromString, collapseAria } from "../../../utils/index";
 import { eventListenerOrder } from "../events/eventTriggers";
 import { controllerList } from "./controllers/list";
+import { valideKeyInput } from "../../appControllers";
+import { ariaExpandDropdown, ariaCollapseDropdown } from "./views/aria";
 
-export const toggleDropDown = () => {
+export const toggleDropDown = (e: Event) => {
+  if (!valideKeyInput(e)) return null;
+  e.preventDefault();
+  e.stopPropagation();
+
   eventListenerOrder.dropDownDifficulty = true;
   const btnDropDown = <HTMLDivElement>(
     document.querySelector("." + dom.class.btnDifficultyDDContainer)
@@ -17,24 +23,31 @@ export const toggleDropDown = () => {
     const isWithinView = withinViewPort(el);
     moveElement(el, isWithinView ? "bottom" : "top");
     onDropDownSettings();
+    ariaExpandDropdown();
   } else {
     btnDropDown.removeChild(dropDown);
+    ariaCollapseDropdown();
   }
 };
 
-export const removeDropDown = () => {
+export const removeDropDown = ({ refocus }: { refocus?: boolean } = {}) => {
   const btnDropDown = <HTMLDivElement>(
     document.querySelector("." + dom.class.btnDifficultyDDContainer)
   );
   const dropDown = document.querySelector("." + dom.class.dropDownDifficulty);
   if (!dropDown || !btnDropDown) return null;
   btnDropDown.removeChild(dropDown);
+  if (refocus) {
+    const btn = <HTMLElement>btnDropDown.firstElementChild;
+    btn.focus();
+  }
 };
 
 export const onDropDownSettings = () => {
   const settings = document.querySelector(dom.class.dropDownSettings);
   if (!settings) return null;
-  const list = settings.childNodes;
+  const list = Array.from(settings.children);
+  // const list = [...settings.children]
 
   list.forEach(list => controllerList(list as HTMLElement));
 };

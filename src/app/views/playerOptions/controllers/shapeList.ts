@@ -13,6 +13,9 @@ export const controllerShapeList = (
 
 const onList = (e: Event, list: Element, shape: string, player: IPlayer) => {
   if (!valideKeyInput(e)) return null;
+  e.preventDefault();
+  e.stopPropagation();
+
   player.changeShape(shape);
   const allMarks = document.querySelectorAll(`[data-player="${player.id}"]`);
   localStorage.setItem(`${player.id}-shape`, shape);
