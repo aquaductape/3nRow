@@ -20,7 +20,7 @@ const cells: NodeListOf<HTMLElement> = document.querySelectorAll(
   dom.query.dataColumn
 );
 const gameStart = <HTMLElement>document.getElementById(dom.id.gameStart);
-const board = <HTMLElement>document.querySelector(".board");
+const board = <HTMLElement>document.querySelector("." + dom.class.board);
 const player1BtnOptions = <HTMLElement>(
   document.getElementById(dom.id.P1BtnOptions)
 );

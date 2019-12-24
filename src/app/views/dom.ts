@@ -21,8 +21,11 @@ const className = {
   btnDifficultyDDContainer: "btn-dropdown-difficulty",
   dropDownSettings: ".dropdown-settings",
   playerBtnOptions: "player-btn-options",
+  dropDownOptionsMenu: "dropdown-options-menu",
   dropDownOptions: "dropdown-options",
+  dropDownOptionsContainer: "dropdown-options-container",
   optionsFriend: "options-friend",
+  playerBtnGroup: "player-btn-group",
   playerMark: "player-mark",
   playerOptions: "player-options",
   playerName: "player-name",
@@ -54,7 +57,7 @@ export const dom = {
   html: {
     btnPlayAgain: `<button id="${id.btnPlayAgain}" class="btn btn-primary btn-start">Play Again?</button>`,
     btnBotDropdown: `<div  class="${className.dropDownDifficulty} dropdown hide-v"> <ul class="dropdown-settings"> <li class="dropdown-settings-list" tabindex="0">hard</li> <li class="dropdown-settings-list" tabindex="0">impossible</li> <li class="dropdown-settings-list" tabindex="0">cheater</li> </ul> </div>`,
-    options: `<div class="dropdown-options %PLAYERID%-options"> <div class="dropdown-options-container"> <div class="options-shape"> <h2 class="options-title">Shape</h2> <hr> <ul class="shape-group"></ul> </div> <div class="options-color"> <h2 class="options-title">Color</h2> <hr> <ul class="color-group"></ul> </div> %AI% <div class="options-gameplay"> <hr> <button id="options-restart" class="btn btn-secondary options-btn">Restart</button> <button id="options-reset-scores" class="btn btn-secondary options-btn">Reset Scores</button> </div> </div> </div>`,
+    options: `<div class="dropdown-options %PLAYERID%-options"><div class="options-shape"> <h2 class="options-title">Shape</h2> <hr> <ul class="shape-group"></ul> </div> <div class="options-color"> <h2 class="options-title">Color</h2> <hr> <ul class="color-group"></ul> </div> %AI% <div class="options-gameplay"> <hr> <button id="options-restart" class="btn btn-secondary options-btn">Restart</button> <button id="options-reset-scores" class="btn btn-secondary options-btn">Reset Scores</button> </div>  </div>`,
     optionsAI: `<div class="options-ai"> <h2 class="options-title">Play Against ...</h2> <hr> <div class="btn-dropdown-difficulty btn-dropdown options-dropdown"><button class="btn-ai btn btn-secondary options-btn">AI Difficulty</button> </div><button class="options-friend btn btn-secondary options-btn">Friend</button>`
   },
   svg: {
