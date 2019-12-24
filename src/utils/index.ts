@@ -1,4 +1,4 @@
-import { TFlattenBoard } from "../models/index";
+import { TFlattenBoard, ItoggleAriaExpanded } from "../models/index";
 
 export const flattenArr = <T>(arr: T[]): any[] => {
   const flatArr: any[] = [];
@@ -92,4 +92,37 @@ export const removeChild = (el: HTMLElement) => {
 
 export const randomItemFromArr = (arr: any[]) => {
   return Math.floor(Math.random() * arr.length);
+};
+
+export const toggleAriaExpanded = ({
+  el,
+  closeLabel,
+  openLabel,
+  label
+}: ItoggleAriaExpanded) => {
+  const result = el.getAttribute("aria-expanded");
+
+  if (result === "true") {
+    el.setAttribute("aria-expanded", "false");
+    el.setAttribute("aria-label", `open ${label}` || openLabel || "open");
+  } else {
+    el.setAttribute("aria-expanded", "true");
+    el.setAttribute("aria-label", `close ${label}` || closeLabel || "close");
+  }
+};
+
+export const collapseAria = ({
+  el,
+  label
+}: Pick<ItoggleAriaExpanded, "el" | "label">) => {
+  el.setAttribute("aria-expanded", "false");
+  el.setAttribute("aria-label", `open ${label}` || "open");
+};
+
+export const expandAria = ({
+  el,
+  label
+}: Pick<ItoggleAriaExpanded, "el" | "label">) => {
+  el.setAttribute("aria-expanded", "true");
+  el.setAttribute("aria-label", `close ${label}` || "close");
 };
