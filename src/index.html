@@ -14,17 +14,24 @@
   <main>
     <div class="game-container">
       <div class="player-btn-group">
-        <div id="P1-btn-options" class="player-btn-options" role="button" tabindex="0">
-          <div class="player-mark" data-player="P1"></div>
-          <div class="player-score">-</div>
-          <div class="player-options">
+        <div class="dropdown-options-menu">
+          <div id="P1-btn-options" class="player-btn-options" aria-expanded="false" aria-label="open player 1 settings"
+            role="button" tabindex="0">
+            <div class="player-mark" data-player="P1"></div>
+            <div class="player-score">-</div>
+            <div class="player-options">
+            </div>
           </div>
+          <div class="dropdown-options-container"></div>
         </div>
-        <div id="P2-btn-options" class="player-btn-options" role="button" tabindex="0">
-          <div class="player-mark" data-player="P2"></div>
-          <div class="player-score">-</div>
-          <div class="player-options">
+        <div class="dropdown-options-menu">
+          <div id="P2-btn-options" class="player-btn-options" aria-expanded="false" aria-label="open player 2 settings"
+            role="button" tabindex="0">
+            <div class="player-mark" data-player="P2"></div>
+            <div class="player-score">-</div>
+            <div class="player-options"></div>
           </div>
+          <div class="dropdown-options-container"></div>
         </div>
       </div>
       <div class="board">
