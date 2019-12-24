@@ -313,11 +313,15 @@ svg {
   z-index: 1;
 }
 
+.dropdown-options-menu {
+  width: 48%;
+}
+
 .player-btn-options {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 48%;
+  height: 100%;
   padding: 10px;
   background: rgba(4, 0, 255, 0.4);
   border-radius: 10px;
@@ -339,13 +343,13 @@ svg {
 
   &.active {
     // border-bottom: 4px solid blue;
-    box-shadow: -3px 9px 0 3px #ddd;
+    box-shadow: -3px 9px 0 3px #eee;
   }
 }
 
 #P1-btn-options {
   &.active {
-    box-shadow: 3px 9px 0 3px #ddd;
+    box-shadow: 3px 9px 0 3px #eee;
   }
 }
 
@@ -380,7 +384,6 @@ svg {
 }
 
 .dropdown-options {
-  // display: none;
   position: absolute;
   top: 8vh;
   max-width: 400px;
@@ -389,6 +392,15 @@ svg {
   border-radius: 30px;
   background: #eee;
   color: #333;
+}
+
+.dropdown-options-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
 }
 
 .options-dropdown {
@@ -400,9 +412,6 @@ svg {
 .P2-options {
   border-top-right-radius: 0;
   right: 0;
-}
-
-.dropdown-options-container {
 }
 
 .options-btn {

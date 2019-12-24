@@ -82,3 +82,10 @@ export interface IeventListenerOrder {
   player2BtnOptions: boolean;
   dropDownDifficulty: boolean;
 }
+
+export interface ItoggleAriaExpanded {
+  el: HTMLElement;
+  closeLabel?: string;
+  openLabel?: string;
+  label?: string;
+}
