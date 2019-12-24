@@ -1,8 +1,9 @@
 import {
   removeAllPlayerOptions,
-  removePlayerOptions,
+  removePlayerOptionsById,
   toggleOptions,
-  randomShapeAndColorAi
+  randomShapeAndColorAi,
+  removeCurrentPlayerOption
 } from "./views/playerOptions/playerOptions";
 import { removeDropDown } from "./views/dropDown/dropDown";
 import { dom } from "./views/dom";
@@ -22,6 +23,28 @@ import {
 } from "./views/board";
 import { isAiFinished, isAiEnabled, startAi } from "./models/ai/ai";
 
+const closeCurrentPopUp = (target: HTMLElement) => {
+  let closestTarget = <HTMLElement>(
+    target.closest("." + dom.class.btnDifficultyDDContainer)
+  );
+  const dropDownDifficulty =
+    closestTarget &&
+    <HTMLElement>(
+      closestTarget.querySelector("." + dom.class.dropDownDifficulty)
+    );
+  if (closestTarget && dropDownDifficulty) {
+    removeDropDown({ refocus: true });
+    return null;
+  }
+  closestTarget = <HTMLElement>(
+    target.closest("." + dom.class.dropDownOptionsMenu)
+  );
+  if (closestTarget) {
+    removeCurrentPlayerOption(closestTarget);
+    return null;
+  }
+};
+
 export const onCloseAnyDropDowns = (e: Event) => {
   const eventType = e.type;
   const target = e.target;
@@ -32,10 +55,10 @@ export const onCloseAnyDropDowns = (e: Event) => {
   if (eventType === "keyup") {
     const key = (e as KeyboardEvent).key;
     if (key === "Escape") {
-      removeAllPlayerOptions();
-      removeDropDown();
+      closeCurrentPopUp(target as HTMLElement);
     }
     if (key !== "Tab") {
+      resetOtherEventsTriggered();
       return null;
     }
   }
@@ -44,7 +67,7 @@ export const onCloseAnyDropDowns = (e: Event) => {
   const dropDownDifficulty = el.closest(
     "." + dom.class.btnDifficultyDDContainer
   );
-  const options = el.closest("." + dom.class.options);
+  const options = el.closest("." + dom.class.dropDownOptions);
 
   // closes any dropdowns when clicked outside
   // in order for this logic to work, this event
@@ -66,7 +89,7 @@ export const valideKeyInput = (e: Event) => {
   const eventType = event.type;
   if (eventType === "keydown") {
     const key = event.key;
-    if (key !== "Enter" && key !== " ") return null;
+    if (key !== "Enter" && key !== " ") return false;
   }
   return true;
 };
@@ -76,7 +99,7 @@ export const onPlayer1BtnOptions = (e: Event) => {
   eventListenerOrder.player1BtnOptions = true;
   const playerId = gameData.player1.id;
 
-  removePlayerOptions(gameData.player2.id);
+  removePlayerOptionsById(gameData.player2.id);
   toggleOptions({ e, playerId });
 };
 
@@ -86,7 +109,7 @@ export const onPlayer2BtnOptions = (e: Event) => {
   const playerId = gameData.player2.id;
   const optionsAiStr = dom.html.optionsAI;
 
-  removePlayerOptions(gameData.player1.id);
+  removePlayerOptionsById(gameData.player1.id);
   toggleOptions({ e, playerId, aiHTML: optionsAiStr });
 };
 
