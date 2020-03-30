@@ -1,8 +1,6 @@
 import { valideKeyInput } from "../../../appControllers";
 import { determineSpeed } from "../../../models/ai/ai";
 import { startGame } from "../../../models/gameLogic";
-import { removeAllPlayerOptions } from "../../playerOptions/playerOptions";
-import { removeDropDown } from "../dropDown";
 
 export const controllerList = (list: HTMLElement) => {
   list.addEventListener("click", onList);
@@ -23,7 +21,4 @@ const onList = (e: Event) => {
     aiSpeed: speed,
     continueGame: true
   });
-  removeAllPlayerOptions();
-  removeDropDown();
-  // cleanUpGameStart();
 };

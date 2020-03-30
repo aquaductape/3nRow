@@ -15,7 +15,7 @@ export interface IPlayer {
 }
 
 export interface Options {
-  e: Event;
+  target: HTMLElement;
   playerId: string;
   aiHTML?: string;
 }

@@ -1,16 +1,16 @@
 import { dom } from "../dom";
 import { createHTMLFromString, collapseAria } from "../../../utils/index";
-import { eventListenerOrder } from "../events/eventTriggers";
 import { controllerList } from "./controllers/list";
 import { valideKeyInput } from "../../appControllers";
 import { ariaExpandDropdown, ariaCollapseDropdown } from "./views/aria";
+import addEscapeHatch from "../../../utils/addEscapeHatch";
 
 export const toggleDropDown = (e: Event) => {
   if (!valideKeyInput(e)) return null;
+  const target = e.currentTarget as HTMLElement;
   e.preventDefault();
   e.stopPropagation();
 
-  eventListenerOrder.dropDownDifficulty = true;
   const btnDropDown = <HTMLDivElement>(
     document.querySelector("." + dom.class.btnDifficultyDDContainer)
   );
@@ -24,10 +24,39 @@ export const toggleDropDown = (e: Event) => {
     moveElement(el, isWithinView ? "bottom" : "top");
     onDropDownSettings();
     ariaExpandDropdown();
+    console.log("dropdown");
   } else {
-    btnDropDown.removeChild(dropDown);
+    btnDropDown.removeChild(dropDown!);
     ariaCollapseDropdown();
   }
+  addEscapeHatch({
+    element: target as Element,
+    onStart: e => {
+      const clickedTarget = e.event.target as HTMLElement;
+      console.log("onStart dropdown");
+      if (e.event.type === "keyup") {
+        if (clickedTarget.closest("." + dom.class.dropDownDifficulty)) {
+          return false;
+        }
+      }
+      if (e.event.type === "click") {
+        if (clickedTarget.closest("." + dom.class.dropDownDifficulty)) {
+          return false;
+        }
+      }
+      // e.prevElement = clickedTarget;
+      return true;
+    },
+    onExit: () => {
+      const dropDown = document.querySelector(
+        "." + dom.class.dropDownDifficulty
+      )!;
+      // debugger;
+      console.log("dropdown exit");
+      btnDropDown.removeChild(dropDown);
+      ariaCollapseDropdown();
+    }
+  });
 };
 
 export const removeDropDown = ({ refocus }: { refocus?: boolean } = {}) => {

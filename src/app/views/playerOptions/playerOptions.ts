@@ -21,8 +21,7 @@ import {
 } from "./views/aria";
 import { ariaCollapseDropdown } from "../dropDown/views/aria";
 
-export const toggleOptions = ({ e, playerId, aiHTML = "" }: Options) => {
-  const target = <HTMLElement>e.currentTarget;
+export const toggleOptions = ({ target, playerId, aiHTML = "" }: Options) => {
   const dropDownMenu = <HTMLElement>target.parentElement;
   const className = `.${playerId}-options`;
   const optionsExist = <HTMLElement>document.querySelector(className);
@@ -126,22 +125,6 @@ export const removePlayerOptionsById = (playerId: string) => {
   parent.removeChild(options);
   btnPlayerOption.classList.remove("active");
   ariaCollapsePlayerOptionsDropdown(btnPlayerOption);
-};
-
-export const removeAllPlayerOptions = () => {
-  const className = `.${dom.class.dropDownOptions}`;
-  const el = <HTMLElement>document.querySelector(className);
-  if (!el) return null;
-  const parent = <HTMLElement>el.parentElement;
-  parent.removeChild(el);
-
-  const playerBtnOptions = <NodeListOf<HTMLElement>>(
-    document.querySelectorAll("." + dom.class.playerBtnOptions)
-  );
-  playerBtnOptions.forEach(btn => {
-    btn.classList.remove("active");
-    ariaCollapsePlayerOptionsDropdown(btn);
-  });
 };
 
 export const setScore = (player?: Player) => {

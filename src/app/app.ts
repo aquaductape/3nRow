@@ -4,7 +4,6 @@ import { setTilesAriaAll } from "./views/aria";
 import { addSVGDefs } from "./views/svgDefs";
 import { setPlayerSettings } from "./views/playerOptions/playerOptions";
 import {
-  onCloseAnyDropDowns,
   onAction,
   onBtnAi,
   onBtnHuman,
@@ -36,9 +35,6 @@ const appInit = () => {
   addSVGDefs();
   renderAntMenu();
 };
-
-document.addEventListener("click", onCloseAnyDropDowns);
-document.addEventListener("keyup", onCloseAnyDropDowns);
 
 player1BtnOptions.addEventListener("click", onPlayer1BtnOptions);
 player1BtnOptions.addEventListener("keydown", onPlayer1BtnOptions);
