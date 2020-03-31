@@ -69,13 +69,23 @@ export const onPlayer2BtnOptions = (e: Event) => {
     onStart: e => {
       const clickedTarget = e.event.target as HTMLElement;
       console.log("onStart playerbtn2", clickedTarget);
-      console.log("player2 element", e.element);
-      if (clickedTarget.closest("#" + dom.id.optionsRestart)) {
-        return true;
+      if (e.event.type === "click") {
+        if (clickedTarget.closest("#" + dom.id.optionsRestart)) {
+          return true;
+        }
       }
       if (clickedTarget.closest("." + dom.class.dropDownOptions)) {
         return false;
       }
+
+      // if (
+      //   e.parentOfRemovedElement &&
+      //   document
+      //     .querySelector("." + dom.class.dropDownOptions)
+      //     ?.contains(e.parentOfRemovedElement)
+      // ) {
+      //   return false;
+      // }
 
       return true;
     },

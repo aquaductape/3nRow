@@ -39,11 +39,13 @@ export const toggleDropDown = (e: Event) => {
           return false;
         }
       }
-      if (e.event.type === "click") {
-        if (clickedTarget.closest("." + dom.class.dropDownDifficulty)) {
-          return false;
-        }
-      }
+      // if (e.event.type === "click") {
+      //   console.log("clicked!!!!!1");
+      //   if (clickedTarget.closest("." + dom.class.dropDownDifficulty)) {
+      //     e.parentOfRemovedElement = btnDropDown;
+      //     return true;
+      //   }
+      // }
       // e.prevElement = clickedTarget;
       return true;
     },
@@ -54,6 +56,7 @@ export const toggleDropDown = (e: Event) => {
       // debugger;
       console.log("dropdown exit");
       btnDropDown.removeChild(dropDown);
+
       ariaCollapseDropdown();
     }
   });

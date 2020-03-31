@@ -8,29 +8,35 @@ interface IAddEscapeHatch {
   isKeyDown?: boolean;
 }
 
+type TListeners = {
+  removeOnClick: (e: TouchEvent | MouseEvent) => void;
+  removeOnEscapeKey: (e: KeyboardEvent) => void;
+  removeOnKeyUp: (e: KeyboardEvent) => void;
+};
 interface IEvent {
   event: MouseEvent | TouchEvent | KeyboardEvent;
   element: Element | null;
-  prevElement: Element;
+  parentOfRemovedElement: Element | null;
   keepElementRef: () => void;
   removeAll: () => void;
 }
 interface IRef {
   stopPropagation?: boolean;
   nodes: {
-    removeOnClick: (e: TouchEvent | MouseEvent) => void;
-    removeOnEscapeKey: (e: KeyboardEvent) => void;
-    removeOnKeyUp: (e: KeyboardEvent) => void;
-    onExitWithTearDown: () => void;
+    onExitWithTearDown: Function;
+    onStart?: (e: IEvent) => boolean;
     onExit?: () => void;
     element: Element;
   }[];
+  onTouch?: (e: TouchEvent) => void;
+  usedClick: boolean;
   currentIdx: number;
 }
 
 let ref = <IRef>{
   nodes: [],
-  currentIdx: 0
+  currentIdx: 0,
+  usedClick: false
 };
 
 const customEvent = <IEvent>{
@@ -50,62 +56,65 @@ const stopPropagation = () => {
   return false;
 };
 
-const getCurrentNode = () => {
-  const idx = ref.nodes.length - 1;
-  if (!ref.nodes.length) return null;
-  return ref.nodes[idx].element;
-};
 const onExitWithTearDown = () => {
   const idx = ref.nodes.length - 1;
   if (!ref.nodes.length) return null;
   const { onExit } = ref.nodes[idx];
   if (onExit) onExit();
-  removeLastListeners();
   ref.nodes.pop();
 };
-const removeLastListeners = () => {
-  const { removeOnClick, removeOnEscapeKey, removeOnKeyUp } = ref.nodes[
-    ref.nodes.length - 1
-  ];
+const removeListeners = ({
+  removeOnClick,
+  removeOnEscapeKey,
+  removeOnKeyUp
+}: TListeners) => {
   document.removeEventListener("click", removeOnClick, true);
-  document.removeEventListener("touchend", removeOnClick, true);
   document.removeEventListener("keydown", removeOnEscapeKey, true);
   document.removeEventListener("keyup", removeOnKeyUp, true);
-};
-const addListeners = () => {
-  for (let i = ref.nodes.length - 1; i >= 0; i--) {
-    const { removeOnClick, removeOnEscapeKey, removeOnKeyUp } = ref.nodes[i];
-    document.addEventListener("click", removeOnClick, true);
-    // if click is used, skip touchend
-
-    document.addEventListener("touchend", removeOnClick, true);
-    document.addEventListener("keydown", removeOnEscapeKey, true);
-    document.addEventListener("keyup", removeOnKeyUp, true);
+  if (ref.onTouch) {
+    document.removeEventListener("touchstart", ref.onTouch!, true);
   }
 };
-const removeAllListeners = () => {
-  ref.nodes.forEach(({ removeOnClick, removeOnEscapeKey, removeOnKeyUp }) => {
-    document.removeEventListener("click", removeOnClick!, true);
-    document.removeEventListener("touchend", removeOnClick!, true);
-    document.removeEventListener("keydown", removeOnEscapeKey!, true);
-    document.removeEventListener("keyup", removeOnKeyUp!, true);
-  });
+
+const addListeners = ({
+  removeOnClick,
+  removeOnEscapeKey,
+  removeOnKeyUp
+}: TListeners) => {
+  document.addEventListener("click", removeOnClick, true);
+  document.addEventListener("keydown", removeOnEscapeKey, true);
+  document.addEventListener("keyup", removeOnKeyUp, true);
+
+  if (ref.usedClick) return null;
+
+  ref.onTouch = () => {
+    let isMove = false;
+    const onMove = () => (isMove = true);
+    const onEnd = (e: TouchEvent) => {
+      const removeAllTouchEvents = () => {
+        document.removeEventListener("touchmove", onMove, true);
+        document.removeEventListener("touchend", onEnd, true);
+      };
+      if (isMove) {
+        removeAllTouchEvents();
+      }
+      removeOnClick(e);
+      removeAllTouchEvents();
+    };
+    document.addEventListener("touchmove", onMove, true);
+    document.addEventListener("touchend", onEnd, true);
+  };
+  document.addEventListener("touchstart", ref.onTouch, true);
 };
 
-const isChild = (element: Element) => {
+const parentContains = (element: Element) => {
   if (!ref.nodes.length) return false;
 
   const parent = ref.nodes[ref.nodes.length - 1].element;
 
-  return parent?.contains(element);
+  return parent.contains(element);
 };
-const eventsExist = () => {
-  if (!ref.nodes.length) return false;
-  return (
-    ref.nodes[ref.nodes.length - 1].removeOnClick ||
-    ref.nodes[ref.nodes.length - 1].removeOnEscapeKey
-  );
-};
+let areEventListenersAdded = false;
 
 export default function addEscapeHatch({
   element,
@@ -114,95 +123,115 @@ export default function addEscapeHatch({
   onRemove,
   allowToggle = true
 }: IAddEscapeHatch) {
-  // const elementIsDifferent = ref.element ? ref.element !== element : false;
-  // is child?
-  // debugger;
-  if (isChild(element)) {
-    if (eventsExist()) {
-      removeLastListeners();
-      ref.nodes.pop();
+  if (parentContains(element)) {
+    ref.nodes.pop();
 
-      console.log("event already exist");
-      return null;
-    }
+    console.log("event already exist");
+    return null;
   }
 
   const removeOnClick = (e: TouchEvent | MouseEvent) => {
-    // e.target = element
-
     const clickedTarget = e.target as HTMLElement;
     customEvent.event = e;
-    customEvent.element = getCurrentNode();
-    if (onStart && !onStart(customEvent)) {
-      // ref.currentIdx -= 1;
-      return null;
-    }
-    if (element.contains(clickedTarget)) {
-      console.log("same");
-      return null;
-    }
-    console.log("remove listeners");
+    ref.usedClick = true;
 
-    onExitWithTearDown();
-  };
-  const removeOnEscapeKey = (e: KeyboardEvent) => {
-    customEvent.event = e;
-    const clickedTarget = e.target as HTMLElement;
-    console.log("keydown");
-    console.log(e.target);
-
-    if (e.key.match(/escape/i)) {
+    for (let i = ref.nodes.length - 1; i >= 0; i--) {
+      const { onStart, element } = ref.nodes[i];
+      if (onStart && !onStart(customEvent)) continue;
+      if (element.contains(clickedTarget)) {
+        console.log("same");
+        continue;
+      }
+      console.log("remove listeners");
       onExitWithTearDown();
     }
-
-    if (!e.key.match(/enter/i)) return null;
-
-    if (element.contains(clickedTarget)) {
-      return null;
+    console.log(`Callback list length: ${ref.nodes.length}`);
+    customEvent.parentOfRemovedElement = null;
+    if (!ref.nodes.length) {
+      removeListeners({ removeOnClick, removeOnEscapeKey, removeOnKeyUp });
+      areEventListenersAdded = false;
     }
+  };
+  const removeOnEscapeKey = (e: KeyboardEvent) => {
+    const clickedTarget = e.target as HTMLElement;
+    customEvent.event = e;
 
-    if (onStart && !onStart(customEvent)) return null;
-    onExitWithTearDown();
+    console.log("keydown");
+
+    for (let i = ref.nodes.length - 1; i >= 0; i--) {
+      if (e.key.match(/escape/i)) {
+        onExitWithTearDown();
+        continue;
+      }
+
+      if (!e.key.match(/enter/i)) return null;
+      const { onStart, element } = ref.nodes[i];
+      if (onStart && !onStart(customEvent)) continue;
+      if (element.contains(clickedTarget)) {
+        console.log("same");
+        continue;
+      }
+      console.log("remove listeners");
+      onExitWithTearDown();
+    }
+    console.log(`Callback list length: ${ref.nodes.length}`);
+    customEvent.parentOfRemovedElement = null;
+    if (!ref.nodes.length) {
+      removeListeners({ removeOnClick, removeOnEscapeKey, removeOnKeyUp });
+      areEventListenersAdded = false;
+    }
   };
   const removeOnKeyUp = (e: KeyboardEvent) => {
-    customEvent.event = e;
     if (stopPropagation()) return null;
     const clickedTarget = e.target as HTMLElement;
+    customEvent.event = e;
 
     console.log("keyup");
-    if (!e.key.match(/tab/i)) return null;
-    if (element.contains(clickedTarget)) {
-      return null;
-    }
-    console.log("tabbing");
-    if (onStart && !onStart(customEvent)) return null;
 
-    onExitWithTearDown();
+    for (let i = ref.nodes.length - 1; i >= 0; i--) {
+      if (!e.key.match(/tab/i)) return null;
+
+      const { onStart, element } = ref.nodes[i];
+
+      console.log("tabbing");
+      if (onStart && !onStart(customEvent)) continue;
+      if (element.contains(clickedTarget)) {
+        console.log("same");
+        continue;
+      }
+      console.log("remove listeners");
+      onExitWithTearDown();
+    }
+    console.log(`Callback list length: ${ref.nodes.length}`);
+    customEvent.parentOfRemovedElement = null;
     ref.stopPropagation = false;
+    if (!ref.nodes.length) {
+      removeListeners({ removeOnClick, removeOnEscapeKey, removeOnKeyUp });
+      areEventListenersAdded = false;
+    }
   };
   console.log("added");
   // ref.element = element;
   ref.nodes.push({
     element,
-    removeOnClick,
-    removeOnEscapeKey,
-    removeOnKeyUp,
+    onStart,
     onExit,
     onExitWithTearDown
   });
   // event.stopPropagation doesn't stop created keyup listener from fireing
   ref.stopPropagation = true;
 
-  removeAllListeners();
-  // adds them in reverse order
-  addListeners();
+  if (!areEventListenersAdded) {
+    addListeners({ removeOnClick, removeOnEscapeKey, removeOnKeyUp });
+    areEventListenersAdded = true;
+  }
 
-  return {
-    remove() {
-      if (onRemove) onRemove();
+  // return {
+  //   remove() {
+  //     if (onRemove) onRemove();
 
-      removeLastListeners();
-      ref.nodes.pop();
-    }
-  };
+  //     // removeListeners();
+  //     ref.nodes.pop();
+  //   }
+  // };
 }
