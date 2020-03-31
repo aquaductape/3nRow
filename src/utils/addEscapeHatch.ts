@@ -37,9 +37,12 @@ interface IRef {
   usedClick: boolean;
   currentIdx: number;
 }
-// if (IOS && !IOS13) {
-// html.style.webkitTapHighlightColor = "rgba(0, 0, 0, 0)";
-// }
+
+if (IOS && !IOS13) {
+  const html = document.querySelector("html")!;
+  html.style.cursor = "pointer";
+  html.style.webkitTapHighlightColor = "rgba(0, 0, 0, 0)";
+}
 
 let ref = <IRef>{
   nodes: [],
@@ -79,11 +82,9 @@ const removeListeners = ({
   removeOnTouchEnd,
   onTouchMove
 }: TListeners) => {
-  // document.removeEventListener("click", removeOnClick, true);
+  document.removeEventListener("click", removeOnClick, true);
   document.removeEventListener("keydown", removeOnEscapeKey, true);
   document.removeEventListener("keyup", removeOnKeyUp, true);
-  // document.removeEventListener("touchend", removeOnTouchEnd, true);
-  // document.removeEventListener("touchmove", onTouchMove, true);
 };
 
 const addListeners = ({
@@ -96,10 +97,6 @@ const addListeners = ({
   document.addEventListener("click", removeOnClick, true);
   document.addEventListener("keydown", removeOnEscapeKey, true);
   document.addEventListener("keyup", removeOnKeyUp, true);
-  // if (IOS && !IOS13) {
-  // document.addEventListener("touchend", removeOnTouchEnd, true);
-  // document.addEventListener("touchmove", onTouchMove, true);
-  // }
 };
 
 const parentContains = (element: Element) => {
