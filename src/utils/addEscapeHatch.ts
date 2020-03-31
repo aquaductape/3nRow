@@ -38,11 +38,11 @@ interface IRef {
   usedClick: boolean;
   currentIdx: number;
 }
-if (IOS && !IOS13) {
-  const html = document.querySelector("html")!;
-  html.style.cursor = "pointer";
-  html.style.webkitTapHighlightColor = "rgba(0, 0, 0, 0)";
-}
+// if (IOS && !IOS13) {
+//   const html = document.querySelector("html")!;
+//   html.style.cursor = "pointer";
+//   html.style.webkitTapHighlightColor = "rgba(0, 0, 0, 0)";
+// }
 
 let ref = <IRef>{
   nodes: [],
