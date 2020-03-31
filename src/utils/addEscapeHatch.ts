@@ -1,5 +1,6 @@
 import { IOS, IOS13 } from "./browserInfo";
 
+// html.style.webkitTapHighlightColor = "rgba(0, 0, 0, 0)";
 interface IAddEscapeHatch {
   element: Element;
   exceptionByElement?: Element;
@@ -36,6 +37,11 @@ interface IRef {
   isTouchMove: boolean;
   usedClick: boolean;
   currentIdx: number;
+}
+if (IOS && !IOS13) {
+  const html = document.querySelector("html")!;
+  html.style.cursor = "pointer";
+  html.style.webkitTapHighlightColor = "rgba(0, 0, 0, 0)";
 }
 
 let ref = <IRef>{
@@ -76,14 +82,14 @@ const removeListeners = ({
   removeOnTouchEnd,
   onTouchMove
 }: TListeners) => {
-  document.removeEventListener("click", removeOnClick, true);
+  // document.removeEventListener("click", removeOnClick, true);
   document.removeEventListener("keydown", removeOnEscapeKey, true);
   document.removeEventListener("keyup", removeOnKeyUp, true);
 
-  if (IOS && !IOS13) {
-    document.removeEventListener("touchend", removeOnTouchEnd, true);
-    document.removeEventListener("touchmove", onTouchMove, true);
-  }
+  // if (IOS && !IOS13) {
+  // document.removeEventListener("touchend", removeOnTouchEnd, true);
+  // document.removeEventListener("touchmove", onTouchMove, true);
+  // }
 };
 
 const addListeners = ({
@@ -96,11 +102,6 @@ const addListeners = ({
   document.addEventListener("click", removeOnClick, true);
   document.addEventListener("keydown", removeOnEscapeKey, true);
   document.addEventListener("keyup", removeOnKeyUp, true);
-
-  if (IOS && !IOS13) {
-    document.addEventListener("touchmove", onTouchMove, true);
-    document.addEventListener("touchend", removeOnTouchEnd, true);
-  }
 };
 
 const parentContains = (element: Element) => {
@@ -133,7 +134,6 @@ export default function addEscapeHatch({
   const removeOnClick = (e: TouchEvent | MouseEvent) => {
     const clickedTarget = e.target as HTMLElement;
     customEvent.event = e;
-    ref.usedClick = true;
 
     for (let i = ref.nodes.length - 1; i >= 0; i--) {
       const { onStart, element } = ref.nodes[i];
