@@ -29,25 +29,21 @@ export const onPlayer1BtnOptions = (e: Event) => {
   if (!valideKeyInput(e)) return null;
   e.stopPropagation();
 
-  console.log("player1 btn start");
   const playerId = gameData.player1.id;
   const target = e.currentTarget as HTMLElement;
 
-  toggleOptions({ target, playerId });
-
   addEscapeHatch({
-    element: target,
+    target,
+    build: () => toggleOptions({ target, playerId }),
     onStart: e => {
-      const clickedTarget = e.event.target as HTMLElement;
-      console.log(clickedTarget);
-      if (clickedTarget.closest("." + dom.class.dropDownOptions)) {
+      const targetGlobal = e.event.target as HTMLElement;
+      if (targetGlobal.closest("." + dom.class.dropDownOptions)) {
         return false;
       }
 
       return true;
     },
     onExit: () => {
-      console.log("onexit player1");
       toggleOptions({ target, playerId });
     }
   });
@@ -57,41 +53,28 @@ export const onPlayer2BtnOptions = (e: Event) => {
   if (!valideKeyInput(e)) return null;
   e.stopPropagation();
 
-  console.log("player2 btn start");
   const playerId = gameData.player2.id;
   const optionsAiStr = dom.html.optionsAI;
   const target = e.currentTarget as HTMLElement;
 
-  toggleOptions({ target, playerId, aiHTML: optionsAiStr });
-
   addEscapeHatch({
-    element: target,
+    target,
+    build: () => toggleOptions({ target, playerId, aiHTML: optionsAiStr }),
     onStart: e => {
-      const clickedTarget = e.event.target as HTMLElement;
-      console.log("onStart playerbtn2", clickedTarget);
+      const targetGlobal = e.event.target as HTMLElement;
       if (e.event.type === "click") {
-        if (clickedTarget.closest("#" + dom.id.optionsRestart)) {
+        if (targetGlobal.closest("#" + dom.id.optionsRestart)) {
           return true;
         }
       }
-      if (clickedTarget.closest("." + dom.class.dropDownOptions)) {
+      if (targetGlobal.closest("." + dom.class.dropDownOptions)) {
         return false;
       }
-
-      // if (
-      //   e.parentOfRemovedElement &&
-      //   document
-      //     .querySelector("." + dom.class.dropDownOptions)
-      //     ?.contains(e.parentOfRemovedElement)
-      // ) {
-      //   return false;
-      // }
 
       return true;
     },
     onExit: () => {
       toggleOptions({ target, playerId, aiHTML: optionsAiStr });
-      console.log("onexit player2");
     }
   });
 };

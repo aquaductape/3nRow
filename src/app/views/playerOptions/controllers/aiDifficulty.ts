@@ -1,9 +1,9 @@
 import { dom } from "../../dom";
-import { toggleDropDown } from "../../dropDown/dropDown";
+import { onDropDown } from "../../dropDown/dropDown";
 
 export const controllerAiDifficulty = () => {
   const btnAi = <HTMLElement>document.querySelector("." + dom.class.btnAi);
   if (!btnAi) return null;
-  btnAi.addEventListener("click", toggleDropDown);
-  btnAi.addEventListener("keydown", toggleDropDown);
+  btnAi.addEventListener("click", onDropDown);
+  btnAi.addEventListener("keydown", onDropDown);
 };

@@ -5,7 +5,7 @@ import { valideKeyInput } from "../../appControllers";
 import { ariaExpandDropdown, ariaCollapseDropdown } from "./views/aria";
 import addEscapeHatch from "../../../utils/addEscapeHatch";
 
-export const toggleDropDown = (e: Event) => {
+export const onDropDown = (e: Event) => {
   if (!valideKeyInput(e)) return null;
   const target = e.currentTarget as HTMLElement;
   e.preventDefault();
@@ -15,48 +15,38 @@ export const toggleDropDown = (e: Event) => {
     document.querySelector("." + dom.class.btnDifficultyDDContainer)
   );
   if (!btnDropDown) return null;
-  const dropDown = document.querySelector("." + dom.class.dropDownDifficulty);
-  if (!dropDown) {
-    const string = dom.html.btnBotDropdown;
-    const el = <HTMLElement>createHTMLFromString(string);
-    btnDropDown.appendChild(el);
-    const isWithinView = withinViewPort(el);
-    moveElement(el, isWithinView ? "bottom" : "top");
-    onDropDownSettings();
-    ariaExpandDropdown();
-    console.log("dropdown");
-  } else {
-    btnDropDown.removeChild(dropDown!);
-    ariaCollapseDropdown();
-  }
+
+  const createDropDown = () => {
+    const dropDown = document.querySelector("." + dom.class.dropDownDifficulty);
+    if (!dropDown) {
+      const string = dom.html.btnBotDropdown;
+      const el = <HTMLElement>createHTMLFromString(string);
+      btnDropDown.appendChild(el);
+      const isWithinView = withinViewPort(el);
+      moveElement(el, isWithinView ? "bottom" : "top");
+      onDropDownSettings();
+      ariaExpandDropdown();
+    }
+  };
+
   addEscapeHatch({
-    element: target as Element,
+    target,
+    stopWhenTargetIsRemoved: false,
+    build: createDropDown,
     onStart: e => {
-      const clickedTarget = e.event.target as HTMLElement;
-      console.log("onStart dropdown");
+      const targetGlobal = e.event.target as HTMLElement;
       if (e.event.type === "keyup") {
-        if (clickedTarget.closest("." + dom.class.dropDownDifficulty)) {
+        if (targetGlobal.closest("." + dom.class.dropDownDifficulty)) {
           return false;
         }
       }
-      // if (e.event.type === "click") {
-      //   console.log("clicked!!!!!1");
-      //   if (clickedTarget.closest("." + dom.class.dropDownDifficulty)) {
-      //     e.parentOfRemovedElement = btnDropDown;
-      //     return true;
-      //   }
-      // }
-      // e.prevElement = clickedTarget;
       return true;
     },
     onExit: () => {
       const dropDown = document.querySelector(
         "." + dom.class.dropDownDifficulty
       )!;
-      // debugger;
-      console.log("dropdown exit");
       btnDropDown.removeChild(dropDown);
-
       ariaCollapseDropdown();
     }
   });
@@ -93,7 +83,6 @@ export const withinViewPort = (el: HTMLElement, spacing: number = 5) => {
   const topTranslate = 1.3;
 
   if (isTop) {
-    console.log(bottom * topTranslate);
     return bottom * topTranslate + spacing < browserInnerHeight;
   }
 
