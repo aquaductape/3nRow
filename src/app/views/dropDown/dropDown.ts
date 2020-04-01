@@ -31,7 +31,6 @@ export const onDropDown = (e: Event) => {
 
   addEscapeHatch({
     target,
-    stopWhenTargetIsRemoved: false,
     build: createDropDown,
     onStart: e => {
       const targetGlobal = e.event.target as HTMLElement;
