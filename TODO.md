@@ -17,3 +17,4 @@
    1. Row and Column (Default). Row as numbers [1,2,3]. Column as numbers [1,2,3]. Ex -> "Column 3, Row 1!"
    2. Algebriac Notation. Row as numbers [1,2,3]. Column as characters [a,b,c]. Ex -> "C1!"
 6. If option dropdown height is greater than viewport, match viewport height and use scrollbars, same with inner list width
+7. Responsive for Apple Watch. Display 272 x 340
