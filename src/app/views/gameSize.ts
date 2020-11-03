@@ -3,20 +3,28 @@ import { debounce } from "../../utils/index";
 import { withinViewPort, moveElement } from "../views/dropDown/dropDown";
 
 const changeHeight = () => {
-  const gameContainer = <HTMLDivElement | null>(
+  const gameContainer = <HTMLDivElement>(
     document.querySelector("." + dom.class.gameContainer)
   );
-  if (!gameContainer) return null;
+  const playerBtnGroup = <HTMLDivElement>(
+    gameContainer?.querySelector("." + dom.class.playerBtnGroup)
+  );
+
   const browserInnerHeight =
     window.innerHeight || document.documentElement.clientHeight;
 
-  if (browserInnerHeight < 600) {
-    gameContainer.style.maxWidth = `${browserInnerHeight - 200}px`;
-  } else if (browserInnerHeight < 900) {
-    gameContainer.style.maxWidth = `${browserInnerHeight - 250}px`;
-  } else if (browserInnerHeight < 1900) {
-    gameContainer.style.maxWidth = `${browserInnerHeight - 300}px`;
+  const margin = 20;
+  const padding = 40;
+  let width = 0;
+
+  if (browserInnerHeight > 800) {
+    width = 700;
+    gameContainer.style.maxWidth = `${width}px`;
+    return;
   }
+
+  width = browserInnerHeight - playerBtnGroup.clientHeight - margin - padding;
+  gameContainer.style.maxWidth = `${width}px`;
 };
 
 const dropDownPosition = () => {

@@ -26,8 +26,8 @@ hr {
 
 main {
   box-sizing: border-box;
-  padding: 10px 30px;
-  margin: 0 auto;
+  padding: 25px;
+  padding-bottom: 0;
 }
 
 svg {
@@ -257,7 +257,7 @@ svg {
 .btn-pick,
 .btn-start {
   margin-top: 20px;
-  padding: 15px 0;
+  padding: 15px 20px;
   font-size: 20px;
   font-weight: 700;
   letter-spacing: 2px;
@@ -308,13 +308,16 @@ svg {
   position: relative;
   display: flex;
   justify-content: space-between;
-  height: 8vh;
+  height: 65px;
   margin-bottom: 10px;
   z-index: 1;
 }
 
 .dropdown-options-menu {
-  width: 48%;
+  max-width: 300px;
+  &:first-child {
+    margin-right: 10px;
+  }
 }
 
 .player-btn-options {
@@ -323,10 +326,11 @@ svg {
   align-items: center;
   height: 100%;
   padding: 10px;
-  background: rgba(4, 0, 255, 0.4);
+  background: rgb(69, 78, 223);
   border-radius: 10px;
   outline: none;
   cursor: pointer;
+  user-select: none;
   transition: 0.25s background-color;
 
   &:hover,
@@ -381,11 +385,12 @@ svg {
   width: 10%;
   padding: 2%;
   color: #667ae0;
+  color: #9ba8e9;
 }
 
 .dropdown-options {
   position: absolute;
-  top: 8vh;
+  top: 66px;
   max-width: 400px;
   width: 100%;
   padding: 30px;
@@ -424,11 +429,19 @@ svg {
 }
 
 .shape-group {
-  display: flex;
+  --gap: 10px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  margin: calc(-1 * var(--gap)) 0 0 calc(-1 * var(--gap));
+  width: calc(100% + var(--gap));
 }
+
+.shape-group > * {
+  margin: var(--gap) 0 0 var(--gap);
+}
+
 .shape-list {
   width: 50px;
-  margin-right: 10px;
   border-radius: 5px;
   background: #0b1340;
   transition: transform 200ms, box-shadow 200ms;
@@ -442,12 +455,20 @@ svg {
 }
 
 .color-group {
-  display: flex;
+  --gap: 10px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  margin: calc(-1 * var(--gap)) 0 0 calc(-1 * var(--gap));
+  width: calc(100% + var(--gap));
 }
+
+.color-group > * {
+  margin: var(--gap) 0 0 var(--gap);
+}
+
 .color-list {
   height: 30px;
   width: 30px;
-  margin-right: 10px;
   border-radius: 5px;
   border: 2px solid #677889;
   overflow: hidden;
@@ -555,6 +576,62 @@ input:checked + .slider:before {
     height: 50px;
   }
   .dropdown-options {
-    top: 50px;
+    top: 51px;
+  }
+}
+
+@media (max-height: 300px) {
+  .player-btn-group {
+    height: 40px;
+  }
+
+  .dropdown-options {
+    top: 41px;
+  }
+
+  .player-btn-options {
+    padding: 8px;
+  }
+
+  .board {
+    border-radius: 15px;
+  }
+}
+
+@media (max-width: 280px) {
+  main {
+    padding: 20px 10px;
+    padding-bottom: 0;
+  }
+
+  .shape-group {
+    --gap: 8px;
+  }
+  .shape-list {
+    width: 45px;
+  }
+  .player-btn-group {
+    height: 50px;
+  }
+  .dropdown-options {
+    top: 51px;
+  }
+}
+
+@media (max-width: 220px) {
+  .player-btn-group {
+    height: 40px;
+  }
+  .dropdown-options {
+    top: 41px;
+  }
+  .player-btn-options {
+    padding: 8px;
+  }
+  .shape-list {
+    width: 30px;
+  }
+  .board {
+    border-radius: 15px;
   }
 }
