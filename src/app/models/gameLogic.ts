@@ -37,7 +37,7 @@ export const checkBoard: TCheckBoard = (player, board) => {
 
   // check row
   for (let row = 0; row < board.length; row++) {
-    if (board[row].every(item => item === player.mark)) {
+    if (board[row].every((item) => item === player.mark)) {
       gameData.winPosition = `ROW_${row}`;
       gameOver();
       return null;
@@ -84,12 +84,13 @@ export const checkBoard: TCheckBoard = (player, board) => {
   // check cat's game
   let countBoolean = 0;
   for (let i = 0; i < board.length; i++) {
-    if (board[i].every(item => typeof item !== "number")) {
+    if (board[i].every((item) => typeof item !== "number")) {
       countBoolean++;
     }
   }
 
   if (countBoolean === 3) {
+    console.log("cats");
     gameData.gameTie = true;
     gameOver();
   }
@@ -114,7 +115,7 @@ export const startGame = ({
   ai = false,
   difficulty = "IMPOSSIBLE",
   aiSpeed = 900,
-  continueGame
+  continueGame,
 }: IGameInit = {}) => {
   //Player One goes first
   // data.player2.turn = true;
@@ -123,7 +124,6 @@ export const startGame = ({
   // } else {
   //   gameData.player2.turn = true;
   // }
-  // debugger;
 
   if (!continueGame) {
     setTilesAriaAll({ restart: true });

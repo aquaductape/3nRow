@@ -9,7 +9,7 @@ import {
   onBtnHuman,
   onPlayer1BtnOptions,
   onPlayer2BtnOptions,
-  onPlayAgain
+  onPlayAgain,
 } from "./appControllers";
 import { renderAntMenu } from "./views/antMenu";
 
@@ -44,7 +44,7 @@ player2BtnOptions.addEventListener("keydown", onPlayer2BtnOptions);
 btnAi.addEventListener("click", onBtnAi);
 btnHuman.addEventListener("click", onBtnHuman);
 
-gameStart.addEventListener("click", e => {
+gameStart.addEventListener("click", (e) => {
   const target = <HTMLElement>e.target;
 
   if (target.closest("#btn-play_again")) {
@@ -52,12 +52,12 @@ gameStart.addEventListener("click", e => {
   }
 });
 
-board.addEventListener("click", e => {
+board.addEventListener("click", (e) => {
   const target = <HTMLElement>e.target;
   if (target.closest(dom.query.dataColumn)) onAction(e);
 });
 
-board.addEventListener("keydown", e => {
+board.addEventListener("keydown", (e) => {
   const target = <HTMLElement>e.target;
   if (target.closest(dom.query.dataColumn)) onAction(e);
 });

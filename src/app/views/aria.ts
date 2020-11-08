@@ -13,7 +13,7 @@ export const setTilesAriaAll = ({ init, restart }: ISetTilesAriaAll = {}) => {
     label = "Game Tile empty. Select AI or Human button to start game";
   }
 
-  cells.forEach(cell => {
+  cells.forEach((cell) => {
     if (restart) {
       const itemChild = cell.firstElementChild;
       if (itemChild) {
@@ -60,7 +60,7 @@ export const setTilesAriaPlayerTurn = () => {
   const playerName = gameData.currentPlayer().displayName;
   const label = `empty, ${playerName} turn`;
 
-  cells.forEach(cell => {
+  cells.forEach((cell) => {
     if (!isCellMarkedDOM(<HTMLDivElement>cell)) {
       cell.setAttribute("aria-label", label);
     }
@@ -70,8 +70,8 @@ export const setTilesAriaPlayerTurn = () => {
 export const addAriaLabel = (player: Player, cell: HTMLDivElement) => {
   const parent = cell.parentElement;
   if (!parent) return null;
-  const row = parent.getAttribute("data-row");
-  const col = cell.getAttribute("data-column");
+  const row = Number(parent.getAttribute("data-row")) + 1;
+  const col = Number(cell.getAttribute("data-column")) + 1;
   cell.setAttribute(
     "aria-label",
     `Marked by ${player.displayName} on row ${row}, column ${col}`

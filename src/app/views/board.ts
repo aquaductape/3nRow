@@ -26,11 +26,11 @@ export const cleanUp = (e: Event) => {
   gameData.winPosition = "";
 
   let count = 0;
-  gameData.board = gameData.board.map(item => item.map(_ => count++));
+  gameData.board = gameData.board.map((item) => item.map((_) => count++));
 
   setTilesAriaAll({ restart: true });
   removePlayerDataAttr();
-  gameStart.innerHTML = "";
+  cleanUpGameStart();
 };
 
 const removePlayerDataAttr = () => {
@@ -38,7 +38,7 @@ const removePlayerDataAttr = () => {
   const dataPlayerAll = <NodeListOf<HTMLElement>>(
     board.querySelectorAll("[data-player]")
   );
-  dataPlayerAll.forEach(data => {
+  dataPlayerAll.forEach((data) => {
     data.removeAttribute("data-player");
   });
 };
@@ -66,7 +66,12 @@ export const markBoardDOM = (cell: HTMLDivElement) => {
 };
 
 export const cleanUpGameStart = () => {
-  gameStart.innerHTML = "";
+  console.log("cleanup");
+  gameStart.style.transform = "scale(0)";
+  setTimeout(() => {
+    gameStart.innerHTML = "";
+    gameStart.style.display = "none";
+  }, 500);
 };
 
 export const announceWinner = () => {

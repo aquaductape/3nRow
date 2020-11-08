@@ -1,6 +1,5 @@
 # ARIA
 
-1. li shouldn't be buttons
 2. board should be navigated by arrow keys instead of tab, cells are rowved
 3. Easier introduction/navigation when user first loads the page
 4. ARIA Live Region for updates on game
@@ -14,7 +13,9 @@
 3. Favicon
 4. Since both player option dropdowns share a "general" options, label that section as General Options
 5. Provide cell label choice in General Options. Mark cell label choice as a11y to not confuse visual users. Choices:
-   1. Row and Column (Default). Row as numbers [1,2,3]. Column as numbers [1,2,3]. Ex -> "Column 3, Row 1!"
-   2. Algebriac Notation. Row as numbers [1,2,3]. Column as characters [a,b,c]. Ex -> "C1!"
+   1. Row and Column (Default). Row as numbers [1,2,3]. Column as numbers [1,2,3]. Ex -> "Row 1. Column 3"
+   <!-- 2. Algebriac Notation. Row as numbers [1,2,3]. Column as characters [a,b,c]. Ex -> "C1!" -->
 6. If option dropdown height is greater than viewport, match viewport height and use scrollbars, same with inner list width
-7. Responsive for Apple Watch. Display 272 x 340
+7. ✅ Responsive for Apple Watch. Display 272 x 340
+8. Better contrast for board
+9. option button shouldn't display score due to aria

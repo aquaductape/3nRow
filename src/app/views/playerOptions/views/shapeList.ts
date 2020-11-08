@@ -12,7 +12,7 @@ export const renderShapeList = (shapeGroup: HTMLElement, playerId: string) => {
   const player = playerId === "P1" ? gameData.player1 : gameData.player2;
 
   for (let shape of shapes) {
-    const str = `<li class="shape-list" tabindex="0" role="button" aria-label="chose shape: ${shape}">${player.allShapes[shape]}</li>`;
+    const str = `<li><div class="shape-list" tabindex="0" role="button" aria-label="chose shape: ${shape}">${player.allShapes[shape]}</div></li>`;
 
     const el = <HTMLElement>createHTMLFromString(str);
     controllerShapeList(el, shape, player);

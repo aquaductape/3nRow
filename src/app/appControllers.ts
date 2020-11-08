@@ -1,6 +1,6 @@
 import {
   toggleOptions,
-  randomShapeAndColorAi
+  randomShapeAndColorAi,
 } from "./views/playerOptions/playerOptions";
 
 import { dom } from "./views/dom";
@@ -10,7 +10,7 @@ import {
   cleanUpGameStart,
   getColumnRow,
   cleanUp,
-  isCellMarkedDOM
+  isCellMarkedDOM,
 } from "./views/board";
 import { isAiFinished, isAiEnabled, startAi } from "./models/ai/ai";
 import addEscapeHatch from "../utils/addEscapeHatch";
@@ -35,7 +35,7 @@ export const onPlayer1BtnOptions = (e: Event) => {
   addEscapeHatch({
     target,
     build: () => toggleOptions({ target, playerId }),
-    onStart: e => {
+    onStart: (e) => {
       const targetGlobal = e.event.target as HTMLElement;
       if (targetGlobal.closest("." + dom.class.dropDownOptions)) {
         return false;
@@ -45,7 +45,7 @@ export const onPlayer1BtnOptions = (e: Event) => {
     },
     onExit: () => {
       toggleOptions({ target, playerId });
-    }
+    },
   });
 };
 
@@ -60,7 +60,7 @@ export const onPlayer2BtnOptions = (e: Event) => {
   addEscapeHatch({
     target,
     build: () => toggleOptions({ target, playerId, aiHTML: optionsAiStr }),
-    onStart: e => {
+    onStart: (e) => {
       const targetGlobal = e.event.target as HTMLElement;
       if (e.event.type === "click") {
         if (targetGlobal.closest("#" + dom.id.optionsRestart)) {
@@ -75,7 +75,7 @@ export const onPlayer2BtnOptions = (e: Event) => {
     },
     onExit: () => {
       toggleOptions({ target, playerId, aiHTML: optionsAiStr });
-    }
+    },
   });
 };
 
@@ -84,7 +84,7 @@ export const onBtnAi = (e: Event) => {
   // onDropDownSettings();
   startGame({
     ai: true,
-    difficulty: "IMPOSSIBLE"
+    difficulty: "IMPOSSIBLE",
   });
   cleanUpGameStart();
 };
@@ -101,8 +101,6 @@ export const onAction = (e: Event) => {
   if (gameData.gameOver || !isAiFinished() || isCellMarkedDOM(target)) {
     return null;
   }
-
-  cleanUpGameStart();
 
   const { row, column, cell } = getColumnRow(e);
   moveHuman(row, column, cell);
