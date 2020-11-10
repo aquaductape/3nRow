@@ -1,5 +1,3 @@
-import { TFlattenBoard, ItoggleAriaExpanded } from "../app_orig/ts/index";
-
 export const flattenArr = <T>(arr: T[]): any[] => {
   const flatArr: any[] = [];
   arr.forEach((item) => {
@@ -52,9 +50,9 @@ export const randomRoundAmount = (rounds: number = 0) => {
 };
 
 // returns the available spots on the board
-export const emptyIndexies = (board: TFlattenBoard) => {
-  return board.filter((s) => s !== "O" && s !== "X");
-};
+// export const emptyIndexies = (board: TFlattenBoard) => {
+//   return board.filter((s) => s !== "O" && s !== "X");
+// };
 
 interface IUniqueIds {
   svg: string;
@@ -62,7 +60,12 @@ interface IUniqueIds {
   ignoreClass?: string[];
   ignoreUrl?: string[];
 }
-export const uniqueIds = ({ svg, id, ignoreClass, ignoreUrl }: IUniqueIds) => {
+export const svgStringWithUniqueIds = ({
+  svg,
+  id,
+  ignoreClass,
+  ignoreUrl,
+}: IUniqueIds) => {
   return svg
     .replace(/(id|class)="([^"]*)"/g, (_, attribute, value) => {
       if (ignoreClass) {
@@ -94,35 +97,35 @@ export const randomItemFromArr = (arr: any[]) => {
   return Math.floor(Math.random() * arr.length);
 };
 
-export const toggleAriaExpanded = ({
-  el,
-  closeLabel,
-  openLabel,
-  label,
-}: ItoggleAriaExpanded) => {
-  const result = el.getAttribute("aria-expanded");
+// export const toggleAriaExpanded = ({
+//   el,
+//   closeLabel,
+//   openLabel,
+//   label,
+// }: ItoggleAriaExpanded) => {
+//   const result = el.getAttribute("aria-expanded");
 
-  if (result === "true") {
-    el.setAttribute("aria-expanded", "false");
-    el.setAttribute("aria-label", `open ${label}` || openLabel || "open");
-  } else {
-    el.setAttribute("aria-expanded", "true");
-    el.setAttribute("aria-label", `close ${label}` || closeLabel || "close");
-  }
-};
+//   if (result === "true") {
+//     el.setAttribute("aria-expanded", "false");
+//     el.setAttribute("aria-label", `open ${label}` || openLabel || "open");
+//   } else {
+//     el.setAttribute("aria-expanded", "true");
+//     el.setAttribute("aria-label", `close ${label}` || closeLabel || "close");
+//   }
+// };
 
-export const collapseAria = ({
-  el,
-  label,
-}: Pick<ItoggleAriaExpanded, "el" | "label">) => {
-  el.setAttribute("aria-expanded", "false");
-  el.setAttribute("aria-label", `open ${label}` || "open");
-};
+// export const collapseAria = ({
+//   el,
+//   label,
+// }: Pick<ItoggleAriaExpanded, "el" | "label">) => {
+//   el.setAttribute("aria-expanded", "false");
+//   el.setAttribute("aria-label", `open ${label}` || "open");
+// };
 
-export const expandAria = ({
-  el,
-  label,
-}: Pick<ItoggleAriaExpanded, "el" | "label">) => {
-  el.setAttribute("aria-expanded", "true");
-  el.setAttribute("aria-label", `close ${label}` || "close");
-};
+// export const expandAria = ({
+//   el,
+//   label,
+// }: Pick<ItoggleAriaExpanded, "el" | "label">) => {
+//   el.setAttribute("aria-expanded", "true");
+//   el.setAttribute("aria-label", `close ${label}` || "close");
+// };
