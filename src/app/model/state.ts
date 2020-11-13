@@ -1,3 +1,52 @@
+export const state: TState = {
+  players: [
+    {
+      id: "P1",
+      score: 0,
+      name: "Player 1",
+      color: "sky_blue,cyan",
+      shape: "cross",
+      shapes: <TShapes>{},
+      mark: "X",
+      isAI: false,
+      difficulty: null,
+    },
+    {
+      id: "P2",
+      score: 0,
+      name: "Player 2",
+      color: "red,orange",
+      shape: "circle",
+      shapes: <TShapes>{},
+      mark: "O",
+      isAI: false,
+      difficulty: null,
+    },
+  ],
+  game: {
+    gameOver: false,
+    gameStart: false,
+    startAgain: false,
+    playerTurn: "P1",
+    winner: null,
+    hasAI: false,
+    markedPosition: {
+      row: 0,
+      column: 0,
+    },
+    board: [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+    ],
+  },
+};
+
+// @ts-ignore
+window.$state = state;
+
+export type TBoard = (number | "X" | "O")[][];
+
 export type TShapes = {
   circle: string;
   cross: string;
@@ -28,48 +77,17 @@ export type TPlayer = {
 };
 
 type TGame = {
-  turn: string; // Player id
+  playerTurn: string; // Player id
   gameOver: boolean;
-  gameStarted: boolean;
+  gameStart: boolean;
+  startAgain: boolean;
   winner: string | null; // Player id
   hasAI: boolean;
+  board: TBoard;
+  markedPosition: { row: number; column: number };
 };
 
 export type TState = {
   players: TPlayer[];
   game: TGame;
-};
-
-export const state: TState = {
-  players: [
-    {
-      id: "P1",
-      score: 0,
-      name: "Player 1",
-      color: "sky_blue,cyan",
-      shape: "cross",
-      shapes: <TShapes>{},
-      mark: "X",
-      isAI: false,
-      difficulty: null,
-    },
-    {
-      id: "P2",
-      score: 0,
-      name: "Player 2",
-      color: "red,orange",
-      shape: "circle",
-      shapes: <TShapes>{},
-      mark: "O",
-      isAI: false,
-      difficulty: null,
-    },
-  ],
-  game: {
-    gameOver: false,
-    gameStarted: false,
-    turn: "P1",
-    winner: null,
-    hasAI: false,
-  },
 };

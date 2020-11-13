@@ -1,31 +1,7 @@
-export const flattenArr = <T>(arr: T[]): any[] => {
-  const flatArr: any[] = [];
-  arr.forEach((item) => {
-    if (Array.isArray(item)) {
-      flatArr.push(...flattenArr(item));
-    } else {
-      flatArr.push(item);
-    }
-  });
-
-  return flatArr;
-};
-
-export const convertToRowCol = (idx: number) => {
-  const column = idx % 3;
-  let row = 0;
-
-  if (idx > 5) {
-    row = 2;
-    return { row, column };
-  }
-  if (idx > 2) {
-    row = 1;
-    return { row, column };
-  }
-
-  return { row, column };
-};
+export const diagonalLengthOfElement = (el: HTMLElement) =>
+  Math.ceil(
+    Math.sqrt(Math.pow(el.clientWidth, 2) + Math.pow(el.clientHeight, 2))
+  );
 
 // older browsers such as IE do not support template elements
 // as of 2019, 94% of users are using browsers that support template

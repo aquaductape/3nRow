@@ -1,82 +1,27 @@
-import gameData, { Player } from "../../../app_orig/models/gameData";
-import miniMax from "../../../app_orig/models/ai/miniMax";
-import {
-  flattenArr,
-  convertToRowCol,
-  randomRoundAmount,
-  emptyIndexies,
-} from "../../../utils/index";
-import { markBoard, checkBoard } from "../../../app_orig/models/gameLogic";
-import { TFlattenBoard, TBoard } from "../../../app_orig/ts/index";
-import { getCell, markBoardDOM } from "../../../app_orig/views/board";
-import { postStats } from "../../../app_orig/views/stats";
+import { flattenArr } from "../../utils/index";
+import { state, TBoard, TPlayer } from "../state";
+import miniMax from "./minMax";
+
+export type TFlattenBoard = (number | "X" | "O")[];
+
+export type cellCostItem = {
+  score: number;
+  cell: { row: number; column: number };
+};
+
+export interface IMove {
+  index: number;
+  score: number;
+}
+
+export interface IOptionsCheckBoard {
+  terminal_state: boolean;
+}
 
 export const delayAi = (time: number = 900) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => resolve(true), time);
   });
-};
-
-export const startAi = () => {
-  if (isCheater()) {
-    const rounds = randomRoundAmount(2);
-    for (let i = 0; i < rounds; i++) {
-      moveAi({ cheating: true });
-    }
-  }
-  moveAi();
-};
-
-export const moveAi = async ({ cheating }: { cheating?: boolean } = {}) => {
-  if (gameData.gameOver) return null;
-
-  // prevent immediate marking on the board
-  await delayAi();
-
-  const board = gameData.board;
-  const player = gameData.currentPlayer();
-  const cellIndex = decideMove(board, player, cheating);
-  const { row, column } = convertToRowCol(cellIndex);
-  const cell = getCell(row, column);
-  markBoard(row, column);
-  markBoardDOM(cell);
-  checkBoard(gameData.currentPlayer(), board);
-
-  if (cheating) return null;
-  gameData.nextPlayer();
-  gameData.aiFinished = true;
-  postStats();
-};
-
-const isCheater = () => {
-  return gameData.aiDifficulty === "CHEATER";
-};
-
-export const isAiFinished = () => {
-  return gameData.aiFinished;
-};
-
-export const aiQueued = () => {
-  if (isAiEnabled()) {
-    gameData.aiFinished = false;
-  }
-};
-
-export const isAiEnabled = () => {
-  return gameData.player2.ai;
-};
-
-export const determineSpeed = (
-  difficulty: "HARD" | "IMPOSSIBLE" | "CHEATER"
-) => {
-  switch (difficulty) {
-    case "HARD":
-      return 900;
-    case "IMPOSSIBLE":
-      return 900;
-    default:
-      return 300;
-  }
 };
 
 const willPickRandom = () => {
@@ -90,22 +35,51 @@ const pickRandom = (board: TFlattenBoard): number => {
   return randomIdx;
 };
 
-const decideMove = (
-  board: TBoard,
-  player: Player,
-  cheating: boolean = false
-) => {
+// returns the available spots on the board
+const emptyIndexies = (board: TFlattenBoard) => {
+  return board.filter((s) => s !== "O" && s !== "X");
+};
+
+export const decideMove = (player: TPlayer) => {
+  return convertIdxToRowCol(moveIdxResult(player));
+};
+
+const moveIdxResult = (player: TPlayer) => {
+  const {
+    game: { board },
+  } = state;
   const flattenBoard = flattenArr(board);
   const playerMark = player.mark;
+  let positionIdx = 0;
   if (emptyIndexies(flattenBoard).length === 0) return 0;
-  if (cheating) {
-    return pickRandom(flattenBoard);
-  }
-  if (gameData.aiDifficulty === "HARD") {
-    if (willPickRandom()) {
-      return pickRandom(flattenBoard);
-    }
-  }
+  // if (cheating) {
+  //   return pickRandom(flattenBoard);
+  // }
+  // if (gameData.aiDifficulty === "HARD") {
+  //   if (willPickRandom()) {
+  //     return pickRandom(flattenBoard);
+  //   }
+  // }
 
   return miniMax(flattenBoard, playerMark).index;
+};
+
+const randomRoundAmount = (rounds: number = 0) => {
+  return Math.floor(Math.random() * rounds);
+};
+
+const convertIdxToRowCol = (idx: number) => {
+  const column = idx % 3;
+  let row = 0;
+
+  if (idx > 5) {
+    row = 2;
+    return { row, column };
+  }
+  if (idx > 2) {
+    row = 1;
+    return { row, column };
+  }
+
+  return { row, column };
 };

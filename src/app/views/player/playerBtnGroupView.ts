@@ -1,3 +1,8 @@
+import {
+  TControlPlayerColor,
+  TControlPlayerShape,
+} from "../../controller/controller";
+import addGlobalEscape from "../../lib/addGlobalEscape/addGlobalEscape";
 import { TState } from "../../model/state";
 import { svg } from "../constants/constants";
 import { createHTMLFromString } from "../utils/index";
@@ -6,8 +11,10 @@ import DropdownOptionsView from "./dropdownOptionsView";
 
 type TPlayerDom = {
   [key: string]: {
-    container: HTMLElement;
+    playerContainer: HTMLElement;
+    playerBtn: HTMLElement;
     playerMark: HTMLElement;
+    // dropdownOptionsContainer: DropdownOptionsView;
     dropdownOptionsView: DropdownOptionsView;
   };
 };
@@ -43,11 +50,19 @@ class PlayerBtnGroup extends View {
     this.playerOptions.forEach((option) => (option.innerHTML = svg.antMenu));
   }
 
-  addHandlerChangeShape(handler: Function) {
+  addHandlerChangeShape(handler: TControlPlayerShape) {
     this.data.players.forEach(({ id }) => {
       const { dropdownOptionsView } = this.playerDom[id];
 
       dropdownOptionsView.addHandlerChangeShape(handler);
+    });
+  }
+
+  addHandlerChangeColor(handler: TControlPlayerColor) {
+    this.data.players.forEach(({ id }) => {
+      const { dropdownOptionsView } = this.playerDom[id];
+
+      dropdownOptionsView.addHandlerChangeColor(handler);
     });
   }
 
@@ -59,17 +74,23 @@ class PlayerBtnGroup extends View {
       if (!btn) return;
       const { playerId } = btn.dataset;
 
-      const { dropdownOptionsView } = this.playerDom[playerId!];
+      const { playerBtn, dropdownOptionsView } = this.playerDom[playerId!];
 
-      btn.classList.toggle("active");
-      dropdownOptionsView.toggleDropdown();
+      addGlobalEscape({
+        button: playerBtn,
+        run() {
+          dropdownOptionsView.addDropdown();
+          btn.classList.add("active");
+        },
+        allow: [".dropdown-options"],
+        onExit() {
+          dropdownOptionsView.removeDropdown();
+          btn.classList.remove("active");
+        },
+      });
     };
 
     this.parentEl.addEventListener("click", onAction);
-    this.parentEl.addEventListener(
-      "keydown",
-      (e) => e.code.match(/Enter|Space/i) && onAction(e)
-    );
   }
 
   // override render to avoid wiping container
@@ -80,21 +101,26 @@ class PlayerBtnGroup extends View {
     players.forEach((player) => {
       const { id, shape, shapes } = player;
       const svgMark = shapes[shape];
-      const container = document.getElementById(`${id}-btn-options`)!;
-      const playerMark = <HTMLElement>container.querySelector(".player-mark");
-      const dropDownOptionsContainer = <HTMLElement>(
-        container.querySelector(".dropdown-options-container")
+      const playerContainer = document.getElementById(`${id}-btn-options`)!;
+      const playerBtn = <HTMLElement>(
+        playerContainer.querySelector(".player-btn-options")
       );
-
+      const playerMark = <HTMLElement>(
+        playerContainer.querySelector(".player-mark")
+      );
+      const dropDownOptionsContainer = <HTMLElement>(
+        playerContainer.querySelector(".dropdown-options-container")
+      );
       const dropdownOptionsView = new DropdownOptionsView({
         root: dropDownOptionsContainer,
         data: player,
       });
 
       this.playerDom[id] = {
-        container,
+        playerContainer,
         playerMark,
         dropdownOptionsView,
+        playerBtn,
       };
 
       dropdownOptionsView.render(player);
@@ -103,6 +129,16 @@ class PlayerBtnGroup extends View {
     this.generateAntMenu();
 
     return;
+  }
+
+  updateSvgMark(id: string) {
+    const { players } = this.data;
+    const { shape, shapes } = players.find((player) => player.id === id)!;
+    const { playerMark } = this.playerDom[id];
+    const svgMark = shapes[shape];
+
+    playerMark.innerHTML = "";
+    this.generatePlayerMark({ id, svgMark });
   }
 }
 

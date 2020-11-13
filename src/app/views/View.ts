@@ -19,8 +19,11 @@ export default class View {
   }
 
   protected reflow() {
-    console.log(document.body.offsetWidth);
+    document.body.offsetWidth;
   }
+
+  // grab elements that are based from string markup, after they are generated
+  protected initQuerySelectors() {}
 
   renderFallback() {
     console.log(this.generateFallback());
@@ -37,6 +40,7 @@ export default class View {
     this.data = data;
     this.clear();
     this.parentEl.insertAdjacentHTML("afterbegin", this.generateMarkup());
+    this.initQuerySelectors();
   }
 }
 
