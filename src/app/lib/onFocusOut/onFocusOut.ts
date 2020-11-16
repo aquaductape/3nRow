@@ -106,7 +106,6 @@ let listeners: ICallBackList[] = [];
 // to filter
 let markedListener: number[] = [];
 let isGlobalListenerAdded = false;
-let hasExitFired = false;
 
 /**
  * events for dropdown.
@@ -164,7 +163,6 @@ export default function onFocusOut({
     const listenersLength = listeners.length;
     customEvent.event = e;
     console.log("click", listeners);
-    // debugger;
 
     for (let i = 0; i < listenersLength; i++) {
       const {
@@ -178,11 +176,14 @@ export default function onFocusOut({
       if (isInit()) continue;
 
       if (onStart && onStart(customEvent)) continue;
-      // if (
-      //   not.length &&
-      //   not.every((selector) => !clickedTarget.closest(selector))
-      // )
-      // continue;
+      if (
+        not.length &&
+        not.some((selector) => clickedTarget.closest(selector))
+      ) {
+        onExit();
+        markListener(i);
+        continue;
+      }
       if (allow.some((selector) => clickedTarget.closest(selector))) continue;
 
       onExit();
@@ -214,31 +215,22 @@ export default function onFocusOut({
       removeGlobalListener();
     }
 
+    // work in progress, add more guards to fire less on useless strokes
+    if (e.shiftKey && !e.key.match(/tab/i)) return;
+
     if (!e.key.match(/tab/i)) return null;
 
     for (let i = 0; i < listenersLength; i++) {
-      const {
-        button,
-        onStart,
-        onExit,
-        stopWhenTargetIsRemoved,
-        allow,
-        not,
-        isInit,
-      } = listeners[i];
+      const { button, onStart, onExit, allow, isInit } = listeners[i];
       if (isInit()) continue;
       // even when a previous click event fires within dropdown, if no focusable element is clicked, then activeElement is set to body
       if (document.activeElement === document.body) continue;
 
       // if (stopWhenTargetIsRemoved && !clickedTarget.isConnected) return null;
 
+      // allow focus on dropdown button
       if (button.contains(clickedTarget)) continue;
       if (onStart && onStart(customEvent)) continue;
-      if (
-        not.length &&
-        not.every((selector) => !clickedTarget.closest(selector))
-      )
-        continue;
       if (allow.some((selector) => clickedTarget.closest(selector))) continue;
 
       onExit();
@@ -258,6 +250,7 @@ export default function onFocusOut({
 
     for (let i = 0; i < listenersLength; i++) {
       const {
+        button,
         onStart,
         onExit,
         stopWhenTargetIsRemoved,
@@ -269,12 +262,9 @@ export default function onFocusOut({
 
       if (stopWhenTargetIsRemoved && !clickedTarget.isConnected) return null;
 
+      // allow focus on dropdown button
+      if (button.contains(clickedTarget)) continue;
       if (onStart && onStart(customEvent)) continue;
-      if (
-        not.length &&
-        not.every((selector) => !clickedTarget.closest(selector))
-      )
-        continue;
       if (allow.some((selector) => clickedTarget.closest(selector))) continue;
 
       onExit();
@@ -302,9 +292,11 @@ const markListener = (idx: number) => {
 const runAllExitsAndDestroy = () => {
   const listenersLength = listeners.length;
   for (let i = 0; i < listenersLength; i++) {
-    // const {} =
-    // runExitAndTearDownListener();
+    const { onExit } = listeners[i];
+    onExit();
   }
+
+  listeners = [];
 
   removeGlobalListener();
 };
@@ -335,12 +327,12 @@ const manualExit = {
   },
 };
 
-const parentContains = (element: Element) => {
-  if (!listeners.length) return false;
+const findButton = (element: Element) => {
+  return listeners.findIndex((listener) => listener.button.contains(element));
+};
 
-  const parent = listeners[listeners.length - 1].button;
-
-  return parent.contains(element);
+const removeListenersSliceFromIdx = (idx: number) => {
+  listeners.splice(idx);
 };
 
 const reClickButton = ({
@@ -350,16 +342,14 @@ const reClickButton = ({
   button: Element;
   toggle: boolean;
 }) => {
-  if (parentContains(button)) {
-    // if (!toggle) return manualExit;
+  const buttonIdx = findButton(button);
+  if (buttonIdx > -1) {
     if (!toggle) return true;
-    console.log("on toggle exit");
-    // runExitAndTearDownListener();
-    if (!listeners.length) {
-      removeGlobalListener();
-    }
+    const { onExit } = listeners[buttonIdx];
+    onExit();
+    removeListenersSliceFromIdx(buttonIdx);
 
-    // return manualExit;
+    removeGlobalListener();
     return true;
   }
 

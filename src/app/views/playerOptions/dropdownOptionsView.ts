@@ -45,7 +45,7 @@ export default class DropdownOptionsView extends View {
     ) as HTMLElement;
     this.dropdown = this.parentEl.querySelector(".dropdown") as HTMLElement;
 
-    // this.addDropdownEvents();
+    this.addDropdownEvents();
   }
 
   private generateBtnHighlight() {
@@ -104,7 +104,7 @@ export default class DropdownOptionsView extends View {
       </div>
       <!-- AI Options -->
       <div class="dropdown-container" data-db-container="0" style="position:relative">
-        <button class="dropdown-btn">Dropdown</button>
+        <button class="dropdown-btn">Dropdown 0</button>
       </div>
       <div class="options-gameplay">
         <hr> <button id="options-restart" class="btn btn-secondary options-btn">Restart</button> <button
@@ -116,10 +116,11 @@ export default class DropdownOptionsView extends View {
   }
 
   private generateDropdown(el: HTMLElement, idx: number) {
+    console.log(idx);
     const markupList: string[] = [];
     for (let i = idx; i < idx + 3; i++) {
       const markup = `
-      <div class="dropdown-container" style="position:relative">
+      <div class="dropdown-container" data-db-container="${i}" style="position:relative">
         <button class="dropdown-btn">Dropdown ${i}</button>
       </div>
       `;
@@ -127,12 +128,12 @@ export default class DropdownOptionsView extends View {
     }
 
     const markup = `
-    <ul class="dropdown" data-db="${idx}" style="position:absolute;top:0;display:none;">
+    <ul class="dropdown" data-db-dropdown="${idx}" style=" position: absolute; top: 25px; width: 100%; overflow: visible; display: block; padding: 5px; z-index: 1;">
       ${markupList.join("")}
     </ul>
     `;
 
-    el.insertAdjacentHTML("afterbegin", markup);
+    el.insertAdjacentHTML("beforeend", markup);
   }
 
   private addDropdownEvents() {
@@ -140,15 +141,15 @@ export default class DropdownOptionsView extends View {
       const target = e.target as HTMLElement;
       const btn = target.closest(".dropdown-btn");
       const container = target.closest(".dropdown-container") as HTMLElement;
-      const id = Number(container.dataset.id!);
+      const id = Number(container.dataset.dbContainer!);
       if (!btn) return;
 
       onFocusOut({
         button: btn,
         run: () => {
-          this.generateDropdown(container, id + 1);
+          this.generateDropdown(container, id + 3);
         },
-        allow: [`.dropdown[data-db="${id}"]`],
+        allow: [`[data-db-dropdown="${id + 3}"]`],
         onExit: () => {
           container.innerHTML = "";
           container.appendChild(btn);
