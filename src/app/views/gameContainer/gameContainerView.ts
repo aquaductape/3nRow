@@ -23,18 +23,17 @@ class GameContainerView extends View {
       const browserInnerHeight =
         window.innerHeight || document.documentElement.clientHeight;
 
-      const margin = 20;
-      const padding = 40;
+      const margin = 40;
+      const padding = 60;
       let width = 0;
-
-      if (browserInnerHeight > 800) {
-        width = 700;
-        gameContainer.style.maxWidth = `${width}px`;
-        return;
-      }
 
       width =
         browserInnerHeight - playerBtnGroup.clientHeight - margin - padding;
+
+      if (browserInnerHeight > 800) {
+        gameContainer.style.maxWidth = `${width - 200}px`;
+        return;
+      }
       gameContainer.style.maxWidth = `${width}px`;
     };
 

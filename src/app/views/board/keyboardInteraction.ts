@@ -19,8 +19,9 @@ const focusNewCell = ({ column, row }: TPosition) => {
   cell.setAttribute("tabindex", "0");
 };
 
-export const prevCellChangeTabindex = (callback: () => Element) => {
+export const prevCellChangeTabindex = (callback: () => Element | null) => {
   const prevCell = callback();
+  if (!prevCell) return;
   prevCell.setAttribute("tabindex", "-1");
 };
 

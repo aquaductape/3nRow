@@ -2,13 +2,24 @@ import model from "../model/model";
 import { TPlayer } from "../model/state";
 import boardView from "../views/board/boardView";
 import gameContainerView from "../views/gameContainer/gameContainerView";
-import playerBtnGroupView from "../views/player/playerBtnGroupView";
+import playerBtnGroupView from "../views/playerOptions/playerBtnGroupView";
+import startMenuView from "../views/startMenu/startMenuView";
 import { buildShapesForPlayers } from "../views/svg/shapes";
 import svgDefsView from "../views/svg/svgDefsView";
 
-export type TControlBoardCell = ({}: { row: number; column: number }) => void;
-const controlBoardCell: TControlBoardCell = ({ column, row }) => {
-  console.log({ column, row });
+export type TControlGame = ({}: { row: number; column: number }) => void;
+const controlGame: TControlGame = ({ column, row }) => {
+  // Model
+  // update board
+  const player = model.getCurrentPlayer();
+  model.startTurn({ column, row });
+
+  // View
+  // show mark based on column row
+  boardView.updateBoard({ data: model.state, player });
+  // update waiting for turn
+  // const player = model.getCurrentPlayer();
+  // boardView.waitingForOtherPlayer()
 };
 
 export type TControlStartGame = ({}: { id: string; ai: boolean }) => void;
@@ -32,8 +43,9 @@ const controlPlayerShape: TControlPlayerShape = ({ player, shape }) => {
 
   // View
   // update btn mark
-  playerBtnGroupView.updateSvgMark(player.id);
+  playerBtnGroupView.updateSvgMark(player);
   // update marks on board
+  boardView.updateShapeInCells(player);
 };
 
 export type TControlPlayerColor = ({}: {
@@ -61,12 +73,13 @@ const init = () => {
   svgDefsView.render(model.state.players);
   playerBtnGroupView.render(model.state);
   boardView.render(model.state);
+  startMenuView.render(model.state.players);
 
   // add handlers
   playerBtnGroupView.addHandlerChangeShape(controlPlayerShape);
   playerBtnGroupView.addHandlerChangeColor(controlPlayerColor);
-  boardView.addHandlerStartGame(controlStartGame);
-  boardView.addHandlerCell(controlBoardCell);
+  startMenuView.addHandlerStartGame(controlStartGame);
+  boardView.addHandlerCell(controlGame);
 };
 
 init();

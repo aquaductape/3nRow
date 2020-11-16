@@ -1,8 +1,5 @@
-import {
-  TControlBoardCell,
-  TControlStartGame,
-} from "../../controller/controller";
-import { TState } from "../../model/state";
+import { TControlGame, TControlStartGame } from "../../controller/controller";
+import { TGame, TPlayer, TState } from "../../model/state";
 import View from "../View";
 import {
   guardKey,
@@ -41,21 +38,49 @@ class BoardView extends View {
     return { row, column };
   }
 
-  addHandlerStartGame(handler: TControlStartGame) {
-    const { players } = this.data;
-    const { id } = players[1];
-    this.btnAi.addEventListener("click", () => {
-      this.startGame();
-      handler({ id, ai: true });
-    });
+  private getCellElement = ({
+    column,
+    row,
+  }: {
+    column: number;
+    row: number;
+  }) => {
+    return this.parentEl.querySelector(
+      `[data-row="${row}"] [data-column="${column}"]`
+    ) as HTMLElement;
+  };
 
-    this.btnHuman.addEventListener("click", () => {
-      this.startGame();
-      handler({ id, ai: false });
+  private selectCell = (cell: HTMLElement) => {
+    const {
+      game: { getCurrentPlayer },
+    } = this.data;
+    const player = getCurrentPlayer();
+
+    cell.setAttribute("aria-selected", "true");
+    cell.setAttribute("data-selected", "true");
+    cell.setAttribute("data-player-id", player.id);
+    cell.setAttribute("aria-label", `Marked by ${player.name}`);
+  };
+
+  private updateEmptyCellsAriaLabel(player: TPlayer) {
+    const cells = this.parentEl.querySelectorAll(
+      '[data-selected="false"]'
+    ) as NodeListOf<HTMLElement>;
+    const msg = player.isAI ? `Waiting for ${player.name}.` : "It's your turn";
+
+    cells.forEach((cell) => {
+      cell.setAttribute("aria-label", `Empty. ${msg}`);
     });
   }
 
-  addHandlerCell(handler: TControlBoardCell) {
+  private isCellSelected = (cell: HTMLElement) => {
+    const selected = cell.dataset.selected;
+    if (!selected) return false;
+
+    return selected.match(/true/i);
+  };
+
+  addHandlerCell(handler: TControlGame) {
     this.parentEl.addEventListener("click", (e) => {
       const target = <HTMLElement>e.target;
       const cell = target.closest("[data-column]") as HTMLElement;
@@ -65,8 +90,12 @@ class BoardView extends View {
       prevCellChangeTabindex(
         () => this.parentEl.querySelector('[data-column][tabindex="0"]')!
       );
+
       cell.setAttribute("tabindex", "0");
-      cell.setAttribute("aria-selected", "true");
+
+      if (this.isCellSelected(cell)) return;
+
+      this.selectCell(cell);
 
       handler(this.getPositionFromCell(cell));
     });
@@ -81,12 +110,44 @@ class BoardView extends View {
 
       keyboardInteraction(e);
 
-      if (!keys.includes(e.key)) return;
+      if (!keys.includes(e.key) || this.isCellSelected(cell)) return;
 
-      cell.setAttribute("aria-selected", "true");
+      this.selectCell(cell);
 
       handler(this.getPositionFromCell(cell));
     });
+  }
+
+  renderFilledCell(player: TPlayer) {
+    const {
+      game: { markedPosition },
+    } = this.data;
+    const { shape, svgShapes: shapes } = player;
+
+    const cell = this.getCellElement(markedPosition);
+    cell.innerHTML = shapes[shape];
+  }
+
+  updateShapeInCells(player: TPlayer) {
+    const cells = this.parentEl.querySelectorAll(
+      `[data-player-id="${player.id}"]`
+    ) as NodeListOf<HTMLElement>;
+
+    cells.forEach((cell) => {
+      cell.classList.add("block-animation");
+      cell.innerHTML = player.getSvgShape();
+    });
+  }
+
+  waitingForOtherPlayer(player: TPlayer) {
+    // update cells aria
+    this.updateEmptyCellsAriaLabel(player);
+  }
+
+  updateBoard({ data, player }: { data: TState; player: TPlayer }) {
+    this.data = data;
+
+    this.renderFilledCell(player);
   }
 
   startGame() {

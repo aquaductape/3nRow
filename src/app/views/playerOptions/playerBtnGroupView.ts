@@ -2,8 +2,8 @@ import {
   TControlPlayerColor,
   TControlPlayerShape,
 } from "../../controller/controller";
-import addGlobalEscape from "../../lib/addGlobalEscape/addGlobalEscape";
-import { TState } from "../../model/state";
+import onFocusOut from "../../lib/onFocusOut/onFocusOut";
+import { TPlayer, TState } from "../../model/state";
 import { svg } from "../constants/constants";
 import { createHTMLFromString } from "../utils/index";
 import View from "../View";
@@ -14,7 +14,7 @@ type TPlayerDom = {
     playerContainer: HTMLElement;
     playerBtn: HTMLElement;
     playerMark: HTMLElement;
-    // dropdownOptionsContainer: DropdownOptionsView;
+    dropdownOptionsMenu: HTMLElement;
     dropdownOptionsView: DropdownOptionsView;
   };
 };
@@ -29,8 +29,6 @@ class PlayerBtnGroup extends View {
     this.data = <TState>{};
     this.playerOptions = document.querySelectorAll(".player-options");
     this.playerDom = <TPlayerDom>{};
-
-    this.addToggleDropDown();
   }
 
   private generatePlayerMark({ id, svgMark }: { id: string; svgMark: string }) {
@@ -68,24 +66,36 @@ class PlayerBtnGroup extends View {
 
   addToggleDropDown() {
     const onAction = (e: Event) => {
-      const btn = (e.target as HTMLElement).closest(
-        ".player-btn-options"
-      ) as HTMLElement;
-      if (!btn) return;
+      const target = e.target as HTMLElement;
+      const btn = target.closest(".player-btn-options") as HTMLElement;
+
+      if (target.classList.contains("dropdown-options-container")) {
+        return;
+      }
+
+      if (!btn) {
+        return;
+      }
+
       const { playerId } = btn.dataset;
 
-      const { playerBtn, dropdownOptionsView } = this.playerDom[playerId!];
+      const {
+        playerBtn,
+        dropdownOptionsView,
+        playerContainer,
+      } = this.playerDom[playerId!];
 
-      addGlobalEscape({
+      onFocusOut({
         button: playerBtn,
-        run() {
+        allow: [".dropdown-options-container"],
+        not: [".btn-close"],
+        run: () => {
           dropdownOptionsView.addDropdown();
-          btn.classList.add("active");
+          playerBtn.classList.add("active");
         },
-        allow: [".dropdown-options"],
-        onExit() {
+        onExit: () => {
           dropdownOptionsView.removeDropdown();
-          btn.classList.remove("active");
+          playerBtn.classList.remove("active");
         },
       });
     };
@@ -99,7 +109,7 @@ class PlayerBtnGroup extends View {
     const { players } = data;
 
     players.forEach((player) => {
-      const { id, shape, shapes } = player;
+      const { id, shape, svgShapes: shapes } = player;
       const svgMark = shapes[shape];
       const playerContainer = document.getElementById(`${id}-btn-options`)!;
       const playerBtn = <HTMLElement>(
@@ -108,11 +118,14 @@ class PlayerBtnGroup extends View {
       const playerMark = <HTMLElement>(
         playerContainer.querySelector(".player-mark")
       );
-      const dropDownOptionsContainer = <HTMLElement>(
+      const dropdownOptionsContainer = <HTMLElement>(
         playerContainer.querySelector(".dropdown-options-container")
       );
+      const dropdownOptionsMenu = <HTMLElement>(
+        playerContainer.querySelector(".dropdown-options-menu")
+      );
       const dropdownOptionsView = new DropdownOptionsView({
-        root: dropDownOptionsContainer,
+        root: dropdownOptionsContainer,
         data: player,
       });
 
@@ -120,6 +133,7 @@ class PlayerBtnGroup extends View {
         playerContainer,
         playerMark,
         dropdownOptionsView,
+        dropdownOptionsMenu,
         playerBtn,
       };
 
@@ -127,15 +141,15 @@ class PlayerBtnGroup extends View {
       this.generatePlayerMark({ id, svgMark });
     });
     this.generateAntMenu();
+    this.addToggleDropDown();
 
     return;
   }
 
-  updateSvgMark(id: string) {
-    const { players } = this.data;
-    const { shape, shapes } = players.find((player) => player.id === id)!;
+  updateSvgMark(player: TPlayer) {
+    const { shape, svgShapes: shapes, id } = player;
     const { playerMark } = this.playerDom[id];
-    const svgMark = shapes[shape];
+    const svgMark = player.getSvgShape();
 
     playerMark.innerHTML = "";
     this.generatePlayerMark({ id, svgMark });

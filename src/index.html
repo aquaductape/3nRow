@@ -36,44 +36,47 @@
           </div>
         </div>
       </div>
-      <div role="grid" aria class="board">
-        <div role="row" class="row" data-row="0">
-          <div role="gridcell" aria-selected="false" data-column="0" tabindex="-1" aria-label="empty">
-            <div class="content"></div>
+      <div class="game">
+        <div role="grid" aria-label="game board" aria class="board">
+          <div role="row" class="row" data-row="0">
+            <div class="cell" role="gridcell" aria-selected="false" data-column="0" data-selected="false" tabindex="-1"
+              aria-label="empty">
+            </div>
+            <div class="cell" role="gridcell" aria-selected="false" data-column="1" data-selected="false" tabindex="-1"
+              aria-label="empty">
+            </div>
+            <div class="cell" role="gridcell" aria-selected="false" data-column="2" data-selected="false" tabindex="-1"
+              aria-label="empty">
+            </div>
           </div>
-          <div role="gridcell" aria-selected="false" data-column="1" tabindex="-1" aria-label="empty">
-            <div class="content"></div>
+          <div role="row" class="row" data-row="1">
+            <div class="cell" role="gridcell" aria-selected="false" data-column="0" data-selected="false" tabindex="-1"
+              aria-label="empty">
+            </div>
+            <div class="cell" role="gridcell" aria-selected="false" data-column="1" data-selected="false" tabindex="-1"
+              aria-label="empty">
+            </div>
+            <div class="cell" role="gridcell" aria-selected="false" data-column="2" data-selected="false" tabindex="-1"
+              aria-label="empty">
+            </div>
           </div>
-          <div role="gridcell" aria-selected="false" data-column="2" tabindex="-1" aria-label="empty">
-            <div class="content"></div>
+          <div role="row" class="row" data-row="2">
+            <div class="cell" role="gridcell" aria-selected="false" data-column="0" data-selected="false" tabindex="-1"
+              aria-label="empty">
+            </div>
+            <div class="cell" role="gridcell" aria-selected="false" data-column="1" data-selected="false" tabindex="-1"
+              aria-label="empty">
+            </div>
+            <div class="cell" role="gridcell" aria-selected="false" data-column="2" data-selected="false" tabindex="-1"
+              aria-label="empty">
+            </div>
+          </div>
+          <div aria-hidden="true" class="line-svg">
           </div>
         </div>
-        <div role="row" class="row" data-row="1">
-          <div role="gridcell" aria-selected="false" data-column="0" tabindex="-1" aria-label="empty">
-            <div class="content"></div>
-          </div>
-          <div role="gridcell" aria-selected="false" data-column="1" tabindex="-1" aria-label="empty">
-            <div class="content"></div>
-          </div>
-          <div role="gridcell" aria-selected="false" data-column="2" tabindex="-1" aria-label="empty">
-            <div class="content"></div>
-          </div>
-        </div>
-        <div role="row" class="row" data-row="2">
-          <div role="gridcell" aria-selected="false" data-column="0" tabindex="-1" aria-label="empty">
-            <div class="content"></div>
-          </div>
-          <div role="gridcell" aria-selected="false" data-column="1" tabindex="-1" aria-label="empty">
-            <div class="content"></div>
-          </div>
-          <div role="gridcell" aria-selected="false" data-column="2" tabindex="-1" aria-label="empty">
-            <div class="content"></div>
-          </div>
-        </div>
-        <div aria-hidden="true" class="line-svg">
-        </div>
-        <div id="game-start" class="game-start">
-          <div class="game-start-menu">
+        <div class="start-menu-container">
+          <div class="start-menu">
+            <h1>3nRow</h1>
             <p aria-labelledby="Welcome to 3n-row, a Tic Tac Toe game. To play, you and your opponent take turns to fill one cell on a board that has 3 rows and 3 columns,. To win, you have to fill 3 cells consecutively, either horizontally, vertically or diagionally"
               class="game-start-info">Play Against</p>
             <div class="tutorial">

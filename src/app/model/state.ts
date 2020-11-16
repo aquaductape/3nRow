@@ -6,7 +6,10 @@ export const state: TState = {
       name: "Player 1",
       color: "sky_blue,cyan",
       shape: "cross",
-      shapes: <TShapes>{},
+      svgShapes: <TShapes>{},
+      getSvgShape() {
+        return this.svgShapes[this.shape];
+      },
       mark: "X",
       isAI: false,
       difficulty: null,
@@ -17,7 +20,10 @@ export const state: TState = {
       name: "Player 2",
       color: "red,orange",
       shape: "circle",
-      shapes: <TShapes>{},
+      svgShapes: <TShapes>{},
+      getSvgShape() {
+        return this.svgShapes[this.shape];
+      },
       mark: "O",
       isAI: false,
       difficulty: null,
@@ -39,6 +45,13 @@ export const state: TState = {
       [3, 4, 5],
       [6, 7, 8],
     ],
+    getCurrentPlayer() {
+      const {
+        game: { playerTurn },
+        players,
+      } = state;
+      return players.find((player) => player.id === playerTurn)!;
+    },
   },
 };
 
@@ -69,15 +82,17 @@ export type TPlayer = {
   score: number;
   shape: string;
   // shapes
-  shapes: TShapes;
+  svgShapes: TShapes;
+  getSvgShape: () => string;
   color: TColors;
   isAI: boolean;
   mark: "X" | "O";
   difficulty: string | null;
 };
 
-type TGame = {
+export type TGame = {
   playerTurn: string; // Player id
+  getCurrentPlayer: () => TPlayer;
   gameOver: boolean;
   gameStart: boolean;
   startAgain: boolean;

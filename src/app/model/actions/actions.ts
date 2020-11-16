@@ -7,7 +7,7 @@ type TSetShapesProp = {
 
 export const setShapes = (shapes: TSetShapesProp) => {
   const setShape = ({ player, shape }: { shape: TShapes; player: TPlayer }) => {
-    player.shapes = shape;
+    player.svgShapes = shape;
   };
 
   state.players.forEach((player) =>
@@ -35,7 +35,7 @@ export const setPlayerCurrentColor = ({
   player.color = color as TColors;
 };
 
-const getCurrentPlayer = () =>
+export const getCurrentPlayer = () =>
   state.players.find(({ id }) => state.game.playerTurn === id)!;
 
 export const startGame = () => (state.game.gameStart = true);
@@ -71,14 +71,17 @@ export const goAI = () => {
 export const markBoard = ({ column, row }: { row: number; column: number }) => {
   // at view, before calling this model function
   // add data attribute to guard additional clicks
-  const {
-    game: { board },
-  } = state;
+  const { game } = state;
+  const { board } = game;
   const player = getCurrentPlayer();
 
-  if (!isCellEmpty({ column, row })) return;
+  if (isCellEmpty({ column, row })) return;
 
   board[row][column] = player.mark;
+  game.markedPosition = {
+    column,
+    row,
+  };
 };
 
 export const startTurn = ({ column, row }: { row: number; column: number }) => {
