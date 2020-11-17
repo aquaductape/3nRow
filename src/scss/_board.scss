@@ -71,6 +71,7 @@
   border-radius: 10px;
   background: var(--blue-activated);
   cursor: pointer;
+  outline: none;
 
   &::before {
     content: "";
@@ -78,9 +79,8 @@
     padding-bottom: 100%;
   }
   &:hover,
-  &:focus {
+  &:focus:not(.noFocusClick) {
     background: #3c2a6d;
-    outline: none;
   }
   &:hover svg {
     // transform: scale(1.1);

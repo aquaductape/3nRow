@@ -56,16 +56,21 @@ export const setPlayerAsHumanOrAI = ({
 
 export const goAI = () => {
   const { game } = state;
+  if (game.gameOver) return;
   if (!game.hasAI) return;
 
   const player = getCurrentPlayer();
 
   if (!player.isAI) return;
 
-  // ai marks board
+  // ai decides best move
   const position = decideMove(player);
-  game.markedPosition = position;
-  // game.board
+  // mark board
+  markBoard(position);
+  // check if ai won
+  checkBoardForWinner();
+  // change turn
+  changeTurn();
 };
 
 export const markBoard = ({ column, row }: { row: number; column: number }) => {
@@ -85,12 +90,71 @@ export const markBoard = ({ column, row }: { row: number; column: number }) => {
 };
 
 export const startTurn = ({ column, row }: { row: number; column: number }) => {
-  const { game, players } = state;
   // start player
   markBoard({ column, row });
-
+  // check if player won
+  checkBoardForWinner();
   // change turn
   changeTurn();
+};
+
+const checkBoardForWinner = () => {
+  const { game } = state;
+  const { board } = game;
+  const player = getCurrentPlayer();
+  if (game.gameOver) return;
+  // check row
+  for (let row = 0; row < board.length; row++) {
+    if (board[row].every((item) => item === player.mark)) {
+      game.winPosition = `ROW_${row}`;
+      game.gameOver = true;
+      return;
+    }
+
+    // check column
+    const item = row;
+    let count = 0;
+    for (let column = 0; column < board.length; column++) {
+      if (board[column][item] === player.mark) {
+        count++;
+        if (count === board.length) {
+          game.winPosition = `COL_${item}`;
+          game.gameOver = true;
+          return;
+        }
+      }
+    }
+  }
+
+  //check diagonal
+  let diagTopLeft = 0;
+  let diagBotLeft = 0;
+  // [0,0][1,1][2,2]
+  // [0,2][1,1][2,0]
+  for (let i = 0; i < board.length; i++) {
+    if (board[i][i] === player.mark) {
+      diagTopLeft++;
+      if (diagTopLeft === board.length) {
+        game.winPosition = "DIAG_TOP_LEFT";
+        game.gameOver = true;
+        return;
+      }
+    }
+    if (board[i][board.length - 1 - i] === player.mark) {
+      diagBotLeft++;
+      if (diagBotLeft === board.length) {
+        game.winPosition = "DIAG_BOT_LEFT";
+        game.gameOver = true;
+        return;
+      }
+    }
+  }
+
+  // check cat's game
+  if (board.every((row) => row.every((item) => typeof item !== "number"))) {
+    game.gameTie = true;
+    game.gameOver = true;
+  }
 };
 
 const changeTurn = () => {

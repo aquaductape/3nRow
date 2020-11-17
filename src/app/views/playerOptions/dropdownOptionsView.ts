@@ -2,19 +2,21 @@ import {
   TControlPlayerColor,
   TControlPlayerShape,
 } from "../../controller/controller";
-import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TPlayer } from "../../model/state";
 import { colorMap, colors, shapes, svg } from "../constants/constants";
 import { diagonalLengthOfElement } from "../utils/index";
 import View from "../View";
 
+let init = true;
+
 export default class DropdownOptionsView extends View {
   data: TPlayer;
   dropdownOptions: HTMLElement;
   playerBtnHighlight: HTMLElement;
-  dropdownContainer: HTMLElement;
+  // dropdownContainer: HTMLElement;
+  // dropdown: HTMLElement;
   dropdownBtn: HTMLElement;
-  dropdown: HTMLElement;
+  board: HTMLElement;
 
   constructor({ root, data }: { data: TPlayer; root: string | HTMLElement }) {
     super({ root });
@@ -22,9 +24,25 @@ export default class DropdownOptionsView extends View {
     this.data = data;
     this.dropdownOptions = {} as HTMLElement;
     this.playerBtnHighlight = {} as HTMLElement;
-    this.dropdownContainer = {} as HTMLElement;
+    // this.dropdownContainer = {} as HTMLElement;
+    // this.dropdown = {} as HTMLElement;
     this.dropdownBtn = {} as HTMLElement;
-    this.dropdown = {} as HTMLElement;
+    this.board = document.querySelector(".board") as HTMLElement;
+    this.listenBoardResize();
+  }
+
+  private listenBoardResize() {
+    // if (!init) return;
+    // init = false;
+    const resizeDropdown = () => {
+      const { clientWidth } = this.board;
+      this.dropdownOptions.style.width = `${clientWidth}px`;
+    };
+    requestAnimationFrame(resizeDropdown);
+
+    window.addEventListener("resize", () => {
+      resizeDropdown();
+    });
   }
 
   protected initQuerySelectors() {
@@ -37,22 +55,20 @@ export default class DropdownOptionsView extends View {
       `[data-player-id="${id}"]`
     ) as HTMLElement;
 
-    this.dropdownContainer = this.parentEl.querySelector(
-      ".dropdown-container"
-    ) as HTMLElement;
+    // this.dropdownContainer = this.parentEl.querySelector(
+    //   ".dropdown-container"
+    // ) as HTMLElement;
+    // this.dropdown = this.parentEl.querySelector(".dropdown") as HTMLElement;
+    // this.addDropdownEvents();
     this.dropdownBtn = this.parentEl.querySelector(
       ".dropdown-btn"
     ) as HTMLElement;
-    this.dropdown = this.parentEl.querySelector(".dropdown") as HTMLElement;
-
-    this.addDropdownEvents();
   }
 
   private generateBtnHighlight() {
     return `
       <div class="fake-player-btns">
-        <div data-player-id="P1" class="player-btn-highlight"></div>
-        <div data-player-id="P2" class="player-btn-highlight"></div>
+        <div class="player-btn-highlight"></div>
       </div>
     `;
   }
@@ -91,7 +107,6 @@ export default class DropdownOptionsView extends View {
     ${this.generateBtnHighlight()}
 
     <div class="dropdown-options ${id}-options">
-    <button class="btn-close">Close</button>
       <div class="options-shape">
         <h2 class="options-title">Shape</h2>
         <hr>
@@ -103,9 +118,6 @@ export default class DropdownOptionsView extends View {
         <ul class="color-group">${this.renderGroup({ type: "colors" })}</ul>
       </div>
       <!-- AI Options -->
-      <div class="dropdown-container" data-db-container="0" style="position:relative">
-        <button class="dropdown-btn">Dropdown 0</button>
-      </div>
       <div class="options-gameplay">
         <hr> <button id="options-restart" class="btn btn-secondary options-btn">Restart</button> <button
           id="options-reset-scores" class="btn btn-secondary options-btn">Reset Scores</button> </div>
@@ -136,27 +148,27 @@ export default class DropdownOptionsView extends View {
     el.insertAdjacentHTML("beforeend", markup);
   }
 
-  private addDropdownEvents() {
-    this.dropdownContainer.addEventListener("click", (e) => {
-      const target = e.target as HTMLElement;
-      const btn = target.closest(".dropdown-btn");
-      const container = target.closest(".dropdown-container") as HTMLElement;
-      const id = Number(container.dataset.dbContainer!);
-      if (!btn) return;
+  // private addDropdownEvents() {
+  //   this.dropdownContainer.addEventListener("click", (e) => {
+  //     const target = e.target as HTMLElement;
+  //     const btn = target.closest(".dropdown-btn");
+  //     const container = target.closest(".dropdown-container") as HTMLElement;
+  //     const id = Number(container.dataset.dbContainer!);
+  //     if (!btn) return;
 
-      onFocusOut({
-        button: btn,
-        run: () => {
-          this.generateDropdown(container, id + 3);
-        },
-        allow: [`[data-db-dropdown="${id + 3}"]`],
-        onExit: () => {
-          container.innerHTML = "";
-          container.appendChild(btn);
-        },
-      });
-    });
-  }
+  //     onFocusOut({
+  //       button: btn,
+  //       run: () => {
+  //         this.generateDropdown(container, id + 3);
+  //       },
+  //       allow: [`[data-db-dropdown="${id + 3}"]`],
+  //       onExit: () => {
+  //         container.innerHTML = "";
+  //         container.appendChild(btn);
+  //       },
+  //     });
+  //   });
+  // }
 
   addHandlerChangeShape(handler: TControlPlayerShape) {
     this.parentEl.addEventListener("click", (e) => {
@@ -185,13 +197,11 @@ export default class DropdownOptionsView extends View {
 
     setTimeout(() => {
       this.parentEl.classList.add("hidden");
-      this.playerBtnHighlight.classList.remove("active");
     }, 450);
   }
 
   addDropdown() {
     this.parentEl.classList.remove("hidden");
-    this.playerBtnHighlight.classList.add("active");
     this.reflow();
     this.appearEnter();
   }

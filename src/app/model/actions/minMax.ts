@@ -39,8 +39,8 @@ const {
 } = state;
 const [player1, player2] = players;
 
-const opponent = player1.id === playerTurn ? player1.mark : player2.mark;
-const hero = player1.id === playerTurn ? player1.mark : player2.mark;
+const opponent = player1.mark;
+const hero = player2.mark;
 
 const miniMax = (newBoard: TFlattenBoard, player: "X" | "O") => {
   //available spots

@@ -13,10 +13,16 @@
 }
 
 .start-menu {
+  padding: 5px 45px;
+  width: 100%;
+  transition: 300ms opacity;
+}
+
+.menu-buttons {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  transition: 300ms opacity;
+  width: 100%;
 }
 
 .game-start-info {

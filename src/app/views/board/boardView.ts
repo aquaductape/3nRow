@@ -1,32 +1,30 @@
 import { TControlGame, TControlStartGame } from "../../controller/controller";
 import { TGame, TPlayer, TState } from "../../model/state";
+import { colorMap } from "../constants/constants";
 import View from "../View";
 import {
-  guardKey,
   keyboardInteraction,
   prevCellChangeTabindex,
 } from "./keyboardInteraction";
+import { renderWinnerSlash } from "./renderLine";
 
 class BoardView extends View {
-  gameStartContainer: HTMLElement;
-  gameStartMenu: HTMLElement;
-  btnAi: HTMLElement;
-  btnHuman: HTMLElement;
   firstCell: HTMLElement;
+  lineContainer: HTMLElement;
   data: TState;
+  state: {
+    playerCanSelectCell: boolean;
+  };
   constructor() {
     super({ root: ".board" });
-
-    this.gameStartMenu = this.parentEl.querySelector(
-      ".game-start-menu"
-    ) as HTMLElement;
-    this.gameStartContainer = this.parentEl.querySelector(
-      ".game-start"
-    ) as HTMLElement;
-    this.btnAi = this.parentEl.querySelector(".btn-ai") as HTMLElement;
-    this.btnHuman = this.parentEl.querySelector(".btn-human") as HTMLElement;
+    this.state = {
+      playerCanSelectCell: false,
+    };
     this.firstCell = this.parentEl.querySelector(
       '[data-column="0"]'
+    ) as HTMLElement;
+    this.lineContainer = this.parentEl.querySelector(
+      ".line-svg"
     ) as HTMLElement;
     this.data = {} as TState;
   }
@@ -50,17 +48,26 @@ class BoardView extends View {
     ) as HTMLElement;
   };
 
-  private selectCell = (cell: HTMLElement) => {
+  private selectCell({
+    cell,
+    player,
+  }: {
+    cell: HTMLElement;
+    player?: TPlayer;
+  }) {
     const {
       game: { getCurrentPlayer },
     } = this.data;
-    const player = getCurrentPlayer();
+    player = player || getCurrentPlayer();
+
+    if (this.isCellSelected(cell)) return;
 
     cell.setAttribute("aria-selected", "true");
     cell.setAttribute("data-selected", "true");
     cell.setAttribute("data-player-id", player.id);
     cell.setAttribute("aria-label", `Marked by ${player.name}`);
-  };
+    this.state.playerCanSelectCell = false;
+  }
 
   private updateEmptyCellsAriaLabel(player: TPlayer) {
     const cells = this.parentEl.querySelectorAll(
@@ -80,6 +87,17 @@ class BoardView extends View {
     return selected.match(/true/i);
   };
 
+  private renderFilledCell(player: TPlayer) {
+    const {
+      game: { markedPosition },
+    } = this.data;
+    const { shape, svgShapes: shapes } = player;
+
+    const cell = this.getCellElement(markedPosition);
+    this.selectCell({ cell, player });
+    cell.innerHTML = shapes[shape];
+  }
+
   addHandlerCell(handler: TControlGame) {
     this.parentEl.addEventListener("click", (e) => {
       const target = <HTMLElement>e.target;
@@ -93,9 +111,10 @@ class BoardView extends View {
 
       cell.setAttribute("tabindex", "0");
 
+      if (!this.state.playerCanSelectCell) return;
       if (this.isCellSelected(cell)) return;
 
-      this.selectCell(cell);
+      this.selectCell({ cell });
 
       handler(this.getPositionFromCell(cell));
     });
@@ -110,22 +129,13 @@ class BoardView extends View {
 
       keyboardInteraction(e);
 
+      if (!this.state.playerCanSelectCell) return;
       if (!keys.includes(e.key) || this.isCellSelected(cell)) return;
 
-      this.selectCell(cell);
+      this.selectCell({ cell });
 
       handler(this.getPositionFromCell(cell));
     });
-  }
-
-  renderFilledCell(player: TPlayer) {
-    const {
-      game: { markedPosition },
-    } = this.data;
-    const { shape, svgShapes: shapes } = player;
-
-    const cell = this.getCellElement(markedPosition);
-    cell.innerHTML = shapes[shape];
   }
 
   updateShapeInCells(player: TPlayer) {
@@ -146,21 +156,44 @@ class BoardView extends View {
 
   updateBoard({ data, player }: { data: TState; player: TPlayer }) {
     this.data = data;
+    const { game } = data;
 
     this.renderFilledCell(player);
+    if (game.gameOver) {
+      renderWinnerSlash({
+        player,
+        winPosition: game.winPosition,
+        line: this.lineContainer,
+      });
+      this.updateWinnerSlashColor(player.color);
+    }
+  }
+
+  allowPlayerToSelect() {
+    this.state.playerCanSelectCell = true;
+  }
+
+  updateWinnerSlashColor(color: string) {
+    const [primaryColor, secondaryColor] = colorMap[color];
+    const lineColorPrimaryAll = <NodeListOf<HTMLElement>>(
+      document.querySelectorAll(".line-color-primary")
+    );
+    const lineColorSecondaryAll = <NodeListOf<HTMLElement>>(
+      document.querySelectorAll(".line-color-secondary")
+    );
+
+    lineColorPrimaryAll.forEach((line) => {
+      line.style.stopColor = primaryColor;
+    });
+    lineColorSecondaryAll.forEach((line) => {
+      line.style.stopColor = secondaryColor;
+    });
   }
 
   startGame() {
-    this.gameStartContainer.style.pointerEvents = "none";
-    this.gameStartMenu.style.opacity = "0";
-    this.gameStartContainer.style.opacity = "0";
-
     this.firstCell.tabIndex = 0;
     this.firstCell.focus();
-
-    setTimeout(() => {
-      this.gameStartContainer.style.display = "none";
-    }, 900);
+    this.state.playerCanSelectCell = true;
   }
 
   playAgain() {}

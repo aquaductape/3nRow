@@ -32,10 +32,12 @@ export const state: TState = {
   game: {
     gameOver: false,
     gameStart: false,
+    gameTie: false,
     startAgain: false,
     playerTurn: "P1",
     winner: null,
     hasAI: false,
+    winPosition: "",
     markedPosition: {
       row: 0,
       column: 0,
@@ -56,7 +58,7 @@ export const state: TState = {
 };
 
 // @ts-ignore
-window.$state = state;
+// window.$state = state;
 
 export type TBoard = (number | "X" | "O")[][];
 
@@ -95,11 +97,13 @@ export type TGame = {
   getCurrentPlayer: () => TPlayer;
   gameOver: boolean;
   gameStart: boolean;
+  gameTie: boolean;
   startAgain: boolean;
   winner: string | null; // Player id
   hasAI: boolean;
   board: TBoard;
   markedPosition: { row: number; column: number };
+  winPosition: string;
 };
 
 export type TState = {

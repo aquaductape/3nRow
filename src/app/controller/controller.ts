@@ -9,6 +9,7 @@ import svgDefsView from "../views/svg/svgDefsView";
 
 export type TControlGame = ({}: { row: number; column: number }) => void;
 const controlGame: TControlGame = ({ column, row }) => {
+  if (model.state.game.gameOver) return;
   // Model
   // update board
   const player = model.getCurrentPlayer();
@@ -17,6 +18,20 @@ const controlGame: TControlGame = ({ column, row }) => {
   // View
   // show mark based on column row
   boardView.updateBoard({ data: model.state, player });
+
+  if (!model.state.game.hasAI) {
+    // return allowTurn confirmation
+    boardView.allowPlayerToSelect();
+    return;
+  }
+  setTimeout(() => {
+    const ai = model.getCurrentPlayer();
+    model.goAI();
+    boardView.updateBoard({ data: model.state, player: ai });
+    boardView.allowPlayerToSelect();
+    // return allowTurn confirmation
+  }, 1500);
+
   // update waiting for turn
   // const player = model.getCurrentPlayer();
   // boardView.waitingForOtherPlayer()
@@ -28,6 +43,8 @@ const controlStartGame: TControlStartGame = ({ ai, id }) => {
   // set specific player as human or ai
   // starting game is hardcoded as player 2 confirming whether it's a human or an ai
   model.setPlayerAsHumanOrAI({ id, ai });
+  playerBtnGroupView.updatePlayerBtnsOnGameStart();
+  boardView.startGame();
 
   // player 1 goes first regardless
 };
@@ -60,6 +77,8 @@ const controlPlayerColor: TControlPlayerColor = ({ player, color }) => {
   // View
   // update svgDefs
   svgDefsView.render(model.state.players);
+  // update slash color
+  boardView.updateWinnerSlashColor(player.color);
 };
 
 const init = () => {

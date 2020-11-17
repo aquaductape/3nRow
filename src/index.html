@@ -15,7 +15,7 @@
     <div class="game-container">
       <div class="player-btn-group">
         <div id="P1-btn-options" class="dropdown-options-menu">
-          <button id="Player_1_options" class="player-btn-options" data-player-id="P1" aria-haspopup="true"
+          <button id="Player_1_options" class="player-btn-options pre-game" data-player-id="P1" aria-haspopup="true"
             aria-expanded="false" aria-label="open player 1 settings">
             <div class="player-mark" data-player-id="P1"></div>
             <div class="player-score">-</div>
@@ -26,7 +26,7 @@
           </div>
         </div>
         <div id="P2-btn-options" class="dropdown-options-menu">
-          <button id="Player_2_options" class="player-btn-options" data-player-id="P2" aria-haspopup="true"
+          <button id="Player_2_options" class="player-btn-options pre-game" data-player-id="P2" aria-haspopup="true"
             aria-expanded="false" aria-label="open player 2 settings">
             <div class="player-mark" data-player-id="P2"></div>
             <div class="player-score">-</div>
@@ -83,8 +83,10 @@
               <!-- 3 images -->
               <!-- image 1 alt="On turn 2. Player 1 has filled 1 cell on row 1 and column 1. Player 2 has filled 1 cell ect ect" -->
             </div>
-            <button class="btn-ai btn btn-primary btn-pick ">AI</button>
-            <button class="btn-human btn btn-primary btn-pick">Friend</button>
+            <div class="menu-buttons">
+              <button class="btn-ai btn btn-primary btn-pick ">AI</button>
+              <button class="btn-human btn btn-primary btn-pick">Friend</button>
+            </div>
           </div>
         </div>
       </div>

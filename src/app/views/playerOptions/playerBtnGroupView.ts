@@ -88,7 +88,6 @@ class PlayerBtnGroup extends View {
       onFocusOut({
         button: playerBtn,
         allow: [".dropdown-options-container"],
-        not: [".btn-close"],
         run: () => {
           dropdownOptionsView.addDropdown();
           playerBtn.classList.add("active");
@@ -101,6 +100,14 @@ class PlayerBtnGroup extends View {
     };
 
     this.parentEl.addEventListener("click", onAction);
+  }
+
+  updatePlayerBtnsOnGameStart() {
+    const { players } = this.data;
+    players.forEach(({ id }) => {
+      const { playerBtn } = this.playerDom[id];
+      playerBtn.classList.remove("pre-game");
+    });
   }
 
   // override render to avoid wiping container

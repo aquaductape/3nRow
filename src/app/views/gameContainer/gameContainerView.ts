@@ -42,7 +42,6 @@ class GameContainerView extends View {
 
     const debouncedChangeHeight = debounce(changeHeight, 100);
     window.addEventListener("resize", () => {
-      // debouncedChangeHeight();
       debouncedChangeHeight();
     });
   }

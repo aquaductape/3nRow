@@ -31,3 +31,22 @@
 8. ✅ Responsive for Apple Watch. Display 272 x 340
 9. Better contrast for board
 10. option button shouldn't display score due to aria
+
+# Logic
+
+## Issue: when dropdown is opened, you can't select the other player button
+
+## Solution
+
+set dropdown container same size as button: by setting button container to position relative since dropdown size context is based on button container's parent
+
+replace fake button highlights with just one button highlight
+
+dropdown container size is based on board size, so listen to resize events and update dropdown size
+button highlight size is based on button, so listen to resize events and update button size
+
+## Drawback
+
+Not a big deal, but no more seamless inexpensive transition when resizing page. Transition will still be seemless, but since it will trigger reflow, it will penalize low cpu users. If debounced is used there will be janky updates.
+
+Throttle seems like the best answer

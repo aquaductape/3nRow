@@ -21,8 +21,10 @@ class StartMenuView extends View {
         <!-- 3 images -->
         <!-- image 1 alt="On turn 2. Player 1 has filled 1 cell on row 1 and column 1. Player 2 has filled 1 cell ect ect" -->
       </div>
-      <button class="btn-ai btn btn-primary btn-pick ">AI</button>
-      <button class="btn-human btn btn-primary btn-pick">Friend</button>
+      <div class="menu-buttons">
+        <button class="btn-ai btn btn-primary btn-pick ">AI</button>
+        <button class="btn-human btn btn-primary btn-pick">Friend</button>
+      </div>
     </div>
     `;
   }
