@@ -107,29 +107,19 @@ svg {
   }
 }
 
-.btn-pick {
-  width: 45%;
-  border-radius: 10px;
-}
-.btn-dropdown {
-  position: relative;
-  width: 45%;
-}
-
 .btn-pick,
+.btn-play-again,
 .btn-start {
-  margin-top: 20px;
   padding: 15px 20px;
   font-size: 20px;
   font-weight: 700;
   letter-spacing: 2px;
+  border-radius: 10px;
 }
 
-.btn-start {
-  display: block;
-  margin: 0 auto;
+.btn-play-again {
   width: 100%;
-  margin-top: 20px;
+  max-width: 350px;
 }
 
 .switch {

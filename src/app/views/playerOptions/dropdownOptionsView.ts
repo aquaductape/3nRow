@@ -16,6 +16,7 @@ export default class DropdownOptionsView extends View {
   // dropdownContainer: HTMLElement;
   // dropdown: HTMLElement;
   dropdownBtn: HTMLElement;
+  dropdownTimeout: number;
   board: HTMLElement;
 
   constructor({ root, data }: { data: TPlayer; root: string | HTMLElement }) {
@@ -28,6 +29,7 @@ export default class DropdownOptionsView extends View {
     // this.dropdown = {} as HTMLElement;
     this.dropdownBtn = {} as HTMLElement;
     this.board = document.querySelector(".board") as HTMLElement;
+    this.dropdownTimeout = 0;
     this.listenBoardResize();
   }
 
@@ -192,12 +194,17 @@ export default class DropdownOptionsView extends View {
     });
   }
 
-  removeDropdown() {
+  removeDropdown(callback: Function) {
     this.leaveEnter();
 
-    setTimeout(() => {
+    this.dropdownTimeout = window.setTimeout(() => {
       this.parentEl.classList.add("hidden");
-    }, 450);
+      callback();
+    }, 1350);
+  }
+
+  cancelHiddingDropdown() {
+    clearTimeout(this.dropdownTimeout);
   }
 
   addDropdown() {

@@ -42,6 +42,11 @@ export default class View {
     this.parentEl.insertAdjacentHTML("afterbegin", this.generateMarkup());
     this.initQuerySelectors();
   }
+
+  update(markup: string) {
+    this.clear();
+    this.parentEl.insertAdjacentHTML("afterbegin", markup);
+  }
 }
 
 const getElement = (root: string | HTMLElement) => {

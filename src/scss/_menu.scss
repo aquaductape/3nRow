@@ -1,4 +1,4 @@
-.start-menu-container {
+.menu-container {
   position: absolute;
   top: 0;
   left: 0;
@@ -10,12 +10,26 @@
   border-radius: 30px;
   background: var(--blue-bg);
   transition: 900ms opacity;
+
+  &.play-again {
+    align-items: flex-start;
+    top: auto;
+    height: auto;
+    background: none;
+  }
 }
 
-.start-menu {
+.menu {
   padding: 5px 45px;
   width: 100%;
   transition: 300ms opacity;
+
+  &.play-again {
+    padding: 0px;
+    margin-top: 50px;
+    width: 100%;
+    text-align: center;
+  }
 }
 
 .menu-buttons {

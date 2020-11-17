@@ -19,6 +19,8 @@ type TPlayerDom = {
   };
 };
 
+let debugCount = 0;
+
 class PlayerBtnGroup extends View {
   data: TState;
   playerOptions: NodeListOf<HTMLElement>;
@@ -69,13 +71,17 @@ class PlayerBtnGroup extends View {
       const target = e.target as HTMLElement;
       const btn = target.closest(".player-btn-options") as HTMLElement;
 
-      if (target.classList.contains("dropdown-options-container")) {
-        return;
-      }
+      // if (target.classList.contains("dropdown-options-container")) {
+      //   return;
+      // }
 
       if (!btn) {
         return;
       }
+
+      console.log("btn click");
+      // if (debugCount > 1) debugger;
+      // debugCount++;
 
       const { playerId } = btn.dataset;
 
@@ -89,12 +95,17 @@ class PlayerBtnGroup extends View {
         button: playerBtn,
         allow: [".dropdown-options-container"],
         run: () => {
+          dropdownOptionsView.cancelHiddingDropdown();
           dropdownOptionsView.addDropdown();
           playerBtn.classList.add("active");
+          console.log("cb add");
         },
         onExit: () => {
-          dropdownOptionsView.removeDropdown();
-          playerBtn.classList.remove("active");
+          const extra = () => {
+            playerBtn.classList.remove("active");
+          };
+          dropdownOptionsView.removeDropdown(extra);
+          console.log("cb remove");
         },
       });
     };

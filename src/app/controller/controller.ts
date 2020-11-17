@@ -3,13 +3,16 @@ import { TPlayer } from "../model/state";
 import boardView from "../views/board/boardView";
 import gameContainerView from "../views/gameContainer/gameContainerView";
 import playerBtnGroupView from "../views/playerOptions/playerBtnGroupView";
-import startMenuView from "../views/startMenu/startMenuView";
+import menuView from "../views/menu/menuView";
 import { buildShapesForPlayers } from "../views/svg/shapes";
 import svgDefsView from "../views/svg/svgDefsView";
 
 export type TControlGame = ({}: { row: number; column: number }) => void;
 const controlGame: TControlGame = ({ column, row }) => {
-  if (model.state.game.gameOver) return;
+  if (model.state.game.gameOver) {
+    menuView.playAgain();
+    return;
+  }
   // Model
   // update board
   const player = model.getCurrentPlayer();
@@ -24,13 +27,16 @@ const controlGame: TControlGame = ({ column, row }) => {
     boardView.allowPlayerToSelect();
     return;
   }
-  setTimeout(() => {
-    const ai = model.getCurrentPlayer();
-    model.goAI();
-    boardView.updateBoard({ data: model.state, player: ai });
-    boardView.allowPlayerToSelect();
-    // return allowTurn confirmation
-  }, 1500);
+  if (model.state.game.gameOver) {
+    menuView.playAgain();
+    return;
+  }
+
+  const ai = model.getCurrentPlayer();
+  model.goAI();
+  boardView.updateBoard({ data: model.state, player: ai });
+  boardView.allowPlayerToSelect();
+  // return allowTurn confirmation
 
   // update waiting for turn
   // const player = model.getCurrentPlayer();
@@ -92,12 +98,12 @@ const init = () => {
   svgDefsView.render(model.state.players);
   playerBtnGroupView.render(model.state);
   boardView.render(model.state);
-  startMenuView.render(model.state.players);
+  menuView.render(model.state.players);
 
   // add handlers
   playerBtnGroupView.addHandlerChangeShape(controlPlayerShape);
   playerBtnGroupView.addHandlerChangeColor(controlPlayerColor);
-  startMenuView.addHandlerStartGame(controlStartGame);
+  menuView.addHandlerStartGame(controlStartGame);
   boardView.addHandlerCell(controlGame);
 };
 

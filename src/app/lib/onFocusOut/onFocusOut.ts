@@ -162,7 +162,6 @@ export default function onFocusOut({
     const clickedTarget = e.target as HTMLElement;
     const listenersLength = listeners.length;
     customEvent.event = e;
-    console.log("click", listeners);
 
     for (let i = 0; i < listenersLength; i++) {
       const {
