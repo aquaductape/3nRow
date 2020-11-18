@@ -19,8 +19,6 @@ type TPlayerDom = {
   };
 };
 
-let debugCount = 0;
-
 class PlayerBtnGroup extends View {
   data: TState;
   playerOptions: NodeListOf<HTMLElement>;
@@ -80,8 +78,6 @@ class PlayerBtnGroup extends View {
       }
 
       console.log("btn click");
-      // if (debugCount > 1) debugger;
-      // debugCount++;
 
       const { playerId } = btn.dataset;
 

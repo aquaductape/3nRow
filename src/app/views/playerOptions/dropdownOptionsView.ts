@@ -4,6 +4,7 @@ import {
 } from "../../controller/controller";
 import { TPlayer } from "../../model/state";
 import { colorMap, colors, shapes, svg } from "../constants/constants";
+import { radioGroup } from "../utils/aria";
 import { diagonalLengthOfElement } from "../utils/index";
 import View from "../View";
 
@@ -18,6 +19,10 @@ export default class DropdownOptionsView extends View {
   dropdownBtn: HTMLElement;
   dropdownTimeout: number;
   board: HTMLElement;
+  shapeGroup: HTMLElement;
+  colorGroup: HTMLElement;
+  handlerShape: TControlPlayerShape;
+  handlerColor: TControlPlayerColor;
 
   constructor({ root, data }: { data: TPlayer; root: string | HTMLElement }) {
     super({ root });
@@ -28,8 +33,12 @@ export default class DropdownOptionsView extends View {
     // this.dropdownContainer = {} as HTMLElement;
     // this.dropdown = {} as HTMLElement;
     this.dropdownBtn = {} as HTMLElement;
+    this.shapeGroup = {} as HTMLElement;
+    this.colorGroup = {} as HTMLElement;
     this.board = document.querySelector(".board") as HTMLElement;
     this.dropdownTimeout = 0;
+    this.handlerColor = () => {};
+    this.handlerShape = () => {};
     this.listenBoardResize();
   }
 
@@ -65,6 +74,14 @@ export default class DropdownOptionsView extends View {
     this.dropdownBtn = this.parentEl.querySelector(
       ".dropdown-btn"
     ) as HTMLElement;
+    this.colorGroup = this.parentEl.querySelector(
+      ".color-group"
+    ) as HTMLElement;
+    this.shapeGroup = this.parentEl.querySelector(
+      ".shape-group"
+    ) as HTMLElement;
+
+    this.addRovingRadioGroup();
   }
 
   private generateBtnHighlight() {
@@ -82,14 +99,50 @@ export default class DropdownOptionsView extends View {
     item: string;
     type: "shapes" | "colors";
   }) {
-    const { svgShapes: shapes } = this.data;
+    const {
+      svgShapes: shapes,
+      color: playerColor,
+      shape: playerShape,
+    } = this.data;
+
     if (type === "colors") {
       const [primaryColor, secondaryColor] = item.split(",");
       const [primaryColorHex, secondaryColorHex] = colorMap[item];
-      return `<li><button class="color-item" data-color="${item}" aria-label="chose gradient color of shape. Primary Color ${primaryColor}, Secondary Color ${secondaryColor}"><div style="background: ${primaryColorHex};"class="primary-color"></div><div style="background: ${secondaryColorHex}; "class="secondary-color"></div></button></li>`;
+      const tabindex = playerColor === item ? "0" : "-1";
+      const checked = playerColor === item ? "true" : "false";
+      const classSelected = playerColor === item ? "color-item--selected" : "";
+
+      return `
+      <div>
+        <div role="radio" tabindex="${tabindex}" aria-checked="${checked}" class="color-item ${classSelected}" data-color="${item}" aria-label="chose gradient color of shape. Primary Color ${primaryColor}, Secondary Color ${secondaryColor}">
+          <div class="thumb-checkbox">
+            <div class="badge">
+              <div class="checkbox"></div>
+            </div>
+          </div>
+          <div style="background: ${primaryColorHex};" class="primary-color"></div>
+          <div style="background: ${secondaryColorHex};" class="secondary-color"></div>
+        </div>
+      </div>`;
     }
 
-    return `<li><button class="shape-item" data-shape="${item}" aria-label="chose shape: ${item}">${shapes[item]}</button></li>`;
+    if (type === "shapes") {
+      const tabindex = playerShape === item ? "0" : "-1";
+      const checked = playerShape === item ? "true" : "false";
+      const classSelected = playerShape === item ? "shape-item--selected" : "";
+
+      return `
+      <div>
+        <div role="radio" tabindex="${tabindex}" aria-checked="${checked}" class="shape-item ${classSelected}" data-shape="${item}" aria-label="chose shape: ${item}">
+          <div class="thumb-checkbox">
+            <div class="badge">
+              <div class="checkbox"></div>
+            </div>
+          </div>
+          ${shapes[item]}
+        </div>
+      </div>`;
+    }
   }
 
   private renderGroup({ type }: { type: "shapes" | "colors" }) {
@@ -108,22 +161,32 @@ export default class DropdownOptionsView extends View {
     <!-- btn highlight for player --> 
     ${this.generateBtnHighlight()}
 
-    <div class="dropdown-options ${id}-options">
-      <div class="options-shape">
-        <h2 class="options-title">Shape</h2>
-        <hr>
-        <ul class="shape-group">${this.renderGroup({ type: "shapes" })}</ul>
-      </div>
+    <ul class="dropdown-options ${id}-options">
+      <li>
+        <div class="options-shape">
+          <h2 id="group_label_shape" class="options-title">Shape</h2>
+          <hr>
+          <div role="radiogroup" aria-labelledby="group_label_shape" class="shape-group">${this.renderGroup(
+            { type: "shapes" }
+          )}</div>
+        </div>
+      </li>
+      <li>
       <div class="options-color">
-        <h2 class="options-title">Color</h2>
+        <h2 id="group_label_color" class="options-title">Color</h2>
         <hr>
-        <ul class="color-group">${this.renderGroup({ type: "colors" })}</ul>
+        <div role="radiogroup" aria-labelledby="group_label_color" class="color-group">${this.renderGroup(
+          { type: "colors" }
+        )}</div>
       </div>
+      </li>
+      <li>
       <!-- AI Options -->
       <div class="options-gameplay">
         <hr> <button id="options-restart" class="btn btn-secondary options-btn">Restart</button> <button
           id="options-reset-scores" class="btn btn-secondary options-btn">Reset Scores</button> </div>
-    </div>
+      </li>
+    </ul>
     `;
 
     return markup;
@@ -172,26 +235,51 @@ export default class DropdownOptionsView extends View {
   //   });
   // }
 
-  addHandlerChangeShape(handler: TControlPlayerShape) {
-    this.parentEl.addEventListener("click", (e) => {
-      const target = e.target as HTMLElement;
-      const shapeItem = target.closest(".shape-item") as HTMLElement;
-      if (!shapeItem) return;
-      const { shape } = shapeItem.dataset;
+  private addRovingRadioGroup() {
+    radioGroup({
+      group: this.shapeGroup,
+      onSelect: ({ currentElement, prevElement }) => {
+        const shape = currentElement.dataset.shape!;
+        prevElement.classList.remove("shape-item--selected");
+        currentElement.classList.add("shape-item--selected");
 
-      handler({ player: this.data, shape: shape! });
+        this.handlerShape({ player: this.data, shape });
+      },
+    });
+    radioGroup({
+      group: this.colorGroup,
+      onSelect: ({ currentElement, prevElement }) => {
+        const color = currentElement.dataset.color!;
+        prevElement.classList.remove("color-item--selected");
+        currentElement.classList.add("color-item--selected");
+
+        this.handlerColor({ player: this.data, color });
+      },
     });
   }
 
-  addHandlerChangeColor(handler: TControlPlayerColor) {
-    this.parentEl.addEventListener("click", (e) => {
-      const target = e.target as HTMLElement;
-      const colorItem = target.closest(".color-item") as HTMLElement;
-      if (!colorItem) return;
-      const { color } = colorItem.dataset;
+  addHandlerChangeShape(handler: TControlPlayerShape) {
+    this.handlerShape = handler;
+    // this.parentEl.addEventListener("click", (e) => {
+    //   const target = e.target as HTMLElement;
+    //   const shapeItem = target.closest(".shape-item") as HTMLElement;
+    //   if (!shapeItem) return;
+    //   const { shape } = shapeItem.dataset;
 
-      handler({ player: this.data, color: color! });
-    });
+    //   handler({ player: this.data, shape: shape! });
+    // });
+  }
+
+  addHandlerChangeColor(handler: TControlPlayerColor) {
+    this.handlerColor = handler;
+    // this.parentEl.addEventListener("click", (e) => {
+    //   const target = e.target as HTMLElement;
+    //   const colorItem = target.closest(".color-item") as HTMLElement;
+    //   if (!colorItem) return;
+    //   const { color } = colorItem.dataset;
+
+    //   handler({ player: this.data, color: color! });
+    // });
   }
 
   removeDropdown(callback: Function) {
@@ -200,7 +288,7 @@ export default class DropdownOptionsView extends View {
     this.dropdownTimeout = window.setTimeout(() => {
       this.parentEl.classList.add("hidden");
       callback();
-    }, 1350);
+    }, 350);
   }
 
   cancelHiddingDropdown() {
