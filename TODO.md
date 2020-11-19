@@ -22,10 +22,8 @@
 3. Icon on player 2 (or either) indicating that it's an AI
 4. Favicon
 5. Since both player option dropdowns share a "general" options, label that section as General Options
-6. Provide cell label choice in General Options. Mark cell label choice as a11y to not confuse visual users. Choices:
-   1. Row and Column (Default). Row as numbers [1,2,3]. Column as numbers [1,2,3]. Ex -> "Row 1. Column 3"
-7. If option dropdown height is greater than viewport, match viewport height and use inner scrollbars, same with inner list width
-8. option button shouldn't display score due to aria
+6. If option dropdown height is greater than viewport, match viewport height and use inner scrollbars, same with inner list width
+7. option button shouldn't display score due to aria
 
 # Logic
 

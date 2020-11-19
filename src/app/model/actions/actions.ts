@@ -5,6 +5,20 @@ type TSetShapesProp = {
   [key: string]: TShapes;
 };
 
+export const updateStateFromLS = () => {
+  const { players } = state;
+  try {
+    players.forEach((player) => {
+      const { id } = player;
+      player.color = (getLS({ id, type: "color" }) as TColors) || player.color;
+      player.shape = getLS({ id, type: "shape" }) || player.shape;
+      player.score = Number(getLS({ id, type: "score" })) || player.score;
+    });
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 export const resetForNextGame = () => {
   const { game } = state;
 
@@ -38,6 +52,7 @@ export const setPlayerCurrentShape = ({
   player: TPlayer;
 }) => {
   player.shape = shape;
+  setLS({ id: player.id, type: "shape", value: shape });
 };
 
 export const setPlayerCurrentColor = ({
@@ -48,6 +63,7 @@ export const setPlayerCurrentColor = ({
   player: TPlayer;
 }) => {
   player.color = color as TColors;
+  setLS({ id: player.id, type: "color", value: color });
 };
 
 export const getCurrentPlayer = () =>
@@ -193,4 +209,30 @@ const delayAi = (time = 900) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => resolve(true), time);
   });
+};
+
+const setLS = ({
+  id,
+  type,
+  value,
+}: {
+  id: string;
+  type: "color" | "shape" | "score";
+  value: number | string;
+}) => {
+  try {
+    localStorage.setItem(`${id}_${type}`, value.toString());
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const getLS = ({
+  id,
+  type,
+}: {
+  id: string;
+  type: "color" | "shape" | "score";
+}) => {
+  return localStorage.getItem(`${id}_${type}`);
 };

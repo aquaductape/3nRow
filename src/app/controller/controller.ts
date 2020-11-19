@@ -9,14 +9,15 @@ import svgDefsView from "../views/svg/svgDefsView";
 import messageView from "../views/message/messageView";
 
 export type TControlPlayAgain = () => void;
-const controlPlayAgain: TControlPlayAgain = () => {
+const controlPlayAgain: TControlPlayAgain = async () => {
   // Model
   model.resetForNextGame();
   // View
   boardView.clearBoard();
 
   if (model.getCurrentPlayer().isAI) {
-    moveAi();
+    await moveAi();
+    playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
     return;
   }
 };
@@ -35,44 +36,40 @@ const moveAi = async () => {
   boardView.allowPlayerToSelect();
 };
 
+const moveHuman = ({ column, row }: { column: number; row: number }) => {
+  const player = model.getCurrentPlayer();
+  model.startTurn({ column, row });
+
+  // View
+  // show mark based on column row
+  boardView.updateBoard({ data: model.state, player });
+
+  if (!model.state.game.hasAI) {
+    boardView.allowPlayerToSelect();
+  }
+
+  if (model.state.game.gameOver) {
+    menuView.renderPlayAgainButton();
+    return;
+  }
+};
+
 export type TControlGame = ({}: { row: number; column: number }) => void;
 const controlGame: TControlGame = async ({ column, row }) => {
-  const moveHuman = () => {
-    const player = model.getCurrentPlayer();
-    model.startTurn({ column, row });
+  if (model.state.game.gameOver) return;
 
-    // View
-    // show mark based on column row
-    boardView.updateBoard({ data: model.state, player });
-
-    if (!model.state.game.hasAI) {
-      boardView.allowPlayerToSelect();
-    }
-
-    if (model.state.game.gameOver) {
-      menuView.renderPlayAgainButton();
-      return;
-    }
-  };
+  // if turn is human, then move human and then if AI exists, move AI afterwards
+  moveHuman({ column, row });
+  playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
 
   if (model.state.game.gameOver) return;
 
   // if turn is AI
   if (model.getCurrentPlayer().isAI) {
-    moveAi();
+    await moveAi();
     playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
-    // signal human player turn
     return;
   }
-
-  // if turn is human, then move human and then if AI exists, move AI afterwards
-  moveHuman();
-  playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
-  // signal ai player turn
-  if (model.state.game.gameOver) return;
-  await moveAi();
-  playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
-  // signal human player turn
 };
 
 export type TControlStartGame = ({}: { id: string; ai: boolean }) => void;
@@ -83,6 +80,7 @@ const controlStartGame: TControlStartGame = ({ ai, id }) => {
   model.setPlayerAsHumanOrAI({ id, ai });
   playerBtnGroupView.updatePlayerBtnsOnGameStart();
   boardView.startGame();
+  playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
 
   // player 1 goes first regardless
 };
@@ -117,10 +115,13 @@ const controlPlayerColor: TControlPlayerColor = ({ player, color }) => {
   svgDefsView.render(model.state.players);
   // update slash color
   boardView.updateWinnerSlashColor(player.color);
+  // update indicator color
+  playerBtnGroupView.updatePlayerIndicator(player);
 };
 
 const init = () => {
   // model
+  model.updateStateFromLS();
   model.setShapes(buildShapesForPlayers(model.state.players));
 
   // run DOM events
