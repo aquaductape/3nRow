@@ -10,7 +10,7 @@ import { renderWinnerSlash } from "./renderLine";
 
 class BoardView extends View {
   firstCell: HTMLElement;
-  lineContainer: HTMLElement;
+  slashContainer: HTMLElement;
   data: TState;
   state: {
     playerCanSelectCell: boolean;
@@ -23,7 +23,7 @@ class BoardView extends View {
     this.firstCell = this.parentEl.querySelector(
       '[data-column="0"]'
     ) as HTMLElement;
-    this.lineContainer = this.parentEl.querySelector(
+    this.slashContainer = this.parentEl.querySelector(
       ".line-svg"
     ) as HTMLElement;
     this.data = {} as TState;
@@ -163,7 +163,7 @@ class BoardView extends View {
       renderWinnerSlash({
         player,
         winPosition: game.winPosition,
-        line: this.lineContainer,
+        line: this.slashContainer,
       });
       this.updateWinnerSlashColor(player.color);
     }
@@ -176,10 +176,10 @@ class BoardView extends View {
   updateWinnerSlashColor(color: string) {
     const [primaryColor, secondaryColor] = colorMap[color];
     const lineColorPrimaryAll = <NodeListOf<HTMLElement>>(
-      document.querySelectorAll(".line-color-primary")
+      this.parentEl.querySelectorAll(".line-color-primary")
     );
     const lineColorSecondaryAll = <NodeListOf<HTMLElement>>(
-      document.querySelectorAll(".line-color-secondary")
+      this.parentEl.querySelectorAll(".line-color-secondary")
     );
 
     lineColorPrimaryAll.forEach((line) => {
@@ -196,7 +196,29 @@ class BoardView extends View {
     this.state.playerCanSelectCell = true;
   }
 
-  playAgain() {}
+  clearBoard() {
+    const cells = this.parentEl.querySelectorAll(".cell") as NodeListOf<
+      HTMLElement
+    >;
+
+    // clear cells
+    cells.forEach((cell) => {
+      this.clearChildren(cell);
+      cell.setAttribute("aria-selected", "false");
+      cell.setAttribute("data-selected", "false");
+      cell.setAttribute("aria-label", "empty");
+      cell.removeAttribute("data-player-id");
+    });
+
+    // remove slash
+    this.clearChildren(this.slashContainer);
+
+    // focus on cell
+    const activeCell = this.parentEl.querySelector(
+      '[tabindex="0"]'
+    ) as HTMLElement;
+    activeCell.focus();
+  }
 
   // override render
   render(data: TState) {

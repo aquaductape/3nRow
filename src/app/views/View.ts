@@ -7,7 +7,25 @@ export default class View {
   }
 
   protected clear() {
-    this.parentEl.innerHTML = "";
+    const parent = this.parentEl;
+
+    // Accomplishes the same result as code below
+    // this.parentEl.innerHTML = "";
+    // However certain browsers might have optimize clearing elements with innerHTML if the string is empty
+    // Generally it's faster to remove last item than the first
+    while (parent.firstChild) {
+      parent.removeChild(parent.lastChild!);
+    }
+  }
+
+  protected clearChildren(element: HTMLElement) {
+    // Accomplishes the same result as code below
+    // this.parentEl.innerHTML = "";
+    // However certain browsers might have optimize clearing elements with innerHTML if the string is empty
+    // Generally it's faster to remove last item than the first
+    while (element.firstChild) {
+      element.removeChild(element.lastChild!);
+    }
   }
 
   protected generateFallback() {

@@ -5,6 +5,21 @@ type TSetShapesProp = {
   [key: string]: TShapes;
 };
 
+export const resetForNextGame = () => {
+  const { game } = state;
+
+  game.gameOver = false;
+  game.gameTie = false;
+  game.winPosition = "";
+  game.winner = null;
+  game.board = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+  ];
+  game.markedPosition = { row: 0, column: 0 };
+};
+
 export const setShapes = (shapes: TSetShapesProp) => {
   const setShape = ({ player, shape }: { shape: TShapes; player: TPlayer }) => {
     player.svgShapes = shape;
@@ -54,7 +69,7 @@ export const setPlayerAsHumanOrAI = ({
   game.hasAI = ai;
 };
 
-export const goAI = () => {
+export const goAI = async () => {
   const { game } = state;
   if (game.gameOver) return;
   if (!game.hasAI) return;
@@ -63,8 +78,10 @@ export const goAI = () => {
 
   if (!player.isAI) return;
 
+  await delayAi();
   // ai decides best move
   const position = decideMove(player);
+
   // mark board
   markBoard(position);
   // check if ai won
@@ -171,3 +188,9 @@ const changeTurn = () => {
 
 const isCellEmpty = ({ row, column }: { row: number; column: number }) =>
   typeof state.game.board[row][column] === "string";
+
+const delayAi = (time = 900) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => resolve(true), time);
+  });
+};

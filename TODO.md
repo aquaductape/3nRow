@@ -24,10 +24,9 @@
 5. Since both player option dropdowns share a "general" options, label that section as General Options
 6. Provide cell label choice in General Options. Mark cell label choice as a11y to not confuse visual users. Choices:
    1. Row and Column (Default). Row as numbers [1,2,3]. Column as numbers [1,2,3]. Ex -> "Row 1. Column 3"
-   <!-- 2. Algebriac Notation. Row as numbers [1,2,3]. Column as characters [a,b,c]. Ex -> "C1!" -->
-7. If option dropdown height is greater than viewport, match viewport height and use scrollbars, same with inner list width
-8. ✅ Responsive for Apple Watch. Display 272 x 340
-9. Better contrast for board
-10. option button shouldn't display score due to aria
+7. If option dropdown height is greater than viewport, match viewport height and use inner scrollbars, same with inner list width
+8. option button shouldn't display score due to aria
 
 # Logic
+
+1. Remove css media queries for board and change css styles based on board size.

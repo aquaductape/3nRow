@@ -193,9 +193,22 @@ input:checked + .slider:before {
   }
 }
 
-@media (max-width: 280px) {
+@media (max-width: 250px) {
+  .main {
+    padding: 20px 15px;
+    padding-bottom: 0;
+  }
+}
+
+@media (max-width: 200px) {
   .main {
     padding: 20px 10px;
     padding-bottom: 0;
+  }
+}
+
+@media (min-height: 1000px) {
+  .main {
+    padding: 5%;
   }
 }

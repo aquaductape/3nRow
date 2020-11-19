@@ -6,41 +6,73 @@ import playerBtnGroupView from "../views/playerOptions/playerBtnGroupView";
 import menuView from "../views/menu/menuView";
 import { buildShapesForPlayers } from "../views/svg/shapes";
 import svgDefsView from "../views/svg/svgDefsView";
+import messageView from "../views/message/messageView";
 
-export type TControlGame = ({}: { row: number; column: number }) => void;
-const controlGame: TControlGame = ({ column, row }) => {
-  if (model.state.game.gameOver) {
-    menuView.playAgain();
-    return;
-  }
+export type TControlPlayAgain = () => void;
+const controlPlayAgain: TControlPlayAgain = () => {
   // Model
-  // update board
-  const player = model.getCurrentPlayer();
-  model.startTurn({ column, row });
-
+  model.resetForNextGame();
   // View
-  // show mark based on column row
-  boardView.updateBoard({ data: model.state, player });
+  boardView.clearBoard();
 
-  if (!model.state.game.hasAI) {
-    // return allowTurn confirmation
-    boardView.allowPlayerToSelect();
+  if (model.getCurrentPlayer().isAI) {
+    moveAi();
     return;
   }
-  if (model.state.game.gameOver) {
-    menuView.playAgain();
-    return;
-  }
+};
 
+const moveAi = async () => {
   const ai = model.getCurrentPlayer();
-  model.goAI();
+  await model.goAI();
   boardView.updateBoard({ data: model.state, player: ai });
   boardView.allowPlayerToSelect();
-  // return allowTurn confirmation
 
-  // update waiting for turn
-  // const player = model.getCurrentPlayer();
-  // boardView.waitingForOtherPlayer()
+  if (model.state.game.gameOver) {
+    menuView.renderPlayAgainButton();
+    return;
+  }
+
+  boardView.allowPlayerToSelect();
+};
+
+export type TControlGame = ({}: { row: number; column: number }) => void;
+const controlGame: TControlGame = async ({ column, row }) => {
+  const moveHuman = () => {
+    const player = model.getCurrentPlayer();
+    model.startTurn({ column, row });
+
+    // View
+    // show mark based on column row
+    boardView.updateBoard({ data: model.state, player });
+
+    if (!model.state.game.hasAI) {
+      boardView.allowPlayerToSelect();
+    }
+
+    if (model.state.game.gameOver) {
+      menuView.renderPlayAgainButton();
+      return;
+    }
+  };
+
+  if (model.state.game.gameOver) return;
+
+  // if turn is AI
+  if (model.getCurrentPlayer().isAI) {
+    moveAi();
+    playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
+    // signal human player turn
+    return;
+  }
+
+  // if turn is human, then move human and then if AI exists, move AI afterwards
+  moveHuman();
+  playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
+  // signal ai player turn
+  if (model.state.game.gameOver) return;
+  await moveAi();
+  playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
+  // signal human player turn
 };
 
 export type TControlStartGame = ({}: { id: string; ai: boolean }) => void;
@@ -99,11 +131,15 @@ const init = () => {
   playerBtnGroupView.render(model.state);
   boardView.render(model.state);
   menuView.render(model.state.players);
+  // messageView.render("Player 1 has Won!");
 
   // add handlers
   playerBtnGroupView.addHandlerChangeShape(controlPlayerShape);
   playerBtnGroupView.addHandlerChangeColor(controlPlayerColor);
-  menuView.addHandlerStartGame(controlStartGame);
+  menuView.addHandlers({
+    handlerStartGame: controlStartGame,
+    handlerPlayAgain: controlPlayAgain,
+  });
   boardView.addHandlerCell(controlGame);
 };
 

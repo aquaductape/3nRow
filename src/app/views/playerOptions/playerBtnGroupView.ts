@@ -4,7 +4,7 @@ import {
 } from "../../controller/controller";
 import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TPlayer, TState } from "../../model/state";
-import { svg } from "../constants/constants";
+import { colorMap, svg } from "../constants/constants";
 import { createHTMLFromString } from "../utils/index";
 import View from "../View";
 import DropdownOptionsView from "./dropdownOptionsView";
@@ -14,6 +14,7 @@ type TPlayerDom = {
     playerContainer: HTMLElement;
     playerBtn: HTMLElement;
     playerMark: HTMLElement;
+    playerCurrentIndicator: HTMLElement;
     dropdownOptionsMenu: HTMLElement;
     dropdownOptionsView: DropdownOptionsView;
   };
@@ -77,8 +78,6 @@ class PlayerBtnGroup extends View {
         return;
       }
 
-      console.log("btn click");
-
       const { playerId } = btn.dataset;
 
       const {
@@ -109,6 +108,24 @@ class PlayerBtnGroup extends View {
     this.parentEl.addEventListener("click", onAction);
   }
 
+  private resetPlayerIndicators() {
+    const { players } = this.data;
+
+    players.forEach(({ id }) => {
+      const { playerCurrentIndicator } = this.playerDom[id];
+      playerCurrentIndicator.style.background = `var(--blue-shadow)`;
+    });
+  }
+
+  updatePlayerIndicator(player: TPlayer) {
+    const { playerCurrentIndicator } = this.playerDom[player.id];
+    const [primaryColor, secondaryColor] = colorMap[player.color];
+    console.log(player.id, player);
+    this.resetPlayerIndicators();
+
+    playerCurrentIndicator.style.background = `linear-gradient(90deg, ${primaryColor} 17%, ${secondaryColor} 85%)`;
+  }
+
   updatePlayerBtnsOnGameStart() {
     const { players } = this.data;
     players.forEach(({ id }) => {
@@ -132,6 +149,9 @@ class PlayerBtnGroup extends View {
       const playerMark = <HTMLElement>(
         playerContainer.querySelector(".player-mark")
       );
+      const playerCurrentIndicator = <HTMLElement>(
+        playerContainer.querySelector(".player-current-indicator")
+      );
       const dropdownOptionsContainer = <HTMLElement>(
         playerContainer.querySelector(".dropdown-options-container")
       );
@@ -146,6 +166,7 @@ class PlayerBtnGroup extends View {
       this.playerDom[id] = {
         playerContainer,
         playerMark,
+        playerCurrentIndicator,
         dropdownOptionsView,
         dropdownOptionsMenu,
         playerBtn,

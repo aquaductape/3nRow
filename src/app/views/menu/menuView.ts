@@ -1,8 +1,11 @@
-import { TControlStartGame } from "../../controller/controller";
+import {
+  TControlPlayAgain,
+  TControlStartGame,
+} from "../../controller/controller";
 import { TPlayer } from "../../model/state";
 import View from "../View";
 
-class menuView extends View {
+class MenuView extends View {
   data: TPlayer[];
   constructor() {
     super({ root: ".menu-container" });
@@ -12,18 +15,16 @@ class menuView extends View {
   protected initQuerySelectors() {}
 
   protected generateMarkup() {
-    // return this.startMenu();
-    return this.playAgain();
+    return this.startMenu();
   }
 
-  private startGame() {
+  private hideMenu() {
     this.parentEl.style.display = "none";
   }
 
   private startMenu() {
     return `
     <div class="menu">
-    <h1>3nRow</h1>
     <p aria-labelledby="Welcome to 3n-row, a Tic Tac Toe game. To play, you and your opponent take turns to fill one cell on a board that has 3 rows and 3 columns,. To win, you have to fill 3 cells consecutively, either horizontally, vertically or diagionally"
       class="game-start-info">Play Against</p>
     <div class="tutorial">
@@ -38,34 +39,47 @@ class menuView extends View {
     `;
   }
 
-  playAgain() {
+  renderPlayAgainButton() {
     const markup = `
     <div class="menu play-again">
-      <button class="btn btn-primary btn-pick btn-play-again">Play Again?</button>
+      <button class="btn btn-primary btn-play-again">Play Again?</button>
   </div>
     `;
 
-    // this.update(markup);
+    this.update(markup);
     this.parentEl.style.display = "flex";
     this.parentEl.classList.add("play-again");
-    return markup;
+    // return markup;
   }
 
-  addHandlerStartGame(handler: TControlStartGame) {
+  addHandlers({
+    handlerPlayAgain,
+    handlerStartGame,
+  }: {
+    handlerStartGame: TControlStartGame;
+    handlerPlayAgain: TControlPlayAgain;
+  }) {
     const players = this.data;
     const { id } = players[1];
 
     this.parentEl.addEventListener("click", (e) => {
       const target = e.target as HTMLElement;
       if (target.closest(".btn-ai")) {
-        this.startGame();
-        handler({ id, ai: true });
+        this.hideMenu();
+        handlerStartGame({ id, ai: true });
         return;
       }
 
       if (target.closest(".btn-human")) {
-        this.startGame();
-        handler({ id, ai: false });
+        this.hideMenu();
+        handlerStartGame({ id, ai: false });
+        return;
+      }
+
+      if (target.closest(".btn-play-again")) {
+        this.hideMenu();
+        handlerPlayAgain();
+        return;
       }
     });
   }
@@ -78,4 +92,4 @@ class menuView extends View {
   }
 }
 
-export default new menuView();
+export default new MenuView();

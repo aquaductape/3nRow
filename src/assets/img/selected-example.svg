@@ -55,7 +55,7 @@
      inkscape:snap-midpoints="false"
      inkscape:object-nodes="false"
      inkscape:zoom="0.63799742"
-     inkscape:cx="1521.3973"
+     inkscape:cx="959.60385"
      inkscape:cy="366.5204"
      inkscape:window-x="0"
      inkscape:window-y="27"
@@ -352,5 +352,16 @@
        cx="1654.5405"
        cy="281.23013"
        r="2.2806559" />
+    <text
+       xml:space="preserve"
+       style="font-size:60.7233px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ff0000;stroke-width:0.999999"
+       x="377.3436"
+       y="-46.955097"
+       id="text899"><tspan
+         sodipodi:role="line"
+         id="tspan897"
+         x="377.3436"
+         y="-46.955097"
+         style="stroke-width:0.999999">USE 3D EFFECT INSTEAD: BORDER BOTTOM </tspan></text>
   </g>
 </svg>

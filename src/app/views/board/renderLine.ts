@@ -11,7 +11,7 @@ export const renderWinnerSlash = ({
   winPosition: string;
   line: HTMLElement;
 }) => {
-  renderLine({ line, winPosition });
+  renderLine({ slash: line, winPosition });
 };
 
 const lineColor = (player: TPlayer) => {
@@ -33,10 +33,10 @@ const lineColor = (player: TPlayer) => {
 
 const renderLine = ({
   winPosition,
-  line,
+  slash,
 }: {
   winPosition: string;
-  line: HTMLElement;
+  slash: HTMLElement;
 }) => {
   let lineLong = {} as HTMLElement;
   let lineShort = {} as HTMLElement;
@@ -44,50 +44,50 @@ const renderLine = ({
 
   switch (winPosition) {
     case "DIAG_TOP_LEFT":
-      line.innerHTML = lines.lineLong;
+      slash.innerHTML = lines.lineLong;
       break;
     case "DIAG_BOT_LEFT":
-      line.innerHTML = lines.lineLong;
-      lineLong = line.querySelector(".animate__line-long") as HTMLElement;
+      slash.innerHTML = lines.lineLong;
+      lineLong = slash.querySelector(".animate__line-long") as HTMLElement;
       lineLong.style.transform = "rotate(90deg)";
       break;
     case "ROW_0":
-      line.innerHTML = lines.lineShort;
-      lineShort = line.querySelector(".animate__line-short") as HTMLElement;
-      lineShort.style.transform = "translateY(-33.4%)";
+      slash.innerHTML = lines.lineShort;
+      lineShort = slash.querySelector(".animate__line-short") as HTMLElement;
+      lineShort.style.transform = "translateY(-33.8%)";
       break;
     case "ROW_1":
-      line.innerHTML = lines.lineShort;
+      slash.innerHTML = lines.lineShort;
       break;
     case "ROW_2":
-      line.innerHTML = lines.lineShort;
-      lineShort = line.querySelector(".animate__line-short") as HTMLElement;
-      lineShort.style.transform = "translateY(33.4%)";
+      slash.innerHTML = lines.lineShort;
+      lineShort = slash.querySelector(".animate__line-short") as HTMLElement;
+      lineShort.style.transform = "translateY(33.8%)";
       break;
     case "COL_0":
-      line.innerHTML = lines.lineShort;
-      lineShort = line.querySelector(".animate__line-short") as HTMLElement;
-      lineShortInner = line.querySelector(
+      slash.innerHTML = lines.lineShort;
+      lineShort = slash.querySelector(".animate__line-short") as HTMLElement;
+      lineShortInner = slash.querySelector(
         ".animate__line-short-inner"
       ) as HTMLElement;
       lineShort.style.transform = "rotate(90deg)";
-      lineShortInner.style.transform = "translateY(33.4%)";
+      lineShortInner.style.transform = "translateY(33.8%)";
       "rotate(90deg)";
       break;
     case "COL_1":
-      line.innerHTML = lines.lineShort;
-      lineShort = line.querySelector(".animate__line-short") as HTMLElement;
+      slash.innerHTML = lines.lineShort;
+      lineShort = slash.querySelector(".animate__line-short") as HTMLElement;
       lineShort.style.transform = "rotate(90deg)";
       break;
 
     case "COL_2":
-      line.innerHTML = lines.lineShort;
-      lineShort = line.querySelector(".animate__line-short") as HTMLElement;
-      lineShortInner = line.querySelector(
+      slash.innerHTML = lines.lineShort;
+      lineShort = slash.querySelector(".animate__line-short") as HTMLElement;
+      lineShortInner = slash.querySelector(
         ".animate__line-short-inner"
       ) as HTMLElement;
       lineShort.style.transform = "rotate(90deg)";
-      lineShortInner.style.transform = "translateY(-33.4%)";
+      lineShortInner.style.transform = "translateY(-33.8%)";
       break;
   }
 };
