@@ -15,7 +15,23 @@ const controlPlayAgain: TControlPlayAgain = async () => {
   // View
   boardView.clearBoard();
 
+  const aiPlayer = model.getAiPlayer();
+
+  // change ai skin
+  if (model.state.game.hasAI) {
+    model.randomChangePlayerSkin(aiPlayer);
+    // update View shape and color
+    svgDefsView.render(model.state.players);
+    playerBtnGroupView.updateSvgMark(aiPlayer);
+    // update dropdown lists
+    playerBtnGroupView.updatePlayerColorsInDropDown(aiPlayer);
+    playerBtnGroupView.updatePlayerShapesInDropDown(aiPlayer);
+    // playerBtnGroupView.updateShapes(player.id)
+    // playerBtnGroupView.updateColors(player.id)
+  }
+
   if (model.getCurrentPlayer().isAI) {
+    playerBtnGroupView.updatePlayerIndicator(model.getAiPlayer());
     await moveAi();
     playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
     return;
@@ -49,6 +65,7 @@ const moveHuman = ({ column, row }: { column: number; row: number }) => {
   }
 
   if (model.state.game.gameOver) {
+    // model update random shape or color
     menuView.renderPlayAgainButton();
     return;
   }
@@ -120,6 +137,7 @@ const controlPlayerColor: TControlPlayerColor = ({ player, color }) => {
 };
 
 const init = () => {
+  localStorage.clear();
   // model
   model.updateStateFromLS();
   model.setShapes(buildShapesForPlayers(model.state.players));

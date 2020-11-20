@@ -35,15 +35,16 @@ export const radioGroup = ({
     const target = e.target as HTMLElement;
     const currentElement = target.closest(radioSelector) as HTMLElement;
     if (!currentElement) return;
+    if (currentElement.getAttribute("aria-disabled") === "true") return;
 
     const activeElement = container.querySelector(
       activeSelector
     ) as HTMLElement;
 
     activeElement.setAttribute("tabindex", "-1");
-    activeElement.setAttribute("aria-selected", "false");
+    activeElement.setAttribute("aria-checked", "false");
     currentElement.setAttribute("tabindex", "0");
-    currentElement.setAttribute("aria-selected", "true");
+    currentElement.setAttribute("aria-checked", "true");
     currentElement.focus();
 
     if (onSelect) onSelect({ prevElement: activeElement, currentElement });
@@ -55,23 +56,73 @@ export const radioGroup = ({
     const activeElement = container.querySelector(
       activeSelector
     ) as HTMLElement;
-    const idx = elements.findIndex((el) => el === activeElement);
+
+    // prevent infinit loop if somehow current element's aria-disabled attr was edited while focused then navigated
+    if (activeElement.getAttribute("aria-disabled") === "true") return;
 
     switch (e.key) {
+      case ARROW_LEFT:
       case ARROW_UP:
-        updateElements({ nextIdx: idx - 1, activeElement });
+        traverse({ direction: "backwards", activeElement });
         break;
       case ARROW_DOWN:
-        updateElements({ nextIdx: idx + 1, activeElement });
-        break;
-      case ARROW_LEFT:
-        updateElements({ nextIdx: idx - 1, activeElement });
-        break;
       case ARROW_RIGHT:
-        updateElements({ nextIdx: idx + 1, activeElement });
+        traverse({ direction: "forwards", activeElement });
         break;
     }
   });
+
+  const traverse = ({
+    activeElement,
+    direction,
+  }: {
+    direction: "forwards" | "backwards";
+    activeElement: HTMLElement;
+  }) => {
+    const currentIdx = elements.findIndex((el) => el === activeElement);
+    const lastIdx = elements.length - 1;
+    let newIdx = currentIdx;
+
+    if (direction === "forwards") {
+      if (currentIdx >= lastIdx) {
+        newIdx = 0;
+      } else {
+        newIdx++;
+      }
+
+      for (let i = newIdx; i < elements.length; i++) {
+        const element = elements[i];
+        if (element.getAttribute("aria-disabled") === "true") {
+          // restart loop if enabled radio hasn't been found
+          if (i === lastIdx) i = -1;
+          continue;
+        }
+        updateElements({ nextIdx: i, activeElement });
+        return;
+      }
+      return;
+    }
+
+    if (direction === "backwards") {
+      if (currentIdx <= 0) {
+        newIdx = lastIdx;
+      } else {
+        newIdx--;
+      }
+
+      for (let i = newIdx; i >= 0; i--) {
+        const element = elements[i];
+        if (element.getAttribute("aria-disabled") === "true") {
+          // restart loop if enabled radio hasn't been found
+          if (i === 0) i = lastIdx + 1;
+          continue;
+        }
+        updateElements({ nextIdx: i, activeElement });
+        return;
+      }
+      return;
+    }
+  };
 
   const updateElements = ({
     activeElement,
@@ -80,20 +131,12 @@ export const radioGroup = ({
     nextIdx: number;
     activeElement: HTMLElement;
   }) => {
-    const lastIdx = elements.length - 1;
     let nextElement = elements[nextIdx];
 
-    if (nextIdx < 0) {
-      nextElement = elements[elements.length - 1];
-    }
-    if (nextIdx > lastIdx) {
-      nextElement = elements[0];
-    }
-
     activeElement.setAttribute("tabindex", "-1");
-    activeElement.setAttribute("aria-selected", "false");
+    activeElement.setAttribute("aria-checked", "false");
     nextElement.setAttribute("tabindex", "0");
-    nextElement.setAttribute("aria-selected", "true");
+    nextElement.setAttribute("aria-checked", "true");
     nextElement.focus();
 
     if (onSelect)

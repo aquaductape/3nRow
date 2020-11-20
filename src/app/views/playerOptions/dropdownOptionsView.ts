@@ -8,10 +8,8 @@ import { radioGroup } from "../utils/aria";
 import { diagonalLengthOfElement } from "../utils/index";
 import View from "../View";
 
-let init = true;
-
 export default class DropdownOptionsView extends View {
-  data: TPlayer;
+  data: { players: TPlayer[]; currentPlayer: TPlayer };
   dropdownOptions: HTMLElement;
   playerBtnHighlight: HTMLElement;
   // dropdownContainer: HTMLElement;
@@ -24,7 +22,13 @@ export default class DropdownOptionsView extends View {
   handlerShape: TControlPlayerShape;
   handlerColor: TControlPlayerColor;
 
-  constructor({ root, data }: { data: TPlayer; root: string | HTMLElement }) {
+  constructor({
+    root,
+    data,
+  }: {
+    data: { players: TPlayer[]; currentPlayer: TPlayer };
+    root: string | HTMLElement;
+  }) {
     super({ root });
 
     this.data = data;
@@ -57,7 +61,9 @@ export default class DropdownOptionsView extends View {
   }
 
   protected initQuerySelectors() {
-    const { id } = this.data;
+    const {
+      currentPlayer: { id },
+    } = this.data;
 
     this.dropdownOptions = this.parentEl.querySelector(
       ".dropdown-options"
@@ -99,22 +105,43 @@ export default class DropdownOptionsView extends View {
     item: string;
     type: "shapes" | "colors";
   }) {
+    const { currentPlayer, players } = this.data;
     const {
       svgShapes: shapes,
       color: playerColor,
       shape: playerShape,
-    } = this.data;
+    } = currentPlayer;
+
+    const getOppositePlayer = () =>
+      players.filter(({ id }) => id !== currentPlayer.id)[0];
+
+    const oppositePlayer = getOppositePlayer();
 
     if (type === "colors") {
       const [primaryColor, secondaryColor] = item.split(",");
       const [primaryColorHex, secondaryColorHex] = colorMap[item];
       const tabindex = playerColor === item ? "0" : "-1";
-      const checked = playerColor === item ? "true" : "false";
+      const selected = playerColor === item ? "true" : "false";
+      // already selected by other player
+      const disabled = oppositePlayer.color === item;
+      const classBase = "color-item";
       const classSelected = playerColor === item ? "color-item--selected" : "";
+      const classDisabled = disabled ? "disabled" : "";
+      const className = `${classBase} ${classSelected} ${classDisabled}`;
 
       return `
       <div>
-        <div role="radio" tabindex="${tabindex}" aria-checked="${checked}" class="color-item ${classSelected}" data-color="${item}" aria-label="chose gradient color of shape. Primary Color ${primaryColor}, Secondary Color ${secondaryColor}">
+        <div 
+          role="radio"
+          tabindex="${tabindex}"
+          class="${className}"
+          data-selected="${selected}"
+          data-disabled="${disabled}"
+          data-color="${item}"
+          aria-checked="${selected}"
+          aria-disabled="${disabled}"
+          aria-label="chose gradient color of shape. Primary Color ${primaryColor}, Secondary Color ${secondaryColor}"
+        >
           <div class="thumb-checkbox">
             <div class="badge">
               <div class="checkbox"></div>
@@ -128,12 +155,27 @@ export default class DropdownOptionsView extends View {
 
     if (type === "shapes") {
       const tabindex = playerShape === item ? "0" : "-1";
-      const checked = playerShape === item ? "true" : "false";
+      const selected = playerShape === item ? "true" : "false";
+      // already selected by other player
+      const disabled = oppositePlayer.shape === item;
+      const classBase = "shape-item";
       const classSelected = playerShape === item ? "shape-item--selected" : "";
+      const classDisabled = disabled ? "disabled" : "";
+      const className = `${classBase} ${classSelected} ${classDisabled}`;
 
       return `
       <div>
-        <div role="radio" tabindex="${tabindex}" aria-checked="${checked}" class="shape-item ${classSelected}" data-shape="${item}" aria-label="chose shape: ${item}">
+        <div 
+          role="radio" 
+          tabindex="${tabindex}" 
+          class="${className}" 
+          data-selected="${selected}"
+          data-disabled="${disabled}"
+          data-shape="${item}" 
+          aria-checked="${selected}" 
+          aria-disabled="${disabled}"
+          aria-label="chose shape: ${item}"
+        >
           <div class="thumb-checkbox">
             <div class="badge">
               <div class="checkbox"></div>
@@ -155,7 +197,9 @@ export default class DropdownOptionsView extends View {
   }
 
   protected generateMarkup() {
-    const { id } = this.data;
+    const {
+      currentPlayer: { id },
+    } = this.data;
     const markup = `
 
     <!-- btn highlight for player --> 
@@ -192,26 +236,26 @@ export default class DropdownOptionsView extends View {
     return markup;
   }
 
-  private generateDropdown(el: HTMLElement, idx: number) {
-    console.log(idx);
-    const markupList: string[] = [];
-    for (let i = idx; i < idx + 3; i++) {
-      const markup = `
-      <div class="dropdown-container" data-db-container="${i}" style="position:relative">
-        <button class="dropdown-btn">Dropdown ${i}</button>
-      </div>
-      `;
-      markupList.push(markup);
-    }
+  // private generateDropdown(el: HTMLElement, idx: number) {
+  //   console.log(idx);
+  //   const markupList: string[] = [];
+  //   for (let i = idx; i < idx + 3; i++) {
+  //     const markup = `
+  //     <div class="dropdown-container" data-db-container="${i}" style="position:relative">
+  //       <button class="dropdown-btn">Dropdown ${i}</button>
+  //     </div>
+  //     `;
+  //     markupList.push(markup);
+  //   }
 
-    const markup = `
-    <ul class="dropdown" data-db-dropdown="${idx}" style=" position: absolute; top: 25px; width: 100%; overflow: visible; display: block; padding: 5px; z-index: 1;">
-      ${markupList.join("")}
-    </ul>
-    `;
+  //   const markup = `
+  //   <ul class="dropdown" data-db-dropdown="${idx}" style=" position: absolute; top: 25px; width: 100%; overflow: visible; display: block; padding: 5px; z-index: 1;">
+  //     ${markupList.join("")}
+  //   </ul>
+  //   `;
 
-    el.insertAdjacentHTML("beforeend", markup);
-  }
+  //   el.insertAdjacentHTML("beforeend", markup);
+  // }
 
   // private addDropdownEvents() {
   //   this.dropdownContainer.addEventListener("click", (e) => {
@@ -236,50 +280,89 @@ export default class DropdownOptionsView extends View {
   // }
 
   private addRovingRadioGroup() {
+    const { currentPlayer: player } = this.data;
     radioGroup({
       group: this.shapeGroup,
       onSelect: ({ currentElement, prevElement }) => {
         const shape = currentElement.dataset.shape!;
+        prevElement.setAttribute("data-selected", "false");
         prevElement.classList.remove("shape-item--selected");
+        currentElement.setAttribute("data-selected", "true");
         currentElement.classList.add("shape-item--selected");
 
-        this.handlerShape({ player: this.data, shape });
+        this.handlerShape({ player, shape });
       },
     });
     radioGroup({
       group: this.colorGroup,
       onSelect: ({ currentElement, prevElement }) => {
         const color = currentElement.dataset.color!;
+        prevElement.setAttribute("data-selected", "false");
         prevElement.classList.remove("color-item--selected");
+        currentElement.setAttribute("data-selected", "true");
         currentElement.classList.add("color-item--selected");
 
-        this.handlerColor({ player: this.data, color });
+        this.handlerColor({ player, color });
       },
     });
   }
 
+  updatePlayerSkinSelection({
+    type,
+    value,
+  }: {
+    type: "color" | "shape";
+    value: string;
+  }) {
+    const group = type === "color" ? this.colorGroup : this.shapeGroup;
+    const currentItem = group.querySelector(
+      '[data-selected="true"]'
+    ) as HTMLElement;
+    const newItem = group.querySelector(
+      `[data-${type}="${value}"]`
+    ) as HTMLElement;
+
+    currentItem.setAttribute("data-selected", "false");
+    currentItem.setAttribute("aria-checked", "false");
+    currentItem.setAttribute("tabindex", "-1");
+    currentItem.classList.remove(`${type}-item--selected`);
+
+    newItem.setAttribute("data-selected", "true");
+    newItem.setAttribute("aria-checked", "true");
+    newItem.setAttribute("tabindex", "0");
+    newItem.classList.add(`${type}-item--selected`);
+  }
+
+  updatePlayerSkinDisabled({
+    type,
+    value,
+  }: {
+    type: "color" | "shape";
+    value: string;
+  }) {
+    const group = type === "color" ? this.colorGroup : this.shapeGroup;
+    const currentItem = group.querySelector(
+      '[data-disabled="true"]'
+    ) as HTMLElement;
+    const newItem = group.querySelector(
+      `[data-${type}="${value}"]`
+    ) as HTMLElement;
+
+    currentItem.setAttribute("data-disabled", "false");
+    currentItem.setAttribute("aria-disabled", "false");
+    currentItem.classList.remove("disabled");
+
+    newItem.setAttribute("data-disabled", "true");
+    newItem.setAttribute("aria-disabled", "true");
+    newItem.classList.add("disabled");
+  }
+
   addHandlerChangeShape(handler: TControlPlayerShape) {
     this.handlerShape = handler;
-    // this.parentEl.addEventListener("click", (e) => {
-    //   const target = e.target as HTMLElement;
-    //   const shapeItem = target.closest(".shape-item") as HTMLElement;
-    //   if (!shapeItem) return;
-    //   const { shape } = shapeItem.dataset;
-
-    //   handler({ player: this.data, shape: shape! });
-    // });
   }
 
   addHandlerChangeColor(handler: TControlPlayerColor) {
     this.handlerColor = handler;
-    // this.parentEl.addEventListener("click", (e) => {
-    //   const target = e.target as HTMLElement;
-    //   const colorItem = target.closest(".color-item") as HTMLElement;
-    //   if (!colorItem) return;
-    //   const { color } = colorItem.dataset;
-
-    //   handler({ player: this.data, color: color! });
-    // });
   }
 
   removeDropdown(callback: Function) {
@@ -302,7 +385,10 @@ export default class DropdownOptionsView extends View {
   }
 
   private appearEnter() {
-    if (this.data.id === "P1") {
+    const {
+      currentPlayer: { id },
+    } = this.data;
+    if (id === "P1") {
       circleClipHoldElement({
         element: this.dropdownOptions,
         parent: this.parentEl,

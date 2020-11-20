@@ -27,7 +27,7 @@
   cursor: pointer;
 
   &:hover,
-  &:focus:not(.noFocusClick) {
+  &.noFocusClick:focus {
     background: darken($white, 20%);
   }
 }
@@ -62,7 +62,7 @@
   outline: none;
   cursor: pointer;
   user-select: none;
-  transition: 0.25s background-color, 250ms box-shadow;
+  transition: 250ms background-color, 250ms box-shadow;
   // box-shadow: 0 15px 0 0px var(--blue-shadow);
   z-index: 2;
 
@@ -71,16 +71,24 @@
   }
 
   &:hover,
-  &:focus:not(.noFocusClick),
+  &.noFocusClick:focus,
   &.active {
     color: #fff;
     background: #060540;
 
     .monochrome {
       opacity: 0;
-      transition: opacity 0.25s;
+      transition: opacity 250ms;
     }
   }
+
+  &.noFocusClick:focus {
+    transition: none;
+    .monochrome {
+      transition: none;
+    }
+  }
+
   &.active {
   }
 
@@ -91,13 +99,14 @@
 
 .player-current-indicator {
   position: absolute;
-  top: 15px;
+  top: 5px;
   left: 0;
   width: 100%;
   height: 100%;
   border-radius: 10px;
   // background: linear-gradient(90deg, rgba(255,115,115,1) 17%, rgba(253,29,29,1) 85%);
   background: var(--blue-shadow);
+  box-shadow: 0px 10px 0px var(--blue-shadow);
 }
 
 .fake-player-btns {
@@ -171,7 +180,8 @@
   border-radius: 30px;
   background: #eee;
   color: #333;
-  filter: drop-shadow(0px 10px 0px #bbb);
+  // filter: drop-shadow(0px 10px 0px #bbb);
+  box-shadow: 0px 10px 0px #bbb;
 }
 
 .dropdown-options-container {
@@ -233,18 +243,24 @@
   .thumb-checkbox {
     display: none;
   }
+
   &--selected {
     .thumb-checkbox {
       display: block;
     }
   }
 
-  &:hover {
+  &.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(.disabled) {
     box-shadow: 1px 3px 4px 0px #00000082;
   }
 
-  &:hover,
-  &:focus:not(.noFocusClick) {
+  &:hover:not(.disabled),
+  &.noFocusClick:focus {
     transform: translateY(-2px);
   }
 
@@ -252,8 +268,7 @@
     display: block;
   }
 
-  &:focus:not(.noFocusClick):after {
-    opacity: 0;
+  &.noFocusClick:focus:after {
     position: absolute;
     top: -4px;
     left: -4px;
@@ -261,8 +276,7 @@
     width: calc(100% + 8px);
     height: calc(100% + 8px);
     border-radius: 5px;
-    box-shadow: 0px 0px 0px 3px blue;
-    transition: opacity 0;
+    box-shadow: 0px 0px 0px 4px blue;
   }
 }
 
@@ -301,22 +315,26 @@
     }
   }
 
+  &.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
   .primary-color,
   .secondary-color {
     height: 50%;
   }
 
-  &:hover {
+  &:hover:not(.disabled) {
     box-shadow: 1px 3px 4px 0px #00000082;
   }
 
-  &:hover,
-  &:focus:not(.noFocusClick) {
+  &:hover:not(.disabled),
+  &.noFocusClick:focus {
     transform: translateY(-2px);
   }
 
-  .outline {
-    display: none;
+  &.noFocusClick:focus:after {
     position: absolute;
     top: -4px;
     left: -4px;
@@ -324,13 +342,7 @@
     width: calc(100% + 8px);
     height: calc(100% + 8px);
     border-radius: 5px;
-    box-shadow: 0px 0px 0px 3px blue;
-  }
-
-  &:focus:not(.noFocusClick) {
-    .outline {
-      display: block;
-    }
+    box-shadow: 0px 0px 0px 4px blue;
   }
 }
 

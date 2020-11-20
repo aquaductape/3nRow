@@ -208,6 +208,7 @@ class BoardView extends View {
       cell.setAttribute("data-selected", "false");
       cell.setAttribute("aria-label", "empty");
       cell.removeAttribute("data-player-id");
+      cell.classList.remove("block-animation");
     });
 
     // remove slash

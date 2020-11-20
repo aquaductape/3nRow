@@ -1,3 +1,4 @@
+import { randomItemFromArr } from "../../utils/index";
 import { state, TColors, TPlayer, TShapes } from "../state";
 import { decideMove } from "./ai";
 
@@ -68,6 +69,7 @@ export const setPlayerCurrentColor = ({
 
 export const getCurrentPlayer = () =>
   state.players.find(({ id }) => state.game.playerTurn === id)!;
+export const getAiPlayer = () => state.players.find(({ isAI }) => isAI)!;
 
 export const startGame = () => (state.game.gameStart = true);
 
@@ -188,6 +190,37 @@ const checkBoardForWinner = () => {
     game.gameTie = true;
     game.gameOver = true;
   }
+};
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!
+export const randomChangePlayerSkin = (player: TPlayer) => {
+  const { players } = state;
+
+  // !!!!!!! duplicated, already defined on constants in View, I should restructure where this constant is stored
+  const shapes = ["circle", "cross", "triangle", "heart"];
+  // !!!!!!! duplicated, already defined on constants in View, I should restructure where this constant is stored
+  const colors = [
+    "sky_blue,cyan",
+    "green,yellow",
+    "red,orange",
+    "magenta,pink",
+    "purple,blue",
+    "white,grey",
+  ];
+
+  const otherPlayer = players.filter(({ id }) => id !== player.id)[0];
+  const filteredShapes = shapes.filter(
+    (shape) => shape !== player.shape && shape !== otherPlayer.shape
+  );
+  const filteredColors = colors.filter(
+    (shape) => shape !== player.color && shape !== otherPlayer.color
+  );
+
+  player.shape = randomItemFromArr(filteredShapes);
+  player.color = randomItemFromArr(filteredColors as TColors[]);
+
+  setLS({ id: player.id, type: "color", value: player.color });
+  setLS({ id: player.id, type: "shape", value: player.shape });
 };
 
 const changeTurn = () => {

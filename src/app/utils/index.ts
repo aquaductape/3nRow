@@ -10,3 +10,8 @@ export const flattenArr = <T>(arr: T[]): any[] => {
 
   return flatArr;
 };
+
+export const randomItemFromArr = <T>(arr: T[]) => {
+  const idx = Math.floor(Math.random() * arr.length);
+  return arr[idx];
+};

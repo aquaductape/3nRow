@@ -30,22 +30,39 @@ document.addEventListener("click", (e) => {
   // detect if fired by keyboard
   if (e.detail === 0) return;
 
+  // if (prevEl) {
+  //   prevEl.classList.remove(className);
+  // }
+
+  const activeElement = document.activeElement as HTMLElement;
+
+  if (activeElement === document.body) return;
+  activeElement.classList.remove(className);
+  prevEl = activeElement;
+});
+
+document.addEventListener("keydown", (e) => {
+  if (!keys.includes(e.key)) return;
+
   if (prevEl) {
     prevEl.classList.remove(className);
   }
 
   const activeElement = document.activeElement as HTMLElement;
-
-  if (activeElement === document.body) return;
   activeElement.classList.add(className);
+
   prevEl = activeElement;
-  hasClicked = true;
 });
 
-document.addEventListener("keydown", (e) => {
-  if (!hasClicked) return;
-  if (!prevEl) return;
+document.addEventListener("keyup", (e) => {
   if (!keys.includes(e.key)) return;
-  prevEl.classList.remove(className);
-  hasClicked = false;
+
+  if (prevEl) {
+    prevEl.classList.remove(className);
+  }
+
+  const activeElement = document.activeElement as HTMLElement;
+  activeElement.classList.add(className);
+
+  prevEl = activeElement;
 });

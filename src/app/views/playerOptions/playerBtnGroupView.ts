@@ -93,14 +93,12 @@ class PlayerBtnGroup extends View {
           dropdownOptionsView.cancelHiddingDropdown();
           dropdownOptionsView.addDropdown();
           playerBtn.classList.add("active");
-          console.log("cb add");
         },
         onExit: () => {
           const extra = () => {
             playerBtn.classList.remove("active");
           };
           dropdownOptionsView.removeDropdown(extra);
-          console.log("cb remove");
         },
       });
     };
@@ -120,10 +118,9 @@ class PlayerBtnGroup extends View {
   updatePlayerIndicator(player: TPlayer) {
     const { playerCurrentIndicator } = this.playerDom[player.id];
     const [primaryColor, secondaryColor] = colorMap[player.color];
-    console.log(player.id, player);
     this.resetPlayerIndicators();
 
-    playerCurrentIndicator.style.background = `linear-gradient(90deg, ${primaryColor} 17%, ${secondaryColor} 85%)`;
+    playerCurrentIndicator.style.background = `linear-gradient(90deg, ${primaryColor} 35%, ${secondaryColor} 85%)`;
   }
 
   updatePlayerBtnsOnGameStart() {
@@ -131,6 +128,36 @@ class PlayerBtnGroup extends View {
     players.forEach(({ id }) => {
       const { playerBtn } = this.playerDom[id];
       playerBtn.classList.remove("pre-game");
+    });
+  }
+
+  updatePlayerShapesInDropDown(player: TPlayer) {
+    // update own dropdown
+    const { dropdownOptionsView } = this.playerDom[player.id];
+
+    dropdownOptionsView.updatePlayerSkinSelection({
+      type: "shape",
+      value: player.shape,
+    });
+    // update other player dropdown for disabled selection
+    dropdownOptionsView.updatePlayerSkinDisabled({
+      type: "shape",
+      value: player.shape,
+    });
+  }
+
+  updatePlayerColorsInDropDown(player: TPlayer) {
+    // update own dropdown
+    const { dropdownOptionsView } = this.playerDom[player.id];
+
+    dropdownOptionsView.updatePlayerSkinSelection({
+      type: "color",
+      value: player.color,
+    });
+    // update other player dropdown for disabled selection
+    dropdownOptionsView.updatePlayerSkinDisabled({
+      type: "color",
+      value: player.color,
     });
   }
 
@@ -160,7 +187,7 @@ class PlayerBtnGroup extends View {
       );
       const dropdownOptionsView = new DropdownOptionsView({
         root: dropdownOptionsContainer,
-        data: player,
+        data: { players, currentPlayer: player },
       });
 
       this.playerDom[id] = {
@@ -172,7 +199,7 @@ class PlayerBtnGroup extends View {
         playerBtn,
       };
 
-      dropdownOptionsView.render(player);
+      dropdownOptionsView.render({ players, currentPlayer: player });
       this.generatePlayerMark({ id, svgMark });
     });
     this.generateAntMenu();

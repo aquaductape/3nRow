@@ -80,7 +80,8 @@ svg {
 }
 
 .btn {
-  transition: 0.25s color ease-in-out, 0.25s background-color ease-in-out;
+  outline: none;
+  transition: 250ms color ease-in-out, 250ms background-color ease-in-out;
   border-style: none;
   cursor: pointer;
 }
@@ -91,9 +92,13 @@ svg {
   border-radius: 25px;
 
   &:hover,
-  &:focus {
+  &.noFocusClick:focus {
     background: #ddd;
     color: $primary-btn-color;
+  }
+
+  &.noFocusClick:focus {
+    transition: none;
   }
 }
 
@@ -102,8 +107,12 @@ svg {
   color: #fff;
 
   &:hover,
-  &:focus {
+  &.noFocusClick:focus {
     background: #273442;
+  }
+
+  &.noFocusClick:focus {
+    transition: none;
   }
 }
 

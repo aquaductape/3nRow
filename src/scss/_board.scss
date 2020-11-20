@@ -79,7 +79,7 @@
     padding-bottom: 100%;
   }
   &:hover,
-  &:focus:not(.noFocusClick) {
+  &.noFocusClick:focus {
     background: #3c2a6d;
   }
   &:hover svg {
