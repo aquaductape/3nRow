@@ -32,6 +32,7 @@ export const state: TState = {
   game: {
     gameOver: false,
     gameStart: false,
+    gameRunning: false, // when gameRunning is false; such as when menu start or play again
     gameTie: false,
     startAgain: false,
     playerTurn: "P1",
@@ -97,6 +98,7 @@ export type TGame = {
   getCurrentPlayer: () => TPlayer;
   gameOver: boolean;
   gameStart: boolean;
+  gameRunning: boolean;
   gameTie: boolean;
   startAgain: boolean;
   winner: string | null; // Player id

@@ -7,6 +7,7 @@ import menuView from "../views/menu/menuView";
 import { buildShapesForPlayers } from "../views/svg/shapes";
 import svgDefsView from "../views/svg/svgDefsView";
 import messageView from "../views/message/messageView";
+import { getOppositePlayer } from "../views/utils/index";
 
 export type TControlPlayAgain = () => void;
 const controlPlayAgain: TControlPlayAgain = async () => {
@@ -19,15 +20,24 @@ const controlPlayAgain: TControlPlayAgain = async () => {
 
   // change ai skin
   if (model.state.game.hasAI) {
+    const otherPlayer = getOppositePlayer({
+      id: aiPlayer.id,
+      players: model.state.players,
+    });
     model.randomChangePlayerSkin(aiPlayer);
     // update View shape and color
     svgDefsView.render(model.state.players);
     playerBtnGroupView.updateSvgMark(aiPlayer);
     // update dropdown lists
-    playerBtnGroupView.updatePlayerColorsInDropDown(aiPlayer);
-    playerBtnGroupView.updatePlayerShapesInDropDown(aiPlayer);
-    // playerBtnGroupView.updateShapes(player.id)
-    // playerBtnGroupView.updateColors(player.id)
+    playerBtnGroupView.updateSkinSelectionInDropdown({
+      type: ["color", "shape"],
+      player: aiPlayer,
+    });
+    playerBtnGroupView.updateSkinDisabledInDropdown({
+      id: otherPlayer.id,
+      type: ["color", "shape"],
+      player: aiPlayer,
+    });
   }
 
   if (model.getCurrentPlayer().isAI) {
@@ -36,6 +46,9 @@ const controlPlayAgain: TControlPlayAgain = async () => {
     playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
     return;
   }
+
+  // if human starts game
+  playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
 };
 
 const moveAi = async () => {
@@ -71,22 +84,36 @@ const moveHuman = ({ column, row }: { column: number; row: number }) => {
   }
 };
 
+const gameOver = () => {
+  model.runGameOver();
+
+  if (model.state.game.gameTie) {
+    playerBtnGroupView.resetPlayerIndicators();
+    return;
+  }
+
+  // action
+  // increaseWinnerScore
+  model.increaseWinnerScore();
+  // update view score
+  playerBtnGroupView.updatePlayerScore(model.getWinner()!);
+};
+
 export type TControlGame = ({}: { row: number; column: number }) => void;
 const controlGame: TControlGame = async ({ column, row }) => {
-  if (model.state.game.gameOver) return;
+  if (model.state.game.gameOver) return gameOver();
 
   // if turn is human, then move human and then if AI exists, move AI afterwards
   moveHuman({ column, row });
+  if (model.state.game.gameOver) return gameOver();
   playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
 
-  if (model.state.game.gameOver) return;
-
   // if turn is AI
-  if (model.getCurrentPlayer().isAI) {
-    await moveAi();
-    playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
-    return;
-  }
+  if (!model.getCurrentPlayer().isAI) return;
+
+  await moveAi();
+  if (model.state.game.gameOver) return gameOver();
+  playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
 };
 
 export type TControlStartGame = ({}: { id: string; ai: boolean }) => void;
@@ -116,6 +143,16 @@ const controlPlayerShape: TControlPlayerShape = ({ player, shape }) => {
   playerBtnGroupView.updateSvgMark(player);
   // update marks on board
   boardView.updateShapeInCells(player);
+  // update disabled for other player
+  const otherPlayer = getOppositePlayer({
+    id: player.id,
+    players: model.state.players,
+  });
+  playerBtnGroupView.updateSkinDisabledInDropdown({
+    id: otherPlayer.id,
+    type: "shape",
+    player,
+  });
 };
 
 export type TControlPlayerColor = ({}: {
@@ -133,7 +170,23 @@ const controlPlayerColor: TControlPlayerColor = ({ player, color }) => {
   // update slash color
   boardView.updateWinnerSlashColor(player.color);
   // update indicator color
-  playerBtnGroupView.updatePlayerIndicator(player);
+
+  if (
+    model.state.game.gameRunning &&
+    model.state.game.getCurrentPlayer() === player
+  ) {
+    playerBtnGroupView.updatePlayerIndicator(player);
+  }
+  // update disabled for other player
+  const otherPlayer = getOppositePlayer({
+    id: player.id,
+    players: model.state.players,
+  });
+  playerBtnGroupView.updateSkinDisabledInDropdown({
+    id: otherPlayer.id,
+    type: "color",
+    player,
+  });
 };
 
 const init = () => {
@@ -153,8 +206,10 @@ const init = () => {
   // messageView.render("Player 1 has Won!");
 
   // add handlers
-  playerBtnGroupView.addHandlerChangeShape(controlPlayerShape);
-  playerBtnGroupView.addHandlerChangeColor(controlPlayerColor);
+  playerBtnGroupView.addHandlers({
+    handlerChangeColor: controlPlayerColor,
+    handlerChangeShape: controlPlayerShape,
+  });
   menuView.addHandlers({
     handlerStartGame: controlStartGame,
     handlerPlayAgain: controlPlayAgain,

@@ -5,7 +5,7 @@ import {
 import { TPlayer } from "../../model/state";
 import { colorMap, colors, shapes, svg } from "../constants/constants";
 import { radioGroup } from "../utils/aria";
-import { diagonalLengthOfElement } from "../utils/index";
+import { diagonalLengthOfElement, getOppositePlayer } from "../utils/index";
 import View from "../View";
 
 export default class DropdownOptionsView extends View {
@@ -87,7 +87,7 @@ export default class DropdownOptionsView extends View {
       ".shape-group"
     ) as HTMLElement;
 
-    this.addRovingRadioGroup();
+    this.onRadioGroup();
   }
 
   private generateBtnHighlight() {
@@ -112,10 +112,7 @@ export default class DropdownOptionsView extends View {
       shape: playerShape,
     } = currentPlayer;
 
-    const getOppositePlayer = () =>
-      players.filter(({ id }) => id !== currentPlayer.id)[0];
-
-    const oppositePlayer = getOppositePlayer();
+    const oppositePlayer = getOppositePlayer({ id: currentPlayer.id, players });
 
     if (type === "colors") {
       const [primaryColor, secondaryColor] = item.split(",");
@@ -279,7 +276,7 @@ export default class DropdownOptionsView extends View {
   //   });
   // }
 
-  private addRovingRadioGroup() {
+  private onRadioGroup() {
     const { currentPlayer: player } = this.data;
     radioGroup({
       group: this.shapeGroup,

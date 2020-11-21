@@ -1,4 +1,5 @@
 import { randomItemFromArr } from "../../utils/index";
+import playerBtnGroupView from "../../views/playerOptions/playerBtnGroupView";
 import { state, TColors, TPlayer, TShapes } from "../state";
 import { decideMove } from "./ai";
 
@@ -25,6 +26,7 @@ export const resetForNextGame = () => {
 
   game.gameOver = false;
   game.gameTie = false;
+  game.gameRunning = true;
   game.winPosition = "";
   game.winner = null;
   game.board = [
@@ -33,6 +35,11 @@ export const resetForNextGame = () => {
     [6, 7, 8],
   ];
   game.markedPosition = { row: 0, column: 0 };
+};
+
+export const runGameOver = () => {
+  const { game } = state;
+  game.gameRunning = false;
 };
 
 export const setShapes = (shapes: TSetShapesProp) => {
@@ -70,8 +77,22 @@ export const setPlayerCurrentColor = ({
 export const getCurrentPlayer = () =>
   state.players.find(({ id }) => state.game.playerTurn === id)!;
 export const getAiPlayer = () => state.players.find(({ isAI }) => isAI)!;
+export const getPlayerById = (id: string) =>
+  state.players.find((player) => player.id === id);
+export const getWinner = () => getPlayerById(state.game.winner!);
+export const increaseWinnerScore = () => {
+  const player = getWinner();
 
-export const startGame = () => (state.game.gameStart = true);
+  if (!player) return;
+
+  player.score++;
+  setLS({ id: player.id, type: "score", value: player.score });
+};
+
+export const startGame = () => {
+  state.game.gameStart = true;
+  state.game.gameRunning = true;
+};
 
 export const setPlayerAsHumanOrAI = ({
   ai,
@@ -143,6 +164,7 @@ const checkBoardForWinner = () => {
     if (board[row].every((item) => item === player.mark)) {
       game.winPosition = `ROW_${row}`;
       game.gameOver = true;
+      game.winner = player.id;
       return;
     }
 
@@ -155,6 +177,7 @@ const checkBoardForWinner = () => {
         if (count === board.length) {
           game.winPosition = `COL_${item}`;
           game.gameOver = true;
+          game.winner = player.id;
           return;
         }
       }
@@ -172,6 +195,7 @@ const checkBoardForWinner = () => {
       if (diagTopLeft === board.length) {
         game.winPosition = "DIAG_TOP_LEFT";
         game.gameOver = true;
+        game.winner = player.id;
         return;
       }
     }
@@ -180,6 +204,7 @@ const checkBoardForWinner = () => {
       if (diagBotLeft === board.length) {
         game.winPosition = "DIAG_BOT_LEFT";
         game.gameOver = true;
+        game.winner = player.id;
         return;
       }
     }

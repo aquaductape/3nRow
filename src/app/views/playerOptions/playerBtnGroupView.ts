@@ -4,6 +4,7 @@ import {
 } from "../../controller/controller";
 import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TPlayer, TState } from "../../model/state";
+import { TSkin, TSkinProps } from "../../ts/index";
 import { colorMap, svg } from "../constants/constants";
 import { createHTMLFromString } from "../utils/index";
 import View from "../View";
@@ -14,6 +15,7 @@ type TPlayerDom = {
     playerContainer: HTMLElement;
     playerBtn: HTMLElement;
     playerMark: HTMLElement;
+    playerScore: HTMLElement;
     playerCurrentIndicator: HTMLElement;
     dropdownOptionsMenu: HTMLElement;
     dropdownOptionsView: DropdownOptionsView;
@@ -49,19 +51,18 @@ class PlayerBtnGroup extends View {
     this.playerOptions.forEach((option) => (option.innerHTML = svg.antMenu));
   }
 
-  addHandlerChangeShape(handler: TControlPlayerShape) {
+  addHandlers({
+    handlerChangeColor,
+    handlerChangeShape,
+  }: {
+    handlerChangeShape: TControlPlayerShape;
+    handlerChangeColor: TControlPlayerColor;
+  }) {
     this.data.players.forEach(({ id }) => {
       const { dropdownOptionsView } = this.playerDom[id];
 
-      dropdownOptionsView.addHandlerChangeShape(handler);
-    });
-  }
-
-  addHandlerChangeColor(handler: TControlPlayerColor) {
-    this.data.players.forEach(({ id }) => {
-      const { dropdownOptionsView } = this.playerDom[id];
-
-      dropdownOptionsView.addHandlerChangeColor(handler);
+      dropdownOptionsView.addHandlerChangeShape(handlerChangeShape);
+      dropdownOptionsView.addHandlerChangeColor(handlerChangeColor);
     });
   }
 
@@ -106,7 +107,7 @@ class PlayerBtnGroup extends View {
     this.parentEl.addEventListener("click", onAction);
   }
 
-  private resetPlayerIndicators() {
+  resetPlayerIndicators() {
     const { players } = this.data;
 
     players.forEach(({ id }) => {
@@ -123,6 +124,11 @@ class PlayerBtnGroup extends View {
     playerCurrentIndicator.style.background = `linear-gradient(90deg, ${primaryColor} 35%, ${secondaryColor} 85%)`;
   }
 
+  updatePlayerScore(player: TPlayer) {
+    const { playerScore } = this.playerDom[player.id];
+    playerScore.textContent = player.score.toString();
+  }
+
   updatePlayerBtnsOnGameStart() {
     const { players } = this.data;
     players.forEach(({ id }) => {
@@ -131,33 +137,55 @@ class PlayerBtnGroup extends View {
     });
   }
 
-  updatePlayerShapesInDropDown(player: TPlayer) {
-    // update own dropdown
+  updateSkinSelectionInDropdown({
+    player,
+    type,
+  }: {
+    player: TPlayer;
+    type: TSkinProps;
+  }) {
     const { dropdownOptionsView } = this.playerDom[player.id];
 
+    if (Array.isArray(type)) {
+      type.forEach((t) => {
+        dropdownOptionsView.updatePlayerSkinSelection({
+          type: t,
+          value: player[t],
+        });
+      });
+      return;
+    }
+
     dropdownOptionsView.updatePlayerSkinSelection({
-      type: "shape",
-      value: player.shape,
-    });
-    // update other player dropdown for disabled selection
-    dropdownOptionsView.updatePlayerSkinDisabled({
-      type: "shape",
-      value: player.shape,
+      type,
+      value: player[type],
     });
   }
 
-  updatePlayerColorsInDropDown(player: TPlayer) {
-    // update own dropdown
-    const { dropdownOptionsView } = this.playerDom[player.id];
+  updateSkinDisabledInDropdown({
+    id,
+    player,
+    type,
+  }: {
+    id: string;
+    player: TPlayer;
+    type: TSkinProps;
+  }) {
+    const { dropdownOptionsView } = this.playerDom[id];
 
-    dropdownOptionsView.updatePlayerSkinSelection({
-      type: "color",
-      value: player.color,
-    });
-    // update other player dropdown for disabled selection
+    if (Array.isArray(type)) {
+      type.forEach((t) => {
+        dropdownOptionsView.updatePlayerSkinDisabled({
+          type: t,
+          value: player[t],
+        });
+      });
+      return;
+    }
+
     dropdownOptionsView.updatePlayerSkinDisabled({
-      type: "color",
-      value: player.color,
+      type,
+      value: player[type],
     });
   }
 
@@ -176,6 +204,9 @@ class PlayerBtnGroup extends View {
       const playerMark = <HTMLElement>(
         playerContainer.querySelector(".player-mark")
       );
+      const playerScore = <HTMLElement>(
+        playerContainer.querySelector(".player-score")
+      );
       const playerCurrentIndicator = <HTMLElement>(
         playerContainer.querySelector(".player-current-indicator")
       );
@@ -193,6 +224,7 @@ class PlayerBtnGroup extends View {
       this.playerDom[id] = {
         playerContainer,
         playerMark,
+        playerScore,
         playerCurrentIndicator,
         dropdownOptionsView,
         dropdownOptionsMenu,

@@ -18,12 +18,14 @@ type TRadioGroup = {
   radioSelector?: string;
   activeSelector?: string;
   onSelect?: ({}: TOnSelect) => void;
+  onClickDisabled?: (element: HTMLElement) => void;
 };
 export const radioGroup = ({
   group,
   radioSelector = "[tabindex]",
   activeSelector = '[tabindex="0"]',
   onSelect,
+  onClickDisabled,
 }: TRadioGroup) => {
   const container = getElement(group);
 
@@ -35,7 +37,10 @@ export const radioGroup = ({
     const target = e.target as HTMLElement;
     const currentElement = target.closest(radioSelector) as HTMLElement;
     if (!currentElement) return;
-    if (currentElement.getAttribute("aria-disabled") === "true") return;
+    if (currentElement.getAttribute("aria-disabled") === "true") {
+      onClickDisabled && onClickDisabled(currentElement);
+      return;
+    }
 
     const activeElement = container.querySelector(
       activeSelector

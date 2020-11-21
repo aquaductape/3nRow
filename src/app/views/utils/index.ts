@@ -1,3 +1,5 @@
+import { TPlayer } from "../../model/state";
+
 export const diagonalLengthOfElement = (el: HTMLElement) =>
   Math.ceil(
     Math.sqrt(Math.pow(el.clientWidth, 2) + Math.pow(el.clientHeight, 2))
@@ -63,3 +65,11 @@ export const removeChild = (el: HTMLElement) => {
   if (!parent) return null;
   parent.removeChild(el);
 };
+
+export const getOppositePlayer = ({
+  players,
+  id,
+}: {
+  id: string;
+  players: TPlayer[];
+}) => players.filter((player) => player.id !== id)[0];

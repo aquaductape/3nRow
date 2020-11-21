@@ -14,6 +14,7 @@ const ENTER = "Enter";
 const SPACE = " ";
 const HOME = "Home";
 const END = "End";
+const ESCAPE = "Escape";
 const keys = [
   ARROW_DOWN,
   ARROW_UP,
@@ -24,6 +25,7 @@ const keys = [
   SPACE,
   HOME,
   END,
+  ESCAPE,
 ];
 
 document.addEventListener("click", (e) => {
