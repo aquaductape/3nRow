@@ -92,10 +92,7 @@ const gameOver = () => {
     return;
   }
 
-  // action
-  // increaseWinnerScore
   model.increaseWinnerScore();
-  // update view score
   playerBtnGroupView.updatePlayerScore(model.getWinner()!);
 };
 

@@ -12,9 +12,12 @@ class SvgDefsView extends View {
 
   protected generateMarkup() {
     const players = this.data;
-    const createDef = (...defs: string[]) => {
+    const defsContainer = (...defs: string[]) => {
       return (
-        defsCollection.openingDef + defs.join("") + defsCollection.closingDef
+        defsCollection.openingDef +
+        defsCollection.dropShadow +
+        defs.join("") +
+        defsCollection.closingDef
       );
     };
 
@@ -29,15 +32,15 @@ class SvgDefsView extends View {
         .join("");
     };
 
-    const createSVGDefs = (players: TPlayer[]) => {
+    const createSVGGraphicsInsideDefs = (players: TPlayer[]) => {
       const playerShapes = players
         .map((player) => getStrShapesAll(player.id))
         .join("");
 
-      return createDef(playerShapes);
+      return defsContainer(playerShapes);
     };
 
-    return createSVGDefs(players);
+    return createSVGGraphicsInsideDefs(players);
   }
 
   private removeDefs() {
@@ -81,8 +84,20 @@ class SvgDefsView extends View {
     players.forEach(setAllColors);
   }
 }
+type TDefsCollection = {
+  openingDef: string;
+  closingDef: string;
+  crossLeftDot: string;
+  crossRightDot: string;
+  circle: string;
+  cross: string;
+  triangle: string;
+  heart: string;
+  dropShadow: string;
+  [key: string]: string;
+};
 
-const defsCollection = <{ [key: string]: string }>{
+const defsCollection: TDefsCollection = {
   openingDef: `<svg xmlns="http://www.w3.org/2000/svg" class="defs-collection" height="0" width="0" viewBox="0 0 32 32">
     <defs>`,
   closingDef: `</defs></svg>`,
@@ -117,11 +132,29 @@ const defsCollection = <{ [key: string]: string }>{
     <linearGradient y2="2.5327" x2="14.1158" y1="17.7946" x1="17.659" gradientTransform="rotate(-105 11.2177 15.5445)" gradientUnits="userSpaceOnUse" id="c" xlink:href="#a"/>
     <linearGradient y2="5.1297" x2="6.2886" y1="16.1127" x1="17.2162" gradientTransform="rotate(15 18.6084 26.6946)" gradientUnits="userSpaceOnUse" id="d" xlink:href="#a"/>
 `,
-  heart: `<linearGradient id="e">
+  heart: `
+    <linearGradient id="e">
       <stop class="color-primary" offset="0" stop-color="#ff005b"/>
       <stop class="color-secondary" offset="1" stop-color="#ff00e4" stop-opacity=".9843"/>
     </linearGradient>
     <linearGradient gradientUnits="userSpaceOnUse" y2="20.5725" x2="15.9935" y1="4.2042" x1="12.8753" id="f" xlink:href="#e"/>`,
+  dropShadow: `
+    <filter id="drop-shadow-filter" height="100" width="100" filterUnits="userSpaceOnUse"  color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="1" flood-color="rgba(0, 0, 0, 0.35)" result="flood"/>
+      <feComposite in="flood" in2="SourceGraphic" operator="in" result="composite1"/>
+      <feGaussianBlur in="composite1" result="blur"/>
+      <feOffset dy="1.8" result="offset"/>
+      <feComposite in="SourceGraphic" in2="offset" result="composite2"/>
+    </filter>
+    <filter id="drop-shadow-filter-slash" height="100" width="100" filterUnits="userSpaceOnUse"  color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="1" flood-color="rgba(0, 0, 0, 0.35)" result="flood"/>
+      <feComposite in="flood" in2="SourceGraphic" operator="in" result="composite1"/>
+      <feGaussianBlur in="composite1" result="blur"/>
+      <feOffset dy="0.7" result="offset"/>
+      <feComposite in="SourceGraphic" in2="offset" result="composite2"/>
+    </filter>    
+
+    `,
 };
 
 const shapesDefs = [

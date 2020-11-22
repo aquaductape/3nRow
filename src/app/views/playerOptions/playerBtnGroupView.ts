@@ -35,8 +35,8 @@ class PlayerBtnGroup extends View {
   }
 
   private generatePlayerMark({ id, svgMark }: { id: string; svgMark: string }) {
+    svgMark = svgMark.replace(/filter="url\(#drop-shadow-filter\)"/g, "");
     const { playerMark } = this.playerDom[id];
-
     const fullColor = createHTMLFromString(svgMark);
     const monochrome = createHTMLFromString(svgMark);
 
@@ -126,7 +126,8 @@ class PlayerBtnGroup extends View {
 
   updatePlayerScore(player: TPlayer) {
     const { playerScore } = this.playerDom[player.id];
-    playerScore.textContent = player.score.toString();
+    const scoreTxt = player.score ? player.score.toString() : "-";
+    playerScore.textContent = scoreTxt;
   }
 
   updatePlayerBtnsOnGameStart() {
@@ -233,6 +234,7 @@ class PlayerBtnGroup extends View {
 
       dropdownOptionsView.render({ players, currentPlayer: player });
       this.generatePlayerMark({ id, svgMark });
+      this.updatePlayerScore(player);
     });
     this.generateAntMenu();
     this.addToggleDropDown();
@@ -243,9 +245,10 @@ class PlayerBtnGroup extends View {
   updateSvgMark(player: TPlayer) {
     const { shape, svgShapes: shapes, id } = player;
     const { playerMark } = this.playerDom[id];
-    const svgMark = player.getSvgShape();
-
-    playerMark.innerHTML = "";
+    const svgMark = player
+      .getSvgShape()
+      .replace(/filter="url\(#drop-shadow-filter\)"/g, "");
+    this.clearChildren(playerMark);
     this.generatePlayerMark({ id, svgMark });
   }
 }

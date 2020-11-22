@@ -159,6 +159,10 @@ export default class DropdownOptionsView extends View {
       const classSelected = playerShape === item ? "shape-item--selected" : "";
       const classDisabled = disabled ? "disabled" : "";
       const className = `${classBase} ${classSelected} ${classDisabled}`;
+      const shape = shapes[item].replace(
+        /filter="url\(#drop-shadow-filter\)"/g,
+        ""
+      );
 
       return `
       <div>
@@ -178,7 +182,7 @@ export default class DropdownOptionsView extends View {
               <div class="checkbox"></div>
             </div>
           </div>
-          ${shapes[item]}
+          ${shape}
         </div>
       </div>`;
     }
@@ -220,12 +224,6 @@ export default class DropdownOptionsView extends View {
           { type: "colors" }
         )}</div>
       </div>
-      </li>
-      <li>
-      <!-- AI Options -->
-      <div class="options-gameplay">
-        <hr> <button id="options-restart" class="btn btn-secondary options-btn">Restart</button> <button
-          id="options-reset-scores" class="btn btn-secondary options-btn">Reset Scores</button> </div>
       </li>
     </ul>
     `;
@@ -385,23 +383,28 @@ export default class DropdownOptionsView extends View {
     const {
       currentPlayer: { id },
     } = this.data;
+
     if (id === "P1") {
       circleClipHoldElement({
         element: this.dropdownOptions,
         parent: this.parentEl,
         top: "100%",
         left: "0%",
+        padding: 10, // to cover box shadow
       });
       return;
     }
 
-    // position based on parent
-    circleClipHoldElement({
-      element: this.dropdownOptions,
-      parent: this.parentEl,
-      left: "100%",
-      top: "100%",
-    });
+    if (id === "P2") {
+      // position based on parent
+      circleClipHoldElement({
+        element: this.dropdownOptions,
+        parent: this.parentEl,
+        left: "100%",
+        top: "100%",
+        padding: 10, // to cover box shadow
+      });
+    }
   }
 
   private leaveEnter() {
@@ -416,15 +419,18 @@ const circleClipHoldElement = ({
   parent,
   left = 0,
   top = 0,
+  padding = 0,
 }: {
   top?: number | string;
   left?: number | string;
+  /** general padding not literal css padding */
+  padding?: number;
   element: HTMLElement;
   parent: HTMLElement;
 }) => {
   // diameter of circle to hold element
   if (typeof top === "number") top = top + "px";
   if (typeof left === "number") left = left + "px";
-  const diameter = diagonalLengthOfElement(element);
+  const diameter = diagonalLengthOfElement(element) + padding;
   parent.style.clipPath = `circle( ${diameter}px at ${left} ${top})`;
 };

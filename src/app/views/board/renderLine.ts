@@ -1,6 +1,5 @@
 import { TPlayer } from "../../model/state";
-import { colorMap } from "../constants/constants";
-import { lines } from "../svg/shapes";
+import { colorMap, svg } from "../constants/constants";
 
 export const renderWinnerSlash = ({
   player,
@@ -44,28 +43,28 @@ const renderLine = ({
 
   switch (winPosition) {
     case "DIAG_TOP_LEFT":
-      slash.innerHTML = lines.lineLong;
+      slash.innerHTML = svg.lineLong;
       break;
     case "DIAG_BOT_LEFT":
-      slash.innerHTML = lines.lineLong;
+      slash.innerHTML = svg.lineLong;
       lineLong = slash.querySelector(".animate__line-long") as HTMLElement;
       lineLong.style.transform = "rotate(90deg)";
       break;
     case "ROW_0":
-      slash.innerHTML = lines.lineShort;
+      slash.innerHTML = svg.lineShort;
       lineShort = slash.querySelector(".animate__line-short") as HTMLElement;
       lineShort.style.transform = "translateY(-33.8%)";
       break;
     case "ROW_1":
-      slash.innerHTML = lines.lineShort;
+      slash.innerHTML = svg.lineShort;
       break;
     case "ROW_2":
-      slash.innerHTML = lines.lineShort;
+      slash.innerHTML = svg.lineShort;
       lineShort = slash.querySelector(".animate__line-short") as HTMLElement;
       lineShort.style.transform = "translateY(33.8%)";
       break;
     case "COL_0":
-      slash.innerHTML = lines.lineShort;
+      slash.innerHTML = svg.lineShort;
       lineShort = slash.querySelector(".animate__line-short") as HTMLElement;
       lineShortInner = slash.querySelector(
         ".animate__line-short-inner"
@@ -75,13 +74,13 @@ const renderLine = ({
       "rotate(90deg)";
       break;
     case "COL_1":
-      slash.innerHTML = lines.lineShort;
+      slash.innerHTML = svg.lineShort;
       lineShort = slash.querySelector(".animate__line-short") as HTMLElement;
       lineShort.style.transform = "rotate(90deg)";
       break;
 
     case "COL_2":
-      slash.innerHTML = lines.lineShort;
+      slash.innerHTML = svg.lineShort;
       lineShort = slash.querySelector(".animate__line-short") as HTMLElement;
       lineShortInner = slash.querySelector(
         ".animate__line-short-inner"
