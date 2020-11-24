@@ -3,21 +3,16 @@
 }
 
 .board {
-  animation: none !important;
-  // background: #4959df;
-  display: flex;
+  display: grid;
+  gap: var(--board-gap);
   position: relative;
   margin: 0 auto;
-  // fix col-row
-  flex-direction: column;
-  min-height: 100px;
   box-shadow: 0 25px 0 0px var(--blue-shadow);
   border-radius: 30px;
   overflow: hidden;
 
-  &:before {
+  &-background {
     position: absolute;
-    content: "";
     top: 5px;
     left: 0;
     height: 100%;
@@ -27,47 +22,14 @@
 }
 
 .row {
-  flex: 1;
-  text-align: center;
-  // fix col-row
-  display: flex;
-
-  &:nth-child(1) .cell {
-    margin-top: 0;
-
-    &:nth-child(1) {
-      margin-left: 0;
-    }
-    &:nth-child(3) {
-      margin-right: 0;
-    }
-  }
-
-  &:nth-child(2) .cell {
-    &:nth-child(1) {
-      margin-left: 0;
-    }
-    &:nth-child(3) {
-      margin-right: 0;
-    }
-  }
-
-  &:nth-child(3) .cell {
-    margin-bottom: 0;
-
-    &:nth-child(1) {
-      margin-left: 0;
-    }
-    &:nth-child(3) {
-      margin-right: 0;
-    }
-  }
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--board-gap);
 }
 
 .cell {
   position: relative;
   width: 100%;
-  margin: 4px;
   border-radius: 10px;
   background: var(--blue-activated);
   cursor: pointer;
@@ -83,7 +45,6 @@
     background: #3c2a6d;
   }
   &:hover svg {
-    // transform: scale(1.1);
     outline: none;
   }
 
@@ -206,80 +167,4 @@
   stroke-dashoffset: 50;
   animation: Line-Win-A 1s cubic-bezier(0.4, 0, 0.58, 1);
   animation-fill-mode: forwards;
-}
-
-@media (max-height: 475px) {
-  .board {
-    & .cell {
-      margin: 3px;
-      border-radius: 5px;
-    }
-
-    box-shadow: 0 15px 0 0px var(--blue-shadow);
-  }
-}
-
-@media (max-height: 300px) {
-  .board {
-    & .cell {
-      margin: 2px;
-    }
-
-    border-radius: 15px;
-  }
-}
-
-@media (max-height: 220px) {
-  .board {
-    & .cell {
-      margin: 1.5px;
-    }
-  }
-}
-
-@media (max-height: 150px) {
-  .board {
-    & .cell {
-      margin: 1px;
-    }
-  }
-}
-
-@media (max-width: 475px) {
-  .board {
-    & .cell {
-      margin: 3px;
-      border-radius: 5px;
-    }
-
-    box-shadow: 0 15px 0 0px var(--blue-shadow);
-  }
-}
-
-@media (max-width: 300px) {
-  .board {
-    & .cell {
-      margin: 2px;
-    }
-
-    border-radius: 15px;
-  }
-}
-
-@media (max-width: 220px) {
-  .board {
-    & .cell {
-      margin: 1.5px;
-    }
-    border-radius: 15px;
-  }
-}
-
-@media (max-width: 150px) {
-  .board {
-    & .cell {
-      margin: 1px;
-    }
-    border-radius: 15px;
-  }
 }

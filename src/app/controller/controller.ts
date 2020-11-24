@@ -192,14 +192,11 @@ const init = () => {
   model.updateStateFromLS();
   model.setShapes(buildShapesForPlayers(model.state.players));
 
-  // run DOM events
-  gameContainerView.runResizeListener();
-
   // render views
   svgDefsView.render(model.state.players);
   playerBtnGroupView.render(model.state);
   boardView.render(model.state);
-  menuView.render(model.state.players);
+  // menuView.render(model.state.players);
   // messageView.render("Player 1 has Won!");
 
   // add handlers
@@ -207,11 +204,13 @@ const init = () => {
     handlerChangeColor: controlPlayerColor,
     handlerChangeShape: controlPlayerShape,
   });
-  menuView.addHandlers({
-    handlerStartGame: controlStartGame,
-    handlerPlayAgain: controlPlayAgain,
-  });
+  // menuView.addHandlers({
+  //   handlerStartGame: controlStartGame,
+  //   handlerPlayAgain: controlPlayAgain,
+  // });
   boardView.addHandlerCell(controlGame);
+  // run DOM events
+  gameContainerView.runResizeListener();
 };
 
 init();

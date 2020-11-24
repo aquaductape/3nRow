@@ -11,98 +11,97 @@
 </head>
 
 <body>
-  <div class="main">
-    <div class="game-container">
-      <div class="player-btn-group">
-        <div id="P1-btn-options" class="dropdown-options-menu">
-          <button id="Player_1_options" class="player-btn-options pre-game" data-player-id="P1" aria-haspopup="true"
-            aria-expanded="false" aria-label="open player 1 settings">
-            <div class="player-mark" data-player-id="P1"></div>
-            <div class="player-score">-</div>
-            <div class="player-options">
-            </div>
-          </button>
-          <div class="dropdown-options-container hidden" aria-labelledby="Player_1_options">
+  <div class="game-container">
+    <div class="player-btn-group">
+      <div id="P1-btn-options" class="dropdown-options-menu">
+        <button id="Player_1_options" class="player-btn-options pre-game" data-player-id="P1" aria-haspopup="true"
+          aria-expanded="false" aria-label="open player 1 settings">
+          <div class="player-mark" data-player-id="P1"></div>
+          <div class="player-score">-</div>
+          <div class="player-options">
           </div>
-          <div class="player-current-indicator"></div>
+        </button>
+        <div class="dropdown-options-container hidden" aria-labelledby="Player_1_options">
         </div>
-        <div id="P2-btn-options" class="dropdown-options-menu">
-          <button id="Player_2_options" class="player-btn-options pre-game" data-player-id="P2" aria-haspopup="true"
-            aria-expanded="false" aria-label="open player 2 settings">
-            <div class="player-mark" data-player-id="P2"></div>
-            <div class="player-score">-</div>
-            <div class="player-options"></div>
-          </button>
-          <div class="dropdown-options-container hidden" aria-labelledby="Player_2_options">
-            <!-- AI Options -->
-            <!-- <li>
+        <div class="player-current-indicator"></div>
+      </div>
+      <div id="P2-btn-options" class="dropdown-options-menu">
+        <button id="Player_2_options" class="player-btn-options pre-game" data-player-id="P2" aria-haspopup="true"
+          aria-expanded="false" aria-label="open player 2 settings">
+          <div class="player-mark" data-player-id="P2"></div>
+          <div class="player-score">-</div>
+          <div class="player-options"></div>
+        </button>
+        <div class="dropdown-options-container hidden" aria-labelledby="Player_2_options">
+          <!-- AI Options -->
+          <!-- <li>
               <div class="options-gameplay">
                 <hr> <button id="options-restart" class="btn btn-secondary options-btn">Restart</button> <button
                   id="options-reset-scores" class="btn btn-secondary options-btn">Reset Scores</button> </div>
             </li> -->
-          </div>
-          <div class="player-current-indicator"></div>
         </div>
+        <div class="player-current-indicator"></div>
       </div>
-      <div class="message">
-      </div>
-      <div class="game">
-        <div role="grid" aria-label="game board" aria class="board">
-          <div role="row" class="row" data-row="0">
-            <div class="cell" role="gridcell" aria-selected="false" data-column="0" data-selected="false" tabindex="-1"
-              aria-label="empty">
-            </div>
-            <div class="cell" role="gridcell" aria-selected="false" data-column="1" data-selected="false" tabindex="-1"
-              aria-label="empty">
-            </div>
-            <div class="cell" role="gridcell" aria-selected="false" data-column="2" data-selected="false" tabindex="-1"
-              aria-label="empty">
-            </div>
+    </div>
+    <div class="message">
+    </div>
+    <div class="game">
+      <div class="board" role="grid" aria-label="game board" aria class="board">
+        <div class="board-background"></div>
+        <div role="row" class="row" data-row="0">
+          <div class="cell" role="gridcell" aria-selected="false" data-column="0" data-selected="false" tabindex="-1"
+            aria-label="empty">
           </div>
-          <div role="row" class="row" data-row="1">
-            <div class="cell" role="gridcell" aria-selected="false" data-column="0" data-selected="false" tabindex="-1"
-              aria-label="empty">
-            </div>
-            <div class="cell" role="gridcell" aria-selected="false" data-column="1" data-selected="false" tabindex="-1"
-              aria-label="empty">
-            </div>
-            <div class="cell" role="gridcell" aria-selected="false" data-column="2" data-selected="false" tabindex="-1"
-              aria-label="empty">
-            </div>
+          <div class="cell" role="gridcell" aria-selected="false" data-column="1" data-selected="false" tabindex="-1"
+            aria-label="empty">
           </div>
-          <div role="row" class="row" data-row="2">
-            <div class="cell" role="gridcell" aria-selected="false" data-column="0" data-selected="false" tabindex="-1"
-              aria-label="empty">
-            </div>
-            <div class="cell" role="gridcell" aria-selected="false" data-column="1" data-selected="false" tabindex="-1"
-              aria-label="empty">
-            </div>
-            <div class="cell" role="gridcell" aria-selected="false" data-column="2" data-selected="false" tabindex="-1"
-              aria-label="empty">
-            </div>
-          </div>
-          <div aria-hidden="true" class="line-svg">
+          <div class="cell" role="gridcell" aria-selected="false" data-column="2" data-selected="false" tabindex="-1"
+            aria-label="empty">
           </div>
         </div>
-        <div class="menu-container">
-          <!-- menu-launch | quick-start-menu  -->
-          <div class="menu">
+        <div role="row" class="row" data-row="1">
+          <div class="cell" role="gridcell" aria-selected="false" data-column="0" data-selected="false" tabindex="-1"
+            aria-label="empty">
+          </div>
+          <div class="cell" role="gridcell" aria-selected="false" data-column="1" data-selected="false" tabindex="-1"
+            aria-label="empty">
+          </div>
+          <div class="cell" role="gridcell" aria-selected="false" data-column="2" data-selected="false" tabindex="-1"
+            aria-label="empty">
+          </div>
+        </div>
+        <div role="row" class="row" data-row="2">
+          <div class="cell" role="gridcell" aria-selected="false" data-column="0" data-selected="false" tabindex="-1"
+            aria-label="empty">
+          </div>
+          <div class="cell" role="gridcell" aria-selected="false" data-column="1" data-selected="false" tabindex="-1"
+            aria-label="empty">
+          </div>
+          <div class="cell" role="gridcell" aria-selected="false" data-column="2" data-selected="false" tabindex="-1"
+            aria-label="empty">
+          </div>
+        </div>
+        <div aria-hidden="true" class="line-svg">
+        </div>
+      </div>
+      <!-- <div class="menu-container"> -->
+      <!-- menu-launch | quick-start-menu  -->
+      <!-- <div class="menu">
             <h1>3nRow</h1>
             <p aria-labelledby="Welcome to 3n-row, a Tic Tac Toe game. To play, you and your opponent take turns to fill one cell on a board that has 3 rows and 3 columns,. To win, you have to fill 3 cells consecutively, either horizontally, vertically or diagionally"
               class="game-start-info">Play Against</p>
-            <div class="tutorial">
-              <!-- 3 images -->
-              <!-- image 1 alt="On turn 2. Player 1 has filled 1 cell on row 1 and column 1. Player 2 has filled 1 cell ect ect" -->
-            </div>
+            <div class="tutorial"> -->
+      <!-- 3 images -->
+      <!-- image 1 alt="On turn 2. Player 1 has filled 1 cell on row 1 and column 1. Player 2 has filled 1 cell ect ect" -->
+      <!-- </div>
             <div class="menu-buttons">
               <button class="btn-ai btn btn-primary btn-pick ">AI</button>
               <button class="btn-human btn btn-primary btn-pick">Friend</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="stats"></div>
+            </div> -->
+      <!-- </div> -->
     </div>
+  </div>
+  <div class="stats"></div>
   </div>
   <div class="svg-defs-container"></div>
 </body>

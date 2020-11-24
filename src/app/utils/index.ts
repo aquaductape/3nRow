@@ -15,3 +15,12 @@ export const randomItemFromArr = <T>(arr: T[]) => {
   const idx = Math.floor(Math.random() * arr.length);
   return arr[idx];
 };
+
+export const round = (num: number, dec: number) => {
+  const [sv, ev] = num.toString().split("e");
+  return Number(
+    Number(Math.round(parseFloat(sv + "e" + dec)) + "e-" + dec) +
+      "e" +
+      (ev || 0)
+  );
+};
