@@ -53,24 +53,24 @@
   margin-bottom: 10px;
 }
 
-@media (min-width: 380px) {
-  .menu-buttons {
-    flex-wrap: nowrap;
-  }
+// @media (min-width: 380px) {
+//   .menu-buttons {
+//     flex-wrap: nowrap;
+//   }
 
-  .btn-pick {
-    max-width: 200px;
-    width: 100%;
-  }
-}
+//   .btn-pick {
+//     max-width: 200px;
+//     width: 100%;
+//   }
+// }
 
-@media (max-width: 220px) {
-  .game-start-info {
-    font-size: 16px;
-  }
+// @media (max-width: 220px) {
+//   .game-start-info {
+//     font-size: 16px;
+//   }
 
-  .btn-pick {
-    font-size: 16px;
-    padding: 10px 15px;
-  }
-}
+//   .btn-pick {
+//     font-size: 16px;
+//     padding: 10px 15px;
+//   }
+// }

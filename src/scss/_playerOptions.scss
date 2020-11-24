@@ -37,13 +37,11 @@
   display: flex;
   justify-content: space-between;
   height: 65px;
-  max-height: 100px;
   margin-bottom: 30px;
 }
 
 .dropdown-options-menu {
   position: relative;
-  max-width: 300px;
   &:first-child {
     margin-right: 25px;
   }

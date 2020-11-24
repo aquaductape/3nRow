@@ -2,37 +2,54 @@ import { round } from "../../utils/index";
 
 const px = (num: number, decimal: number = 1) => `${round(num, decimal)}px`;
 
-type CustomStyle = keyof Omit<CSSStyleDeclaration, "length" | "parentRule">;
+type CustomStyle = Partial<
+  Exclude<Omit<CSSStyleDeclaration, "length" | "parentRule">, number>
+>;
 export const scaleStyles = ({
   el,
-  boardWidth,
-  style,
-  callback,
+  numerator,
+  styleRatio,
 }: {
   el: HTMLElement | HTMLElement[];
-  boardWidth: number;
-  style: {
-    [key in CustomStyle]: {
-      ratio: number;
-      decimalPlaces?: number;
-    };
+  numerator: number;
+  styleRatio: {
+    [key in keyof CustomStyle]:
+      | {
+          ratio: number;
+          decimalPlaces: number;
+        }
+      | number
+      | ((el: HTMLElement) => string);
   };
-  callback?: (el: HTMLElement) => string;
 }) => {
-  for (const key in style) {
-    const { ratio, decimalPlaces } = style[key];
+  for (const key in styleRatio) {
+    const value = styleRatio[key];
+    let ratio = 0;
+    let decimalPlaces = 1;
+
+    if (value != null && typeof value === "object") {
+      ratio = value.ratio;
+      decimalPlaces = value.decimalPlaces;
+    }
+
+    if (typeof value === "number") ratio = value;
 
     if (Array.isArray(el)) {
       el.forEach((item) => {
-        if (callback) return (item.style[key] = callback(item));
-
-        item.style[key] = px(boardWidth / ratio, decimalPlaces);
+        if (typeof value === "function") {
+          item.style[key] = value(item);
+          return;
+        }
+        item.style[key] = px(numerator / ratio, decimalPlaces);
       });
-      return;
+      continue;
     }
 
-    if (callback) return (el.style[key] = callback(el));
+    if (typeof value === "function") {
+      el.style[key] = value(el);
+      continue;
+    }
 
-    el.style[key] = px(boardWidth / ratio, decimalPlaces);
+    el.style[key] = px(numerator / ratio, decimalPlaces);
   }
 };

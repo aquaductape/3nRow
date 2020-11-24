@@ -16,7 +16,6 @@ export default class DropdownOptionsView extends View {
   // dropdown: HTMLElement;
   dropdownBtn: HTMLElement;
   dropdownTimeout: number;
-  board: HTMLElement;
   shapeGroup: HTMLElement;
   colorGroup: HTMLElement;
   handlerShape: TControlPlayerShape;
@@ -39,25 +38,9 @@ export default class DropdownOptionsView extends View {
     this.dropdownBtn = {} as HTMLElement;
     this.shapeGroup = {} as HTMLElement;
     this.colorGroup = {} as HTMLElement;
-    this.board = document.querySelector(".board") as HTMLElement;
     this.dropdownTimeout = 0;
     this.handlerColor = () => {};
     this.handlerShape = () => {};
-    this.listenBoardResize();
-  }
-
-  private listenBoardResize() {
-    // if (!init) return;
-    // init = false;
-    const resizeDropdown = () => {
-      const { clientWidth } = this.board;
-      this.dropdownOptions.style.width = `${clientWidth}px`;
-    };
-    requestAnimationFrame(resizeDropdown);
-
-    window.addEventListener("resize", () => {
-      resizeDropdown();
-    });
   }
 
   protected initQuerySelectors() {
@@ -91,9 +74,12 @@ export default class DropdownOptionsView extends View {
   }
 
   private generateBtnHighlight() {
+    const {
+      currentPlayer: { id },
+    } = this.data;
     return `
       <div class="fake-player-btns">
-        <div class="player-btn-highlight"></div>
+        <div class="player-btn-highlight ${id}-player-btn-highlight"></div>
       </div>
     `;
   }
