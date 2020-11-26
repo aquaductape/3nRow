@@ -187,7 +187,7 @@ export default function onFocusOut({
 
       onExit();
       markListener(i);
-      if (stopWhenTargetIsRemoved && !clickedTarget.isConnected) return null;
+      // if (stopWhenTargetIsRemoved && !clickedTarget.isConnected) return null;
     }
 
     removeListeners();
@@ -259,7 +259,7 @@ export default function onFocusOut({
       } = listeners[i];
       if (isInit()) continue;
 
-      if (stopWhenTargetIsRemoved && !clickedTarget.isConnected) return null;
+      // if (stopWhenTargetIsRemoved && !clickedTarget.isConnected) return null;
 
       // allow focus on dropdown button
       if (button.contains(clickedTarget)) continue;

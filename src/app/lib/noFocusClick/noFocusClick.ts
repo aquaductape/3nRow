@@ -32,9 +32,9 @@ document.addEventListener("click", (e) => {
   // detect if fired by keyboard
   if (e.detail === 0) return;
 
-  // if (prevEl) {
-  //   prevEl.classList.remove(className);
-  // }
+  if (prevEl) {
+    prevEl.classList.remove(className);
+  }
 
   const activeElement = document.activeElement as HTMLElement;
 

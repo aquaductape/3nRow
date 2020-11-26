@@ -102,7 +102,7 @@ svg {
 
   &:hover,
   &.noFocusClick:focus {
-    background: #273442;
+    background: #000;
   }
 
   &.noFocusClick:focus {
@@ -195,3 +195,17 @@ input:checked + .slider:before {
 //     font-size: 1.25rem;
 //   }
 // }
+
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+
+  &.active {
+    background: #000;
+    opacity: 0.3;
+    height: 100%;
+    width: 100%;
+  }
+}

@@ -16,6 +16,8 @@ class GameContainerView extends View {
     cells: HTMLElement[];
     board: HTMLElement;
     boardBackground: HTMLElement;
+    quickStartMenu: HTMLElement;
+    menuBtn: HTMLElement;
   };
 
   constructor() {
@@ -58,6 +60,10 @@ class GameContainerView extends View {
     dom.boardBackground = this.parentEl.querySelector(
       ".board-background"
     ) as HTMLElement;
+    dom.quickStartMenu = this.parentEl.querySelector(
+      ".quick-start-menu"
+    ) as HTMLElement;
+    dom.menuBtn = this.parentEl.querySelector("#menu .menu-btn") as HTMLElement;
   }
 
   runResizeListener() {
@@ -69,6 +75,8 @@ class GameContainerView extends View {
     const {
       board,
       boardBackground,
+      quickStartMenu,
+      menuBtn,
       rows,
       cells,
       playerBtnGroup,
@@ -100,6 +108,13 @@ class GameContainerView extends View {
           borderRadius: 12.33,
           boxShadow: () =>
             `0px ${px(boardWidth / 18.8)} 0px var(--blue-shadow)`,
+        },
+      });
+      scaleStyles({
+        el: quickStartMenu,
+        numerator: boardWidth,
+        styleRatio: {
+          borderRadius: 12.33,
         },
       });
       scaleStyles({
@@ -193,6 +208,16 @@ class GameContainerView extends View {
               : `-${px(boardWidth / 37)} 0px 0px 0px #eee`,
         },
       });
+      scaleStyles({
+        el: menuBtn,
+        numerator: boardWidth,
+        styleRatio: {
+          height: 14.08,
+          borderBottomLeftRadius: 17.6,
+          borderBottomRightRadius: 17.6,
+          padding: () => `${px(boardWidth / 70.4)} 0`,
+        },
+      });
     };
 
     const changeHeight = ({ init }: { init: boolean } = { init: false }) => {
@@ -201,53 +226,44 @@ class GameContainerView extends View {
       const browserInnerWidth =
         window.innerWidth || document.documentElement.clientWidth;
 
-      if (browserInnerWidth > 700) paddingBottomRatio = 3;
+      // gameContainer.style.maxWidth = px(width);
+      const boardTop = board.getBoundingClientRect().top;
+      const heightSlice = browserInnerHeight - boardTop;
 
-      const gameContainerPadding =
-        Number(getComputedStyle(gameContainer).paddingLeft.match(/-?\d+/)![0]) *
-        2;
-      const gameContainerWidth = gameContainer.clientWidth;
-      const diff =
-        browserInnerWidth > gameContainerWidth
-          ? browserInnerWidth - gameContainerWidth
-          : 0;
-      // const boardWidth = browserInnerWidth - gameContainerPadding - diff;
-      const boardWidth = board.clientWidth;
-      let width = 0;
-      let padding = round(browserInnerHeight / paddingBottomRatio, 0);
-      // padding = 40;
-      // padding =
+      // viewport has greater width
+      if (heightSlice < browserInnerWidth) {
+        const paddingBottom = round(heightSlice / 10, 0);
+        const boardWidth = heightSlice - paddingBottom;
 
-      width = browserInnerHeight - playerBtnGroup.clientHeight - padding;
-      // browserInnerHeight - playerBtnGroup.clientHeight - margin - padding;
-
-      // if (browserInnerHeight > 800) {
-      //   gameContainer.style.maxWidth = `${width - 200}px`;
-      //   return;
-      // }
-      gameContainer.style.maxWidth = px(width);
-
-      if (browserInnerWidth > width) {
-        console.log("browserInnerWidth > width");
-        console.log({ boardWidth, width });
-        scaleBoardFromWidth(width);
-        matchDropdownWidthToBoard(board.clientWidth);
-        return;
+        gameContainer.style.maxWidth = px(boardWidth);
+        scaleBoardFromWidth(boardWidth);
+        matchDropdownWidthToBoard(boardWidth);
       }
-      console.log("browserInnerWidth < width");
-      // if (!init && browserInnerHeight > boardWidth + 200) return;
-      console.log({ boardWidth, width });
-      scaleBoardFromWidth(boardWidth);
-      matchDropdownWidthToBoard(board.clientWidth);
+      // viewport has greater height
+      if (heightSlice > browserInnerWidth) {
+        const paddingLR = round(browserInnerWidth / 5, 0);
+        const boardWidth = browserInnerWidth - paddingLR;
+
+        gameContainer.style.maxWidth = px(boardWidth);
+        scaleBoardFromWidth(boardWidth);
+        matchDropdownWidthToBoard(boardWidth);
+      }
     };
 
     // init height
     changeHeight({ init: true });
+    setTimeout(() => {
+      changeHeight({ init: true });
+    }, 50);
+    setTimeout(() => {
+      changeHeight({ init: true });
+    }, 100);
 
-    const debouncedChangeHeight = debounce(changeHeight, 100);
+    const debouncedChangeHeight = debounce(changeHeight, 200);
     window.addEventListener("resize", () => {
-      // debouncedChangeHeight();
       changeHeight();
+      // to cover for changing device viewport on Chrome devtools
+      debouncedChangeHeight();
     });
   }
 }

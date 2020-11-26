@@ -12,6 +12,60 @@
 
 <body>
   <div class="game-container">
+    <div id="menu">
+      <div id="menu-dropdown" role="region" aria-labelledby="menu-btn">
+        <nav>
+          <ul>
+            <li>
+              <!-- enabled in multiplayer  -->
+              <button aria-label="leave game">Leave</button>
+              <!-- disabled in multiplayer?  -->
+              <button aria-label="restart game">Restart</button>
+              <!-- disabled in multiplayer  -->
+              <button>Reset Scores</button>
+            </li>
+            <li>
+              <!-- disable ai toggle in multiplayer -->
+              <div class="player">
+                <h3>Player 2 "O"</h3> <!-- should add badge as human or ai?-->
+                <div class="toggle-ai">
+                  <label for="enable-ai">
+                    <div>Player 2 as AI</div>
+                  </label>
+                  <input id="enable-ai" type="checkbox">
+                </div>
+                <div role="radiogroup" aria-label="Ai Difficulty" class="ai-difficulty">
+                  <h4 id="ai-difficulty">Difficulty</h4>
+                  <div>
+                    <label for="ai-medium">Medium</label>
+                    <input type="radio" id="ai-medium">
+                  </div>
+                  <div>
+                    <label for="ai-hard">Hard</label>
+                    <input type="radio" id="ai-hard">
+                  </div>
+                  <div>
+                    <label for="ai-cheater">Cheater</label>
+                    <input type="radio" id="ai-cheater">
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <!-- disabled in multiplayer -->
+              <div class="multiplayer">
+                <h3>Multiplayer</h3>
+                <!-- <div>Must leave to start a new game</div> -->
+                <button>Share Private Game</button>
+                <button>Join with random Player</button>
+              </div>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <button id="menu-btn" class="btn menu-btn" aria-label="Menu" aria-expanded="false"
+        aria-controls="menu-dropdown">V</button>
+    </div>
     <div class="player-btn-group">
       <div id="P1-btn-options" class="dropdown-options-menu">
         <button id="Player_1_options" class="player-btn-options pre-game" data-player-id="P1" aria-haspopup="true"
@@ -46,7 +100,7 @@
     <div class="message">
     </div>
     <div class="game">
-      <div class="board" role="grid" aria-label="game board" class="board">
+      <div class="board pre-game" role="grid" aria-label="game board" class="board">
         <div class="board-background"></div>
         <div role="row" class="row" data-row="0">
           <div class="cell" role="gridcell" aria-selected="false" data-column="0" data-selected="false" tabindex="-1"
@@ -84,7 +138,7 @@
         <div aria-hidden="true" class="line-svg">
         </div>
       </div>
-      <div class="menu-container">
+      <div class="quick-start-menu">
         <!-- menu-launch | quick-start-menu  -->
         <!-- <div class="menu">
             <h1>3nRow</h1>
@@ -98,11 +152,28 @@
               <button class="btn-ai btn btn-primary btn-pick ">AI</button>
               <button class="btn-human btn btn-primary btn-pick">Friend</button>
             </div> -->
+        <!-- <p>Difficulty</p>
+            <div class="first-turn">
+              <label>
+                <input type="radio" name="first-turn" checked >
+                You
+              </label>
+              <label>
+                <input type="radio" name="first-turn" >
+                AI
+              </label>
+            </div>
+            <div class="menu-buttons">
+              <button class="btn btn-primary btn-pick">Medium</button>
+              <button class="btn btn-primary btn-pick">Hard</button>
+              <button class="btn btn-primary btn-pick">Cheater</button>
+            </div> -->
       </div>
     </div>
   </div>
   <div class="stats"></div>
   </div>
+  <div id="overlay"></div>
   <div class="svg-defs-container"></div>
 </body>
 

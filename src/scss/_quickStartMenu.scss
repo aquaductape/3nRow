@@ -1,0 +1,91 @@
+.quick-start-menu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 30px;
+  // background: var(--blue-bg);
+  background: url(/src/assets/img/start-menu-bg.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  transition: 900ms opacity;
+
+  &.play-again {
+    align-items: flex-start;
+    top: auto;
+    height: auto;
+    background: none;
+  }
+
+  .menu {
+    text-align: center;
+    padding: 5px 35px;
+    width: 100%;
+    transition: 300ms opacity;
+
+    &.play-again {
+      padding: 0px;
+      margin-top: 50px;
+      width: 100%;
+      text-align: center;
+    }
+  }
+
+  hr {
+    max-width: 195px;
+    width: 100%;
+  }
+
+  .title {
+    letter-spacing: 1px;
+    font-size: 1.8rem;
+    margin: 16px 0;
+  }
+}
+
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.game-start-info {
+  text-align: center;
+  letter-spacing: 1px;
+  font-size: 1.4rem;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.btn-pick {
+  max-width: 195px;
+  width: 100%;
+  margin: 12px 0;
+}
+
+// @media (min-width: 380px) {
+//   .menu-buttons {
+//     flex-wrap: nowrap;
+//   }
+
+//   .btn-pick {
+//     max-width: 200px;
+//     width: 100%;
+//   }
+// }
+
+// @media (max-width: 220px) {
+//   .game-start-info {
+//     font-size: 16px;
+//   }
+
+//   .btn-pick {
+//     font-size: 16px;
+//     padding: 10px 15px;
+//   }
+// }

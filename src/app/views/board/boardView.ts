@@ -87,15 +87,17 @@ class BoardView extends View {
     return selected.match(/true/i);
   };
 
-  private renderFilledCell(player: TPlayer) {
+  private renderFilledCells(player: TPlayer) {
     const {
-      game: { markedPosition },
+      game: { markedPositions },
     } = this.data;
     const { shape, svgShapes: shapes } = player;
 
-    const cell = this.getCellElement(markedPosition);
-    this.selectCell({ cell, player });
-    cell.innerHTML = shapes[shape];
+    markedPositions.forEach((markedPosition) => {
+      const cell = this.getCellElement(markedPosition);
+      this.selectCell({ cell, player });
+      cell.innerHTML = shapes[shape];
+    });
   }
 
   addHandlerCell(handler: TControlGame) {
@@ -158,7 +160,7 @@ class BoardView extends View {
     this.data = data;
     const { game } = data;
 
-    this.renderFilledCell(player);
+    this.renderFilledCells(player);
     if (game.gameOver) {
       renderWinnerSlash({
         player,
@@ -194,12 +196,13 @@ class BoardView extends View {
     this.firstCell.tabIndex = 0;
     this.firstCell.focus();
     this.state.playerCanSelectCell = true;
+    this.parentEl.classList.remove("pre-game");
   }
 
   clearBoard() {
-    const cells = this.parentEl.querySelectorAll(".cell") as NodeListOf<
-      HTMLElement
-    >;
+    const cells = this.parentEl.querySelectorAll(
+      ".cell"
+    ) as NodeListOf<HTMLElement>;
 
     // clear cells
     cells.forEach((cell) => {

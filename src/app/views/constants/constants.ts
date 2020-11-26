@@ -99,4 +99,13 @@ export const svg = {
     <circle fill="currentColor" r="41.6734" cy="394.847" cx="-645.1242"/>
   </g>
 </svg>`,
+  cevron: `
+<svg xmlns="http://www.w3.org/2000/svg" width="25" height="14.112" viewBox="0 0 6.615 3.734"><path d="M6.188.427l-2.88 2.88M.426.427l2.88 2.88" fill="none" stroke="#5966ca" stroke-width=".853" stroke-linecap="round"/></svg>
+`,
+  radio: `
+<svg xmlns="http://www.w3.org/2000/svg" width="37.795" height="37.795" viewBox="0 0 10 10">
+  <circle class="radio-icon-unselected" cx="5" cy="5" r="4.375" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle class="radio-icon-selected" cx="5" cy="5" r="3.412" fill="#fff" stroke="currentColor" stroke-width="3.175" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+`,
 };

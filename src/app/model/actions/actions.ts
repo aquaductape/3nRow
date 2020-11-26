@@ -1,4 +1,6 @@
+import { TPosition } from "../../ts/index";
 import { randomItemFromArr } from "../../utils/index";
+import gameContainerView from "../../views/gameContainer/gameContainerView";
 import playerBtnGroupView from "../../views/playerOptions/playerBtnGroupView";
 import { state, TColors, TPlayer, TShapes } from "../state";
 import { decideMove } from "./ai";
@@ -34,7 +36,7 @@ export const resetForNextGame = () => {
     [3, 4, 5],
     [6, 7, 8],
   ];
-  game.markedPosition = { row: 0, column: 0 };
+  game.markedPositions = [];
 };
 
 export const runGameOver = () => {
@@ -97,15 +99,20 @@ export const startGame = () => {
 export const setPlayerAsHumanOrAI = ({
   ai,
   id,
+  difficulty,
 }: {
   id: string;
   ai: boolean;
+  difficulty?: string;
 }) => {
   const { players, game } = state;
   const player = players.find((player) => player.id === id)!;
 
   player.isAI = ai;
   game.hasAI = ai;
+  if (ai && difficulty) {
+    player.difficulty = difficulty;
+  }
 };
 
 export const goAI = async () => {
@@ -119,6 +126,7 @@ export const goAI = async () => {
 
   await delayAi();
   // ai decides best move
+  // could return multiple positions if cheater
   const position = decideMove(player);
 
   // mark board
@@ -129,20 +137,28 @@ export const goAI = async () => {
   changeTurn();
 };
 
-export const markBoard = ({ column, row }: { row: number; column: number }) => {
-  // at view, before calling this model function
-  // add data attribute to guard additional clicks
+export const markBoard = (positions: TPosition | TPosition[]) => {
   const { game } = state;
   const { board } = game;
   const player = getCurrentPlayer();
 
-  if (isCellEmpty({ column, row })) return;
+  const mark = ({ row, column }: TPosition) => {
+    if (isCellEmpty({ row, column })) return;
 
-  board[row][column] = player.mark;
-  game.markedPosition = {
-    column,
-    row,
+    board[row][column] = player.mark;
+    // change to array
+    game.markedPositions.push({ column, row });
   };
+
+  if (Array.isArray(positions)) {
+    positions.forEach((position) => {
+      mark(position);
+    });
+    return;
+  }
+
+  const position = positions;
+  mark(position);
 };
 
 export const startTurn = ({ column, row }: { row: number; column: number }) => {
@@ -258,6 +274,12 @@ const changeTurn = () => {
   }
 
   game.playerTurn = player1.id;
+  // game.markedPositions = [];
+};
+
+/** clear player previous position(s*) that marked the cell(s*). *multiple when ai cheats and takes several positions instead of one  */
+export const clearMarkedPositions = () => {
+  state.game.markedPositions = [];
 };
 
 const isCellEmpty = ({ row, column }: { row: number; column: number }) =>

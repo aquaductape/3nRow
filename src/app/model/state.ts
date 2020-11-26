@@ -1,3 +1,5 @@
+import { TPosition } from "../ts/index";
+
 export const state: TState = {
   players: [
     {
@@ -39,10 +41,8 @@ export const state: TState = {
     winner: null,
     hasAI: false,
     winPosition: "",
-    markedPosition: {
-      row: 0,
-      column: 0,
-    },
+    difficulties: ["MEDIUM", "HARD", "CHEATER"],
+    markedPositions: [],
     board: [
       [0, 1, 2],
       [3, 4, 5],
@@ -104,7 +104,9 @@ export type TGame = {
   winner: string | null; // Player id
   hasAI: boolean;
   board: TBoard;
-  markedPosition: { row: number; column: number };
+  difficulties: ("MEDIUM" | "HARD" | "CHEATER")[];
+  /** why an array, to allow the AI to cheat and take several positions in one turn */
+  markedPositions: TPosition[];
   winPosition: string;
 };
 

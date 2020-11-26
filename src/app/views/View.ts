@@ -43,6 +43,8 @@ export default class View {
   // grab elements that are based from string markup, after they are generated
   protected initQuerySelectors() {}
 
+  protected initEventListeners() {}
+
   renderFallback() {
     console.log(this.generateFallback());
     this.clear();
@@ -59,6 +61,7 @@ export default class View {
     this.clear();
     this.parentEl.insertAdjacentHTML("afterbegin", this.generateMarkup());
     this.initQuerySelectors();
+    this.initEventListeners();
   }
 
   update(markup: string) {
@@ -71,7 +74,7 @@ const getElement = (root: string | HTMLElement) => {
   if (typeof root !== "string") return root;
 
   if (root[0] === "#") {
-    return document.getElementById(root)!;
+    return document.getElementById(root.slice(1))!;
   }
 
   return <HTMLElement>document.querySelector(root)!;

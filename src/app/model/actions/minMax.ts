@@ -1,10 +1,12 @@
+import { randomItemFromArr } from "../../utils/index";
 import { state } from "../state";
 import { IMove, TFlattenBoard } from "./ai";
 
 const emptyIndexies = (board: TFlattenBoard) => {
   return board.filter((s) => s !== "O" && s !== "X");
 };
-const didWin = (board: TFlattenBoard, playerMark: "X" | "O") => {
+
+export const didWin = (board: TFlattenBoard, playerMark: "X" | "O") => {
   return (
     (board[0] === playerMark &&
       board[1] === playerMark &&

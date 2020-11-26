@@ -19,6 +19,12 @@
     width: 100%;
     background: var(--blue-shadow);
   }
+
+  &.pre-game {
+    .cell {
+      background: var(--blue-bg);
+    }
+  }
 }
 
 .row {

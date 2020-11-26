@@ -1,76 +1,148 @@
-.menu-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  border-radius: 30px;
-  background: var(--blue-bg);
-  transition: 900ms opacity;
-
-  &.play-again {
-    align-items: flex-start;
-    top: auto;
-    height: auto;
-    background: none;
-  }
-}
-
-.menu {
-  padding: 5px 10px;
-  width: 100%;
-  transition: 300ms opacity;
-
-  &.play-again {
-    padding: 0px;
-    margin-top: 50px;
+#menu {
+  position: relative;
+  .menu-btn {
+    display: block;
+    background: #0e1051cf;
+    color: #5966ca;
+    height: 25px;
+    padding: 5px 0;
     width: 100%;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+  }
+
+  svg {
+    display: block;
+  }
+
+  .menu-dropdown {
+    position: absolute;
+    top: -10px;
+    left: 0;
+    padding: 30px;
+    width: 100%;
+    color: #333;
     text-align: center;
+    background: #eee;
+    border-radius: 30px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    z-index: 10;
+    visibility: hidden;
+    transform: translateY(-100%);
+    transition: transform 200ms;
+
+    &.active {
+      visibility: visible;
+      transform: translateY(0);
+    }
+  }
+
+  .menu-h3 {
+    font-size: 25px;
+    margin: 15px 0;
+  }
+  .menu-h4 {
+    font-size: 20px;
+    margin: 15px 0;
+    // flex: 1;
+  }
+
+  margin-bottom: 15px;
+}
+
+.ai-radio {
+  position: relative;
+  display: inline;
+  margin: 5px 0;
+
+  input {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    bottom: -2px;
+    appearance: none;
+    width: calc(100% + 5px);
+    margin: 0;
+    pointer-events: none;
+    outline: none;
+  }
+
+  label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .radio-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    color: #999;
+  }
+
+  svg {
+    .radio-icon-selected {
+      opacity: 0;
+    }
+  }
+
+  input[type="radio"]:checked + label {
+    .radio-icon {
+      color: #00f;
+    }
+
+    svg {
+      .radio-icon-selected {
+        opacity: 1;
+      }
+      .radio-icon-unselected {
+        opacity: 0;
+      }
+    }
+  }
+
+  input.noFocusClick:focus {
+    outline: 2px solid #000;
+    outline-offset: 2px;
   }
 }
 
-.menu-buttons {
+.ai-difficulty {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  text-align: left;
+
+  &.disabled {
+    opacity: 0.4;
+
+    .ai-radio {
+      input[type="radio"]:checked + label {
+        .radio-icon {
+          color: inherit;
+        }
+      }
+    }
+  }
+
+  & .ai-difficulty-inner {
+    display: flex;
+    flex-direction: column;
+  }
 }
 
-.game-start-info {
-  text-align: center;
-  letter-spacing: 1px;
-  font-size: 1.4rem;
-  width: 100%;
-  margin-bottom: 10px;
+.multiplayer-btns {
+  display: flex;
+  flex-direction: column;
+
+  .btn-multiplayer {
+    margin: 0 auto;
+    margin-bottom: 8px;
+    padding: 10px 15px;
+    font-size: 18px;
+    // letter-spacing: 2px;
+    border-radius: 10px;
+  }
 }
-
-.btn-pick {
-  width: 125px;
-  margin: 0 10px;
-  margin-bottom: 10px;
-}
-
-// @media (min-width: 380px) {
-//   .menu-buttons {
-//     flex-wrap: nowrap;
-//   }
-
-//   .btn-pick {
-//     max-width: 200px;
-//     width: 100%;
-//   }
-// }
-
-// @media (max-width: 220px) {
-//   .game-start-info {
-//     font-size: 16px;
-//   }
-
-//   .btn-pick {
-//     font-size: 16px;
-//     padding: 10px 15px;
-//   }
-// }
