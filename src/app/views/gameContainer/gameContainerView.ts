@@ -18,6 +18,7 @@ class GameContainerView extends View {
     boardBackground: HTMLElement;
     quickStartMenu: HTMLElement;
     menuBtn: HTMLElement;
+    menu: HTMLElement;
   };
 
   constructor() {
@@ -64,6 +65,7 @@ class GameContainerView extends View {
       ".quick-start-menu"
     ) as HTMLElement;
     dom.menuBtn = this.parentEl.querySelector("#menu .menu-btn") as HTMLElement;
+    dom.menu = this.parentEl.querySelector("#menu") as HTMLElement;
   }
 
   runResizeListener() {
@@ -76,6 +78,7 @@ class GameContainerView extends View {
       board,
       boardBackground,
       quickStartMenu,
+      menu,
       menuBtn,
       rows,
       cells,
@@ -218,6 +221,13 @@ class GameContainerView extends View {
           padding: () => `${px(boardWidth / 70.4)} 0`,
         },
       });
+      scaleStyles({
+        el: menu,
+        numerator: boardWidth,
+        styleRatio: {
+          marginBottom: 20.533,
+        },
+      });
     };
 
     const changeHeight = ({ init }: { init: boolean } = { init: false }) => {
@@ -228,7 +238,10 @@ class GameContainerView extends View {
 
       // gameContainer.style.maxWidth = px(width);
       const boardTop = board.getBoundingClientRect().top;
-      const heightSlice = browserInnerHeight - boardTop;
+      const boardTopRadio = 4.02493321460374;
+      // const heightSlice = browserInnerHeight - boardTop;
+      const heightSlice =
+        browserInnerHeight - browserInnerHeight / boardTopRadio;
 
       // viewport has greater width
       if (heightSlice < browserInnerWidth) {
@@ -252,18 +265,12 @@ class GameContainerView extends View {
 
     // init height
     changeHeight({ init: true });
-    setTimeout(() => {
-      changeHeight({ init: true });
-    }, 50);
-    setTimeout(() => {
-      changeHeight({ init: true });
-    }, 100);
 
-    const debouncedChangeHeight = debounce(changeHeight, 200);
+    // const debouncedChangeHeight = debounce(changeHeight, 200);
     window.addEventListener("resize", () => {
       changeHeight();
       // to cover for changing device viewport on Chrome devtools
-      debouncedChangeHeight();
+      // debouncedChangeHeight();
     });
   }
 }

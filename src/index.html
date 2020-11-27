@@ -13,58 +13,6 @@
 <body>
   <div class="game-container">
     <div id="menu">
-      <div id="menu-dropdown" role="region" aria-labelledby="menu-btn">
-        <nav>
-          <ul>
-            <li>
-              <!-- enabled in multiplayer  -->
-              <button aria-label="leave game">Leave</button>
-              <!-- disabled in multiplayer?  -->
-              <button aria-label="restart game">Restart</button>
-              <!-- disabled in multiplayer  -->
-              <button>Reset Scores</button>
-            </li>
-            <li>
-              <!-- disable ai toggle in multiplayer -->
-              <div class="player">
-                <h3>Player 2 "O"</h3> <!-- should add badge as human or ai?-->
-                <div class="toggle-ai">
-                  <label for="enable-ai">
-                    <div>Player 2 as AI</div>
-                  </label>
-                  <input id="enable-ai" type="checkbox">
-                </div>
-                <div role="radiogroup" aria-label="Ai Difficulty" class="ai-difficulty">
-                  <h4 id="ai-difficulty">Difficulty</h4>
-                  <div>
-                    <label for="ai-medium">Medium</label>
-                    <input type="radio" id="ai-medium">
-                  </div>
-                  <div>
-                    <label for="ai-hard">Hard</label>
-                    <input type="radio" id="ai-hard">
-                  </div>
-                  <div>
-                    <label for="ai-cheater">Cheater</label>
-                    <input type="radio" id="ai-cheater">
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li>
-              <!-- disabled in multiplayer -->
-              <div class="multiplayer">
-                <h3>Multiplayer</h3>
-                <!-- <div>Must leave to start a new game</div> -->
-                <button>Share Private Game</button>
-                <button>Join with random Player</button>
-              </div>
-            </li>
-          </ul>
-        </nav>
-      </div>
-      <button id="menu-btn" class="btn menu-btn" aria-label="Menu" aria-expanded="false"
-        aria-controls="menu-dropdown">V</button>
     </div>
     <div class="player-btn-group">
       <div id="P1-btn-options" class="dropdown-options-menu">

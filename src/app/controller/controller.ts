@@ -13,7 +13,7 @@ import menuView from "../views/menu/menuView";
 export type TControlMenuSettings = ({}: {
   ai?: {
     enabled: boolean;
-    difficulty: string;
+    difficulty?: string;
   };
 }) => void;
 const controlMenuSettings: TControlMenuSettings = ({ ai }) => {
@@ -145,7 +145,7 @@ const controlStartGame: TControlStartGame = ({ ai, id, difficulty }) => {
   playerBtnGroupView.updatePlayerBtnsOnGameStart();
   boardView.startGame();
   playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
-  menuView.updateSettings(model.state);
+  menuView.updateAi(model.state);
 
   // player 1 goes first regardless
 };
@@ -234,6 +234,7 @@ const init = () => {
     handlerStartGame: controlStartGame,
     handlerPlayAgain: controlPlayAgain,
   });
+  menuView.addHandlers({ handlerMenuSettings: controlMenuSettings });
   boardView.addHandlerCell(controlGame);
   // run DOM events
   gameContainerView.runResizeListener();

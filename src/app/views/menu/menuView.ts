@@ -1,3 +1,4 @@
+import { TControlMenuSettings } from "../../controller/controller";
 import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TState } from "../../model/state";
 import { svg } from "../constants/constants";
@@ -8,19 +9,29 @@ class MenuView extends View {
   menuBtn: HTMLElement;
   menuDropdown: HTMLElement;
   isOpen: boolean;
+  handlerMenuSettings: TControlMenuSettings;
+
   constructor() {
     super({ root: "#menu" });
     this.data = {} as TState;
     this.menuBtn = {} as HTMLElement;
     this.menuDropdown = {} as HTMLElement;
     this.isOpen = false;
+    this.handlerMenuSettings = () => {};
   }
 
   protected initEventListeners() {
     this.parentEl.addEventListener("click", (e) => {
       const target = e.target as HTMLElement;
+
+      // clicking label triggers new click https://stackoverflow.com/a/61878865/8234457
+      // it's better to use onchange event on inputs rather than click
+      // but for this procedure I'm using click instead
+      if (target.closest("label")) return;
+
       const menuBtn = target.closest(".menu-btn") as HTMLElement;
       const aiRadio = target.closest(".ai-radio") as HTMLElement;
+      const aiEnable = target.closest(".toggle-ai") as HTMLElement;
 
       if (menuBtn) {
         onFocusOut({
@@ -33,8 +44,14 @@ class MenuView extends View {
       }
 
       if (aiRadio) {
-        const difficulty = aiRadio.dataset.difficulty;
-        console.log(difficulty);
+        const difficulty = aiRadio.dataset.difficulty!;
+        this.handlerMenuSettings({ ai: { enabled: true, difficulty } });
+      }
+
+      if (aiEnable) {
+        const checkbox = aiEnable.querySelector("input") as HTMLInputElement;
+        this.toggleDisableDifficultyContainer();
+        this.handlerMenuSettings({ ai: { enabled: checkbox.checked } });
       }
     });
   }
@@ -151,15 +168,38 @@ class MenuView extends View {
     this.openDropdown();
   }
 
-  addHandlers() {}
+  addHandlers({
+    handlerMenuSettings,
+  }: {
+    handlerMenuSettings: TControlMenuSettings;
+  }) {
+    this.handlerMenuSettings = handlerMenuSettings;
+  }
+
   handlerAiDifficulty() {}
   handlerToggleAi() {}
 
-  updateSettings(data: TState) {
+  private toggleDisableDifficultyContainer() {
+    const difficultyContainer = this.parentEl.querySelector(
+      ".ai-difficulty"
+    ) as HTMLElement;
+    const inputs = difficultyContainer.querySelectorAll(
+      "input"
+    ) as NodeListOf<HTMLElement>;
+
+    difficultyContainer.classList.toggle("disabled");
+    inputs.forEach((input) => {
+      input.toggleAttribute("disabled");
+    });
+  }
+
+  updateAi(data: TState) {
     const { game, players } = data;
 
     const ai = players[1];
-    const toggleInput = this.parentEl.querySelector("#enable-ai")!;
+    const toggleInput = this.parentEl.querySelector(
+      "#enable-ai"
+    ) as HTMLInputElement;
     const difficultyContainer = this.parentEl.querySelector(
       ".ai-difficulty"
     ) as HTMLElement;
@@ -179,12 +219,12 @@ class MenuView extends View {
 
       difficultyContainer.classList.remove("disabled");
       radioInput.setAttribute("checked", "true");
-      toggleInput.setAttribute("checked", "true");
+      toggleInput.checked = true;
       return;
     }
 
     difficultyContainer.classList.add("disabled");
-    // toggleInput.removeAttribute("checked");
+    toggleInput.checked = false;
   }
 }
 

@@ -88,11 +88,8 @@ const moveIdxResult = (player: TPlayer) => {
   if (emptyCells.length === 0) return 0;
   // default HARD
   if (emptyCells.length >= 8) {
-    const index = pickEdges(emptyCells);
+    const index = randomItemFromArr(emptyCells);
     return index;
-  }
-  if (emptyCells.length === 7) {
-    return randomItemFromArr(emptyCells);
   }
 
   if (player.difficulty === "MEDIUM" || player.difficulty === "CHEATER") {
@@ -103,6 +100,12 @@ const moveIdxResult = (player: TPlayer) => {
 
   let defenseIndex = defensiveDepth1(flattenBoard);
   if (defenseIndex != null) return defenseIndex;
+
+  if (player.difficulty !== "HARD") {
+    if (emptyCells.length === 7) {
+      return randomItemFromArr(emptyCells);
+    }
+  }
 
   return miniMax(flattenBoard, playerMark).index;
 };
