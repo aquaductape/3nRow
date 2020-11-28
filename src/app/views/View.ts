@@ -1,3 +1,5 @@
+import { getElement, reflow } from "./utils/index";
+
 export default class View {
   protected data = {};
   protected parentEl: HTMLElement;
@@ -37,7 +39,7 @@ export default class View {
   }
 
   protected reflow() {
-    document.body.offsetWidth;
+    reflow();
   }
 
   // grab elements that are based from string markup, after they are generated
@@ -69,13 +71,3 @@ export default class View {
     this.parentEl.insertAdjacentHTML("afterbegin", markup);
   }
 }
-
-const getElement = (root: string | HTMLElement) => {
-  if (typeof root !== "string") return root;
-
-  if (root[0] === "#") {
-    return document.getElementById(root.slice(1))!;
-  }
-
-  return <HTMLElement>document.querySelector(root)!;
-};

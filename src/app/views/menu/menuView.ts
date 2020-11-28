@@ -2,6 +2,7 @@ import { TControlMenuSettings } from "../../controller/controller";
 import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TState } from "../../model/state";
 import { svg } from "../constants/constants";
+import { hideElement, showElement } from "../utils/index";
 import View from "../View";
 
 class MenuView extends View {
@@ -148,14 +149,30 @@ class MenuView extends View {
   private openDropdown() {
     const { menuBtn, menuDropdown } = this;
     menuBtn.setAttribute("aria-expanded", "true");
-    menuDropdown.classList.add("active");
+
+    showElement({
+      el: menuDropdown,
+      display: "block",
+      onStart: (el) => {
+        el.classList.add("active");
+      },
+    });
     menuDropdown.focus();
   }
 
   private closeDropdown() {
     const { menuBtn, menuDropdown } = this;
     menuBtn.setAttribute("aria-expanded", "false");
-    menuDropdown.classList.remove("active");
+
+    hideElement({
+      el: menuDropdown,
+      onStart: (el) => {
+        el.classList.remove("active");
+      },
+      onEnd: (el) => {
+        el.style.display = "none";
+      },
+    });
   }
 
   private toggleDropdown() {

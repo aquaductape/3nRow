@@ -19,16 +19,22 @@ class GameContainerView extends View {
     quickStartMenu: HTMLElement;
     menuBtn: HTMLElement;
     menu: HTMLElement;
+    quickStartMenuBtns: HTMLElement[];
   };
+  debouncedGetSelectors: Function;
 
   constructor() {
     super({ root: ".game-container" });
     this.dom = {} as any;
+    this.debouncedGetSelectors = () => {};
+    this.init();
   }
 
-  // overrides to do nothing
-  render() {
-    return;
+  protected init() {
+    this.debouncedGetSelectors = debounce(this.getSelectors.bind(this), {
+      time: 200,
+      leading: true,
+    });
   }
 
   private getSelectors() {
@@ -66,13 +72,14 @@ class GameContainerView extends View {
     ) as HTMLElement;
     dom.menuBtn = this.parentEl.querySelector("#menu .menu-btn") as HTMLElement;
     dom.menu = this.parentEl.querySelector("#menu") as HTMLElement;
+    dom.quickStartMenuBtns = Array.from(
+      this.parentEl.querySelectorAll(".btn-pick")
+    );
   }
 
-  runResizeListener() {
-    this.getSelectors();
-    let paddingBottomRatio = 11;
+  private resizeElements(boardWidth: number) {
+    this.debouncedGetSelectors();
 
-    const margin = 30;
     const gameContainer = this.parentEl;
     const {
       board,
@@ -89,17 +96,16 @@ class GameContainerView extends View {
       playerDropdowns,
       fakePlayerBtns,
       fakePlayerBtnsHighlight,
+      quickStartMenuBtns,
     } = this.dom;
 
-    const px = (num: number, decimal: number = 1) => `${round(num, decimal)}px`;
-
-    const matchDropdownWidthToBoard = (width: number) => {
+    const matchDropdownWidthToBoard = () => {
       playerDropdowns.forEach((playerDropdown) => {
-        playerDropdown.style.width = `${width}px`;
+        playerDropdown.style.width = `${boardWidth}px`;
       });
     };
 
-    const scaleBoardFromWidth = (boardWidth: number) => {
+    const scaleBoardFromWidth = () => {
       if (boardWidth > 1600) boardWidth *= 0.7;
       if (boardWidth > 700) boardWidth *= 0.8;
 
@@ -228,7 +234,29 @@ class GameContainerView extends View {
           marginBottom: 20.533,
         },
       });
+
+      // stop at 420px for quickstart btns
+      scaleStyles({
+        el: quickStartMenuBtns,
+        numerator: boardWidth,
+        styleRatio: {
+          paddingLeft: 21,
+          paddingRight: 21,
+          paddingTop: 28,
+          paddingBottom: 28,
+          maxWidth: 2.1538,
+          borderRadius: 42,
+          // fontSize: 21,
+        },
+      });
     };
+
+    scaleBoardFromWidth();
+    matchDropdownWidthToBoard();
+  }
+
+  runResizeListener() {
+    const gameContainer = this.parentEl;
 
     const changeHeight = ({ init }: { init: boolean } = { init: false }) => {
       const browserInnerHeight =
@@ -236,12 +264,9 @@ class GameContainerView extends View {
       const browserInnerWidth =
         window.innerWidth || document.documentElement.clientWidth;
 
-      // gameContainer.style.maxWidth = px(width);
-      const boardTop = board.getBoundingClientRect().top;
-      const boardTopRadio = 4.02493321460374;
-      // const heightSlice = browserInnerHeight - boardTop;
+      const boardTopRatio = 4.02493321460374;
       const heightSlice =
-        browserInnerHeight - browserInnerHeight / boardTopRadio;
+        browserInnerHeight - browserInnerHeight / boardTopRatio;
 
       // viewport has greater width
       if (heightSlice < browserInnerWidth) {
@@ -249,8 +274,8 @@ class GameContainerView extends View {
         const boardWidth = heightSlice - paddingBottom;
 
         gameContainer.style.maxWidth = px(boardWidth);
-        scaleBoardFromWidth(boardWidth);
-        matchDropdownWidthToBoard(boardWidth);
+
+        this.resizeElements(boardWidth);
       }
       // viewport has greater height
       if (heightSlice > browserInnerWidth) {
@@ -258,8 +283,8 @@ class GameContainerView extends View {
         const boardWidth = browserInnerWidth - paddingLR;
 
         gameContainer.style.maxWidth = px(boardWidth);
-        scaleBoardFromWidth(boardWidth);
-        matchDropdownWidthToBoard(boardWidth);
+
+        this.resizeElements(boardWidth);
       }
     };
 
@@ -273,6 +298,12 @@ class GameContainerView extends View {
       // debouncedChangeHeight();
     });
   }
+
+  // overrides to do nothing
+  render() {
+    return;
+  }
 }
 
+const px = (num: number, decimal: number = 1) => `${round(num, decimal)}px`;
 export default new GameContainerView();

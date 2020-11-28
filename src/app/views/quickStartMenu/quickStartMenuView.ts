@@ -3,6 +3,7 @@ import {
   TControlStartGame,
 } from "../../controller/controller";
 import { TPlayer } from "../../model/state";
+import { hideElement, showElement } from "../utils/index";
 import View from "../View";
 
 class QuickStartMenuView extends View {
@@ -12,59 +13,71 @@ class QuickStartMenuView extends View {
     this.data = [] as TPlayer[];
   }
 
-  protected initQuerySelectors() {}
-
   protected generateMarkup() {
-    return this.startMenu();
+    return `
+    <div class="menu">
+      ${this.startMenu()}
+      ${this.aiMenu()}
+    </div>
+    `;
   }
 
   private hideMenu() {
-    this.parentEl.style.display = "none";
+    hideElement({
+      el: this.parentEl,
+      transition: "900ms",
+      onEnd: (el) => {
+        el.style.display = "none";
+      },
+    });
   }
 
   private aiMenu() {
     return `
-    <div class="menu">
-    <div class="title">First Turn</div>
-    <div class="first-turn">
-      <label>
-        <input type="radio" name="first-turn" checked >
-        You
-      </label>
-      <label>
-        <input type="radio" name="first-turn" >
-        AI
-      </label>
+    <div class="section section-slide-2 hidden">
+      <div class="title">Difficulty</div>
+      <div class="menu-buttons">
+        <button class="btn btn-primary btn-pick" data-play="ai" data-difficulty="MEDIUM">Medium</button>
+        <button class="btn btn-primary btn-pick" data-play="ai" data-difficulty="HARD">Hard</button>
+        <button class="btn btn-primary btn-pick" data-play="ai" data-difficulty="CHEATER">Cheater</button>
+      </div>
     </div>
-    <div class="title">Difficulty</div>
-    <div class="menu-buttons">
-      <button class="btn btn-primary btn-pick" data-play="ai" data-difficulty="MEDIUM">Medium</button>
-      <button class="btn btn-primary btn-pick" data-play="ai" data-difficulty="HARD">Hard</button>
-      <button class="btn btn-primary btn-pick" data-play="ai" data-difficulty="CHEATER">Cheater</button>
-    </div>
+    `;
+  }
+
+  private startMenu() {
+    return `
+    <div class="section section-slide-1">
+      <p aria-labelledby="Welcome to 3n-row, a Tic Tac Toe game. To play, you and your opponent take turns to fill one cell on a board that has 3 rows and 3 columns,. To win, you have to fill 3 cells consecutively, either horizontally, vertically or diagionally"
+        class="game-start-info">Play Against</p>
+      <div class="tutorial">
+        <!-- 3 images -->
+        <!-- image 1 alt="On turn 2. Player 1 has filled 1 cell on row 1 and column 1. Player 2 has filled 1 cell ect ect" -->
+      </div>
+      <div class="menu-buttons">
+        <button class="btn btn-primary btn-pick" data-transition-to="ai">AI</button>
+        <button class="btn btn-primary btn-pick" data-play="human">Human</button>
+      </div>
     </div>
     `;
   }
 
   private transitionToAiMenu() {
-    this.parentEl.innerHTML = this.aiMenu();
-  }
+    const sectionSlide1 = this.parentEl.querySelector(
+      ".section-slide-1"
+    ) as HTMLElement;
+    const sectionSlide2 = this.parentEl.querySelector(
+      ".section-slide-2"
+    ) as HTMLElement;
 
-  private startMenu() {
-    return `
-    <div class="menu">
-    <p aria-labelledby="Welcome to 3n-row, a Tic Tac Toe game. To play, you and your opponent take turns to fill one cell on a board that has 3 rows and 3 columns,. To win, you have to fill 3 cells consecutively, either horizontally, vertically or diagionally"
-      class="game-start-info">Play Against</p>
-    <div class="tutorial">
-      <!-- 3 images -->
-      <!-- image 1 alt="On turn 2. Player 1 has filled 1 cell on row 1 and column 1. Player 2 has filled 1 cell ect ect" -->
-    </div>
-    <div class="menu-buttons">
-      <button class="btn btn-primary btn-pick" data-transition-to="ai">AI</button>
-      <button class="btn btn-primary btn-pick" data-play="human">Human</button>
-    </div>
-  </div>
-    `;
+    hideElement({
+      el: sectionSlide1,
+      transition: "300ms",
+      onEnd: (el) => {
+        el.style.display = "none";
+        showElement({ el: sectionSlide2, transition: "1300ms" });
+      },
+    });
   }
 
   renderPlayAgainButton() {

@@ -20,6 +20,12 @@
     background: var(--blue-shadow);
   }
 
+  &.transition-out {
+    .cell {
+      transition: 200ms background;
+    }
+  }
+
   &.pre-game {
     .cell {
       background: var(--blue-bg);

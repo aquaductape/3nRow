@@ -94,12 +94,14 @@ class PlayerBtnGroup extends View {
           dropdownOptionsView.cancelHiddingDropdown();
           dropdownOptionsView.addDropdown();
           playerBtn.classList.add("active");
+          playerBtn.setAttribute("aria-expanded", "true");
         },
         onExit: () => {
           const extra = () => {
             playerBtn.classList.remove("active");
           };
           dropdownOptionsView.removeDropdown(extra);
+          playerBtn.setAttribute("aria-expanded", "false");
         },
       });
     };

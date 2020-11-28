@@ -14,12 +14,24 @@ export const createHTMLFromString = (string: string): Element => {
   return <Element>template.content.firstChild;
 };
 
-export const debounce = (cb: Function, time: number = 500) => {
+export const debounce = (
+  cb: Function,
+  { time, leading = false }: { time: number; leading: boolean }
+) => {
   let timeout = 0;
+  let fire = true;
 
   return function () {
+    if (leading && fire) {
+      cb();
+      fire = false;
+    }
+
     clearTimeout(timeout);
-    timeout = window.setTimeout(cb, time);
+    timeout = window.setTimeout(() => {
+      if (!leading) cb();
+      fire = true;
+    }, time);
   };
 };
 
@@ -73,3 +85,94 @@ export const getOppositePlayer = ({
   id: string;
   players: TPlayer[];
 }) => players.filter((player) => player.id !== id)[0];
+
+export const hideElement = ({
+  el,
+  transition = "200ms",
+  onStart,
+  onEnd,
+}: {
+  el: string | HTMLElement;
+  transition?: string;
+  onStart?: (el: HTMLElement) => void;
+  onEnd?: (el: HTMLElement) => void;
+}) => {
+  // default hides by opacity
+
+  const element = getElement(el);
+  transition = transition + " opacity";
+
+  const onTransition = () => {
+    if (onEnd) {
+      onEnd(element);
+    }
+
+    element.style.pointerEvents = "";
+    element.removeEventListener("transitionend", onTransition);
+  };
+  const addTransitionListener = () =>
+    element.addEventListener("transitionend", onTransition);
+
+  element.style.pointerEvents = "none";
+
+  if (onStart) {
+    onStart(element);
+    addTransitionListener();
+    return;
+  }
+
+  element.style.webkitTransition = transition;
+  element.style.transition = transition;
+  addTransitionListener();
+
+  element.style.opacity = "0";
+};
+
+export const showElement = ({
+  el,
+  display = "block",
+  transition = "200ms",
+  onStart,
+}: {
+  el: string | HTMLElement;
+  display?: string;
+  onStart?: (el: HTMLElement) => void;
+  transition?: string;
+}) => {
+  const element = getElement(el);
+  transition = transition + " opacity";
+
+  const onTransition = () => {
+    element.removeEventListener("transitionend", onTransition);
+  };
+  const addTransitionListener = () =>
+    element.addEventListener("transitionend", onTransition);
+
+  addTransitionListener();
+
+  if (onStart) {
+    element.style.display = display;
+    reflow();
+    onStart(element);
+    return;
+  }
+
+  element.style.opacity = "0";
+  element.style.webkitTransition = transition;
+  element.style.transition = transition;
+  element.style.display = display;
+  reflow();
+  element.style.opacity = "1";
+};
+
+export const getElement = (root: string | HTMLElement) => {
+  if (typeof root !== "string") return root;
+
+  if (root[0] === "#") {
+    return document.getElementById(root.slice(1))!;
+  }
+
+  return <HTMLElement>document.querySelector(root)!;
+};
+
+export const reflow = () => document.body.offsetWidth;

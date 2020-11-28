@@ -12,7 +12,6 @@
   background: url(/src/assets/img/start-menu-bg.svg);
   background-size: contain;
   background-repeat: no-repeat;
-  transition: 900ms opacity;
 
   &.play-again {
     align-items: flex-start;
@@ -25,7 +24,14 @@
     text-align: center;
     padding: 5px 35px;
     width: 100%;
+    max-height: 100%;
     transition: 300ms opacity;
+
+    .section {
+      &.hidden {
+        display: none;
+      }
+    }
 
     &.play-again {
       padding: 0px;
@@ -42,8 +48,9 @@
 
   .title {
     letter-spacing: 1px;
-    font-size: 1.8rem;
-    margin: 16px 0;
+    font-size: 20px;
+    margin: 5px 0;
+    margin-top: 10px;
   }
 }
 
@@ -66,26 +73,19 @@
   max-width: 195px;
   width: 100%;
   margin: 12px 0;
+  font-size: 18px;
 }
 
-// @media (min-width: 380px) {
-//   .menu-buttons {
-//     flex-wrap: nowrap;
-//   }
+@media (min-width: 800px) {
+  .quick-start-menu {
+    .title {
+      letter-spacing: 1px;
+      font-size: 28px;
+      margin: 15px 0;
+    }
 
-//   .btn-pick {
-//     max-width: 200px;
-//     width: 100%;
-//   }
-// }
-
-// @media (max-width: 220px) {
-//   .game-start-info {
-//     font-size: 16px;
-//   }
-
-//   .btn-pick {
-//     font-size: 16px;
-//     padding: 10px 15px;
-//   }
-// }
+    .btn-pick {
+      font-size: 20px;
+    }
+  }
+}

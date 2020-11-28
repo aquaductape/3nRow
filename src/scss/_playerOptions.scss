@@ -76,6 +76,9 @@
       path {
         stroke: var(--pale-purple);
       }
+      g {
+        fill: var(--pale-purple);
+      }
     }
   }
 
@@ -88,6 +91,10 @@
     .monochrome {
       opacity: 0;
       transition: opacity 250ms;
+    }
+
+    .full-color {
+      opacity: 1;
     }
   }
 
@@ -158,6 +165,10 @@
     position: absolute;
     top: 0;
     left: 0;
+  }
+
+  .full-color {
+    opacity: 0;
   }
 
   .monochrome {
