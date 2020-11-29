@@ -24,6 +24,8 @@ const controlMenuSettings: TControlMenuSettings = ({ ai }) => {
       difficulty: ai.difficulty,
     });
   }
+
+  menuView.updateAi(model.state);
 };
 
 export type TControlPlayAgain = () => void;
@@ -233,6 +235,7 @@ const init = () => {
   quickStartMenuView.addHandlers({
     handlerStartGame: controlStartGame,
     handlerPlayAgain: controlPlayAgain,
+    handlerMenuSettings: controlMenuSettings,
   });
   menuView.addHandlers({ handlerMenuSettings: controlMenuSettings });
   boardView.addHandlerCell(controlGame);

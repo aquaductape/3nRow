@@ -2,6 +2,7 @@ import { TControlMenuSettings } from "../../controller/controller";
 import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TState } from "../../model/state";
 import { svg } from "../constants/constants";
+import overlayView from "../overlay/overlayView";
 import { hideElement, showElement } from "../utils/index";
 import View from "../View";
 
@@ -22,27 +23,22 @@ class MenuView extends View {
   }
 
   protected initEventListeners() {
-    this.parentEl.addEventListener("click", (e) => {
+    this.menuBtn.addEventListener("click", () => {
+      onFocusOut({
+        button: this.menuBtn,
+        run: this.openDropdown.bind(this),
+        onExit: this.closeDropdown.bind(this),
+        allow: [".menu-dropdown"],
+      });
+    });
+
+    // clicking label triggers new click https://stackoverflow.com/a/61878865/8234457
+    // it's better to use onchange event on inputs rather than click
+    this.parentEl.addEventListener("change", (e) => {
       const target = e.target as HTMLElement;
 
-      // clicking label triggers new click https://stackoverflow.com/a/61878865/8234457
-      // it's better to use onchange event on inputs rather than click
-      // but for this procedure I'm using click instead
-      if (target.closest("label")) return;
-
-      const menuBtn = target.closest(".menu-btn") as HTMLElement;
       const aiRadio = target.closest(".ai-radio") as HTMLElement;
       const aiEnable = target.closest(".toggle-ai") as HTMLElement;
-
-      if (menuBtn) {
-        onFocusOut({
-          button: menuBtn,
-          run: this.openDropdown.bind(this),
-          onExit: this.closeDropdown.bind(this),
-          allow: [".menu-dropdown"],
-        });
-        return;
-      }
 
       if (aiRadio) {
         const difficulty = aiRadio.dataset.difficulty!;
@@ -105,20 +101,25 @@ class MenuView extends View {
           <!-- disable ai toggle in multiplayer -->
           <div class="player">
             <h3 class="menu-h3">Player 2 "O"</h3> <!-- should add badge as human or ai?-->
-            <div class="toggle-ai" >
-              <label for="enable-ai">
-                <div>Player 2 as AI</div>
-              </label>
-              <input id="enable-ai" type="checkbox">
-            </div>
-            <div class="ai-difficulty disabled">
-              <h4 id="ai-difficulty" class="menu-h4">Difficulty</h4>
-              <div role="radiogroup" aria-label="Ai Difficulty" class="ai-difficulty-inner">
-              ${difficulties
-                .map((difficulty) => this.radioMarkup(difficulty))
-                .join("")}
+            
+              <div class="toggle-ai">
+                <label class="toggle-control">
+                Set Player 2 as Ai
+                  <span class="toggle-container">
+                    <input id="enable-ai" type="checkbox" >
+                    <span class="control"></span>
+                  </span>
+                </label>
               </div>
-            </div>
+              <div class="ai-difficulty disabled">
+                <h4 id="ai-difficulty" class="menu-h4">Difficulty</h4>
+                <div role="radiogroup" aria-label="Ai Difficulty" class="ai-difficulty-inner">
+                ${difficulties
+                  .map((difficulty) => this.radioMarkup(difficulty))
+                  .join("")}
+                </div>
+              </div>
+            
           </div>
         </li>
         <li>
@@ -157,6 +158,7 @@ class MenuView extends View {
         el.classList.add("active");
       },
     });
+    overlayView.show();
     menuDropdown.focus();
   }
 
@@ -173,6 +175,7 @@ class MenuView extends View {
         el.style.display = "none";
       },
     });
+    overlayView.hide();
   }
 
   private toggleDropdown() {

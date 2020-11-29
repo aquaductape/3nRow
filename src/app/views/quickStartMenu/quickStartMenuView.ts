@@ -1,4 +1,5 @@
 import {
+  TControlMenuSettings,
   TControlPlayAgain,
   TControlStartGame,
 } from "../../controller/controller";
@@ -16,23 +17,30 @@ class QuickStartMenuView extends View {
   protected generateMarkup() {
     return `
     <div class="menu">
-      ${this.startMenu()}
-      ${this.aiMenu()}
+      ${this.startMenuMarkup()}
+      ${this.aiMenuMarkup()}
+      ${this.playAgainMarkup()}
     </div>
     `;
   }
 
   private hideMenu() {
+    const sections = this.parentEl.querySelectorAll(
+      ".section"
+    ) as NodeListOf<HTMLElement>;
+
     hideElement({
       el: this.parentEl,
       transition: "900ms",
       onEnd: (el) => {
         el.style.display = "none";
+        el.style.background = "rgba(0, 0, 0, 0.5)";
+        sections.forEach((section) => section.classList.add("hidden"));
       },
     });
   }
 
-  private aiMenu() {
+  private aiMenuMarkup() {
     return `
     <div class="section section-slide-2 hidden">
       <div class="title">Difficulty</div>
@@ -45,7 +53,7 @@ class QuickStartMenuView extends View {
     `;
   }
 
-  private startMenu() {
+  private startMenuMarkup() {
     return `
     <div class="section section-slide-1">
       <p aria-labelledby="Welcome to 3n-row, a Tic Tac Toe game. To play, you and your opponent take turns to fill one cell on a board that has 3 rows and 3 columns,. To win, you have to fill 3 cells consecutively, either horizontally, vertically or diagionally"
@@ -62,7 +70,7 @@ class QuickStartMenuView extends View {
     `;
   }
 
-  private transitionToAiMenu() {
+  private transitionToAiMenu(handlerMenuSettings: TControlMenuSettings) {
     const sectionSlide1 = this.parentEl.querySelector(
       ".section-slide-1"
     ) as HTMLElement;
@@ -70,35 +78,53 @@ class QuickStartMenuView extends View {
       ".section-slide-2"
     ) as HTMLElement;
 
+    handlerMenuSettings({ ai: { enabled: true } });
+
+    // *sigh* callback hell
     hideElement({
       el: sectionSlide1,
       transition: "300ms",
       onEnd: (el) => {
         el.style.display = "none";
-        showElement({ el: sectionSlide2, transition: "1300ms" });
+        showElement({
+          el: sectionSlide2,
+          transition: "300ms",
+          onEnd: (el) => {
+            el.classList.remove("hidden");
+            el.style.display = "";
+          },
+        });
       },
     });
   }
 
-  renderPlayAgainButton() {
-    const markup = `
-    <div class="menu play-again">
-      <button class="btn btn-primary btn-play-again" data-play="again">Play Again?</button>
-  </div>
+  private playAgainMarkup() {
+    return `
+      <div class="section hidden">
+        <button class="btn btn-primary btn-play-again" data-play="again">Play Again?</button>
+      </div>
     `;
+  }
 
-    this.update(markup);
-    this.parentEl.style.display = "flex";
-    this.parentEl.classList.add("play-again");
-    // return markup;
+  renderPlayAgainButton() {
+    const btnPlayAgain = this.parentEl.querySelector(
+      ".btn-play-again"
+    ) as HTMLElement;
+
+    btnPlayAgain.parentElement!.classList.remove("hidden");
+    setTimeout(() => {
+      showElement({ el: this.parentEl, display: "flex" });
+    }, 1000);
   }
 
   addHandlers({
     handlerPlayAgain,
     handlerStartGame,
+    handlerMenuSettings,
   }: {
     handlerStartGame: TControlStartGame;
     handlerPlayAgain: TControlPlayAgain;
+    handlerMenuSettings: TControlMenuSettings;
   }) {
     const players = this.data;
     const { id } = players[1];
@@ -112,10 +138,7 @@ class QuickStartMenuView extends View {
       const transitionTo = btn.dataset.transitionTo;
 
       if (transitionTo === "ai") {
-        // this.hideMenu();
-        this.transitionToAiMenu();
-        // handlerStartGame({ id, ai: true });
-
+        this.transitionToAiMenu(handlerMenuSettings);
         return;
       }
 

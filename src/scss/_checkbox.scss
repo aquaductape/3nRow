@@ -28,3 +28,94 @@
     }
   }
 }
+
+/* Follow me for more pens like this! */
+
+/*
+  Note: This demo could have easily been written in vanilla CSS.
+  The reason I opted into using SCSS, was just so that I could
+  enable easy customization for you, the viewer.
+
+  If you want to use this control in your own project as vanilla CSS;
+  customize the variables to whatever you'd like, and then click on the
+  down arrow button in the top right of this CSS editor and then select
+  "View Compiled CSS".
+*/
+
+$toggle-background-color-on: #00f;
+$toggle-background-color-off: #fff;
+$toggle-control-color: white;
+$toggle-width: 40px;
+$toggle-height: 20px;
+$toggle-gutter: 2px;
+$toggle-radius: 50%;
+$toggle-control-speed: 0.15s;
+$toggle-control-ease: ease-in;
+
+$toggle-radius: $toggle-height / 2;
+$toggle-control-size: $toggle-height;
+
+.toggle-control {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  padding: 8px;
+
+  .toggle-container {
+    position: relative;
+    height: $toggle-height;
+    width: $toggle-width;
+    margin: 0 5px;
+  }
+
+  input {
+    appearance: none;
+    display: block;
+    cursor: pointer;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    &:focus {
+      outline: 5px solid #000;
+      outline-offset: 5px;
+    }
+  }
+
+  input:checked + .control {
+    background-color: $toggle-background-color-on;
+    border-color: #00f;
+
+    &:after {
+      left: $toggle-width - $toggle-control-size - $toggle-gutter;
+      border-color: #00f;
+    }
+  }
+
+  .control {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: $toggle-height;
+    width: $toggle-width;
+    border-radius: 50px;
+    border: 3px solid #555;
+    background-color: $toggle-background-color-off;
+    transition: background-color $toggle-control-speed $toggle-control-ease;
+
+    &:after {
+      content: "";
+      position: absolute;
+      left: -3px;
+      top: -3px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 3px solid #555;
+      background: $toggle-control-color;
+      transition: left $toggle-control-speed $toggle-control-ease;
+    }
+  }
+}

@@ -200,12 +200,14 @@ input:checked + .slider:before {
   position: fixed;
   top: 0;
   left: 0;
+  opacity: 0;
   pointer-events: none;
+  background: #000;
+  height: 100%;
+  width: 100%;
+  transition: opacity 200ms;
 
   &.active {
-    background: #000;
     opacity: 0.3;
-    height: 100%;
-    width: 100%;
   }
 }

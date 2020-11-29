@@ -102,16 +102,17 @@ export const hideElement = ({
   const element = getElement(el);
   transition = transition + " opacity";
 
-  const onTransition = () => {
+  const onTransitionEnd = () => {
     if (onEnd) {
       onEnd(element);
     }
 
     element.style.pointerEvents = "";
-    element.removeEventListener("transitionend", onTransition);
+    element.style.opacity = "";
+    element.removeEventListener("transitionend", onTransitionEnd);
   };
   const addTransitionListener = () =>
-    element.addEventListener("transitionend", onTransition);
+    element.addEventListener("transitionend", onTransitionEnd);
 
   element.style.pointerEvents = "none";
 
@@ -133,20 +134,27 @@ export const showElement = ({
   display = "block",
   transition = "200ms",
   onStart,
+  onEnd,
 }: {
   el: string | HTMLElement;
   display?: string;
   onStart?: (el: HTMLElement) => void;
+  onEnd?: (el: HTMLElement) => void;
   transition?: string;
 }) => {
   const element = getElement(el);
   transition = transition + " opacity";
 
-  const onTransition = () => {
-    element.removeEventListener("transitionend", onTransition);
+  const onTransitionEnd = () => {
+    if (onEnd) onEnd(element);
+    element.style.opacity = "";
+    element.style.webkitTransition = "";
+    element.style.transition = "";
+
+    element.removeEventListener("transitionend", onTransitionEnd);
   };
   const addTransitionListener = () =>
-    element.addEventListener("transitionend", onTransition);
+    element.addEventListener("transitionend", onTransitionEnd);
 
   addTransitionListener();
 

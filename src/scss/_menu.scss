@@ -1,5 +1,12 @@
 #menu {
   position: relative;
+
+  nav {
+    max-width: 350px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
   .menu-btn {
     display: block;
     background: #0e1051cf;
@@ -13,6 +20,11 @@
 
     &:hover {
       background: #060540;
+    }
+
+    &.noFocusClick:focus {
+      background: #060540;
+      transition: none;
     }
   }
 
@@ -28,7 +40,6 @@
     padding: 30px;
     width: 100%;
     color: #333;
-    text-align: center;
     background: #eee;
     border-radius: 30px;
     border-top-left-radius: 0;
@@ -36,9 +47,11 @@
     z-index: 10;
     transform: translateY(-100%);
     transition: transform 250ms;
+    outline: none;
 
     &.active {
       transform: translateY(0);
+      box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
     }
   }
 
@@ -55,10 +68,13 @@
   margin-bottom: 15px;
 }
 
+.toggle-ai {
+  display: flex;
+}
+
 .ai-radio {
   position: relative;
-  display: inline;
-  margin: 5px 0;
+  align-self: flex-start;
 
   input {
     position: absolute;
@@ -76,6 +92,7 @@
     display: flex;
     align-items: center;
     cursor: pointer;
+    padding: 8px;
   }
 
   .radio-icon {
@@ -116,11 +133,10 @@
 .ai-difficulty {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: left;
 
   &.disabled {
     opacity: 0.4;
+    pointer-events: none;
 
     .ai-radio {
       input[type="radio"]:checked + label {
@@ -142,7 +158,6 @@
   flex-direction: column;
 
   .btn-multiplayer {
-    margin: 0 auto;
     margin-bottom: 8px;
     padding: 10px 15px;
     font-size: 18px;

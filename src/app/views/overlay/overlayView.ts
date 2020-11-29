@@ -5,8 +5,11 @@ class OverlayView extends View {
     super({ root: "#overlay" });
   }
 
-  render() {
+  show() {
     this.parentEl.classList.add("active");
+  }
+  hide() {
+    this.parentEl.classList.remove("active");
   }
 }
 

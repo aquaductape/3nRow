@@ -190,7 +190,16 @@ class GameContainerView extends View {
             el.classList.contains("P2-options") ? "0" : px(boardWidth / 12.33),
           padding: 12.33,
           top: 5.692,
-          boxShadow: () => `0px ${px(boardWidth / 37)} 0px #bbb`,
+          boxShadow: (el) =>
+            el.classList.contains("P1-options")
+              ? `0px ${px(boardWidth / 37)} 0px #bbb,
+               ${px(boardWidth / 113.6)} ${px(boardWidth / 27.0476)} ${px(
+                  boardWidth / 47.33
+                )} rgba(0, 0, 0, 0.35)`
+              : `0px ${px(boardWidth / 37)} 0px #bbb,
+               -${px(boardWidth / 113.6)} ${px(boardWidth / 27.0476)} ${px(
+                  boardWidth / 47.33
+                )} rgba(0, 0, 0, 0.35)`,
         },
       });
       scaleStyles({

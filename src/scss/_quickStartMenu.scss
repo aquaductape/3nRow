@@ -8,10 +8,9 @@
   width: 100%;
   height: 100%;
   border-radius: 30px;
-  // background: var(--blue-bg);
+  background-color: var(--blue-bg);
   background: url(/src/assets/img/start-menu-bg.svg);
   background-size: contain;
-  background-repeat: no-repeat;
 
   &.play-again {
     align-items: flex-start;

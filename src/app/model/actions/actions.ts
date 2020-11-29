@@ -99,7 +99,7 @@ export const startGame = () => {
 export const setPlayerAsHumanOrAI = ({
   ai,
   id,
-  difficulty,
+  difficulty = "HARD",
 }: {
   id: string;
   ai: boolean;
@@ -110,7 +110,7 @@ export const setPlayerAsHumanOrAI = ({
 
   player.isAI = ai;
   game.hasAI = ai;
-  if (ai && difficulty) {
+  if (ai) {
     player.difficulty = difficulty;
   }
 };
