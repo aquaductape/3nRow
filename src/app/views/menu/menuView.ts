@@ -122,6 +122,7 @@ class MenuView extends View {
             
           </div>
         </li>
+        <!-- 
         <li>
           <!-- disabled in multiplayer -->
           <div class="multiplayer">
@@ -133,6 +134,7 @@ class MenuView extends View {
             </div>
           </div>
         </li>
+        -->
       </ul>
     </nav> 
     `;
