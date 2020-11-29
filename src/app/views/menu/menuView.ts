@@ -101,42 +101,43 @@ class MenuView extends View {
           <!-- disable ai toggle in multiplayer -->
           <div class="player">
             <h3 class="menu-h3">Player 2 "O"</h3> <!-- should add badge as human or ai?-->
-            
-              <div class="toggle-ai">
-                <label class="toggle-control">
-                Set Player 2 as Ai
-                  <span class="toggle-container">
-                    <input id="enable-ai" type="checkbox" >
-                    <span class="control"></span>
-                  </span>
-                </label>
+            <div class="toggle-ai">
+              <label class="toggle-control">
+              Set Player 2 as Ai
+                <span class="toggle-container">
+                  <input id="enable-ai" type="checkbox" >
+                  <span class="control"></span>
+                </span>
+              </label>
+            </div>
+            <div class="ai-difficulty disabled">
+              <h4 id="ai-difficulty" class="menu-h4">Difficulty</h4>
+              <div role="radiogroup" aria-label="Ai Difficulty" class="ai-difficulty-inner">
+              ${difficulties
+                .map((difficulty) => this.radioMarkup(difficulty))
+                .join("")}
               </div>
-              <div class="ai-difficulty disabled">
-                <h4 id="ai-difficulty" class="menu-h4">Difficulty</h4>
-                <div role="radiogroup" aria-label="Ai Difficulty" class="ai-difficulty-inner">
-                ${difficulties
-                  .map((difficulty) => this.radioMarkup(difficulty))
-                  .join("")}
-                </div>
-              </div>
-            
-          </div>
-        </li>
-        <!-- 
-        <li>
-          <!-- disabled in multiplayer -->
-          <div class="multiplayer">
-            <h3 class="menu-h3">Multiplayer</h3>
-            <!-- <div>Must leave to start a new game</div> -->
-            <div class="multiplayer-btns">
-              <button class="btn btn-secondary btn-multiplayer">Share Private Game</button>
-              <button class="btn btn-secondary btn-multiplayer">Join with random Player</button>
             </div>
           </div>
         </li>
-        -->
+
       </ul>
     </nav> 
+    `;
+  }
+  private multiplayerMarkup() {
+    return `
+    <li>
+    <!-- disabled in multiplayer -->
+    <div class="multiplayer">
+      <h3 class="menu-h3">Multiplayer</h3>
+      <!-- <div>Must leave to start a new game</div> -->
+      <div class="multiplayer-btns">
+        <button class="btn btn-secondary btn-multiplayer">Share Private Game</button>
+        <button class="btn btn-secondary btn-multiplayer">Join with random Player</button>
+      </div>
+    </div>
+  </li> 
     `;
   }
 

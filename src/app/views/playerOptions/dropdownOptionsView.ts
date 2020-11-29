@@ -204,11 +204,11 @@ export default class DropdownOptionsView extends View {
       </li>
       <li>
       <div class="options-color">
-        <h2 id="group_label_color" class="options-title">Color</h2>
+        <h2 id="group_label_color_${id}" class="options-title">Color</h2>
         <hr>
-        <div role="radiogroup" aria-labelledby="group_label_color" class="color-group">${this.renderGroup(
-          { type: "colors" }
-        )}</div>
+        <div role="radiogroup" aria-labelledby="group_label_color_${id}" class="color-group">${this.renderGroup(
+      { type: "colors" }
+    )}</div>
       </div>
       </li>
     </ul>
