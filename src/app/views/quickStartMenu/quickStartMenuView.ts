@@ -56,8 +56,7 @@ class QuickStartMenuView extends View {
   private startMenuMarkup() {
     return `
     <div class="section section-slide-1">
-      <p aria-labelledby="Welcome to 3n-row, a Tic Tac Toe game. To play, you and your opponent take turns to fill one cell on a board that has 3 rows and 3 columns,. To win, you have to fill 3 cells consecutively, either horizontally, vertically or diagionally"
-        class="game-start-info">Play Against</p>
+      <p class="game-start-info">Play Against</p>
       <div class="tutorial">
         <!-- 3 images -->
         <!-- image 1 alt="On turn 2. Player 1 has filled 1 cell on row 1 and column 1. Player 2 has filled 1 cell ect ect" -->

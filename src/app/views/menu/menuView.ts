@@ -142,7 +142,9 @@ class MenuView extends View {
 
   protected generateMarkup() {
     return `
-    <button class="btn menu-btn" aria-expanded="false">${svg.cevron}</button>
+    <button class="btn menu-btn" aria-label="menu dropdown" aria-expanded="false">${
+      svg.cevron
+    }</button>
     <div class="menu-dropdown" tabindex="-1">
       ${this.menuMarkup()}
     </div>

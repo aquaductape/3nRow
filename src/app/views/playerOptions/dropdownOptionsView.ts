@@ -195,11 +195,11 @@ export default class DropdownOptionsView extends View {
     <ul class="dropdown-options ${id}-options">
       <li>
         <div class="options-shape">
-          <h2 id="group_label_shape" class="options-title">Shape</h2>
+          <h2 id="group_label_shape_${id}" class="options-title">Shape</h2>
           <hr>
-          <div role="radiogroup" aria-labelledby="group_label_shape" class="shape-group">${this.renderGroup(
-            { type: "shapes" }
-          )}</div>
+          <div role="radiogroup" aria-labelledby="group_label_shape_${id}" class="shape-group">${this.renderGroup(
+      { type: "shapes" }
+    )}</div>
         </div>
       </li>
       <li>
