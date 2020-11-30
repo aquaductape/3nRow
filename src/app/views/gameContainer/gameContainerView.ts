@@ -302,7 +302,7 @@ class GameContainerView extends View {
         const paddingBottom = round(heightSlice / 8, 0);
         const boardWidth = heightSlice - paddingBottom;
 
-        gameContainer.style.width = px(boardWidth);
+        gameContainer.style.maxWidth = px(boardWidth);
 
         this.resizeElements(boardWidth);
       }
@@ -311,7 +311,7 @@ class GameContainerView extends View {
         const paddingLR = round(browserInnerWidth / 5, 0);
         const boardWidth = browserInnerWidth - paddingLR;
 
-        gameContainer.style.width = px(boardWidth);
+        gameContainer.style.maxWidth = px(boardWidth);
 
         this.resizeElements(boardWidth);
       }
