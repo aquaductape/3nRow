@@ -77,12 +77,15 @@
   align-self: flex-start;
 
   input {
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+
     position: absolute;
     top: -2px;
     left: -2px;
     bottom: -2px;
-    -webkit-appearance: none;
-    appearance: none;
+    border: none;
     width: calc(100% + 5px);
     margin: 0;
     pointer-events: none;
