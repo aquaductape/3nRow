@@ -18,7 +18,15 @@
     width: 45px;
     padding: 10px;
     border: none;
-    color: inherit;
+    color: #636363;
+    transition: color 200ms;
+
+    &:hover {
+      color: #000;
+    }
+    &:focus {
+      outline: 3px solid #000;
+    }
   }
 
   .menu-btn {
