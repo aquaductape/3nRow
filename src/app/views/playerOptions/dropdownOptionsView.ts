@@ -418,5 +418,7 @@ const circleClipHoldElement = ({
   if (typeof top === "number") top = top + "px";
   if (typeof left === "number") left = left + "px";
   const diameter = diagonalLengthOfElement(element) + padding;
+  // @ts-ignore
+  parent.style.webkitClipPath = `circle( ${diameter}px at ${left} ${top})`;
   parent.style.clipPath = `circle( ${diameter}px at ${left} ${top})`;
 };
