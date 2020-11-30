@@ -106,10 +106,6 @@
     }
   }
 
-  .full-color {
-    opacity: 1;
-  }
-
   &.noFocusClick:focus {
     transition: none;
     .monochrome {
@@ -180,7 +176,7 @@
   }
 
   .full-color {
-    opacity: 0;
+    opacity: 1;
   }
 
   .monochrome {
