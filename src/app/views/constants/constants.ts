@@ -108,4 +108,17 @@ export const svg = {
     <circle class="radio-icon-selected" cx="5" cy="5" r="3.412" fill="#fff" stroke="currentColor" stroke-width="3.175" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 `,
+  playAgainCircleBtn: `
+<svg xmlns="http://www.w3.org/2000/svg" width="287.905" height="313.286" viewBox="0 0 76.175 82.89">
+  <circle cx="38.087" cy="44.803" r="38.087"  fill="#1d115f"/>
+  <g class="play-again-btn-main">
+    <circle cx="38.087" cy="38.087" r="38.087"  fill="#7c4dff"/> 
+    <g stroke="#fff" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M42.718 19.809a18.843 18.843 0 00-20.12 7.61 18.843 18.843 0 00.126 21.511 18.843 18.843 0 0020.206 7.377 18.843 18.843 0 0013.954-16.37"  fill="none" stroke-width="3.969"/>
+      <path d="M56.075 24.098l-6.858 1.604-6.858 1.604 2.04-6.742 2.04-6.74 4.818 5.137z"  fill="#fff" stroke-width="3.44"/>
+    </g>
+  </g>
+</svg>
+
+`,
 };

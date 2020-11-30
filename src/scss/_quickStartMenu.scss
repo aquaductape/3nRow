@@ -75,6 +75,25 @@
   font-size: 18px;
 }
 
+.btn-play-again {
+  width: 100px;
+  height: 100px;
+  background: none;
+
+  .play-again-btn-main {
+    transform-origin: center;
+    transform-box: fill-box;
+    transition: transform 200ms;
+
+    &:hover {
+      transform: rotate(45deg);
+    }
+  }
+  &:hover,
+  &:focus {
+    background: none;
+  }
+}
 @media (min-width: 800px) {
   .quick-start-menu {
     .title {

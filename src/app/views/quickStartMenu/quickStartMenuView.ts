@@ -4,6 +4,7 @@ import {
   TControlStartGame,
 } from "../../controller/controller";
 import { TPlayer } from "../../model/state";
+import { svg } from "../constants/constants";
 import { hideElement, showElement } from "../utils/index";
 import View from "../View";
 
@@ -34,7 +35,7 @@ class QuickStartMenuView extends View {
       transition: "900ms",
       onEnd: (el) => {
         el.style.display = "none";
-        el.style.background = "rgba(0, 0, 0, 0.5)";
+        el.style.background = "radial-gradient(rgb(0 0 0 / 35%), transparent)";
         sections.forEach((section) => section.classList.add("hidden"));
       },
     });
@@ -100,7 +101,9 @@ class QuickStartMenuView extends View {
   private playAgainMarkup() {
     return `
       <div class="section hidden">
-        <button class="btn btn-primary btn-play-again" data-play="again">Play Again?</button>
+        <button class="btn btn-primary btn-play-again" aria-label="play again" data-play="again">
+          ${svg.playAgainCircleBtn}
+        </button>
       </div>
     `;
   }

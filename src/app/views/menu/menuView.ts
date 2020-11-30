@@ -81,6 +81,19 @@ class MenuView extends View {
     `;
   }
 
+  private quickSettingsMarkup() {
+    return `
+      <li>
+        <!-- enabled in multiplayer  -->
+        <button aria-label="leave game">Leave</button>
+        <!-- disabled in multiplayer?  -->
+        <button aria-label="restart game">Restart</button>
+        <!-- disabled in multiplayer  -->
+        <button>Reset Scores</button>
+      </li>
+    `;
+  }
+
   private menuMarkup() {
     const {
       game: { difficulties },
@@ -89,14 +102,6 @@ class MenuView extends View {
     return `
     <nav>
       <ul>
-        <li>
-          <!-- enabled in multiplayer  -->
-          <button aria-label="leave game">Leave</button>
-          <!-- disabled in multiplayer?  -->
-          <button aria-label="restart game">Restart</button>
-          <!-- disabled in multiplayer  -->
-          <button>Reset Scores</button>
-        </li>
         <li>
           <!-- disable ai toggle in multiplayer -->
           <div class="player">

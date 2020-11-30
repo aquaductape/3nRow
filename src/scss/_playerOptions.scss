@@ -72,6 +72,10 @@
       color: var(--pale-purple);
     }
 
+    .player-score {
+      color: var(--pale-purple);
+    }
+
     .monochrome {
       path {
         stroke: var(--pale-purple);
@@ -176,6 +180,17 @@
     path {
       stroke: var(--pale-purple-activated);
     }
+  }
+}
+
+.player-score-container {
+  display: flex;
+  justify-content: center;
+  width: 0;
+
+  .player-score {
+    font-weight: 700;
+    color: #ccc;
   }
 }
 
