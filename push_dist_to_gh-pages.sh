@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#NEED to update script
+# Breaks if there's no initial gh-pages branch
+# use this script for initial https://gist.github.com/cobyism/4730490
 echo -e "\nbuilding dist...\n" &&
 npm run build &&
 echo -e "\ntracking dist by removing it in gitingore\n"

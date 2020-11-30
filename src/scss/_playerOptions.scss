@@ -55,10 +55,14 @@
   align-items: center;
   height: 100%;
   padding: 10px;
-  background: var(--blue-activated);
-  color: var(--pale-purple);
+  // removes padding in safari
+  margin: 0;
+  appearance: none;
+  //
   border-radius: 10px;
   border: none;
+  background: var(--blue-activated);
+  color: var(--pale-purple);
   outline: none;
   cursor: pointer;
   user-select: none;
