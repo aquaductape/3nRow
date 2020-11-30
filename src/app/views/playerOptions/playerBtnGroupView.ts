@@ -44,7 +44,7 @@ class PlayerBtnGroup extends View {
     fullColor.classList.add("full-color");
 
     playerMark.appendChild(fullColor);
-    // playerMark.appendChild(monochrome);
+    playerMark.appendChild(monochrome);
   }
 
   private generateAntMenu() {
