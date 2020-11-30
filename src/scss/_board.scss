@@ -46,6 +46,8 @@
   background: var(--blue-activated);
   cursor: pointer;
   outline: none;
+  user-select: none;
+  -webkit-backface-visibility: hidden;
 
   &::before {
     content: "";
@@ -86,6 +88,7 @@
     height: 100%;
     width: 100%;
     pointer-events: none;
+    -webkit-backface-visibility: hidden;
     // filter: url(#drop-shadow-filter);
 
     .animate__first-line,

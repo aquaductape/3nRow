@@ -42,6 +42,9 @@
 
 .dropdown-options-menu {
   position: relative;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+
   &:first-child {
     margin-right: 25px;
   }
@@ -62,6 +65,7 @@
   cursor: pointer;
   user-select: none;
   transition: 250ms background-color, 250ms box-shadow;
+  -webkit-backface-visibility: hidden;
   // box-shadow: 0 15px 0 0px var(--blue-shadow);
   z-index: 2;
 
@@ -100,6 +104,10 @@
     .full-color {
       opacity: 1;
     }
+  }
+
+  .full-color {
+    opacity: 1;
   }
 
   &.noFocusClick:focus {
@@ -226,6 +234,8 @@
   height: 100%;
   clip-path: circle(0px at 100% 0%);
   z-index: 1;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   transition: clip-path 300ms ease-in;
 }
 
