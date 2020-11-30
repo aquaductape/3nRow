@@ -72,11 +72,15 @@ svg {
   animation: unset !important;
 }
 
+button {
+  user-select: none;
+  cursor: pointer;
+}
+
 .btn {
   outline: none;
   transition: 250ms color ease-in-out, 250ms background-color ease-in-out;
   border-style: none;
-  cursor: pointer;
 }
 
 .btn-primary {

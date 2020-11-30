@@ -119,6 +119,10 @@ export const svg = {
     </g>
   </g>
 </svg>
-
+`,
+  close: `
+<svg xmlns="http://www.w3.org/2000/svg" width="57.875" height="57.875" viewBox="0 0 15.313 15.313">
+  <path d="M14.4.913L.913 14.4m0-13.487L14.4 14.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
 `,
 };

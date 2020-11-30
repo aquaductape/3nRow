@@ -1,10 +1,24 @@
 #menu {
   position: relative;
+  margin-bottom: 15px;
 
   nav {
+    position: relative;
     max-width: 350px;
     width: 100%;
     margin: 0 auto;
+    margin-top: 25px;
+  }
+
+  .btn-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    height: 45px;
+    width: 45px;
+    padding: 10px;
+    border: none;
+    color: inherit;
   }
 
   .menu-btn {
@@ -64,8 +78,6 @@
     margin: 15px 0;
     // flex: 1;
   }
-
-  margin-bottom: 15px;
 }
 
 .toggle-ai {

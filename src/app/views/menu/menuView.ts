@@ -29,6 +29,7 @@ class MenuView extends View {
         run: this.openDropdown.bind(this),
         onExit: this.closeDropdown.bind(this),
         allow: [".menu-dropdown"],
+        not: [".btn-close"],
       });
     });
 
@@ -94,6 +95,14 @@ class MenuView extends View {
     `;
   }
 
+  private btnCloseMarkup() {
+    return `
+    <button class="btn-close" aria-label="close menu dropdown">
+      ${svg.close}
+    </button>
+    `;
+  }
+
   private menuMarkup() {
     const {
       game: { difficulties },
@@ -127,6 +136,7 @@ class MenuView extends View {
         </li>
 
       </ul>
+      ${this.btnCloseMarkup()}
     </nav> 
     `;
   }

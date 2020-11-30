@@ -232,16 +232,21 @@ class GameContainerView extends View {
               : `-${px(boardWidth / 37)} 0px 0px 0px #eee`,
         },
       });
+
       scaleStyles({
         el: menuBtn,
         numerator: boardWidth,
         styleRatio: {
-          height: 14.08,
+          height: boardWidth > 485 ? 14.08 : 8.08,
           borderBottomLeftRadius: 17.6,
           borderBottomRightRadius: 17.6,
-          padding: () => `${px(boardWidth / 70.4)} 0`,
+          padding: () =>
+            boardWidth > 485
+              ? `${px(boardWidth / 70.4)} 0`
+              : `${px(boardWidth / 30.4)} 0`,
         },
       });
+
       scaleStyles({
         el: menu,
         numerator: boardWidth,
@@ -294,10 +299,10 @@ class GameContainerView extends View {
 
       // viewport has greater width
       if (heightSlice < browserInnerWidth) {
-        const paddingBottom = round(heightSlice / 10, 0);
+        const paddingBottom = round(heightSlice / 8, 0);
         const boardWidth = heightSlice - paddingBottom;
 
-        gameContainer.style.maxWidth = px(boardWidth);
+        gameContainer.style.width = px(boardWidth);
 
         this.resizeElements(boardWidth);
       }
@@ -306,7 +311,7 @@ class GameContainerView extends View {
         const paddingLR = round(browserInnerWidth / 5, 0);
         const boardWidth = browserInnerWidth - paddingLR;
 
-        gameContainer.style.maxWidth = px(boardWidth);
+        gameContainer.style.width = px(boardWidth);
 
         this.resizeElements(boardWidth);
       }
