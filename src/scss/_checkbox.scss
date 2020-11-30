@@ -70,6 +70,7 @@ $toggle-control-size: $toggle-height;
   }
 
   input {
+    -webkit-appearance: none;
     appearance: none;
     display: block;
     cursor: pointer;
