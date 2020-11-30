@@ -2,7 +2,7 @@
 
 3n-Row is a simple tic-tac-toe game where you play against your friend in hopes to get three items in a row!
 
-[![N|Solid](https://i.imgur.com/6qiYz1e.gif)](https://aquaductape.github.io/3n-row/)
+[![N|Solid](https://i.imgur.com/s2ZdgXF.gif)](https://aquaductape.github.io/3n-row/)
 
 Click [Here](https://aquaductape.github.io/3n-row/) to try it out!
 
