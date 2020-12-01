@@ -235,6 +235,9 @@
   height: 100%;
   clip-path: circle(0px at 100% 0%);
   z-index: 1;
+  // { fix clip animation in Safari
+  transform: translateZ(0);
+  // }
   transition: clip-path 300ms ease-in;
 }
 
