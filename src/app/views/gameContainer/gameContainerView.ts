@@ -237,11 +237,11 @@ class GameContainerView extends View {
         el: menuBtn,
         numerator: boardWidth,
         styleRatio: {
-          height: boardWidth > 485 ? 14.08 : 8.08,
+          height: boardWidth > 400 ? 14.08 : 8.08,
           borderBottomLeftRadius: 17.6,
           borderBottomRightRadius: 17.6,
           padding: () =>
-            boardWidth > 485
+            boardWidth > 400
               ? `${px(boardWidth / 70.4)} 0`
               : `${px(boardWidth / 30.4)} 0`,
         },
