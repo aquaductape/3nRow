@@ -63,8 +63,8 @@ class QuickStartMenuView extends View {
         <!-- image 1 alt="On turn 2. Player 1 has filled 1 cell on row 1 and column 1. Player 2 has filled 1 cell ect ect" -->
       </div>
       <div class="menu-buttons">
-        <button class="btn btn-primary btn-pick" data-transition-to="ai">AI</button>
-        <button class="btn btn-primary btn-pick" data-play="human">Human</button>
+        <button class="btn btn-primary btn-pick" data-transition-to="ai" aria-label="Play against ai">AI</button>
+        <button class="btn btn-primary btn-pick" data-play="human" aria-label="Play against human">Human</button>
       </div>
     </div>
     `;
