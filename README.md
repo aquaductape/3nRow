@@ -1,10 +1,10 @@
-# Tic-Tac-Toe! 3n-Row!
+# Tic-Tac-Toe! 3nRow!
 
-3n-Row is a simple tic-tac-toe game where you play against your friend in hopes to get three items in a row!
+3nRow is a simple tic-tac-toe game where you play against your friend in hopes to get three items in a row!
 
-[![N|Solid](https://i.imgur.com/s2ZdgXF.gif)](https://aquaductape.github.io/3n-row/)
+[![N|Solid](https://i.imgur.com/s2ZdgXF.gif)](https://aquaductape.github.io/3nRow/)
 
-Click [Here](https://aquaductape.github.io/3n-row/) to try it out!
+Click [Here](https://aquaductape.github.io/3nRow/) to try it out!
 
 ### Tech
 
