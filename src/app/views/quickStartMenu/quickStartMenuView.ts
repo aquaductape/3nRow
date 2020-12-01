@@ -44,11 +44,11 @@ class QuickStartMenuView extends View {
   private aiMenuMarkup() {
     return `
     <div class="section section-slide-2 hidden">
-      <div class="title">Difficulty</div>
+      <div id="ai-difficulty" class="title" aria-label="AI difficulty">Difficulty</div>
       <div class="menu-buttons">
-        <button class="btn btn-primary btn-pick" data-play="ai" data-difficulty="MEDIUM">Medium</button>
-        <button class="btn btn-primary btn-pick" data-play="ai" data-difficulty="HARD">Hard</button>
-        <button class="btn btn-primary btn-pick" data-play="ai" data-difficulty="CHEATER">Cheater</button>
+        <button class="btn btn-primary btn-pick" aria-labelledby="ai-difficulty" data-play="ai" data-difficulty="MEDIUM">Medium</button>
+        <button class="btn btn-primary btn-pick" aria-labelledby="ai-difficulty" data-play="ai" data-difficulty="HARD">Hard</button>
+        <button class="btn btn-primary btn-pick" aria-labelledby="ai-difficulty" data-play="ai" data-difficulty="CHEATER">Cheater</button>
       </div>
     </div>
     `;
