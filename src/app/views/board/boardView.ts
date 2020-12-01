@@ -1,6 +1,8 @@
 import { TControlGame, TControlStartGame } from "../../controller/controller";
+import { IOS, IOS13 } from "../../lib/onFocusOut/browserInfo";
 import { TGame, TPlayer, TState } from "../../model/state";
 import { colorMap } from "../constants/constants";
+import { createHTMLFromString } from "../utils/index";
 import View from "../View";
 import {
   keyboardInteraction,
@@ -96,7 +98,13 @@ class BoardView extends View {
     markedPositions.forEach((markedPosition) => {
       const cell = this.getCellElement(markedPosition);
       this.selectCell({ cell, player });
-      cell.innerHTML = shapes[shape];
+      const shapeEl = createHTMLFromString(shapes[shape]) as SVGElement;
+
+      if (IOS) {
+        shapeEl.style.animation = "Force-Full-Repaint-Frame 2000ms";
+      }
+
+      cell.appendChild(shapeEl);
     });
   }
 

@@ -1,3 +1,15 @@
+// painting bug on Safari
+// expensive workaround that forces full repaint for every frame
+// https://stackoverflow.com/questions/65082644/css-keyframe-animation-on-svg-is-smearing-background-in-safari
+@keyframes Force-Full-Repaint-Frame {
+  0% {
+    -webkit-backdrop-filter: blur(0.01px);
+  }
+  100% {
+    -webkit-backdrop-filter: blur(0px);
+  }
+}
+
 @keyframes Line-Win-A {
   0% {
     opacity: 1;
