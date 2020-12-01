@@ -123,7 +123,7 @@ export default class DropdownOptionsView extends View {
           data-color="${item}"
           aria-checked="${selected}"
           aria-disabled="${disabled}"
-          aria-label="chose gradient color of shape. Primary Color ${primaryColor}, Secondary Color ${secondaryColor}"
+          aria-label="choose gradient color of shape. Primary Color ${primaryColor}, Secondary Color ${secondaryColor}"
         >
           <div class="thumb-checkbox">
             <div class="badge">
@@ -161,7 +161,7 @@ export default class DropdownOptionsView extends View {
           data-shape="${item}" 
           aria-checked="${selected}" 
           aria-disabled="${disabled}"
-          aria-label="chose shape: ${item}"
+          aria-label="choose shape: ${item}"
         >
           <div class="thumb-checkbox">
             <div class="badge">
