@@ -3,12 +3,13 @@ const common = require("./webpack.common");
 const merge = require("webpack-merge");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const MiniExtractCssPlugin = require("mini-css-extract-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = merge(common, {
   mode: "production",
   output: {
     filename: "main.[contentHash].js",
-    path: path.resolve(__dirname, "dist")
+    path: path.resolve(__dirname, "dist"),
   },
   module: {
     rules: [
@@ -21,17 +22,20 @@ module.exports = merge(common, {
             loader: "postcss-loader",
             options: {
               config: {
-                path: "postcss.config.js"
-              }
-            }
+                path: "postcss.config.js",
+              },
+            },
           },
-          "sass-loader"
-        ]
-      }
-    ]
+          "sass-loader",
+        ],
+      },
+    ],
   },
   plugins: [
+    new CopyPlugin({
+      patterns: [{ from: "./src/assets/favicon", to: "favicon" }],
+    }),
     new MiniExtractCssPlugin({ filename: "[name].[contentHash].css" }),
-    new CleanWebpackPlugin()
-  ]
+    new CleanWebpackPlugin(),
+  ],
 });
