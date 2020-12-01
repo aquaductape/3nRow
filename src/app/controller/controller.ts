@@ -241,6 +241,7 @@ const init = () => {
   boardView.addHandlerCell(controlGame);
   // run DOM events
   gameContainerView.runResizeListener();
+  gameContainerView.revealAfterPageLoad();
 };
 
 init();

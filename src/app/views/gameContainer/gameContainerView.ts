@@ -328,6 +328,32 @@ class GameContainerView extends View {
     });
   }
 
+  /**
+   * responsive board is utilized by JS instead of CSS, therefore there's a flash of default board size.
+   * hiding it for 200ms, hides the flash, giving a clean native feel
+   */
+  revealAfterPageLoad() {
+    requestAnimationFrame(() => {
+      this.parentEl.style.transition = "opacity 200ms";
+      this.parentEl.style.opacity = "1";
+      const { playerBtns } = this.dom;
+
+      playerBtns.forEach((playerBtn) => {
+        playerBtn.style.background = "";
+        playerBtn.style.transition = "none";
+      });
+
+      setTimeout(() => {
+        this.parentEl.style.transition = "";
+        this.parentEl.style.opacity = "";
+
+        playerBtns.forEach((playerBtn) => {
+          playerBtn.style.transition = "";
+        });
+      }, 200);
+    });
+  }
+
   // overrides to do nothing
   render() {
     return;
