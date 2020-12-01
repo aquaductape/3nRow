@@ -113,7 +113,7 @@ export default class DropdownOptionsView extends View {
       const className = `${classBase} ${classSelected} ${classDisabled}`;
 
       return `
-      <div>
+      <div           aria-disabled="${disabled}">
         <div 
           role="radio"
           tabindex="${tabindex}"
@@ -151,7 +151,7 @@ export default class DropdownOptionsView extends View {
       );
 
       return `
-      <div>
+      <div           aria-disabled="${disabled}">
         <div 
           role="radio" 
           tabindex="${tabindex}" 
