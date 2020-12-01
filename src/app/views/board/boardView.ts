@@ -1,5 +1,5 @@
 import { TControlGame, TControlStartGame } from "../../controller/controller";
-import { IOS, IOS13 } from "../../lib/onFocusOut/browserInfo";
+import { IOS, IOS13, Safari } from "../../lib/onFocusOut/browserInfo";
 import { TGame, TPlayer, TState } from "../../model/state";
 import { colorMap } from "../constants/constants";
 import { createHTMLFromString } from "../utils/index";
@@ -100,7 +100,7 @@ class BoardView extends View {
       this.selectCell({ cell, player });
       const shapeEl = createHTMLFromString(shapes[shape]) as SVGElement;
 
-      if (IOS) {
+      if (IOS || Safari) {
         shapeEl.style.animation = "Force-Full-Repaint-Frame 2000ms";
       }
 

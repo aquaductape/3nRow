@@ -38,6 +38,11 @@
   justify-content: space-between;
   height: 65px;
   margin-bottom: 30px;
+
+  // { fix clip animation in Safari
+  z-index: 10;
+  transform: translateZ(0);
+  // }
 }
 
 .dropdown-options-menu {
