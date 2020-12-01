@@ -113,7 +113,7 @@ export default class DropdownOptionsView extends View {
       const className = `${classBase} ${classSelected} ${classDisabled}`;
 
       return `
-      <div           aria-disabled="${disabled}">
+      <div>
         <div 
           role="radio"
           tabindex="${tabindex}"
@@ -123,6 +123,7 @@ export default class DropdownOptionsView extends View {
           data-color="${item}"
           aria-checked="${selected}"
           aria-disabled="${disabled}"
+          aria-hidden="${disabled}"
           aria-label="choose gradient color of shape. Primary Color ${primaryColor}, Secondary Color ${secondaryColor}"
         >
           <div class="thumb-checkbox">
@@ -151,7 +152,7 @@ export default class DropdownOptionsView extends View {
       );
 
       return `
-      <div           aria-disabled="${disabled}">
+      <div>
         <div 
           role="radio" 
           tabindex="${tabindex}" 
@@ -161,6 +162,7 @@ export default class DropdownOptionsView extends View {
           data-shape="${item}" 
           aria-checked="${selected}" 
           aria-disabled="${disabled}"
+          aria-hidden="${disabled}"
           aria-label="choose shape: ${item}"
         >
           <div class="thumb-checkbox">
