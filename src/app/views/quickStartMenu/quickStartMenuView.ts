@@ -46,9 +46,9 @@ class QuickStartMenuView extends View {
     <div class="section section-slide-2 hidden">
       <div id="ai-difficulty" class="title" aria-label="AI difficulty">Difficulty</div>
       <div class="menu-buttons">
-        <button class="btn btn-primary btn-pick" aria-labelledby="ai-difficulty" data-play="ai" data-difficulty="MEDIUM">Medium</button>
-        <button class="btn btn-primary btn-pick" aria-labelledby="ai-difficulty" data-play="ai" data-difficulty="HARD">Hard</button>
-        <button class="btn btn-primary btn-pick" aria-labelledby="ai-difficulty" data-play="ai" data-difficulty="CHEATER">Cheater</button>
+        <button class="btn btn-primary btn-pick" aria-describedby="ai-difficulty" data-play="ai" data-difficulty="MEDIUM">Medium</button>
+        <button class="btn btn-primary btn-pick" aria-describedby="ai-difficulty" data-play="ai" data-difficulty="HARD">Hard</button>
+        <button class="btn btn-primary btn-pick" aria-describedby="ai-difficulty" data-play="ai" data-difficulty="CHEATER">Cheater</button>
       </div>
     </div>
     `;

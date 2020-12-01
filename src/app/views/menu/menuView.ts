@@ -125,7 +125,7 @@ class MenuView extends View {
               </label>
             </div>
             <div class="ai-difficulty disabled">
-              <h4 id="ai-difficulty" class="menu-h4">Difficulty</h4>
+              <h4 class="menu-h4">Difficulty</h4>
               <div role="radiogroup" aria-label="Ai Difficulty" class="ai-difficulty-inner">
               ${difficulties
                 .map((difficulty) => this.radioMarkup(difficulty))
