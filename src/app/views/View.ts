@@ -58,7 +58,7 @@ export default class View {
   //   this.parentEl.insertAdjacentHTML('afterbegin', this.generateSpinner());
   // }
 
-  render(data: any) {
+  render(data?: any) {
     this.data = data;
     this.clear();
     this.parentEl.insertAdjacentHTML("afterbegin", this.generateMarkup());
