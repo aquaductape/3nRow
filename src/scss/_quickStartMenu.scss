@@ -58,8 +58,12 @@
 .menu-buttons {
   display: flex;
   flex-direction: column;
-  align-items: center;
   width: 100%;
+
+  .menu-item {
+    display: flex;
+    justify-content: center;
+  }
 }
 
 .game-start-info {

@@ -80,6 +80,7 @@ button {
   outline: none;
   transition: 250ms color ease-in-out, 250ms background-color ease-in-out;
   border-style: none;
+  text-decoration: none;
 }
 
 .btn-primary {
@@ -95,6 +96,8 @@ button {
 
   &.noFocusClick:focus {
     transition: none;
+    outline: 2px solid #fff;
+    outline-offset: 5px;
   }
 }
 
@@ -192,6 +195,37 @@ input:checked + .slider:before {
 //   }
 // }
 
+#skip-to-start-game {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+
+  .btn {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 25px 0;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-align: center;
+    text-decoration: underline;
+    opacity: 0;
+    color: #fff;
+    background: #111b51;
+    pointer-events: none;
+
+    &:focus {
+      outline: 3px solid #fff;
+      outline-offset: 5px;
+      opacity: 1;
+      pointer-events: all;
+    }
+  }
+}
+
 #overlay {
   position: fixed;
   top: 0;
@@ -205,5 +239,7 @@ input:checked + .slider:before {
 
   &.active {
     opacity: 0.3;
+    pointer-events: all;
+    cursor: pointer;
   }
 }

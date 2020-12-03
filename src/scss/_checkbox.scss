@@ -105,19 +105,19 @@ $toggle-control-size: $toggle-height;
     height: $toggle-height;
     width: $toggle-width;
     border-radius: 50px;
-    border: 3px solid #555;
+    border: 2px solid #7f7f7f;
     background-color: $toggle-background-color-off;
     transition: background-color $toggle-control-speed $toggle-control-ease;
 
     &:after {
       content: "";
       position: absolute;
-      left: -3px;
-      top: -3px;
+      left: -2px;
+      top: -2px;
       width: 14px;
       height: 14px;
       border-radius: 50%;
-      border: 3px solid #555;
+      border: 3px solid #7f7f7f;
       background: $toggle-control-color;
       transition: left $toggle-control-speed $toggle-control-ease;
     }
