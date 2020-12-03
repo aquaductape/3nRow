@@ -110,14 +110,15 @@ export default class DropdownOptionsView extends View {
       const classBase = "color-item";
       const classSelected = playerColor === item ? "color-item--selected" : "";
       const classDisabled = disabled ? "disabled" : "";
-      const className = `${classBase} ${classSelected} ${classDisabled}`;
+      const classItem = `${classBase} ${classSelected} ${classDisabled}`;
+      const classItemInner = `${classBase}-inner`;
+      const classItemBg = `${classBase}-bg`;
 
       return `
-      <div>
         <div 
           role="radio"
           tabindex="${tabindex}"
-          class="${className}"
+          class="${classItem}"
           data-selected="${selected}"
           data-disabled="${disabled}"
           data-color="${item}"
@@ -126,15 +127,16 @@ export default class DropdownOptionsView extends View {
           aria-hidden="${disabled}"
           aria-label="choose gradient color of shape. Primary Color ${primaryColor}, Secondary Color ${secondaryColor}"
         >
-          <div class="thumb-checkbox">
-            <div class="badge">
-              <div class="checkbox"></div>
+          <div class="${classItemBg}">
+            <div class="radio">
+              ${svg.radio}
+            </div>
+            <div class="${classItemInner}">
+              <div style="background: ${primaryColorHex};" class="primary-color"></div>
+              <div style="background: ${secondaryColorHex};" class="secondary-color"></div>
             </div>
           </div>
-          <div style="background: ${primaryColorHex};" class="primary-color"></div>
-          <div style="background: ${secondaryColorHex};" class="secondary-color"></div>
-        </div>
-      </div>`;
+        </div>`;
     }
 
     if (type === "shapes") {
@@ -145,18 +147,19 @@ export default class DropdownOptionsView extends View {
       const classBase = "shape-item";
       const classSelected = playerShape === item ? "shape-item--selected" : "";
       const classDisabled = disabled ? "disabled" : "";
-      const className = `${classBase} ${classSelected} ${classDisabled}`;
+      const classItem = `${classBase} ${classSelected} ${classDisabled}`;
+      const classItemInner = `${classBase}-inner`;
+      const classItemBg = `${classBase}-bg`;
       const shape = shapes[item].replace(
         /filter="url\(#drop-shadow-filter\)"/g,
         ""
       );
 
       return `
-      <div>
         <div 
           role="radio" 
           tabindex="${tabindex}" 
-          class="${className}" 
+          class="${classItem}" 
           data-selected="${selected}"
           data-disabled="${disabled}"
           data-shape="${item}" 
@@ -165,14 +168,16 @@ export default class DropdownOptionsView extends View {
           aria-hidden="${disabled}"
           aria-label="choose shape: ${item}"
         >
-          <div class="thumb-checkbox">
-            <div class="badge">
-              <div class="checkbox"></div>
+          <div class="${classItemBg}">
+            <div class="radio">
+              ${svg.radio}
+            </div>
+            <div class="${classItemInner}">
+              ${shape}
             </div>
           </div>
-          ${shape}
         </div>
-      </div>`;
+      `;
     }
   }
 
