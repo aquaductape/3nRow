@@ -8,10 +8,10 @@ import { svg } from "../constants/constants";
 import { hideElement, showElement } from "../utils/index";
 import View from "../View";
 
-class QuickStartMenuView extends View {
+class GameMenuView extends View {
   data: TPlayer[];
   constructor() {
-    super({ root: ".quick-start-menu" });
+    super({ root: "#game-menu" });
     this.data = [] as TPlayer[];
   }
 
@@ -243,4 +243,4 @@ class QuickStartMenuView extends View {
   }
 }
 
-export default new QuickStartMenuView();
+export default new GameMenuView();

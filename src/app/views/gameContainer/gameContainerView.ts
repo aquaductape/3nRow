@@ -16,11 +16,11 @@ class GameContainerView extends View {
     cells: HTMLElement[];
     board: HTMLElement;
     boardBackground: HTMLElement;
-    quickStartMenu: HTMLElement;
+    gameMenu: HTMLElement;
     settingsBtn: HTMLElement;
     settings: HTMLElement;
     playAgainBtn: HTMLElement;
-    quickStartMenuBtns: HTMLElement[];
+    gameMenuBtns: HTMLElement[];
   };
   debouncedGetSelectors: Function;
 
@@ -68,16 +68,12 @@ class GameContainerView extends View {
     dom.boardBackground = this.parentEl.querySelector(
       ".board-background"
     ) as HTMLElement;
-    dom.quickStartMenu = this.parentEl.querySelector(
-      ".quick-start-menu"
-    ) as HTMLElement;
+    dom.gameMenu = this.parentEl.querySelector("#game-menu") as HTMLElement;
+    dom.gameMenuBtns = Array.from(this.parentEl.querySelectorAll(".btn-pick"));
     dom.settingsBtn = this.parentEl.querySelector(
       "#settings .settings-btn"
     ) as HTMLElement;
     dom.settings = this.parentEl.querySelector("#settings") as HTMLElement;
-    dom.quickStartMenuBtns = Array.from(
-      this.parentEl.querySelectorAll(".btn-pick")
-    );
     dom.playAgainBtn = this.parentEl.querySelector(
       ".btn-play-again"
     ) as HTMLElement;
@@ -101,8 +97,8 @@ class GameContainerView extends View {
       playerDropdowns,
       fakePlayerBtns,
       fakePlayerBtnsHighlight,
-      quickStartMenuBtns,
-      quickStartMenu,
+      gameMenuBtns,
+      gameMenu,
       playAgainBtn,
     } = this.dom;
 
@@ -127,7 +123,7 @@ class GameContainerView extends View {
         },
       });
       scaleStyles({
-        el: quickStartMenu,
+        el: gameMenu,
         numerator: boardWidth,
         styleRatio: {
           borderRadius: 12.33,
@@ -259,7 +255,7 @@ class GameContainerView extends View {
 
       // stop at 420px for quickstart btns
       scaleStyles({
-        el: quickStartMenuBtns,
+        el: gameMenuBtns,
         numerator: boardWidth,
         styleRatio: {
           paddingLeft: 21,

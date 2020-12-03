@@ -3,13 +3,13 @@ import { TPlayer } from "../model/state";
 import boardView from "../views/board/boardView";
 import gameContainerView from "../views/gameContainer/gameContainerView";
 import playerBtnGroupView from "../views/playerOptions/playerBtnGroupView";
-import quickStartMenuView from "../views/quickStartMenu/quickStartMenuView";
+import gameMenu from "../views/gameMenu/gameMenuView";
 import { buildShapesForPlayers } from "../views/svg/shapes";
 import svgDefsView from "../views/svg/svgDefsView";
 import messageView from "../views/message/messageView";
 import { getOppositePlayer } from "../views/utils/index";
 import settingsView from "../views/settings/settingsView";
-import skipToGameMenu from "../views/skipContentBtn/skipToGameMenu";
+import skipToGameMenu from "../views/skipContentBtn/skipToGameMenuView";
 
 export type TControlSettings = (prop: {
   ai?: {
@@ -84,7 +84,7 @@ const moveAi: TMoveAi = async ({ delay } = {}) => {
   model.clearMarkedPositions();
 
   if (model.state.game.gameOver) {
-    quickStartMenuView.renderPlayAgainButton();
+    gameMenu.renderPlayAgainButton();
     return;
   }
 
@@ -107,7 +107,7 @@ const moveHuman = ({ column, row }: { column: number; row: number }) => {
 
   if (model.state.game.gameOver) {
     // model update random shape or color
-    quickStartMenuView.renderPlayAgainButton();
+    gameMenu.renderPlayAgainButton();
     return;
   }
 };
@@ -230,7 +230,7 @@ export const init = () => {
   svgDefsView.render(model.state.players);
   playerBtnGroupView.render(model.state);
   boardView.render(model.state);
-  quickStartMenuView.render(model.state.players);
+  gameMenu.render(model.state.players);
   skipToGameMenu.render();
   settingsView.render(model.state);
   // messageView.render("Player 1 has Won!");
@@ -240,7 +240,7 @@ export const init = () => {
     handlerChangeColor: controlPlayerColor,
     handlerChangeShape: controlPlayerShape,
   });
-  quickStartMenuView.addHandlers({
+  gameMenu.addHandlers({
     handlerStartGame: controlStartGame,
     handlerPlayAgain: controlPlayAgain,
     handlerMenuSettings: controlSettings,
