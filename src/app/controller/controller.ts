@@ -8,15 +8,15 @@ import { buildShapesForPlayers } from "../views/svg/shapes";
 import svgDefsView from "../views/svg/svgDefsView";
 import messageView from "../views/message/messageView";
 import { getOppositePlayer } from "../views/utils/index";
-import menuView from "../views/menu/menuView";
+import settingsView from "../views/settings/settingsView";
 
-export type TControlMenuSettings = ({}: {
+export type TControlSettings = (prop: {
   ai?: {
     enabled: boolean;
     difficulty?: string;
   };
 }) => void;
-const controlMenuSettings: TControlMenuSettings = ({ ai }) => {
+const controlSettings: TControlSettings = ({ ai }) => {
   if (ai) {
     model.setPlayerAsHumanOrAI({
       id: "P2",
@@ -25,7 +25,7 @@ const controlMenuSettings: TControlMenuSettings = ({ ai }) => {
     });
   }
 
-  menuView.updateAi(model.state);
+  settingsView.updateAi(model.state);
 };
 
 export type TControlPlayAgain = () => void;
@@ -70,9 +70,14 @@ const controlPlayAgain: TControlPlayAgain = async () => {
   playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
 };
 
-const moveAi = async () => {
+export type TMoveAi = (prop?: { delay?: number }) => void;
+const moveAi: TMoveAi = async ({ delay } = {}) => {
   const ai = model.getCurrentPlayer();
-  await model.goAI();
+
+  if (!ai.isAI && ai.id !== "P1") return;
+  boardView.preventPlayerToSelect();
+
+  await model.goAI({ delay });
   boardView.updateBoard({ data: model.state, player: ai });
   boardView.allowPlayerToSelect();
   model.clearMarkedPositions();
@@ -87,6 +92,7 @@ const moveAi = async () => {
 
 const moveHuman = ({ column, row }: { column: number; row: number }) => {
   const player = model.getCurrentPlayer();
+  boardView.preventPlayerToSelect();
   model.startTurn({ column, row });
 
   // View
@@ -117,8 +123,8 @@ const gameOver = () => {
   playerBtnGroupView.updatePlayerScore(model.getWinner()!);
 };
 
-export type TControlGame = ({}: { row: number; column: number }) => void;
-const controlGame: TControlGame = async ({ column, row }) => {
+export type TMovePlayer = (prop: { row: number; column: number }) => void;
+const movePlayer: TMovePlayer = async ({ column, row }) => {
   if (model.state.game.gameOver) return gameOver();
 
   // if turn is human, then move human and then if AI exists, move AI afterwards
@@ -134,7 +140,7 @@ const controlGame: TControlGame = async ({ column, row }) => {
   playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
 };
 
-export type TControlStartGame = ({}: {
+export type TControlStartGame = (prop: {
   id: string;
   ai: boolean;
   difficulty?: string;
@@ -147,12 +153,12 @@ const controlStartGame: TControlStartGame = ({ ai, id, difficulty }) => {
   playerBtnGroupView.updatePlayerBtnsOnGameStart();
   boardView.startGame();
   playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
-  menuView.updateAi(model.state);
+  settingsView.updateAi(model.state);
 
   // player 1 goes first regardless
 };
 
-export type TControlPlayerShape = ({}: {
+export type TControlPlayerShape = (prop: {
   player: TPlayer;
   shape: string;
 }) => void;
@@ -178,7 +184,7 @@ const controlPlayerShape: TControlPlayerShape = ({ player, shape }) => {
   });
 };
 
-export type TControlPlayerColor = ({}: {
+export type TControlPlayerColor = (prop: {
   player: TPlayer;
   color: string;
 }) => void;
@@ -224,7 +230,7 @@ const init = () => {
   boardView.render(model.state);
   quickStartMenuView.render(model.state.players);
 
-  menuView.render(model.state);
+  settingsView.render(model.state);
   // messageView.render("Player 1 has Won!");
 
   // add handlers
@@ -235,10 +241,13 @@ const init = () => {
   quickStartMenuView.addHandlers({
     handlerStartGame: controlStartGame,
     handlerPlayAgain: controlPlayAgain,
-    handlerMenuSettings: controlMenuSettings,
+    handlerMenuSettings: controlSettings,
   });
-  menuView.addHandlers({ handlerMenuSettings: controlMenuSettings });
-  boardView.addHandlerCell(controlGame);
+  settingsView.addHandlers({
+    handlerSettings: controlSettings,
+    handlerMoveAi: moveAi,
+  });
+  boardView.addHandlerCell(movePlayer);
   // run DOM events
   gameContainerView.runResizeListener();
   gameContainerView.revealAfterPageLoad();

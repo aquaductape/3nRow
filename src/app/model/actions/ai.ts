@@ -86,28 +86,27 @@ const moveIdxResult = (player: TPlayer) => {
   const playerMark = player.mark;
   const emptyCells = emptyIndexies(flattenBoard);
   if (emptyCells.length === 0) return 0;
-  // default HARD
-  if (emptyCells.length >= 8) {
-    const index = randomItemFromArr(emptyCells);
-    return index;
-  }
 
   if (player.difficulty === "MEDIUM" || player.difficulty === "CHEATER") {
-    if (emptyCells.length === 5) {
+    if (emptyCells.length === 4 || emptyCells.length === 5) {
       return randomItemFromArr(emptyCells);
     }
   }
 
+  // The AI DOES NOT use the miniMax algorithm!!!
+  // I wanted to make the Ai to be difficult but not impossible
+  // But the miniMax js implementations from what I found online
+  // are prone to fail if the previous move was not optimal (such as first move on edge, instead of corner or center)
+  // Luckily since there's not a lot of combinations, I set
+  // the default behavior to pick randoma and if it sees a win or prevent a lose
+  // on that turn, it will prioritize that cell.
+  // Result is a strong but not unbeatable boring AI
   let defenseIndex = defensiveDepth1(flattenBoard);
+  let offensiveIndex = offensiveDepth1(flattenBoard);
+  if (offensiveIndex != null) return offensiveIndex;
   if (defenseIndex != null) return defenseIndex;
 
-  if (player.difficulty !== "HARD") {
-    if (emptyCells.length === 7) {
-      return randomItemFromArr(emptyCells);
-    }
-  }
-
-  return miniMax(flattenBoard, playerMark).index;
+  return randomItemFromArr(emptyCells);
 };
 
 const pickEdges = (board: TFlattenBoard) => {
@@ -151,6 +150,26 @@ const defensiveDepth1 = (board: TFlattenBoard) => {
     newBoard[i] = human;
 
     if (didWin(newBoard, human)) {
+      return i;
+    } else {
+      newBoard[i] = itemHolder;
+    }
+  }
+  return null;
+};
+
+const offensiveDepth1 = (board: TFlattenBoard) => {
+  const ai = "O" as "O";
+  const newBoard = [...board];
+  let itemHolder = null;
+
+  for (let i = 0; i < newBoard.length; i++) {
+    const item = newBoard[i];
+    if (typeof item !== "number") continue;
+    itemHolder = item;
+    newBoard[i] = ai;
+
+    if (didWin(newBoard, ai)) {
       return i;
     } else {
       newBoard[i] = itemHolder;

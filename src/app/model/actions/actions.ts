@@ -3,7 +3,7 @@ import { randomItemFromArr } from "../../utils/index";
 import gameContainerView from "../../views/gameContainer/gameContainerView";
 import playerBtnGroupView from "../../views/playerOptions/playerBtnGroupView";
 import { state, TColors, TPlayer, TShapes } from "../state";
-import { decideMove } from "./ai";
+import { decideMove, delayAi } from "./ai";
 
 type TSetShapesProp = {
   [key: string]: TShapes;
@@ -115,7 +115,7 @@ export const setPlayerAsHumanOrAI = ({
   }
 };
 
-export const goAI = async () => {
+export const goAI = async ({ delay }: { delay?: number } = {}) => {
   const { game } = state;
   if (game.gameOver) return;
   if (!game.hasAI) return;
@@ -124,7 +124,7 @@ export const goAI = async () => {
 
   if (!player.isAI) return;
 
-  await delayAi();
+  await delayAi(delay);
   // ai decides best move
   // could return multiple positions if cheater
   const position = decideMove(player);
@@ -284,12 +284,6 @@ export const clearMarkedPositions = () => {
 
 const isCellEmpty = ({ row, column }: { row: number; column: number }) =>
   typeof state.game.board[row][column] === "string";
-
-const delayAi = (time = 900) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => resolve(true), time);
-  });
-};
 
 const setLS = ({
   id,

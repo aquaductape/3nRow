@@ -38,6 +38,8 @@ export const state: TState = {
     gameTie: false,
     startAgain: false,
     playerTurn: "P1",
+    firstMove: "alternate",
+    firstMovePlayer: "P1",
     winner: null,
     hasAI: false,
     winPosition: "",
@@ -96,6 +98,8 @@ export type TPlayer = {
 export type TGame = {
   playerTurn: string; // Player id
   getCurrentPlayer: () => TPlayer;
+  firstMovePlayer: string; // Player id
+  firstMove: "alternate" | "winner" | "loser";
   gameOver: boolean;
   gameStart: boolean;
   gameRunning: boolean;

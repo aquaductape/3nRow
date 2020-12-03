@@ -1,4 +1,4 @@
-import { TControlGame, TControlStartGame } from "../../controller/controller";
+import { TMovePlayer, TControlStartGame } from "../../controller/controller";
 import { IOS, IOS13, Safari } from "../../lib/onFocusOut/browserInfo";
 import { TGame, TPlayer, TState } from "../../model/state";
 import { colorMap } from "../constants/constants";
@@ -108,7 +108,7 @@ class BoardView extends View {
     });
   }
 
-  addHandlerCell(handler: TControlGame) {
+  addHandlerCell(handler: TMovePlayer) {
     this.parentEl.addEventListener("click", (e) => {
       const target = <HTMLElement>e.target;
       const cell = target.closest("[data-column]") as HTMLElement;
@@ -181,6 +181,9 @@ class BoardView extends View {
 
   allowPlayerToSelect() {
     this.state.playerCanSelectCell = true;
+  }
+  preventPlayerToSelect() {
+    this.state.playerCanSelectCell = false;
   }
 
   updateWinnerSlashColor(color: string) {
