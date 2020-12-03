@@ -1,5 +1,5 @@
 import {
-  TControlMenuSettings,
+  TControlSettings,
   TControlPlayAgain,
   TControlStartGame,
 } from "../../controller/controller";
@@ -45,32 +45,101 @@ class QuickStartMenuView extends View {
     return `
     <div class="section section-slide-2 hidden">
       <div id="ai-difficulty" class="title" aria-label="AI difficulty">Difficulty</div>
-      <div class="menu-buttons">
-        <button class="btn btn-primary btn-pick" aria-describedby="ai-difficulty" data-play="ai" data-difficulty="MEDIUM">Medium</button>
-        <button class="btn btn-primary btn-pick" aria-describedby="ai-difficulty" data-play="ai" data-difficulty="HARD">Hard</button>
-        <button class="btn btn-primary btn-pick" aria-describedby="ai-difficulty" data-play="ai" data-difficulty="CHEATER">Cheater</button>
-      </div>
+      <ul class="menu-buttons">
+        <li class="menu-item">
+          <a 
+            class="btn btn-primary btn-pick"
+            aria-describedby="ai-difficulty" 
+            data-play="ai" 
+            data-difficulty="MEDIUM"
+            href="javascript:void(0)"
+          >
+          Medium
+          </a>
+        </li>
+        <li class="menu-item">
+          <a 
+            class="btn btn-primary btn-pick"
+            aria-describedby="ai-difficulty" 
+            data-play="ai" 
+            data-difficulty="HARD"
+            href="javascript:void(0)"
+          >
+          Hard
+          </a>
+        </li>
+        <li class="menu-item">
+          <a 
+            class="btn btn-primary btn-pick"
+            aria-describedby="ai-difficulty" 
+            data-play="ai" 
+            data-difficulty="CHEATER"
+            href="javascript:void(0)"
+          >
+          Cheater
+          </a>
+        </li>
+      </ul>
     </div>
+    `;
+  }
+
+  private buttonLink() {
+    const describedby = "ai-difficulty";
+    const navigational = true;
+    const dataAttribute = navigational ? "data-transition" : "data-play";
+    const dataValue = "ai";
+    const content = "Medium";
+    // href to board cell row 1 column 1 on last
+    return `
+    
+        <a 
+        class="btn btn-primary btn-pick"
+        aria-describedby="${describedby}" 
+        ${dataAttribute}="${dataValue}" 
+        data-difficulty="MEDIUM"
+        href=""
+        >
+          Medium
+        </a>
     `;
   }
 
   private startMenuMarkup() {
     return `
-    <div class="section section-slide-1">
+    <div class="section section-slide-1" tabindex="-1">
       <p class="game-start-info">Play Against</p>
       <div class="tutorial">
         <!-- 3 images -->
         <!-- image 1 alt="On turn 2. Player 1 has filled 1 cell on row 1 and column 1. Player 2 has filled 1 cell ect ect" -->
       </div>
-      <div class="menu-buttons">
-        <button class="btn btn-primary btn-pick" data-transition-to="ai" aria-label="Play against ai">AI</button>
-        <button class="btn btn-primary btn-pick" data-play="human" aria-label="Play against human">Human</button>
-      </div>
+      <ul class="menu-buttons">
+        <li class="menu-item">
+          <a 
+            class="btn btn-primary btn-pick" 
+            data-transition-to="ai" 
+            aria-label="Play against ai"
+            href="javascript:void(0)"
+          >
+          AI
+          </a>
+        </li>
+        <li class="menu-item">
+          <a 
+            class="btn btn-primary btn-pick" 
+            data-play="human" 
+            aria-label="Play against human"
+            href="javascript:void(0)"
+          >
+          Human
+          </a>
+        </li>
+      </ul>
     </div>
     `;
   }
 
-  private transitionToAiMenu(handlerMenuSettings: TControlMenuSettings) {
+  private transitionToAiMenu(handlerMenuSettings: TControlSettings) {
     const sectionSlide1 = this.parentEl.querySelector(
       ".section-slide-1"
     ) as HTMLElement;
@@ -90,6 +159,7 @@ class QuickStartMenuView extends View {
           el: sectionSlide2,
           transition: "300ms",
           onEnd: (el) => {
+            const firstItem = el.querySelector(".btn") as HTMLElement;
             el.classList.remove("hidden");
             el.style.display = "";
           },
@@ -126,7 +196,7 @@ class QuickStartMenuView extends View {
   }: {
     handlerStartGame: TControlStartGame;
     handlerPlayAgain: TControlPlayAgain;
-    handlerMenuSettings: TControlMenuSettings;
+    handlerMenuSettings: TControlSettings;
   }) {
     const players = this.data;
     const { id } = players[1];
