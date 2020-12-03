@@ -104,8 +104,8 @@ export const svg = {
 `,
   radio: `
 <svg xmlns="http://www.w3.org/2000/svg" width="37.795" height="37.795" viewBox="0 0 10 10">
-  <circle class="radio-icon-unselected" cx="5" cy="5" r="4.375" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle class="radio-icon-selected" cx="5" cy="5" r="3.412" fill="#fff" stroke="currentColor" stroke-width="3.175" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle class="radio-icon-unselected" shape-rendering="geometricPrecision" cx="5" cy="5" r="4.375" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle class="radio-icon-selected" shape-rendering="geometricPrecision" cx="5" cy="5" r="3.412" fill="#fff" stroke="currentColor" stroke-width="3.175" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 `,
   playAgainCircleBtn: `
