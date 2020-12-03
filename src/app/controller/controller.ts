@@ -9,6 +9,7 @@ import svgDefsView from "../views/svg/svgDefsView";
 import messageView from "../views/message/messageView";
 import { getOppositePlayer } from "../views/utils/index";
 import settingsView from "../views/settings/settingsView";
+import skipToGameMenu from "../views/skipContentBtn/skipToGameMenu";
 
 export type TControlSettings = (prop: {
   ai?: {
@@ -154,6 +155,7 @@ const controlStartGame: TControlStartGame = ({ ai, id, difficulty }) => {
   boardView.startGame();
   playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
   settingsView.updateAi(model.state);
+  skipToGameMenu.updateSkipBtnContent();
 
   // player 1 goes first regardless
 };
@@ -218,7 +220,7 @@ const controlPlayerColor: TControlPlayerColor = ({ player, color }) => {
   });
 };
 
-const init = () => {
+export const init = () => {
   localStorage.clear();
   // model
   model.updateStateFromLS();
@@ -229,7 +231,7 @@ const init = () => {
   playerBtnGroupView.render(model.state);
   boardView.render(model.state);
   quickStartMenuView.render(model.state.players);
-
+  skipToGameMenu.render();
   settingsView.render(model.state);
   // messageView.render("Player 1 has Won!");
 
@@ -252,5 +254,3 @@ const init = () => {
   gameContainerView.runResizeListener();
   gameContainerView.revealAfterPageLoad();
 };
-
-init();

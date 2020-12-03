@@ -107,7 +107,7 @@ class QuickStartMenuView extends View {
 
   private startMenuMarkup() {
     return `
-    <div class="section section-slide-1" tabindex="-1">
+    <div class="section section-slide-1">
       <p class="game-start-info">Play Against</p>
       <div class="tutorial">
         <!-- 3 images -->
@@ -118,6 +118,7 @@ class QuickStartMenuView extends View {
           <a 
             class="btn btn-primary btn-pick" 
             data-transition-to="ai" 
+            data-id="ai"
             aria-label="Play against ai"
             href="javascript:void(0)"
           >
@@ -139,7 +140,7 @@ class QuickStartMenuView extends View {
     `;
   }
 
-  private transitionToAiMenu(handlerMenuSettings: TControlSettings) {
+  private transitionToAiMenu(handlerSettings: TControlSettings) {
     const sectionSlide1 = this.parentEl.querySelector(
       ".section-slide-1"
     ) as HTMLElement;
@@ -147,7 +148,7 @@ class QuickStartMenuView extends View {
       ".section-slide-2"
     ) as HTMLElement;
 
-    handlerMenuSettings({ ai: { enabled: true } });
+    handlerSettings({ ai: { enabled: true } });
 
     // *sigh* callback hell
     hideElement({
