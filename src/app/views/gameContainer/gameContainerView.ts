@@ -17,8 +17,8 @@ class GameContainerView extends View {
     board: HTMLElement;
     boardBackground: HTMLElement;
     quickStartMenu: HTMLElement;
-    menuBtn: HTMLElement;
-    menu: HTMLElement;
+    settingsBtn: HTMLElement;
+    settings: HTMLElement;
     playAgainBtn: HTMLElement;
     quickStartMenuBtns: HTMLElement[];
   };
@@ -71,8 +71,10 @@ class GameContainerView extends View {
     dom.quickStartMenu = this.parentEl.querySelector(
       ".quick-start-menu"
     ) as HTMLElement;
-    dom.menuBtn = this.parentEl.querySelector("#menu .menu-btn") as HTMLElement;
-    dom.menu = this.parentEl.querySelector("#menu") as HTMLElement;
+    dom.settingsBtn = this.parentEl.querySelector(
+      "#settings .settings-btn"
+    ) as HTMLElement;
+    dom.settings = this.parentEl.querySelector("#settings") as HTMLElement;
     dom.quickStartMenuBtns = Array.from(
       this.parentEl.querySelectorAll(".btn-pick")
     );
@@ -88,9 +90,8 @@ class GameContainerView extends View {
     const {
       board,
       boardBackground,
-      quickStartMenu,
-      menu,
-      menuBtn,
+      settings,
+      settingsBtn,
       rows,
       cells,
       playerBtnGroup,
@@ -101,6 +102,7 @@ class GameContainerView extends View {
       fakePlayerBtns,
       fakePlayerBtnsHighlight,
       quickStartMenuBtns,
+      quickStartMenu,
       playAgainBtn,
     } = this.dom;
 
@@ -234,7 +236,7 @@ class GameContainerView extends View {
       });
 
       scaleStyles({
-        el: menuBtn,
+        el: settingsBtn,
         numerator: boardWidth,
         styleRatio: {
           height: boardWidth > 400 ? 14.08 : 8.08,
@@ -248,7 +250,7 @@ class GameContainerView extends View {
       });
 
       scaleStyles({
-        el: menu,
+        el: settings,
         numerator: boardWidth,
         styleRatio: {
           marginBottom: 20.533,
@@ -320,11 +322,14 @@ class GameContainerView extends View {
     // init height
     changeHeight({ init: true });
 
-    // const debouncedChangeHeight = debounce(changeHeight, 200);
+    const debouncedChangeHeight = debounce(changeHeight, {
+      leading: false,
+      time: 200,
+    });
     window.addEventListener("resize", () => {
       changeHeight();
       // to cover for changing device viewport on Chrome devtools
-      // debouncedChangeHeight();
+      debouncedChangeHeight();
     });
   }
 

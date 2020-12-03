@@ -1,4 +1,4 @@
-import { TControlMenuSettings } from "../../controller/controller";
+import { TControlSettings, TMoveAi } from "../../controller/controller";
 import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TState } from "../../model/state";
 import { svg } from "../constants/constants";
@@ -6,29 +6,31 @@ import overlayView from "../overlay/overlayView";
 import { hideElement, showElement } from "../utils/index";
 import View from "../View";
 
-class MenuView extends View {
+class SettingsView extends View {
   data: TState;
-  menuBtn: HTMLElement;
-  menuDropdown: HTMLElement;
+  settingsBtn: HTMLElement;
+  settingsDropdown: HTMLElement;
   isOpen: boolean;
-  handlerMenuSettings: TControlMenuSettings;
+  handlerSettings: TControlSettings;
+  handlerMoveAi: TMoveAi;
 
   constructor() {
-    super({ root: "#menu" });
+    super({ root: "#settings" });
     this.data = {} as TState;
-    this.menuBtn = {} as HTMLElement;
-    this.menuDropdown = {} as HTMLElement;
+    this.settingsBtn = {} as HTMLElement;
+    this.settingsDropdown = {} as HTMLElement;
     this.isOpen = false;
-    this.handlerMenuSettings = () => {};
+    this.handlerSettings = () => {};
+    this.handlerMoveAi = () => {};
   }
 
   protected initEventListeners() {
-    this.menuBtn.addEventListener("click", () => {
+    this.settingsBtn.addEventListener("click", () => {
       onFocusOut({
-        button: this.menuBtn,
+        button: this.settingsBtn,
         run: this.openDropdown.bind(this),
         onExit: this.closeDropdown.bind(this),
-        allow: [".menu-dropdown"],
+        allow: [".settings-dropdown"],
         not: [".btn-close"],
       });
     });
@@ -43,21 +45,23 @@ class MenuView extends View {
 
       if (aiRadio) {
         const difficulty = aiRadio.dataset.difficulty!;
-        this.handlerMenuSettings({ ai: { enabled: true, difficulty } });
+        this.handlerSettings({ ai: { enabled: true, difficulty } });
       }
 
       if (aiEnable) {
         const checkbox = aiEnable.querySelector("input") as HTMLInputElement;
         this.toggleDisableDifficultyContainer();
-        this.handlerMenuSettings({ ai: { enabled: checkbox.checked } });
+        this.handlerSettings({ ai: { enabled: checkbox.checked } });
       }
     });
   }
 
   initQuerySelectors() {
-    this.menuBtn = this.parentEl.querySelector(".menu-btn") as HTMLElement;
-    this.menuDropdown = this.parentEl.querySelector(
-      ".menu-dropdown"
+    this.settingsBtn = this.parentEl.querySelector(
+      ".settings-btn"
+    ) as HTMLElement;
+    this.settingsDropdown = this.parentEl.querySelector(
+      ".settings-dropdown"
     ) as HTMLElement;
   }
 
@@ -97,13 +101,13 @@ class MenuView extends View {
 
   private btnCloseMarkup() {
     return `
-    <button class="btn-close" aria-label="close menu dropdown">
+    <button class="btn-close" aria-label="close settings dropdown">
       ${svg.close}
     </button>
     `;
   }
 
-  private menuMarkup() {
+  private settingsMarkup() {
     const {
       game: { difficulties },
     } = this.data;
@@ -114,7 +118,7 @@ class MenuView extends View {
         <li>
           <!-- disable ai toggle in multiplayer -->
           <div class="player">
-            <h3 class="menu-h3">Player 2 "O"</h3> <!-- should add badge as human or ai?-->
+            <h3 class="settings-h3">Player 2 "O"</h3> <!-- should add badge as human or ai?-->
             <div class="toggle-ai">
               <label class="toggle-control">
               Set Player 2 as Ai
@@ -125,7 +129,7 @@ class MenuView extends View {
               </label>
             </div>
             <div class="ai-difficulty disabled">
-              <h4 class="menu-h4">Difficulty</h4>
+              <h4 class="settings-h4">Difficulty</h4>
               <div role="radiogroup" aria-label="Ai Difficulty" class="ai-difficulty-inner">
               ${difficulties
                 .map((difficulty) => this.radioMarkup(difficulty))
@@ -145,7 +149,7 @@ class MenuView extends View {
     <li>
     <!-- disabled in multiplayer -->
     <div class="multiplayer">
-      <h3 class="menu-h3">Multiplayer</h3>
+      <h3 class="settings-h3">Multiplayer</h3>
       <!-- <div>Must leave to start a new game</div> -->
       <div class="multiplayer-btns">
         <button class="btn btn-secondary btn-multiplayer">Share Private Game</button>
@@ -158,36 +162,36 @@ class MenuView extends View {
 
   protected generateMarkup() {
     return `
-    <button class="btn menu-btn" aria-label="menu dropdown" aria-expanded="false">${
+    <button class="btn settings-btn" aria-label="settings dropdown" aria-expanded="false">${
       svg.cevron
     }</button>
-    <div class="menu-dropdown" tabindex="-1">
-      ${this.menuMarkup()}
+    <div class="settings-dropdown" tabindex="-1">
+      ${this.settingsMarkup()}
     </div>
     `;
   }
 
   private openDropdown() {
-    const { menuBtn, menuDropdown } = this;
-    menuBtn.setAttribute("aria-expanded", "true");
+    const { settingsBtn, settingsDropdown } = this;
+    settingsBtn.setAttribute("aria-expanded", "true");
 
     showElement({
-      el: menuDropdown,
+      el: settingsDropdown,
       display: "block",
       onStart: (el) => {
         el.classList.add("active");
       },
     });
     overlayView.show();
-    menuDropdown.focus();
+    settingsDropdown.focus();
   }
 
   private closeDropdown() {
-    const { menuBtn, menuDropdown } = this;
-    menuBtn.setAttribute("aria-expanded", "false");
+    const { settingsBtn, settingsDropdown } = this;
+    settingsBtn.setAttribute("aria-expanded", "false");
 
     hideElement({
-      el: menuDropdown,
+      el: settingsDropdown,
       onStart: (el) => {
         el.classList.remove("active");
       },
@@ -196,6 +200,8 @@ class MenuView extends View {
       },
     });
     overlayView.hide();
+
+    this.handlerMoveAi({ delay: 200 });
   }
 
   private toggleDropdown() {
@@ -209,15 +215,15 @@ class MenuView extends View {
   }
 
   addHandlers({
-    handlerMenuSettings,
+    handlerSettings,
+    handlerMoveAi,
   }: {
-    handlerMenuSettings: TControlMenuSettings;
+    handlerSettings: TControlSettings;
+    handlerMoveAi: TMoveAi;
   }) {
-    this.handlerMenuSettings = handlerMenuSettings;
+    this.handlerSettings = handlerSettings;
+    this.handlerMoveAi = handlerMoveAi;
   }
-
-  handlerAiDifficulty() {}
-  handlerToggleAi() {}
 
   private toggleDisableDifficultyContainer() {
     const difficultyContainer = this.parentEl.querySelector(
@@ -268,4 +274,4 @@ class MenuView extends View {
   }
 }
 
-export default new MenuView();
+export default new SettingsView();
