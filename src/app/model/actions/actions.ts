@@ -96,6 +96,10 @@ export const startGame = () => {
   state.game.gameRunning = true;
 };
 
+export const setCurrentPlayer = (id: string) => {
+  state.game.playerTurn = id;
+};
+
 export const setPlayerAsHumanOrAI = ({
   ai,
   id,

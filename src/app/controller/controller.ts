@@ -3,7 +3,7 @@ import { TPlayer } from "../model/state";
 import boardView from "../views/board/boardView";
 import gameContainerView from "../views/gameContainer/gameContainerView";
 import playerBtnGroupView from "../views/playerOptions/playerBtnGroupView";
-import gameMenu from "../views/gameMenu/gameMenuView";
+import gameMenuView from "../views/gameMenu/gameMenuView";
 import { buildShapesForPlayers } from "../views/svg/shapes";
 import svgDefsView from "../views/svg/svgDefsView";
 import messageView from "../views/message/messageView";
@@ -84,7 +84,7 @@ const moveAi: TMoveAi = async ({ delay } = {}) => {
   model.clearMarkedPositions();
 
   if (model.state.game.gameOver) {
-    gameMenu.renderPlayAgainButton();
+    gameMenuView.renderPlayAgainButton();
     return;
   }
 
@@ -107,7 +107,7 @@ const moveHuman = ({ column, row }: { column: number; row: number }) => {
 
   if (model.state.game.gameOver) {
     // model update random shape or color
-    gameMenu.renderPlayAgainButton();
+    gameMenuView.renderPlayAgainButton();
     return;
   }
 };
@@ -142,22 +142,33 @@ const movePlayer: TMovePlayer = async ({ column, row }) => {
 };
 
 export type TControlStartGame = (prop: {
-  id: string;
+  firstMovePlayer: string;
   ai: boolean;
   difficulty?: string;
 }) => void;
-const controlStartGame: TControlStartGame = ({ ai, id, difficulty }) => {
+const controlStartGame: TControlStartGame = ({
+  ai,
+  firstMovePlayer,
+  difficulty,
+}) => {
   model.startGame();
-  // set specific player as human or ai
-  // starting game is hardcoded as player 2 confirming whether it's a human or an ai
-  model.setPlayerAsHumanOrAI({ id, ai, difficulty });
+
+  // at first any player could be ai,
+  // as of now, only 2nd player is hard coded as ai
+  model.setPlayerAsHumanOrAI({ id: "P2", ai, difficulty });
+  model.setCurrentPlayer(firstMovePlayer);
   playerBtnGroupView.updatePlayerBtnsOnGameStart();
   boardView.startGame();
+  if (ai) {
+    boardView.preventPlayerToSelect();
+  }
   playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
-  settingsView.updateAi(model.state);
+  // settingsView.updateAi(model.state);
   skipToGameMenu.updateSkipBtnContent();
 
-  // player 1 goes first regardless
+  if (ai) {
+    moveAi();
+  }
 };
 
 export type TControlPlayerShape = (prop: {
@@ -172,8 +183,9 @@ const controlPlayerShape: TControlPlayerShape = ({ player, shape }) => {
   // View
   // update btn mark
   playerBtnGroupView.updateSvgMark(player);
-  // update marks on board
+  //update marks on other View components
   boardView.updateShapeInCells(player);
+  gameMenuView.updatePlayerMark(player);
   // update disabled for other player
   const otherPlayer = getOppositePlayer({
     id: player.id,
@@ -230,7 +242,7 @@ export const init = () => {
   svgDefsView.render(model.state.players);
   playerBtnGroupView.render(model.state);
   boardView.render(model.state);
-  gameMenu.render(model.state.players);
+  gameMenuView.render(model.state.players);
   skipToGameMenu.render();
   settingsView.render(model.state);
   // messageView.render("Player 1 has Won!");
@@ -240,10 +252,10 @@ export const init = () => {
     handlerChangeColor: controlPlayerColor,
     handlerChangeShape: controlPlayerShape,
   });
-  gameMenu.addHandlers({
+  gameMenuView.addHandlers({
     handlerStartGame: controlStartGame,
     handlerPlayAgain: controlPlayAgain,
-    handlerMenuSettings: controlSettings,
+    handlerSettings: controlSettings,
   });
   settingsView.addHandlers({
     handlerSettings: controlSettings,
