@@ -121,7 +121,7 @@ class SettingsView extends View {
             <h3 class="settings-h3">Player 2 "O"</h3> <!-- should add badge as human or ai?-->
             <div class="toggle-ai">
               <label class="toggle-control">
-              Set Player 2 as Ai
+              Set Player 2 as Computer
                 <span class="toggle-container">
                   <input id="enable-ai" type="checkbox" >
                   <span class="control"></span>
