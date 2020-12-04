@@ -21,6 +21,7 @@ class GameContainerView extends View {
     settings: HTMLElement;
     playAgainBtn: HTMLElement;
     gameMenuBtns: HTMLElement[];
+    gameMenuBtnPickPlayer: HTMLElement[];
   };
   debouncedGetSelectors: Function;
 
@@ -69,7 +70,10 @@ class GameContainerView extends View {
       ".board-background"
     ) as HTMLElement;
     dom.gameMenu = this.parentEl.querySelector("#game-menu") as HTMLElement;
-    dom.gameMenuBtns = Array.from(this.parentEl.querySelectorAll(".btn-pick"));
+    dom.gameMenuBtns = Array.from(dom.gameMenu.querySelectorAll(".btn-pick"));
+    dom.gameMenuBtnPickPlayer = Array.from(
+      dom.gameMenu.querySelectorAll(".btn-pick-player")
+    );
     dom.settingsBtn = this.parentEl.querySelector(
       "#settings .settings-btn"
     ) as HTMLElement;
@@ -97,8 +101,9 @@ class GameContainerView extends View {
       playerDropdowns,
       fakePlayerBtns,
       fakePlayerBtnsHighlight,
-      gameMenuBtns,
       gameMenu,
+      gameMenuBtns,
+      gameMenuBtnPickPlayer,
       playAgainBtn,
     } = this.dom;
 
@@ -262,18 +267,34 @@ class GameContainerView extends View {
           paddingRight: 21,
           paddingTop: 28,
           paddingBottom: 28,
-          maxWidth: 2.1538,
+          maxWidth: () =>
+            boardWidth > 500 ? px(boardWidth / 2.1538) : px(boardWidth / 1.5),
           borderRadius: 42,
           // fontSize: 21,
         },
       });
 
       scaleStyles({
+        el: gameMenuBtnPickPlayer,
+        numerator: boardWidth,
+        styleRatio: {
+          paddingTop: () => "0px",
+          paddingBottom: () => "0px",
+          height: () =>
+            boardWidth > 500
+              ? px(boardWidth / 10.082)
+              : px(boardWidth / 5.5875),
+          // fontSize: 21,
+        },
+      });
+      scaleStyles({
         el: playAgainBtn,
         numerator: boardWidth,
         styleRatio: {
-          height: 3.47,
-          width: 3.47,
+          height: () =>
+            boardWidth > 300 ? px(boardWidth / 3.47) : px(boardWidth / 2.5),
+          width: () =>
+            boardWidth > 300 ? px(boardWidth / 3.47) : px(boardWidth / 2.5),
         },
       });
     };
@@ -355,6 +376,43 @@ class GameContainerView extends View {
     });
   }
 
+  scaleElementsToProportionToBoard({ type }: { type: "menuBtns" }) {
+    const gameMenuBtns = Array.from(
+      this.parentEl.querySelectorAll(".btn-pick")
+    ) as HTMLElement[];
+    const gameMenuBtnPickPlayer = Array.from(
+      this.parentEl.querySelectorAll(".btn-pick-player")
+    ) as HTMLElement[];
+    const boardWidth = this.parentEl.clientWidth;
+
+    if (type === "menuBtns") {
+      scaleStyles({
+        el: gameMenuBtns,
+        numerator: boardWidth,
+        styleRatio: {
+          paddingLeft: 21,
+          paddingRight: 21,
+          paddingTop: 28,
+          paddingBottom: 28,
+          maxWidth: () =>
+            boardWidth > 500 ? px(boardWidth / 2.1538) : px(boardWidth / 1.5),
+          borderRadius: 42,
+        },
+      });
+      scaleStyles({
+        el: gameMenuBtnPickPlayer,
+        numerator: boardWidth,
+        styleRatio: {
+          paddingTop: () => "0px",
+          paddingBottom: () => "0px",
+          height: () =>
+            boardWidth > 500
+              ? px(boardWidth / 10.082)
+              : px(boardWidth / 5.5875),
+        },
+      });
+    }
+  }
   // overrides to do nothing
   render() {
     return;
