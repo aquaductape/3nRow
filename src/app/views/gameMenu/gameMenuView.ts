@@ -4,23 +4,222 @@ import {
   TControlStartGame,
 } from "../../controller/controller";
 import { TPlayer } from "../../model/state";
-import { svg } from "../constants/constants";
-import { hideElement, showElement } from "../utils/index";
+import { shapes, svg } from "../constants/constants";
+import gameContainerView from "../gameContainer/gameContainerView";
+import {
+  convertObjPropsToHTMLAttr,
+  createHTMLFromString,
+  hideElement,
+  showElement,
+} from "../utils/index";
 import View from "../View";
 
+// vs Friend
+// Online
+type TSections = "aiDifficulty" | "start" | "goFirst";
+type TBtn = {
+  id?: string;
+  content: string;
+  dataAttributes: {
+    [key: string]: string;
+  };
+  aria: {
+    [key: string]: string;
+  };
+  classNames: string[];
+};
+type TMenu = {
+  titleId?: string;
+  title: string | null;
+  listBtns: TBtn[];
+  btn?: string;
+};
+
+type TGameMenuState = {
+  start: TMenu;
+  aiDifficulty: TMenu;
+  goFirst: TMenu;
+  // human: TBtn[];
+};
 class GameMenuView extends View {
   data: TPlayer[];
+  menuState: TGameMenuState;
+  sectionVisible: TSections | null;
+  renderInit: boolean;
+  vsPlayer: string;
   constructor() {
     super({ root: "#game-menu" });
     this.data = [] as TPlayer[];
+
+    this.sectionVisible = "start";
+    this.renderInit = true;
+    this.vsPlayer = "ai";
+    this.menuState = {
+      start: {
+        title: "Play Against",
+        listBtns: [
+          {
+            content: "Computer",
+            aria: {
+              "aria-label": "Play against Computer",
+            },
+            dataAttributes: { focus: "true", transitionTo: "aiDifficulty" },
+            classNames: ["btn", "btn-primary", "btn-pick"],
+          },
+          {
+            content: "Human",
+            aria: {
+              "aria-label": "Play against Human",
+            },
+            dataAttributes: {
+              transitionTo: "goFirst",
+              vs: "human",
+            },
+            classNames: ["btn", "btn-primary", "btn-pick"],
+          },
+        ],
+      },
+      aiDifficulty: {
+        titleId: "ai-difficulty",
+        title: "Difficulty",
+        listBtns: [
+          {
+            content: "Medium",
+            aria: {
+              "aria-describedby": "ai-difficulty",
+            },
+            dataAttributes: {
+              focus: "true",
+              difficulty: "MEDIUM",
+              transitionTo: "goFirst",
+              vs: "ai",
+            },
+            classNames: ["btn", "btn-primary", "btn-pick"],
+          },
+          {
+            content: "Hard",
+            aria: {
+              "aria-describedby": "ai-difficulty",
+            },
+            dataAttributes: {
+              difficulty: "HARD",
+              transitionTo: "goFirst",
+              vs: "ai",
+            },
+            classNames: ["btn", "btn-primary", "btn-pick"],
+          },
+          {
+            content: "Cheater",
+            aria: {
+              "aria-describedby": "ai-difficulty",
+            },
+            dataAttributes: {
+              difficulty: "CHEATER",
+              transitionTo: "goFirst",
+              vs: "ai",
+            },
+            classNames: ["btn", "btn-primary", "btn-pick"],
+          },
+        ],
+      },
+      goFirst: {
+        title: "Who Goes First?",
+        listBtns: [
+          {
+            id: "P1",
+            content: "",
+            aria: {
+              "aria-label": "You go First",
+            },
+            dataAttributes: {
+              playerId: "P1",
+              playAgainst: "ai",
+              focus: "true",
+              shape: "cross",
+            },
+            classNames: ["btn", "btn-primary", "btn-pick", "btn-pick-player"],
+          },
+          {
+            id: "P2",
+            content: "",
+            aria: {
+              "aria-label": "Computer goes First",
+            },
+            dataAttributes: {
+              playerId: "P2",
+              playAgainst: "ai",
+              shape: "circle",
+            },
+            classNames: ["btn", "btn-primary", "btn-pick", "btn-pick-player"],
+          },
+        ],
+      },
+    };
   }
 
   protected generateMarkup() {
     return `
     <div class="menu">
-      ${this.startMenuMarkup()}
-      ${this.aiMenuMarkup()}
+      <div class="section">
+      ${this.menuMarkup({ sectionType: "start" })}
+      </div>
       ${this.playAgainMarkup()}
+    </div>
+    `;
+  }
+
+  private playAgainMarkup() {
+    return `
+      <div class="play-again-container hidden">
+        <button class="btn btn-primary btn-play-again" aria-label="play again" data-play-against="again">
+          ${svg.playAgainCircleBtn}
+        </button>
+      </div>
+    `;
+  }
+
+  private menuMarkup({ sectionType }: { sectionType: TSections }) {
+    const { titleId, listBtns: btns, title } = this.menuState[sectionType];
+    this.sectionVisible = sectionType;
+    const btnsMarkup = btns
+      .map((item) => {
+        const dataAttributes = convertObjPropsToHTMLAttr({
+          type: "data",
+          obj: item.dataAttributes,
+        });
+        const ariaAttributes = convertObjPropsToHTMLAttr({
+          type: "aria",
+          obj: item.aria,
+        });
+
+        return `
+        <li class="menu-item">
+          <a 
+            class="${item.classNames.join(" ")}"
+            ${dataAttributes}
+            ${ariaAttributes}
+            href="javascript:void(0)"
+          >
+            ${item.content}
+          </a>
+        </li>
+      `;
+      })
+      .join("");
+
+    const titleMarkupId = titleId ? `id="${titleId}"` : "";
+    const titleMarkup = title
+      ? `
+    <div ${titleMarkupId} class="title" aria-label="AI difficulty">${title}</div> 
+    `
+      : "";
+
+    return `
+    <div class="section-menu">
+      ${titleMarkup}
+      <ul class="menu-buttons">
+        ${btnsMarkup}
+      </ul>
     </div>
     `;
   }
@@ -41,142 +240,66 @@ class GameMenuView extends View {
     });
   }
 
-  private aiMenuMarkup() {
-    return `
-    <div class="section section-slide-2 hidden">
-      <div id="ai-difficulty" class="title" aria-label="AI difficulty">Difficulty</div>
-      <ul class="menu-buttons">
-        <li class="menu-item">
-          <a 
-            class="btn btn-primary btn-pick"
-            aria-describedby="ai-difficulty" 
-            data-play="ai" 
-            data-difficulty="MEDIUM"
-            href="javascript:void(0)"
-          >
-          Medium
-          </a>
-        </li>
-        <li class="menu-item">
-          <a 
-            class="btn btn-primary btn-pick"
-            aria-describedby="ai-difficulty" 
-            data-play="ai" 
-            data-difficulty="HARD"
-            href="javascript:void(0)"
-          >
-          Hard
-          </a>
-        </li>
-        <li class="menu-item">
-          <a 
-            class="btn btn-primary btn-pick"
-            aria-describedby="ai-difficulty" 
-            data-play="ai" 
-            data-difficulty="CHEATER"
-            href="javascript:void(0)"
-          >
-          Cheater
-          </a>
-        </li>
-      </ul>
-    </div>
-    `;
-  }
+  updatePlayerMark(player: TPlayer) {
+    const {
+      menuState: { goFirst },
+      sectionVisible,
+      renderInit,
+      vsPlayer,
+    } = this;
 
-  private buttonLink() {
-    const describedby = "ai-difficulty";
-    const navigational = true;
-    const dataAttribute = navigational ? "data-transition" : "data-play";
-    const dataValue = "ai";
-    const content = "Medium";
-    // href to board cell row 1 column 1 on last
-    return `
-    
-        <a 
-        class="btn btn-primary btn-pick"
-        aria-describedby="${describedby}" 
-        ${dataAttribute}="${dataValue}" 
-        data-difficulty="MEDIUM"
-        href=""
-        >
-          Medium
-        </a>
-    `;
-  }
+    console.log(vsPlayer);
+    const listBtn = goFirst.listBtns.find((btn) => btn.id === player.id)!;
+    const prevShape = listBtn!.dataAttributes["shape"];
+    const content = player.id === "P1" ? "You" : "Computer";
+    const playerSVGShape = player.getSvgShape();
+    const spanTextContent =
+      vsPlayer === "ai"
+        ? `
+    <span class="btn-txt-content">${content}</span>
+    `
+        : "";
 
-  private startMenuMarkup() {
-    return `
-    <div class="section section-slide-1">
-      <p class="game-start-info">Play Against</p>
-      <div class="tutorial">
-        <!-- 3 images -->
-        <!-- image 1 alt="On turn 2. Player 1 has filled 1 cell on row 1 and column 1. Player 2 has filled 1 cell ect ect" -->
-      </div>
-      <ul class="menu-buttons">
-        <li class="menu-item">
-          <a 
-            class="btn btn-primary btn-pick" 
-            data-transition-to="ai" 
-            data-id="ai"
-            aria-label="Play against ai"
-            href="javascript:void(0)"
-          >
-          AI
-          </a>
-        </li>
-        <li class="menu-item">
-          <a 
-            class="btn btn-primary btn-pick" 
-            data-play="human" 
-            aria-label="Play against human"
-            href="javascript:void(0)"
-          >
-          Human
-          </a>
-        </li>
-      </ul>
-    </div>
-    `;
-  }
+    if (vsPlayer === "human") {
+      listBtn.dataAttributes = {
+        ...listBtn.dataAttributes,
+        playAgainst: "human",
+      };
+    }
+    if (vsPlayer === "ai") {
+      listBtn.dataAttributes = { ...listBtn.dataAttributes, playAgainst: "ai" };
+    }
 
-  private transitionToAiMenu(handlerSettings: TControlSettings) {
-    const sectionSlide1 = this.parentEl.querySelector(
-      ".section-slide-1"
-    ) as HTMLElement;
-    const sectionSlide2 = this.parentEl.querySelector(
-      ".section-slide-2"
+    listBtn.dataAttributes["shape"] = player.shape;
+    listBtn.content = `
+    ${spanTextContent}
+        <span class="btn-svg-mark">
+          ${playerSVGShape}
+        </span>
+      `;
+    if (prevShape === player.shape) return;
+    if (sectionVisible !== "goFirst") return;
+
+    const playerBtn = this.parentEl.querySelector(
+      `[data-player-id="${player.id}"]`
     ) as HTMLElement;
 
-    handlerSettings({ ai: { enabled: true } });
+    if (!renderInit && !playerBtn) return;
 
-    // *sigh* callback hell
-    hideElement({
-      el: sectionSlide1,
-      transition: "300ms",
-      onEnd: (el) => {
-        el.style.display = "none";
-        showElement({
-          el: sectionSlide2,
-          transition: "300ms",
-          onEnd: (el) => {
-            const firstItem = el.querySelector(".btn") as HTMLElement;
-            el.classList.remove("hidden");
-            el.style.display = "";
-          },
-        });
-      },
-    });
+    const btnSVGMark = playerBtn.querySelector(".btn-svg-mark svg")!;
+    btnSVGMark.replaceWith(createHTMLFromString(playerSVGShape));
+    console.log("update mark in menu");
+
+    if (vsPlayer !== "ai") return;
+    const btnTxtContent = playerBtn.querySelector(".btn-txt-content")!;
+    btnTxtContent.textContent = content;
   }
 
-  private playAgainMarkup() {
-    return `
-      <div class="section hidden">
-        <button class="btn btn-primary btn-play-again" aria-label="play again" data-play="again">
-          ${svg.playAgainCircleBtn}
-        </button>
-      </div>
-    `;
+  updatePlayersMark(data: TPlayer[]) {
+    this.data = data;
+    const players = data;
+
+    players.forEach((player) => this.updatePlayerMark(player));
   }
 
   renderPlayAgainButton() {
@@ -190,44 +313,95 @@ class GameMenuView extends View {
     }, 1000);
   }
 
+  private transitionToNextSection({
+    sectionType,
+    clicked,
+  }: {
+    sectionType: TSections;
+    clicked: boolean;
+  }) {
+    const sectionEl = this.parentEl.querySelector(".section") as HTMLElement;
+
+    hideElement({
+      el: sectionEl,
+      onEnd: (el) => {
+        el.style.display = "none";
+        this.clearChildren(sectionEl);
+        sectionEl.innerHTML = this.menuMarkup({ sectionType });
+        gameContainerView.scaleElementsToProportionToBoard({
+          type: "menuBtns",
+        });
+
+        showElement({
+          el,
+          onEnd: (el) => {
+            const focusBtn = this.parentEl.querySelector(
+              '[data-focus="true"]'
+            ) as HTMLElement;
+
+            focusBtn.focus();
+            el.style.display = "";
+            if (!clicked) focusBtn.classList.add("noFocusClick");
+          },
+        });
+      },
+    });
+  }
+
   addHandlers({
     handlerPlayAgain,
     handlerStartGame,
-    handlerMenuSettings,
+    handlerSettings,
   }: {
     handlerStartGame: TControlStartGame;
     handlerPlayAgain: TControlPlayAgain;
-    handlerMenuSettings: TControlSettings;
+    handlerSettings: TControlSettings;
   }) {
-    const players = this.data;
-    const { id } = players[1];
-
     this.parentEl.addEventListener("click", (e) => {
       const target = e.target as HTMLElement;
       const btn = target.closest(".btn") as HTMLElement;
+      let clicked = true;
+      if (e.detail === 0) clicked = false;
       if (!btn) return;
-      const play = btn.dataset.play;
+      const playAgainst = btn.dataset.playAgainst;
+      const playerId = btn.dataset.playerId!;
       const difficulty = btn.dataset.difficulty;
-      const transitionTo = btn.dataset.transitionTo;
+      const transitionTo = btn.dataset.transitionTo as TSections;
+      const vs = btn.dataset.vs!;
 
-      if (transitionTo === "ai") {
-        this.transitionToAiMenu(handlerMenuSettings);
+      if (difficulty) {
+        handlerSettings({ ai: { enabled: true, difficulty } });
+      }
+
+      if (vs) {
+        this.vsPlayer = vs;
+        this.updatePlayersMark(this.data);
+      }
+
+      if (transitionTo) {
+        this.transitionToNextSection({ sectionType: transitionTo, clicked });
+
+        if (transitionTo === "aiDifficulty") {
+          handlerSettings({ ai: { enabled: true } });
+        }
         return;
       }
 
-      if (play === "human") {
+      if (playAgainst === "human") {
         this.hideMenu();
-        handlerStartGame({ id, ai: false });
+        this.sectionVisible = null;
+        handlerStartGame({ firstMovePlayer: playerId, ai: false });
         return;
       }
 
-      if (play === "ai") {
+      if (playAgainst === "ai") {
         this.hideMenu();
-        handlerStartGame({ id, ai: true, difficulty });
+        this.sectionVisible = null;
+        handlerStartGame({ firstMovePlayer: playerId, ai: true, difficulty });
         return;
       }
 
-      if (play === "again") {
+      if (playAgainst === "again") {
         this.hideMenu();
         handlerPlayAgain();
         return;
@@ -240,6 +414,8 @@ class GameMenuView extends View {
     this.clear();
     this.parentEl.insertAdjacentHTML("afterbegin", this.generateMarkup());
     this.initQuerySelectors();
+    this.updatePlayersMark(data);
+    this.renderInit = false;
   }
 }
 
