@@ -5,7 +5,7 @@ class SkipToGameMenu extends View {
   btn: HTMLElement;
 
   constructor() {
-    super({ root: "#skip-to-start-game" });
+    super({ root: "#skip-to-game-menu" });
     this.gameMenuExist = true;
     this.btn = {} as HTMLElement;
   }
@@ -23,7 +23,7 @@ class SkipToGameMenu extends View {
   protected initEventListeners() {
     this.btn.addEventListener("click", () => {
       const btnAi = document.querySelector(
-        ".quick-start-menu [data-id='ai']"
+        "#game-menu [data-focus='true']"
       ) as HTMLElement;
       const boardCell = document.querySelector(
         '.board .cell[tabindex="0"]'
