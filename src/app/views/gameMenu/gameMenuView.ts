@@ -261,13 +261,19 @@ class GameMenuView extends View {
         : "";
 
     if (vsPlayer === "human") {
+      const ariaLabel =
+        player.id === "P1" ? "You go first" : "Computer goes first";
       listBtn.dataAttributes = {
         ...listBtn.dataAttributes,
         playAgainst: "human",
       };
+      listBtn.aria = { ...listBtn.aria, "aria-label": ariaLabel };
     }
     if (vsPlayer === "ai") {
+      const ariaLabel =
+        player.id === "P1" ? "Player 1 goes first" : "Player 2 goes first";
       listBtn.dataAttributes = { ...listBtn.dataAttributes, playAgainst: "ai" };
+      listBtn.aria = { ...listBtn.aria, "aria-label": ariaLabel };
     }
 
     listBtn.dataAttributes["shape"] = player.shape;

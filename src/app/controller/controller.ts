@@ -10,6 +10,7 @@ import messageView from "../views/message/messageView";
 import { getOppositePlayer } from "../views/utils/index";
 import settingsView from "../views/settings/settingsView";
 import skipToGameMenu from "../views/skipContentBtn/skipToGameMenuView";
+import gameStatusAriaLiveRegionView from "../views/ariaLiveRegions/gameStatusAriaLiveRegionView";
 
 export type TControlSettings = (prop: {
   ai?: {
@@ -81,10 +82,22 @@ const moveAi: TMoveAi = async ({ delay } = {}) => {
   await model.goAI({ delay });
   boardView.updateBoard({ data: model.state, player: ai });
   boardView.allowPlayerToSelect();
+  gameStatusAriaLiveRegionView.announce({
+    playerId: ai.id,
+    position: model.state.game.markedPositions[0],
+    state: "move",
+    vs: "ai",
+  });
+
   model.clearMarkedPositions();
 
   if (model.state.game.gameOver) {
     gameMenuView.renderPlayAgainButton();
+    gameStatusAriaLiveRegionView.announce({
+      playerId: ai.id,
+      state: model.state.game.gameTie ? "tie" : "win",
+      vs: "ai",
+    });
     return;
   }
 
@@ -100,6 +113,12 @@ const moveHuman = ({ column, row }: { column: number; row: number }) => {
   // show mark based on column row
   boardView.updateBoard({ data: model.state, player });
   model.clearMarkedPositions();
+  gameStatusAriaLiveRegionView.announce({
+    playerId: player.id,
+    state: "move",
+    position: { column, row },
+    vs: model.state.game.hasAI ? "ai" : "human",
+  });
 
   if (!model.state.game.hasAI) {
     boardView.allowPlayerToSelect();
@@ -108,6 +127,11 @@ const moveHuman = ({ column, row }: { column: number; row: number }) => {
   if (model.state.game.gameOver) {
     // model update random shape or color
     gameMenuView.renderPlayAgainButton();
+    gameStatusAriaLiveRegionView.announce({
+      playerId: player.id,
+      state: model.state.game.gameTie ? "tie" : "win",
+      vs: model.state.game.hasAI ? "ai" : "human",
+    });
     return;
   }
 };
