@@ -64,6 +64,23 @@
     display: flex;
     justify-content: center;
   }
+
+  .btn-pick-player {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &[data-play-against="human"] {
+      justify-content: center;
+    }
+
+    .btn-svg-mark {
+      height: 100%;
+      svg {
+        width: auto;
+      }
+    }
+  }
 }
 
 .game-start-info {
@@ -81,9 +98,20 @@
   font-size: 18px;
 }
 
+.play-again-container {
+  display: flex;
+  justify-content: center;
+
+  &.hidden {
+    display: none;
+  }
+}
+
 .btn-play-again {
+  display: block;
   width: 100px;
   height: 100px;
+  padding: 0;
   background: none;
 
   .play-again-btn-main {
@@ -110,6 +138,21 @@
 
     .btn-pick {
       font-size: 20px;
+    }
+  }
+}
+
+@media (max-width: 185px) {
+  #game-menu {
+    .menu {
+      padding: 0;
+    }
+  }
+}
+@media (max-height: 185px) {
+  #game-menu {
+    .menu {
+      padding: 0;
     }
   }
 }

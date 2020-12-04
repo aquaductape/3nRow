@@ -189,23 +189,19 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
-// @media (min-width: 600px) {
-//   body {
-//     font-size: 1.25rem;
-//   }
-// }
-
-#skip-to-start-game {
-  position: fixed;
+#skip-to-game-menu {
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 100;
 
   .btn {
+    position: absolute;
+    top: -100px;
+    left: 0;
     display: block;
     width: 100%;
-    height: 100%;
     padding: 25px 0;
     font-size: 20px;
     font-weight: 700;
@@ -218,6 +214,7 @@ input:checked + .slider:before {
     pointer-events: none;
 
     &:focus {
+      top: 0;
       outline: 3px solid #fff;
       outline-offset: 5px;
       opacity: 1;
