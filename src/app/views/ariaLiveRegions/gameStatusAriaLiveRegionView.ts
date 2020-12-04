@@ -70,7 +70,7 @@ class GameStatusAriaLiveRegionView extends View {
 
       if (state === "win") {
         if (humanMovesVsAi) {
-          this.parentEl.textContent = "You win! Game Over!";
+          this.parentEl.textContent = "Congratulations, you won! Game Over!";
           return;
         }
 
