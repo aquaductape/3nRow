@@ -24,3 +24,9 @@ export const round = (num: number, dec: number) => {
       (ev || 0)
   );
 };
+
+export const camelToKebabCase = (str: string) =>
+  str[0].toLowerCase() +
+  str
+    .slice(1, str.length)
+    .replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);

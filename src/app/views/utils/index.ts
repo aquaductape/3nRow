@@ -1,4 +1,5 @@
 import { TPlayer } from "../../model/state";
+import { camelToKebabCase } from "../../utils/index";
 
 export const diagonalLengthOfElement = (el: HTMLElement) =>
   Math.ceil(
@@ -184,3 +185,27 @@ export const getElement = (root: string | HTMLElement) => {
 };
 
 export const reflow = () => document.body.offsetWidth;
+
+export const convertObjPropsToHTMLAttr = ({
+  obj,
+  type,
+}: {
+  obj: { [key: string]: string };
+  type: "data" | "aria";
+}) => {
+  let result = "";
+  for (let key in obj) {
+    const value = obj[key];
+
+    if (type === "data") key = camelToKebabCase(key);
+
+    let attribute = `${key}="${value}"`;
+
+    if (type === "data") {
+      attribute = "data-" + attribute;
+    }
+    result += attribute;
+  }
+
+  return result;
+};
