@@ -22,6 +22,8 @@ export const scaleStyles = ({
       | ((el: HTMLElement) => string);
   };
 }) => {
+  if (!el || (Array.isArray(el) && !el.length)) return;
+
   for (const key in styleRatio) {
     const value = styleRatio[key];
     let ratio = 0;
