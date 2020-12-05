@@ -7,17 +7,25 @@ import { colorMap, colors, shapes, svg } from "../constants/constants";
 import { radioGroup } from "../utils/aria";
 import { diagonalLengthOfElement, getOppositePlayer } from "../utils/index";
 import View from "../View";
+import { animateDropdown } from "./animation";
+
+let debugCounter = 0;
 
 export default class DropdownOptionsView extends View {
   data: { players: TPlayer[]; currentPlayer: TPlayer };
   dropdownOptions: HTMLElement;
   playerBtnHighlight: HTMLElement;
+  playerBtnGroup: HTMLElement;
   // dropdownContainer: HTMLElement;
   // dropdown: HTMLElement;
   dropdownBtn: HTMLElement;
   dropdownTimeout: number;
   shapeGroup: HTMLElement;
   colorGroup: HTMLElement;
+  dropdownAnimation: {
+    canceled: boolean;
+    lastPosition: number;
+  };
   handlerShape: TControlPlayerShape;
   handlerColor: TControlPlayerColor;
 
@@ -31,8 +39,13 @@ export default class DropdownOptionsView extends View {
     super({ root });
 
     this.data = data;
+    this.dropdownAnimation = {
+      canceled: false,
+      lastPosition: 0,
+    };
     this.dropdownOptions = {} as HTMLElement;
     this.playerBtnHighlight = {} as HTMLElement;
+    this.playerBtnGroup = {} as HTMLElement;
     // this.dropdownContainer = {} as HTMLElement;
     // this.dropdown = {} as HTMLElement;
     this.dropdownBtn = {} as HTMLElement;
@@ -68,6 +81,9 @@ export default class DropdownOptionsView extends View {
     ) as HTMLElement;
     this.shapeGroup = this.parentEl.querySelector(
       ".shape-group"
+    ) as HTMLElement;
+    this.playerBtnGroup = document.querySelector(
+      ".player-btn-group"
     ) as HTMLElement;
 
     this.onRadioGroup();
@@ -353,13 +369,13 @@ export default class DropdownOptionsView extends View {
     this.handlerColor = handler;
   }
 
-  removeDropdown(callback: Function) {
-    this.leaveEnter();
+  removeDropdown(removeActiveBtn: Function) {
+    this.leaveEnter(removeActiveBtn);
 
-    this.dropdownTimeout = window.setTimeout(() => {
-      this.parentEl.classList.add("hidden");
-      callback();
-    }, 350);
+    // this.dropdownTimeout = window.setTimeout(() => {
+    //   this.parentEl.classList.add("hidden");
+    //   callback();
+    // }, 350);
   }
 
   cancelHiddingDropdown() {
@@ -376,56 +392,76 @@ export default class DropdownOptionsView extends View {
     const {
       currentPlayer: { id },
     } = this.data;
+    const clipPathId = `clipPath-dropdown-${id}`;
+    const clipPath = (document.getElementById(
+      `${clipPathId}-circle`
+    ) as unknown) as SVGElement;
+    const circleCY = 60;
 
-    if (id === "P1") {
-      circleClipHoldElement({
-        element: this.dropdownOptions,
-        parent: this.parentEl,
-        top: "100%",
-        left: "0%",
-        padding: 10, // to cover box shadow
-      });
-      return;
-    }
-
-    if (id === "P2") {
-      // position based on parent
-      circleClipHoldElement({
-        element: this.dropdownOptions,
-        parent: this.parentEl,
-        left: "100%",
-        top: "100%",
-        padding: 10, // to cover box shadow
-      });
-    }
+    const diagonalLength = diagonalLengthOfElement(this.dropdownOptions);
+    const radius = diagonalLength - circleCY + this.playerBtnGroup.clientHeight;
+    if (id === "P1" && debugCounter > 1) debugger;
+    console.log("animateDropdown appearEnter");
+    debugCounter++;
+    animateDropdown({
+      el: this.parentEl,
+      debug: id,
+      from: 0,
+      to: radius,
+      duration: 1800,
+      onStart: () => {
+        this.parentEl.style.clipPath = `url(#${clipPathId})`;
+      },
+      // onCancel: (val) => {
+      //   this.dropdownAnimation.canceled = true;
+      //   this.dropdownAnimation.lastPosition = val;
+      // },
+      onDraw: (val) => {
+        clipPath.setAttribute("r", `${val}px`);
+      },
+      onEnd: () => {
+        this.parentEl.style.clipPath = "";
+        this.dropdownAnimation.canceled = false;
+      },
+    });
   }
 
-  private leaveEnter() {
-    this.parentEl.style.clipPath = "";
+  private leaveEnter(removeActiveBtn: Function) {
+    const {
+      currentPlayer: { id },
+    } = this.data;
+    const clipPathId = `clipPath-dropdown-${id}`;
+    const clipPath = (document.getElementById(
+      `${clipPathId}-circle`
+    ) as unknown) as SVGElement;
+    const circleCY = 60;
+
+    const diagonalLength = diagonalLengthOfElement(this.dropdownOptions);
+    const radius = diagonalLength - circleCY + this.playerBtnGroup.clientHeight;
+    console.log("animateDropdown leaveEnter");
+
+    animateDropdown({
+      el: this.parentEl,
+      debug: id,
+      from: radius,
+      to: 0,
+      duration: 1800,
+      onStart: () => {
+        this.parentEl.style.clipPath = `url(#${clipPathId})`;
+      },
+      // onCancel: (val) => {
+      //   this.dropdownAnimation.canceled = true;
+      //   this.dropdownAnimation.lastPosition = val;
+      // },
+      onDraw: (val) => {
+        clipPath.setAttribute("r", `${val}px`);
+      },
+      onEnd: () => {
+        this.parentEl.classList.add("hidden");
+        this.parentEl.style.clipPath = "";
+        this.dropdownAnimation.canceled = false;
+        removeActiveBtn();
+      },
+    });
   }
 }
-
-// just like absolute position, origin of clip circle starts at top 0 and left 0, therefore animation starts at top left
-// actually the it will clip the parent, but clip size is based on the element
-const circleClipHoldElement = ({
-  element,
-  parent,
-  left = 0,
-  top = 0,
-  padding = 0,
-}: {
-  top?: number | string;
-  left?: number | string;
-  /** general padding not literal css padding */
-  padding?: number;
-  element: HTMLElement;
-  parent: HTMLElement;
-}) => {
-  // diameter of circle to hold element
-  if (typeof top === "number") top = top + "px";
-  if (typeof left === "number") left = left + "px";
-  const diameter = diagonalLengthOfElement(element) + padding;
-  // @ts-ignore
-  parent.style.webkitClipPath = `circle(${diameter}px at ${left} ${top})`;
-  parent.style.clipPath = `circle(${diameter}px at ${left} ${top})`;
-};

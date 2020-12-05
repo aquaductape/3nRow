@@ -10,7 +10,7 @@ class SvgDefsView extends View {
     this.data = [];
   }
 
-  protected generateMarkup() {
+  private shapeDefsMarkup() {
     const players = this.data;
     const defsContainer = (...defs: string[]) => {
       return (
@@ -43,8 +43,29 @@ class SvgDefsView extends View {
     return createSVGGraphicsInsideDefs(players);
   }
 
-  private removeDefs() {
-    this.clear();
+  private clipPathDefsMarkup() {
+    return `
+    <svg  xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <clipPath id="clipPath-dropdown-P1">
+          <circle id="clipPath-dropdown-P1-circle" cx="0" cy="60px" r="0px" fill="red"/>
+        </clipPath>
+        <clipPath id="clipPath-dropdown-P2">
+          <circle id="clipPath-dropdown-P2-circle" cx="100%" cy="60px" r="0px" fill="red"/>
+        </clipPath>
+      </defs> 
+    </svg>
+    `;
+  }
+  protected generateMarkup() {
+    return `
+      <div class="shape-defs-container">
+        ${this.shapeDefsMarkup()}
+      </div>
+      <div class="clip-path-container">
+        ${this.clipPathDefsMarkup()}
+      </div>
+    `;
   }
 
   private setColor(player: TPlayer, shape: string) {
@@ -69,6 +90,15 @@ class SvgDefsView extends View {
   render(data: TPlayer[]) {
     this.data = data;
     this.parentEl.innerHTML = this.generateMarkup();
+    this.setColors();
+  }
+
+  updateShapeColors(data: TPlayer[]) {
+    this.data = data;
+    const shapeDefsContainer = this.parentEl.querySelector(
+      ".shape-defs-container"
+    ) as HTMLElement;
+    shapeDefsContainer.innerHTML = this.shapeDefsMarkup();
     this.setColors();
   }
 

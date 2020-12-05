@@ -41,7 +41,7 @@
 
   // { fix clip animation in Safari
   z-index: 10;
-  transform: translateZ(0);
+  // transform: translateZ(0);
   // }
 }
 
@@ -161,10 +161,6 @@
 }
 
 #P1-btn-options {
-  & .dropdown-options-container {
-    clip-path: circle(0px at 0% 100%);
-  }
-
   & .player-btn-highlight {
     box-shadow: 10px 0px 0px 0px #eee;
   }

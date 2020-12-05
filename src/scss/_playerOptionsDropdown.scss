@@ -17,18 +17,32 @@
   left: 0;
   width: 100%;
   height: 100%;
-  clip-path: circle(0px at 100% 0%);
   z-index: 1;
-  // { fix clip animation in Safari
-  transform: translateZ(0);
-  // }
-  transition: clip-path 300ms ease-in;
+
+  &-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .dropdown-options-container {
   hr {
     margin-bottom: 20px;
   }
+}
+
+#P1-btn-options {
+  // .dropdown-options-container {
+  //   clip-path: url(#clipPath-dropdown-P1);
+  // }
+}
+#P2-btn-options {
+  // .dropdown-options-container {
+  //   clip-path: url(#clipPath-dropdown-P2);
+  // }
 }
 
 .options-dropdown {

@@ -47,7 +47,7 @@ const controlPlayAgain: TControlPlayAgain = async () => {
     });
     model.randomChangePlayerSkin(aiPlayer);
     // update View shape and color
-    svgDefsView.render(model.state.players);
+    svgDefsView.updateShapeColors(model.state.players);
     playerBtnGroupView.updateSvgMark(aiPlayer);
     // update dropdown lists
     playerBtnGroupView.updateSkinSelectionInDropdown({
@@ -233,7 +233,7 @@ const controlPlayerColor: TControlPlayerColor = ({ player, color }) => {
 
   // View
   // update svgDefs
-  svgDefsView.render(model.state.players);
+  svgDefsView.updateShapeColors(model.state.players);
   // update slash color
   boardView.updateWinnerSlashColor(player.color);
   // update indicator color

@@ -248,7 +248,6 @@ class GameMenuView extends View {
       vsPlayer,
     } = this;
 
-    console.log(vsPlayer);
     const listBtn = goFirst.listBtns.find((btn) => btn.id === player.id)!;
     const prevShape = listBtn!.dataAttributes["shape"];
     const content = player.id === "P1" ? "You" : "Computer";
