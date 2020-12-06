@@ -11,6 +11,7 @@ import { getOppositePlayer } from "../views/utils/index";
 import settingsView from "../views/settings/settingsView";
 import skipToGameMenu from "../views/skipContentBtn/skipToGameMenuView";
 import gameStatusAriaLiveRegionView from "../views/ariaLiveRegions/gameStatusAriaLiveRegionView";
+import matchMediaView from "../views/windowEvents/matchMediaView";
 
 export type TControlSettings = (prop: {
   ai?: {

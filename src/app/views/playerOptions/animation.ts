@@ -18,14 +18,11 @@ const expand = (elementRadius: number) => {
 };
 
 let runningInstances: {
-  debug: string;
   el: HTMLElement;
   refs: { canceled: boolean; prevFrom: number };
 }[] = [];
-let interrupt = false;
 
-let debugCount = 0;
-const findRunningInstance = (el: HTMLElement, debug: string) => {
+const findRunningInstance = (el: HTMLElement) => {
   let foundIdx = 0;
   const instance = runningInstances.find((instance, idx) => {
     if (el === instance.el) {
@@ -38,8 +35,8 @@ const findRunningInstance = (el: HTMLElement, debug: string) => {
   return { idx: foundIdx, instance: instance };
 };
 
-const removeRunningInstance = (el: HTMLElement, debug: string) => {
-  const sameRunningInstance = findRunningInstance(el, debug);
+const removeRunningInstance = (el: HTMLElement) => {
+  const sameRunningInstance = findRunningInstance(el);
 
   if (sameRunningInstance) {
     const { instance, idx } = sameRunningInstance;
@@ -53,7 +50,6 @@ const removeRunningInstance = (el: HTMLElement, debug: string) => {
 // data animation running attr on element
 export const animateDropdown = ({
   el,
-  debug,
   from,
   to,
   duration,
@@ -63,7 +59,6 @@ export const animateDropdown = ({
   onStart,
 }: {
   el: string | HTMLElement;
-  debug: string;
   from: number;
   to: number;
   duration: number;
@@ -76,13 +71,12 @@ export const animateDropdown = ({
   el = getElement(el);
 
   // remove if running instance has same element
-  const prevInstance = removeRunningInstance(el, debug);
+  const prevInstance = removeRunningInstance(el);
   // if (prevInstance) return;
 
   let refs = { canceled: false, prevFrom: from };
 
   runningInstances.push({
-    debug,
     el,
     refs,
   });
@@ -115,7 +109,7 @@ export const animateDropdown = ({
 
     if (now - start! > duration) {
       onEnd && onEnd(x);
-      removeRunningInstance(el as HTMLElement, debug);
+      removeRunningInstance(el as HTMLElement);
       return;
     }
     const p = (now - start!) / duration;

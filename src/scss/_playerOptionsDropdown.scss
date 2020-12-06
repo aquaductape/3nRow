@@ -315,3 +315,33 @@
     opacity: 1;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .color-item {
+    .color-item-bg {
+      transition: transform 50ms;
+
+      &:after {
+        transition: transform 50ms;
+      }
+    }
+
+    .color-item-inner {
+      transition: transform 50ms;
+    }
+  }
+
+  .shape-item {
+    .shape-item-bg {
+      transition: transform 50ms;
+
+      &:after {
+        transition: transform 50ms;
+      }
+    }
+
+    .shape-item-inner {
+      transition: transform 50ms;
+    }
+  }
+}
