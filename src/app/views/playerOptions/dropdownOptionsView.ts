@@ -349,7 +349,7 @@ export default class DropdownOptionsView extends View {
       currentPlayer: { id },
     } = this.data;
 
-    if (this.reducedAnimation || IOS || Safari) {
+    if (this.reducedAnimation || IOS) {
       return;
     }
 
@@ -391,7 +391,7 @@ export default class DropdownOptionsView extends View {
       currentPlayer: { id },
     } = this.data;
 
-    if (this.reducedAnimation || IOS || Safari) {
+    if (this.reducedAnimation || IOS) {
       this.parentEl.classList.add("hidden");
       this.parentEl.style.clipPath = "";
       removeActiveBtn();
