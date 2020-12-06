@@ -378,6 +378,11 @@ export default class DropdownOptionsView extends View {
       },
       onDraw: (val) => {
         clipPath.setAttribute("r", `${val}px`);
+        const svgContainer = clipPath.parentElement!;
+        const divHolder = svgContainer.parentElement!;
+        divHolder.removeChild(svgContainer);
+        this.reflow();
+        divHolder.appendChild(svgContainer);
       },
       onEnd: () => {
         this.parentEl.style.clipPath = "";
@@ -426,6 +431,12 @@ export default class DropdownOptionsView extends View {
       },
       onDraw: (val) => {
         clipPath.setAttribute("r", `${val}px`);
+        const svgContainer = clipPath.parentElement!;
+        const divHolder = svgContainer.parentElement!;
+        divHolder.removeChild(svgContainer);
+        this.reflow();
+        divHolder.appendChild(svgContainer);
+        // clipPath.parentElement!.style.display = "block";
       },
       onEnd: () => {
         this.parentEl.classList.add("hidden");
