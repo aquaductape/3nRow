@@ -2,7 +2,7 @@ import {
   TControlPlayerColor,
   TControlPlayerShape,
 } from "../../controller/controller";
-import { IOS, IOS13 } from "../../lib/onFocusOut/browserInfo";
+import { IOS, IOS13, Safari } from "../../lib/onFocusOut/browserInfo";
 import { TPlayer } from "../../model/state";
 import { colorMap, colors, shapes, svg } from "../constants/constants";
 import { radioGroup } from "../utils/aria";
@@ -368,6 +368,12 @@ export default class DropdownOptionsView extends View {
       to: radius,
       duration: 350,
       onStart: () => {
+        this.parentEl.style.willChange = "all";
+        // if(Safari) {
+        this.parentEl.style.animation = "Force-Full-Repaint-Frame";
+        this.parentEl.style.animationDuration = "350ms";
+        // }
+
         this.parentEl.style.clipPath = `url(#${clipPathId})`;
       },
       onDraw: (val) => {
@@ -375,6 +381,9 @@ export default class DropdownOptionsView extends View {
       },
       onEnd: () => {
         this.parentEl.style.clipPath = "";
+        this.parentEl.style.willChange = "";
+        this.parentEl.style.animation = "";
+        this.parentEl.style.animationDuration = "";
         this.dropdownAnimation.canceled = false;
       },
     });
@@ -407,6 +416,12 @@ export default class DropdownOptionsView extends View {
       to: 0,
       duration: 350,
       onStart: () => {
+        this.parentEl.style.willChange = "all";
+        // if(Safari) {
+        this.parentEl.style.animation = "Force-Full-Repaint-Frame";
+        this.parentEl.style.animationDuration = "350ms";
+        // }
+
         this.parentEl.style.clipPath = `url(#${clipPathId})`;
       },
       onDraw: (val) => {
@@ -415,6 +430,9 @@ export default class DropdownOptionsView extends View {
       onEnd: () => {
         this.parentEl.classList.add("hidden");
         this.parentEl.style.clipPath = "";
+        this.parentEl.style.willChange = "";
+        this.parentEl.style.animation = "";
+        this.parentEl.style.animationDuration = "";
         removeActiveBtn();
       },
     });
