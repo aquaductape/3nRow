@@ -349,7 +349,7 @@ export default class DropdownOptionsView extends View {
       currentPlayer: { id },
     } = this.data;
 
-    if (this.reducedAnimation || (IOS && !IOS13)) {
+    if (this.reducedAnimation || IOS || Safari) {
       return;
     }
 
@@ -369,20 +369,10 @@ export default class DropdownOptionsView extends View {
       duration: 350,
       onStart: () => {
         this.parentEl.style.willChange = "opacity";
-        // if(Safari) {
-        this.parentEl.style.animation = "Force-Full-Repaint-Frame";
-        this.parentEl.style.animationDuration = "350ms";
-        // }
-
         this.parentEl.style.clipPath = `url(#${clipPathId})`;
       },
       onDraw: (val) => {
         clipPath.setAttribute("r", `${val}px`);
-        const svgContainer = clipPath.parentElement!;
-        const divHolder = svgContainer.parentElement!;
-        divHolder.removeChild(svgContainer);
-        this.reflow();
-        divHolder.appendChild(svgContainer);
       },
       onEnd: () => {
         this.parentEl.style.clipPath = "";
@@ -399,7 +389,7 @@ export default class DropdownOptionsView extends View {
       currentPlayer: { id },
     } = this.data;
 
-    if (this.reducedAnimation || (IOS && !IOS13)) {
+    if (this.reducedAnimation || IOS || Safari) {
       this.parentEl.classList.add("hidden");
       this.parentEl.style.clipPath = "";
       removeActiveBtn();
@@ -422,21 +412,10 @@ export default class DropdownOptionsView extends View {
       duration: 350,
       onStart: () => {
         this.parentEl.style.willChange = "opacity";
-        // if(Safari) {
-        this.parentEl.style.animation = "Force-Full-Repaint-Frame";
-        this.parentEl.style.animationDuration = "350ms";
-        // }
-
         this.parentEl.style.clipPath = `url(#${clipPathId})`;
       },
       onDraw: (val) => {
         clipPath.setAttribute("r", `${val}px`);
-        const svgContainer = clipPath.parentElement!;
-        const divHolder = svgContainer.parentElement!;
-        divHolder.removeChild(svgContainer);
-        this.reflow();
-        divHolder.appendChild(svgContainer);
-        // clipPath.parentElement!.style.display = "block";
       },
       onEnd: () => {
         this.parentEl.classList.add("hidden");
