@@ -17,18 +17,32 @@
   left: 0;
   width: 100%;
   height: 100%;
-  clip-path: circle(0px at 100% 0%);
   z-index: 1;
-  // { fix clip animation in Safari
-  transform: translateZ(0);
-  // }
-  transition: clip-path 300ms ease-in;
+
+  .svg-clip-path-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .dropdown-options-container {
   hr {
     margin-bottom: 20px;
   }
+}
+
+#P1-btn-options {
+  // .dropdown-options-container {
+  //   clip-path: url(#clipPath-dropdown-P1);
+  // }
+}
+#P2-btn-options {
+  // .dropdown-options-container {
+  //   clip-path: url(#clipPath-dropdown-P2);
+  // }
 }
 
 .options-dropdown {
@@ -299,5 +313,35 @@
 
   &.noFocusClick:focus .color-item-bg:after {
     opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .color-item {
+    .color-item-bg {
+      transition: transform 50ms;
+
+      &:after {
+        transition: transform 50ms;
+      }
+    }
+
+    .color-item-inner {
+      transition: transform 50ms;
+    }
+  }
+
+  .shape-item {
+    .shape-item-bg {
+      transition: transform 50ms;
+
+      &:after {
+        transition: transform 50ms;
+      }
+    }
+
+    .shape-item-inner {
+      transition: transform 50ms;
+    }
   }
 }

@@ -180,3 +180,23 @@
   animation: Line-Win-A 1s cubic-bezier(0.4, 0, 0.58, 1);
   animation-fill-mode: forwards;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .cell {
+    .animate__first-line,
+    .animate__second-line,
+    .animate__third-line,
+    .animate__right-dot,
+    .animate__left-dot,
+    .animate__left-line,
+    .animate__right-line,
+    .animate__circle-left,
+    .animate__circle-right,
+    .animate__heart {
+      opacity: 1 !important;
+      stroke-dasharray: unset !important;
+      stroke-dashoffset: unset !important;
+      animation: unset !important;
+    }
+  }
+}

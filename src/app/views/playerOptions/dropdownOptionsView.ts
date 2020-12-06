@@ -2,22 +2,29 @@ import {
   TControlPlayerColor,
   TControlPlayerShape,
 } from "../../controller/controller";
+import { IOS, IOS13 } from "../../lib/onFocusOut/browserInfo";
 import { TPlayer } from "../../model/state";
 import { colorMap, colors, shapes, svg } from "../constants/constants";
 import { radioGroup } from "../utils/aria";
 import { diagonalLengthOfElement, getOppositePlayer } from "../utils/index";
 import View from "../View";
+import matchMediaView from "../windowEvents/matchMediaView";
+import { animateDropdown } from "./animation";
 
 export default class DropdownOptionsView extends View {
   data: { players: TPlayer[]; currentPlayer: TPlayer };
+  reducedAnimation: boolean;
   dropdownOptions: HTMLElement;
   playerBtnHighlight: HTMLElement;
-  // dropdownContainer: HTMLElement;
-  // dropdown: HTMLElement;
+  playerBtnGroup: HTMLElement;
   dropdownBtn: HTMLElement;
   dropdownTimeout: number;
   shapeGroup: HTMLElement;
   colorGroup: HTMLElement;
+  dropdownAnimation: {
+    canceled: boolean;
+    lastPosition: number;
+  };
   handlerShape: TControlPlayerShape;
   handlerColor: TControlPlayerColor;
 
@@ -31,16 +38,27 @@ export default class DropdownOptionsView extends View {
     super({ root });
 
     this.data = data;
+    this.reducedAnimation = false;
+    this.dropdownAnimation = {
+      canceled: false,
+      lastPosition: 0,
+    };
     this.dropdownOptions = {} as HTMLElement;
     this.playerBtnHighlight = {} as HTMLElement;
-    // this.dropdownContainer = {} as HTMLElement;
-    // this.dropdown = {} as HTMLElement;
+    this.playerBtnGroup = {} as HTMLElement;
     this.dropdownBtn = {} as HTMLElement;
     this.shapeGroup = {} as HTMLElement;
     this.colorGroup = {} as HTMLElement;
     this.dropdownTimeout = 0;
     this.handlerColor = () => {};
     this.handlerShape = () => {};
+
+    matchMediaView.subscribe({
+      media: "(prefers-reduced-motion: reduce)",
+      handler: ({ matches }) => {
+        this.reducedAnimation = matches;
+      },
+    });
   }
 
   protected initQuerySelectors() {
@@ -55,11 +73,6 @@ export default class DropdownOptionsView extends View {
       `[data-player-id="${id}"]`
     ) as HTMLElement;
 
-    // this.dropdownContainer = this.parentEl.querySelector(
-    //   ".dropdown-container"
-    // ) as HTMLElement;
-    // this.dropdown = this.parentEl.querySelector(".dropdown") as HTMLElement;
-    // this.addDropdownEvents();
     this.dropdownBtn = this.parentEl.querySelector(
       ".dropdown-btn"
     ) as HTMLElement;
@@ -68,6 +81,9 @@ export default class DropdownOptionsView extends View {
     ) as HTMLElement;
     this.shapeGroup = this.parentEl.querySelector(
       ".shape-group"
+    ) as HTMLElement;
+    this.playerBtnGroup = document.querySelector(
+      ".player-btn-group"
     ) as HTMLElement;
 
     this.onRadioGroup();
@@ -195,7 +211,11 @@ export default class DropdownOptionsView extends View {
       currentPlayer: { id },
     } = this.data;
     const markup = `
-
+    <svg class="svg-clip-path-container" xmlns="http://www.w3.org/2000/svg">
+      <clipPath id="clipPath-dropdown-${id}">
+        <use href="#clipPath-dropdown-${id}-circle">
+      </clipPath>
+    </svg>
     <!-- btn highlight for player --> 
     ${this.generateBtnHighlight()}
 
@@ -223,49 +243,6 @@ export default class DropdownOptionsView extends View {
 
     return markup;
   }
-
-  // private generateDropdown(el: HTMLElement, idx: number) {
-  //   console.log(idx);
-  //   const markupList: string[] = [];
-  //   for (let i = idx; i < idx + 3; i++) {
-  //     const markup = `
-  //     <div class="dropdown-container" data-db-container="${i}" style="position:relative">
-  //       <button class="dropdown-btn">Dropdown ${i}</button>
-  //     </div>
-  //     `;
-  //     markupList.push(markup);
-  //   }
-
-  //   const markup = `
-  //   <ul class="dropdown" data-db-dropdown="${idx}" style=" position: absolute; top: 25px; width: 100%; overflow: visible; display: block; padding: 5px; z-index: 1;">
-  //     ${markupList.join("")}
-  //   </ul>
-  //   `;
-
-  //   el.insertAdjacentHTML("beforeend", markup);
-  // }
-
-  // private addDropdownEvents() {
-  //   this.dropdownContainer.addEventListener("click", (e) => {
-  //     const target = e.target as HTMLElement;
-  //     const btn = target.closest(".dropdown-btn");
-  //     const container = target.closest(".dropdown-container") as HTMLElement;
-  //     const id = Number(container.dataset.dbContainer!);
-  //     if (!btn) return;
-
-  //     onFocusOut({
-  //       button: btn,
-  //       run: () => {
-  //         this.generateDropdown(container, id + 3);
-  //       },
-  //       allow: [`[data-db-dropdown="${id + 3}"]`],
-  //       onExit: () => {
-  //         container.innerHTML = "";
-  //         container.appendChild(btn);
-  //       },
-  //     });
-  //   });
-  // }
 
   private onRadioGroup() {
     const { currentPlayer: player } = this.data;
@@ -353,13 +330,8 @@ export default class DropdownOptionsView extends View {
     this.handlerColor = handler;
   }
 
-  removeDropdown(callback: Function) {
-    this.leaveEnter();
-
-    this.dropdownTimeout = window.setTimeout(() => {
-      this.parentEl.classList.add("hidden");
-      callback();
-    }, 350);
+  removeDropdown(removeActiveBtn: Function) {
+    this.leaveEnter(removeActiveBtn);
   }
 
   cancelHiddingDropdown() {
@@ -377,55 +349,74 @@ export default class DropdownOptionsView extends View {
       currentPlayer: { id },
     } = this.data;
 
-    if (id === "P1") {
-      circleClipHoldElement({
-        element: this.dropdownOptions,
-        parent: this.parentEl,
-        top: "100%",
-        left: "0%",
-        padding: 10, // to cover box shadow
-      });
+    if (this.reducedAnimation || (IOS && !IOS13)) {
       return;
     }
 
-    if (id === "P2") {
-      // position based on parent
-      circleClipHoldElement({
-        element: this.dropdownOptions,
-        parent: this.parentEl,
-        left: "100%",
-        top: "100%",
-        padding: 10, // to cover box shadow
-      });
-    }
+    const clipPathId = `clipPath-dropdown-${id}`;
+    const clipPath = (document.getElementById(
+      `${clipPathId}-circle`
+    ) as unknown) as SVGElement;
+    const circleCY = 60;
+
+    const diagonalLength = diagonalLengthOfElement(this.dropdownOptions);
+    const radius = diagonalLength - circleCY + this.playerBtnGroup.clientHeight;
+
+    animateDropdown({
+      el: this.parentEl,
+      from: 0,
+      to: radius,
+      duration: 350,
+      onStart: () => {
+        this.parentEl.style.clipPath = `url(#${clipPathId})`;
+      },
+      onDraw: (val) => {
+        clipPath.setAttribute("r", `${val}px`);
+      },
+      onEnd: () => {
+        this.parentEl.style.clipPath = "";
+        this.dropdownAnimation.canceled = false;
+      },
+    });
   }
 
-  private leaveEnter() {
-    this.parentEl.style.clipPath = "";
+  private leaveEnter(removeActiveBtn: Function) {
+    const {
+      currentPlayer: { id },
+    } = this.data;
+
+    if (this.reducedAnimation || (IOS && !IOS13)) {
+      this.parentEl.classList.add("hidden");
+      this.parentEl.style.clipPath = "";
+      removeActiveBtn();
+      return;
+    }
+
+    const clipPathId = `clipPath-dropdown-${id}`;
+    const clipPath = (document.getElementById(
+      `${clipPathId}-circle`
+    ) as unknown) as SVGElement;
+    const circleCY = 60;
+
+    const diagonalLength = diagonalLengthOfElement(this.dropdownOptions);
+    const radius = diagonalLength - circleCY + this.playerBtnGroup.clientHeight;
+
+    animateDropdown({
+      el: this.parentEl,
+      from: radius,
+      to: 0,
+      duration: 350,
+      onStart: () => {
+        this.parentEl.style.clipPath = `url(#${clipPathId})`;
+      },
+      onDraw: (val) => {
+        clipPath.setAttribute("r", `${val}px`);
+      },
+      onEnd: () => {
+        this.parentEl.classList.add("hidden");
+        this.parentEl.style.clipPath = "";
+        removeActiveBtn();
+      },
+    });
   }
 }
-
-// just like absolute position, origin of clip circle starts at top 0 and left 0, therefore animation starts at top left
-// actually the it will clip the parent, but clip size is based on the element
-const circleClipHoldElement = ({
-  element,
-  parent,
-  left = 0,
-  top = 0,
-  padding = 0,
-}: {
-  top?: number | string;
-  left?: number | string;
-  /** general padding not literal css padding */
-  padding?: number;
-  element: HTMLElement;
-  parent: HTMLElement;
-}) => {
-  // diameter of circle to hold element
-  if (typeof top === "number") top = top + "px";
-  if (typeof left === "number") left = left + "px";
-  const diameter = diagonalLengthOfElement(element) + padding;
-  // @ts-ignore
-  parent.style.webkitClipPath = `circle(${diameter}px at ${left} ${top})`;
-  parent.style.clipPath = `circle(${diameter}px at ${left} ${top})`;
-};
