@@ -370,6 +370,8 @@ export default class DropdownOptionsView extends View {
       onStart: () => {
         this.parentEl.style.willChange = "opacity";
         this.parentEl.style.clipPath = `url(#${clipPathId})`;
+        this.dropdownOptions.style.animation = "Force-Full-Repaint-Frame";
+        this.dropdownOptions.style.animationDuration = "350ms";
       },
       onDraw: (val) => {
         clipPath.setAttribute("r", `${val}px`);
@@ -413,6 +415,8 @@ export default class DropdownOptionsView extends View {
       onStart: () => {
         this.parentEl.style.willChange = "opacity";
         this.parentEl.style.clipPath = `url(#${clipPathId})`;
+        this.dropdownOptions.style.animation = "Force-Full-Repaint-Frame";
+        this.dropdownOptions.style.animationDuration = "350ms";
       },
       onDraw: (val) => {
         clipPath.setAttribute("r", `${val}px`);
