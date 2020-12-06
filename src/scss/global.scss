@@ -59,6 +59,7 @@ svg {
   top: 0;
   left: 0;
   pointer-events: none;
+  visibility: hidden;
 
   .defs-collection {
     display: block;

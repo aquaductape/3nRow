@@ -91,8 +91,6 @@ class PlayerBtnGroup extends View {
         button: playerBtn,
         allow: [".dropdown-options-container"],
         run: () => {
-          // dropdownOptionsView.cancelHiddingDropdown();
-          console.log("onFocusOut run", playerId);
           playerBtn.classList.add("active");
           dropdownOptionsView.addDropdown();
           playerBtn.setAttribute("aria-expanded", "true");
@@ -101,7 +99,6 @@ class PlayerBtnGroup extends View {
           const removeActiveBtn = () => {
             playerBtn.classList.remove("active");
           };
-          console.log("onFocusOut onExit", playerId);
           dropdownOptionsView.removeDropdown(removeActiveBtn);
           playerBtn.setAttribute("aria-expanded", "false");
         },

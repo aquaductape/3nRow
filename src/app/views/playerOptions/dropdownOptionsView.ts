@@ -2,6 +2,7 @@ import {
   TControlPlayerColor,
   TControlPlayerShape,
 } from "../../controller/controller";
+import { IOS, IOS13 } from "../../lib/onFocusOut/browserInfo";
 import { TPlayer } from "../../model/state";
 import { colorMap, colors, shapes, svg } from "../constants/constants";
 import { radioGroup } from "../utils/aria";
@@ -211,7 +212,11 @@ export default class DropdownOptionsView extends View {
       currentPlayer: { id },
     } = this.data;
     const markup = `
-
+    <svg class="svg-clip-path-container" xmlns="http://www.w3.org/2000/svg">
+      <clipPath id="clipPath-dropdown-${id}">
+        <use href="#clipPath-dropdown-${id}-circle">
+      </clipPath>
+    </svg>
     <!-- btn highlight for player --> 
     ${this.generateBtnHighlight()}
 
@@ -371,11 +376,6 @@ export default class DropdownOptionsView extends View {
 
   removeDropdown(removeActiveBtn: Function) {
     this.leaveEnter(removeActiveBtn);
-
-    // this.dropdownTimeout = window.setTimeout(() => {
-    //   this.parentEl.classList.add("hidden");
-    //   callback();
-    // }, 350);
   }
 
   cancelHiddingDropdown() {
@@ -392,6 +392,11 @@ export default class DropdownOptionsView extends View {
     const {
       currentPlayer: { id },
     } = this.data;
+
+    if (IOS && !IOS13) {
+      return;
+    }
+
     const clipPathId = `clipPath-dropdown-${id}`;
     const clipPath = (document.getElementById(
       `${clipPathId}-circle`
@@ -400,22 +405,16 @@ export default class DropdownOptionsView extends View {
 
     const diagonalLength = diagonalLengthOfElement(this.dropdownOptions);
     const radius = diagonalLength - circleCY + this.playerBtnGroup.clientHeight;
-    if (id === "P1" && debugCounter > 1) debugger;
-    console.log("animateDropdown appearEnter");
-    debugCounter++;
+
     animateDropdown({
       el: this.parentEl,
       debug: id,
       from: 0,
       to: radius,
-      duration: 1800,
+      duration: 350,
       onStart: () => {
         this.parentEl.style.clipPath = `url(#${clipPathId})`;
       },
-      // onCancel: (val) => {
-      //   this.dropdownAnimation.canceled = true;
-      //   this.dropdownAnimation.lastPosition = val;
-      // },
       onDraw: (val) => {
         clipPath.setAttribute("r", `${val}px`);
       },
@@ -430,6 +429,14 @@ export default class DropdownOptionsView extends View {
     const {
       currentPlayer: { id },
     } = this.data;
+
+    if (IOS && !IOS13) {
+      this.parentEl.classList.add("hidden");
+      this.parentEl.style.clipPath = "";
+      removeActiveBtn();
+      return;
+    }
+
     const clipPathId = `clipPath-dropdown-${id}`;
     const clipPath = (document.getElementById(
       `${clipPathId}-circle`
@@ -438,28 +445,22 @@ export default class DropdownOptionsView extends View {
 
     const diagonalLength = diagonalLengthOfElement(this.dropdownOptions);
     const radius = diagonalLength - circleCY + this.playerBtnGroup.clientHeight;
-    console.log("animateDropdown leaveEnter");
 
     animateDropdown({
       el: this.parentEl,
       debug: id,
       from: radius,
       to: 0,
-      duration: 1800,
+      duration: 350,
       onStart: () => {
         this.parentEl.style.clipPath = `url(#${clipPathId})`;
       },
-      // onCancel: (val) => {
-      //   this.dropdownAnimation.canceled = true;
-      //   this.dropdownAnimation.lastPosition = val;
-      // },
       onDraw: (val) => {
         clipPath.setAttribute("r", `${val}px`);
       },
       onEnd: () => {
         this.parentEl.classList.add("hidden");
         this.parentEl.style.clipPath = "";
-        this.dropdownAnimation.canceled = false;
         removeActiveBtn();
       },
     });

@@ -46,14 +46,8 @@ class SvgDefsView extends View {
   private clipPathDefsMarkup() {
     return `
     <svg  xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <clipPath id="clipPath-dropdown-P1">
-          <circle id="clipPath-dropdown-P1-circle" cx="0" cy="60px" r="0px" fill="red"/>
-        </clipPath>
-        <clipPath id="clipPath-dropdown-P2">
-          <circle id="clipPath-dropdown-P2-circle" cx="100%" cy="60px" r="0px" fill="red"/>
-        </clipPath>
-      </defs> 
+        <circle id="clipPath-dropdown-P1-circle" cx="0" cy="60px" r="0px" fill="red"/>
+        <circle id="clipPath-dropdown-P2-circle" cx="100%" cy="60px" r="0px" fill="red"/>
     </svg>
     `;
   }
