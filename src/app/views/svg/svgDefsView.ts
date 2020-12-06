@@ -14,10 +14,7 @@ class SvgDefsView extends View {
     const players = this.data;
     const defsContainer = (...defs: string[]) => {
       return (
-        defsCollection.openingDef +
-        defsCollection.dropShadow +
-        defs.join("") +
-        defsCollection.closingDef
+        defsCollection.openingDef + defs.join("") + defsCollection.closingDef
       );
     };
 
@@ -45,9 +42,18 @@ class SvgDefsView extends View {
 
   private clipPathDefsMarkup() {
     return `
-    <svg  xmlns="http://www.w3.org/2000/svg">
+    <svg xmlns="http://www.w3.org/2000/svg">
         <circle id="clipPath-dropdown-P1-circle" cx="0" cy="60px" r="0px" fill="red"/>
         <circle id="clipPath-dropdown-P2-circle" cx="100%" cy="60px" r="0px" fill="red"/>
+    </svg>
+    `;
+  }
+  private dropShadowMarkup() {
+    return `
+    <svg xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        ${defsCollection.dropShadow}
+      </defs>
     </svg>
     `;
   }
@@ -58,6 +64,9 @@ class SvgDefsView extends View {
       </div>
       <div class="clip-path-container">
         ${this.clipPathDefsMarkup()}
+      </div>
+      <div class="drop-shadow-container">
+        ${this.dropShadowMarkup()}
       </div>
     `;
   }
@@ -85,6 +94,13 @@ class SvgDefsView extends View {
     this.data = data;
     this.parentEl.innerHTML = this.generateMarkup();
     this.setColors();
+  }
+
+  updateDropShadow(color: string) {
+    const feFlood = this.parentEl.querySelector(
+      "#drop-shadow-filter feFlood"
+    ) as SVGElement;
+    feFlood.style.floodColor = color;
   }
 
   updateShapeColors(data: TPlayer[]) {
@@ -164,7 +180,7 @@ const defsCollection: TDefsCollection = {
     <linearGradient gradientUnits="userSpaceOnUse" y2="20.5725" x2="15.9935" y1="4.2042" x1="12.8753" id="f" xlink:href="#e"/>`,
   dropShadow: `
     <filter id="drop-shadow-filter" height="100" width="100" filterUnits="userSpaceOnUse"  color-interpolation-filters="sRGB">
-      <feFlood flood-opacity="1" flood-color="rgba(0, 0, 0, 0.35)" result="flood"/>
+      <feFlood flood-opacity="1" flood-color="#000" result="flood"/>
       <feComposite in="flood" in2="SourceGraphic" operator="in" result="composite1"/>
       <feGaussianBlur in="composite1" result="blur"/>
       <feOffset dy="1.8" result="offset"/>

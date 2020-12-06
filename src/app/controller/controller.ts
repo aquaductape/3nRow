@@ -184,6 +184,7 @@ const controlStartGame: TControlStartGame = ({
   model.setCurrentPlayer(firstMovePlayer);
   playerBtnGroupView.updatePlayerBtnsOnGameStart();
   boardView.startGame();
+  svgDefsView.updateDropShadow("rgba(0, 0, 0, 0.35)");
   if (ai) {
     boardView.preventPlayerToSelect();
   }

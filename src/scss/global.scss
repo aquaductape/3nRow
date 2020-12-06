@@ -98,8 +98,8 @@ button {
 
   &:hover,
   &.noFocusClick:focus {
-    background: #ddd;
-    color: $primary-btn-color;
+    background: $primary-color-hover;
+    color: $primary-txt-color-hover;
   }
 
   &.noFocusClick:focus {
