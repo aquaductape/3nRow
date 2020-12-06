@@ -29,7 +29,6 @@ const findRunningInstance = (el: HTMLElement, debug: string) => {
   let foundIdx = 0;
   const instance = runningInstances.find((instance, idx) => {
     if (el === instance.el) {
-      // console.log("compare", el, instance.el);
       foundIdx = idx;
       return true;
     }
@@ -90,7 +89,6 @@ export const animateDropdown = ({
 
   onStart && onStart();
 
-  console.log(el, { prevInstance });
   const startx = prevInstance ? prevInstance.refs.prevFrom : from;
   const destx = to;
   let start: number | null = null;
@@ -124,7 +122,6 @@ export const animateDropdown = ({
     const val = easeInOutQuad(p);
     x = startx + (destx - startx) * val;
 
-    // meta.style.transform = `translateY(${x}px)`;
     refs.prevFrom = x;
     onDraw(x);
     requestAnimationFrame(draw);
