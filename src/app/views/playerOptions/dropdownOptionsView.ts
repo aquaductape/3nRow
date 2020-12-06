@@ -349,7 +349,7 @@ export default class DropdownOptionsView extends View {
       currentPlayer: { id },
     } = this.data;
 
-    if (this.reducedAnimation || IOS) {
+    if (this.reducedAnimation || IOS || Safari) {
       return;
     }
 
@@ -370,8 +370,6 @@ export default class DropdownOptionsView extends View {
       onStart: () => {
         this.parentEl.style.willChange = "opacity";
         this.parentEl.style.clipPath = `url(#${clipPathId})`;
-        this.dropdownOptions.style.animation = "Force-Full-Repaint-Frame";
-        this.dropdownOptions.style.animationDuration = "350ms";
       },
       onDraw: (val) => {
         clipPath.setAttribute("r", `${val}px`);
@@ -379,9 +377,6 @@ export default class DropdownOptionsView extends View {
       onEnd: () => {
         this.parentEl.style.clipPath = "";
         this.parentEl.style.willChange = "";
-        this.parentEl.style.animation = "";
-        this.parentEl.style.animationDuration = "";
-        this.dropdownAnimation.canceled = false;
       },
     });
   }
@@ -391,7 +386,7 @@ export default class DropdownOptionsView extends View {
       currentPlayer: { id },
     } = this.data;
 
-    if (this.reducedAnimation || IOS) {
+    if (this.reducedAnimation || IOS || Safari) {
       this.parentEl.classList.add("hidden");
       this.parentEl.style.clipPath = "";
       removeActiveBtn();
@@ -415,8 +410,6 @@ export default class DropdownOptionsView extends View {
       onStart: () => {
         this.parentEl.style.willChange = "opacity";
         this.parentEl.style.clipPath = `url(#${clipPathId})`;
-        this.dropdownOptions.style.animation = "Force-Full-Repaint-Frame";
-        this.dropdownOptions.style.animationDuration = "350ms";
       },
       onDraw: (val) => {
         clipPath.setAttribute("r", `${val}px`);
@@ -425,8 +418,6 @@ export default class DropdownOptionsView extends View {
         this.parentEl.classList.add("hidden");
         this.parentEl.style.clipPath = "";
         this.parentEl.style.willChange = "";
-        this.parentEl.style.animation = "";
-        this.parentEl.style.animationDuration = "";
         removeActiveBtn();
       },
     });
