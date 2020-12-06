@@ -368,10 +368,10 @@ export default class DropdownOptionsView extends View {
       to: radius,
       duration: 350,
       onStart: () => {
-        // this.parentEl.style.willChange = "all";
+        this.parentEl.style.willChange = "opacity";
         // if(Safari) {
-        // this.parentEl.style.animation = "Force-Full-Repaint-Frame";
-        // this.parentEl.style.animationDuration = "350ms";
+        this.parentEl.style.animation = "Force-Full-Repaint-Frame";
+        this.parentEl.style.animationDuration = "350ms";
         // }
 
         this.parentEl.style.clipPath = `url(#${clipPathId})`;
@@ -416,10 +416,10 @@ export default class DropdownOptionsView extends View {
       to: 0,
       duration: 350,
       onStart: () => {
-        // this.parentEl.style.willChange = "all";
+        this.parentEl.style.willChange = "opacity";
         // if(Safari) {
-        // this.parentEl.style.animation = "Force-Full-Repaint-Frame";
-        // this.parentEl.style.animationDuration = "350ms";
+        this.parentEl.style.animation = "Force-Full-Repaint-Frame";
+        this.parentEl.style.animationDuration = "350ms";
         // }
 
         this.parentEl.style.clipPath = `url(#${clipPathId})`;
