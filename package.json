@@ -7,7 +7,8 @@
   "scripts": {
     "start": "webpack-dev-server --config webpack.dev.js --open",
     "build": "webpack --config webpack.prod.js",
-    "deploy": "./push_dist_to_gh-pages.sh"
+    "deploy": "./push_dist_to_gh-pages.sh",
+    "quick!": "git add . && git commit -m 'update' && yarn deploy"
   },
   "repository": {
     "type": "git",
