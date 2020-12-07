@@ -380,6 +380,9 @@ class GameMenuView extends View {
 
       if (vs) {
         this.vsPlayer = vs;
+        if (vs === "human") {
+          handlerSettings({ ai: { enabled: false } });
+        }
         this.updatePlayersMark(this.data);
       }
 
@@ -395,6 +398,7 @@ class GameMenuView extends View {
       if (playAgainst === "human") {
         this.hideMenu();
         this.sectionVisible = null;
+        handlerSettings({ ai: { enabled: false } });
         handlerStartGame({ firstMovePlayer: playerId, ai: false });
         return;
       }
