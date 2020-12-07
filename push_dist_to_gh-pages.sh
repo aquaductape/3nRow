@@ -5,6 +5,13 @@
 branch="gh-pages"
 output="dist"
 
+if [ $(git status --porcelain | wc -l) -eq "0" ]; then
+  echo -e "  🟢 Git repo is clean.\n"
+else
+  echo "  🔴 Git repo dirty. Quit"
+  exit 1
+fi
+
 function subtree_push() {
     git subtree push --prefix $output origin $branch
 }
