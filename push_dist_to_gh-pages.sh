@@ -18,14 +18,14 @@ function is_in_remote() {
     local existed_in_remote=$($git_command)
 
     if [[ ${existed_in_remote} ]]; then
-        echo "remote branch $branch exists"
-        echo $git_command
-        echo -e "$existed_in_remote\n"
-        echo -e "update $branch against a rebased master branch"
+        echo "\nremote branch $branch exists"
+        echo "\n$git_command\n"
+        echo -e "\n$existed_in_remote\n"
+        echo -e "\nupdate $branch against a rebased master branch\n"
         subtree_split
 
     else
-        echo -e "there's no remote branch $branch"
+        echo -e "\nthere's no remote branch $branch\n"
         subtree_push
     fi
 }
