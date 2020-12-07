@@ -28,7 +28,7 @@ export const state: TState = {
       },
       mark: "O",
       isAI: false,
-      difficulty: null,
+      difficulty: "HARD",
     },
   ],
   game: {

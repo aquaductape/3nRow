@@ -406,6 +406,7 @@ class GameMenuView extends View {
       if (playAgainst === "ai") {
         this.hideMenu();
         this.sectionVisible = null;
+        handlerSettings({ ai: { enabled: true } });
         handlerStartGame({ firstMovePlayer: playerId, ai: true, difficulty });
         return;
       }
