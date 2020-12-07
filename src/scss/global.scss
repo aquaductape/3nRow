@@ -1,5 +1,6 @@
 html,
 body {
+  height: 100%;
   background-color: #2a1e84;
 }
 
@@ -16,9 +17,6 @@ body {
 }
 
 @media (orientation: landscape) {
-  html {
-    cursor: auto !important;
-  }
   ::-webkit-scrollbar {
     width: 14px;
     height: 12px; //this height is for when the scrollbar is in horizontal mode
