@@ -7,6 +7,7 @@ body {
 @-moz-document url-prefix() {
   body {
     height: 2000px;
+    overflow: hidden;
   }
 }
 
