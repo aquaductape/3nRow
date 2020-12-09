@@ -207,6 +207,7 @@ class BoardView extends View {
     this.firstCell.tabIndex = 0;
     this.firstCell.focus();
     this.state.playerCanSelectCell = true;
+    this.parentEl.removeAttribute("aria-hidden");
     setTimeout(() => {
       this.parentEl.classList.remove("pre-game");
     }, 300);
