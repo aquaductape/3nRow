@@ -5,20 +5,38 @@ import { svg } from "../constants/constants";
 import overlayView from "../overlay/overlayView";
 import { hideElement, showElement } from "../utils/index";
 import View from "../View";
+import { focusTree } from "./keyboardInteraction";
+import { buildSettings } from "./settingsData";
+
+// Common
+//  restartBtn resetScoreBtn
+// Gameplay
+//  toggle player 2 as ai
+//  choose ai difficulty
+//  choose first move
+// UI
+//  toggle enable animations
+//  toggle dark mode
+// About
+//  name
+//  about
+//  github
 
 class SettingsView extends View {
-  data: TState;
-  settingsBtn: HTMLElement;
-  settingsDropdown: HTMLElement;
-  isOpen: boolean;
-  handlerSettings: TControlSettings;
-  handlerMoveAi: TMoveAi;
+  protected data: TState;
+  private settingsBtn: HTMLElement;
+  private settingsDropdown: HTMLElement;
+  private closeButton: HTMLElement;
+  private isOpen: boolean;
+  private handlerSettings: TControlSettings;
+  private handlerMoveAi: TMoveAi;
 
   constructor() {
     super({ root: "#settings" });
     this.data = {} as TState;
     this.settingsBtn = {} as HTMLElement;
     this.settingsDropdown = {} as HTMLElement;
+    this.closeButton = {} as HTMLElement;
     this.isOpen = false;
     this.handlerSettings = () => {};
     this.handlerMoveAi = () => {};
@@ -33,6 +51,29 @@ class SettingsView extends View {
         allow: [".settings-dropdown"],
         not: [".btn-close"],
       });
+    });
+
+    this.closeButton.addEventListener("keydown", (e) => {
+      if (e.key !== "Tab") return;
+      const treeItem = this.parentEl.querySelector(
+        '.settings-tree [tabindex="0"]'
+      ) as HTMLElement;
+      // debugger;
+      treeItem.focus();
+      e.preventDefault();
+      e.stopPropagation();
+    });
+    this.settingsDropdown.addEventListener("keydown", (e) => {
+      if (e.key !== "Tab") return;
+      if (document.activeElement !== this.settingsDropdown) return;
+
+      const treeItem = this.parentEl.querySelector(
+        '.settings-tree [tabindex="0"]'
+      ) as HTMLElement;
+      // debugger;
+      treeItem.focus();
+      e.preventDefault();
+      e.stopPropagation();
     });
 
     // clicking label triggers new click https://stackoverflow.com/a/61878865/8234457
@@ -54,54 +95,25 @@ class SettingsView extends View {
         this.handlerSettings({ ai: { enabled: checkbox.checked } });
       }
     });
+
+    focusTree({
+      el: this.parentEl.querySelector(".settings-tree") as HTMLElement,
+    });
   }
 
-  initQuerySelectors() {
+  protected initQuerySelectors() {
     this.settingsBtn = this.parentEl.querySelector(
       ".settings-btn"
     ) as HTMLElement;
     this.settingsDropdown = this.parentEl.querySelector(
       ".settings-dropdown"
     ) as HTMLElement;
-  }
-
-  private radioMarkup(value: string) {
-    const valueUpperCase = value.toUpperCase();
-    const valueLowerCase = value.toLowerCase();
-    const valueCapitalize =
-      value[0].toUpperCase() + value.slice(1).toLowerCase();
-    const checked = valueUpperCase === "HARD" ? "checked" : "";
-    const radioIcon = svg.radio;
-
-    return `
-    <div class="ai-radio" data-difficulty="${valueUpperCase}">
-      <input type="radio" name="ai-difficulty" id="ai-${valueLowerCase}" ${checked} disabled>
-      <label for="ai-${valueLowerCase}">
-        <span class="radio-icon">${radioIcon}</span>
-        <span class="label-content">
-          ${valueCapitalize}
-        </span> 
-      </label>
-    </div>
-    `;
-  }
-
-  private quickSettingsMarkup() {
-    return `
-      <li>
-        <!-- enabled in multiplayer  -->
-        <button aria-label="leave game">Leave</button>
-        <!-- disabled in multiplayer?  -->
-        <button aria-label="restart game">Restart</button>
-        <!-- disabled in multiplayer  -->
-        <button>Reset Scores</button>
-      </li>
-    `;
+    this.closeButton = this.parentEl.querySelector(".btn-close") as HTMLElement;
   }
 
   private btnCloseMarkup() {
     return `
-    <button class="btn-close" aria-label="close settings dropdown">
+    <button data-next-focus="true" class="btn-close" aria-label="close settings dropdown">
       ${svg.close}
     </button>
     `;
@@ -113,37 +125,12 @@ class SettingsView extends View {
     } = this.data;
 
     return `
-    <nav>
-      <ul>
-        <li>
-          <!-- disable ai toggle in multiplayer -->
-          <div class="player">
-            <h3 class="settings-h3">Player 2 "O"</h3> <!-- should add badge as human or ai?-->
-            <div class="toggle-ai">
-              <label class="toggle-control">
-              Set Player 2 as Computer
-                <span class="toggle-container">
-                  <input id="enable-ai" type="checkbox" >
-                  <span class="control"></span>
-                </span>
-              </label>
-            </div>
-            <div class="ai-difficulty disabled">
-              <h4 class="settings-h4">Difficulty</h4>
-              <div role="radiogroup" aria-label="Ai Difficulty" class="ai-difficulty-inner">
-              ${difficulties
-                .map((difficulty) => this.radioMarkup(difficulty))
-                .join("")}
-              </div>
-            </div>
-          </div>
-        </li>
-
-      </ul>
-      ${this.btnCloseMarkup()}
-    </nav> 
+    <div class="settings-tree" role="tree" aria-label="Settings">
+    ${buildSettings()}
+    </div>
     `;
   }
+
   private multiplayerMarkup() {
     return `
     <li>
@@ -162,18 +149,20 @@ class SettingsView extends View {
 
   protected generateMarkup() {
     return `
-    <button class="btn settings-btn" aria-label="settings dropdown" aria-expanded="false">${
+    <button class="btn settings-btn" aria-label="open settings" >${
       svg.cevron
     }</button>
-    <div class="settings-dropdown" tabindex="-1">
-      ${this.settingsMarkup()}
+    <div class="settings-dropdown" role="dialog" aria-hidden="true" tabindex="-1">
+      <div class="settings-inner">
+        ${this.settingsMarkup()}
+        ${this.btnCloseMarkup()}
+      </div>
     </div>
     `;
   }
 
   private openDropdown() {
-    const { settingsBtn, settingsDropdown } = this;
-    settingsBtn.setAttribute("aria-expanded", "true");
+    const { settingsDropdown } = this;
 
     showElement({
       el: settingsDropdown,
@@ -183,12 +172,12 @@ class SettingsView extends View {
       },
     });
     overlayView.show();
+    settingsDropdown.setAttribute("aria-hidden", "false");
     settingsDropdown.focus();
   }
 
   private closeDropdown() {
-    const { settingsBtn, settingsDropdown } = this;
-    settingsBtn.setAttribute("aria-expanded", "false");
+    const { settingsDropdown } = this;
 
     hideElement({
       el: settingsDropdown,
@@ -201,6 +190,7 @@ class SettingsView extends View {
     });
     overlayView.hide();
 
+    settingsDropdown.setAttribute("aria-hidden", "true");
     this.handlerMoveAi({ delay: 200 });
   }
 
