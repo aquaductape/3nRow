@@ -68,3 +68,5 @@ document.addEventListener("keyup", (e) => {
 
   prevEl = activeElement;
 });
+
+export {};
