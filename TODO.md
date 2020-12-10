@@ -17,3 +17,4 @@
 5. dropdown svg mask, for now just place it within HTML element that will be animated, it breaks in Firefox, god knows what Safari will do
 6. try catch with localStorage
 7. have close button at bottom of dropdown
+8. restart board remove cell animation

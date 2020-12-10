@@ -174,12 +174,17 @@ class PlayerBtnGroup extends View {
     type: TSkinProps;
   }) {
     const { dropdownOptionsView } = this.playerDom[id];
+    const svgMark = ``;
+    const toolTipMsg = `Player ${
+      id === "P1" ? "1" : "2"
+    } ${svgMark} has this ${type}`;
 
     if (Array.isArray(type)) {
       type.forEach((t) => {
         dropdownOptionsView.updatePlayerSkinDisabled({
           type: t,
           value: player[t],
+          toolTipMsg,
         });
       });
       return;
@@ -188,6 +193,7 @@ class PlayerBtnGroup extends View {
     dropdownOptionsView.updatePlayerSkinDisabled({
       type,
       value: player[type],
+      toolTipMsg,
     });
   }
 

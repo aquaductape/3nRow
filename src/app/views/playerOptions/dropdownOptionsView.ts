@@ -87,6 +87,9 @@ export default class DropdownOptionsView extends View {
     ) as HTMLElement;
 
     this.onRadioGroup();
+    this.parentEl.addEventListener("click", (e) => {
+      // const
+    });
   }
 
   private generateBtnHighlight() {
@@ -131,6 +134,7 @@ export default class DropdownOptionsView extends View {
       const classItemBg = `${classBase}-bg`;
 
       return `
+      <div class="${classBase}-container">
         <div 
           role="radio"
           tabindex="${tabindex}"
@@ -152,7 +156,12 @@ export default class DropdownOptionsView extends View {
               <div style="background: ${secondaryColorHex};" class="secondary-color"></div>
             </div>
           </div>
-        </div>`;
+        </div>
+
+        <div class="tooltip" role="tooltip"></div>
+
+      </div>
+        `;
     }
 
     if (type === "shapes") {
@@ -172,6 +181,7 @@ export default class DropdownOptionsView extends View {
       );
 
       return `
+      <div class="${classBase}-container">
         <div 
           role="radio" 
           tabindex="${tabindex}" 
@@ -193,6 +203,10 @@ export default class DropdownOptionsView extends View {
             </div>
           </div>
         </div>
+
+        <div class="tooltip" role="tooltip"></div>
+
+      </div>
       `;
     }
   }
@@ -272,6 +286,28 @@ export default class DropdownOptionsView extends View {
     });
   }
 
+  private addToolTip({
+    item,
+    toolTipMsg,
+  }: {
+    toolTipMsg: string;
+    item: HTMLElement;
+  }) {
+    const toolTip = item.querySelector(".tooltip") as HTMLElement;
+    toolTip.classList.add("ready");
+    toolTip.insertAdjacentHTML("beforeend", toolTipMsg);
+
+    this.removePreviousToolTip();
+  }
+
+  private removePreviousToolTip() {
+    const toolTip = this.parentEl.querySelector(
+      ".tooltip.ready"
+    ) as HTMLElement;
+    toolTip.classList.remove("ready");
+    this.clearChildren(toolTip);
+  }
+
   updatePlayerSkinSelection({
     type,
     value,
@@ -301,9 +337,11 @@ export default class DropdownOptionsView extends View {
   updatePlayerSkinDisabled({
     type,
     value,
+    toolTipMsg,
   }: {
     type: "color" | "shape";
     value: string;
+    toolTipMsg: string;
   }) {
     const group = type === "color" ? this.colorGroup : this.shapeGroup;
     const currentItem = group.querySelector(
@@ -320,6 +358,8 @@ export default class DropdownOptionsView extends View {
     newItem.setAttribute("data-disabled", "true");
     newItem.setAttribute("aria-disabled", "true");
     newItem.classList.add("disabled");
+
+    this.addToolTip({ item: newItem, toolTipMsg });
   }
 
   addHandlerChangeShape(handler: TControlPlayerShape) {
