@@ -21,11 +21,13 @@ class BoardView extends View {
   data: TState;
   state: {
     playerCanSelectCell: boolean;
+    boardCleared: boolean;
   };
   constructor() {
     super({ root: ".board" });
     this.state = {
       playerCanSelectCell: false,
+      boardCleared: true,
     };
     this.firstCell = this.parentEl.querySelector(
       '[data-column="0"]'
@@ -108,7 +110,6 @@ class BoardView extends View {
       // fires multiple times, debounce then when it ends add block-animation
       const animationEnd = () => {
         // cell.classList.add("block-animation");
-        console.log("end");
         // cell.removeEventListener("animationend", animationEnd);
       };
 
@@ -120,12 +121,18 @@ class BoardView extends View {
       cell.appendChild(shapeEl);
 
       // if (EdgeLegacy) {
+      // BAD solution, use debounce instead
       setTimeout(() => {
+        if (this.state.boardCleared) return;
         cell.classList.add("block-animation");
-      }, 2500);
+      }, 2000);
       // }
 
       // cell.addEventListener("animationend", animationEnd);
+      // BAD solution, use debounce instead
+      setTimeout(() => {
+        this.state.boardCleared = false;
+      }, 1000);
     });
   }
 
@@ -260,6 +267,8 @@ class BoardView extends View {
       '[tabindex="0"]'
     ) as HTMLElement;
     activeCell.focus();
+    // BAD solution, use debounce instead
+    this.state.boardCleared = true;
   }
 
   // override render
