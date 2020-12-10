@@ -89,6 +89,8 @@ const controlPlayAgain: TControlPlayAgain = async () => {
 
 export type TMoveAi = (prop?: { delay?: number }) => void;
 const moveAi: TMoveAi = async ({ delay } = {}) => {
+  if (model.state.game.gameOver) return;
+
   const ai = model.getCurrentPlayer();
 
   if (!ai.isAI && ai.id !== "P1") return;
