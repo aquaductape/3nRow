@@ -275,7 +275,7 @@ const controlPlayerColor: TControlPlayerColor = ({ player, color }) => {
 };
 
 export const init = () => {
-  // localStorage.clear();
+  localStorage.clear();
   // model
   model.updateStateFromLS();
   model.setShapes(buildShapesForPlayers(model.state.players));
