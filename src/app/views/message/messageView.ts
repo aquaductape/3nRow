@@ -7,8 +7,6 @@ class MessageView extends View {
     this.data = "";
   }
 
-  protected initQuerySelectors() {}
-
   protected generateMarkup() {
     return `
     <div class="message-inner">

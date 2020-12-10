@@ -24,12 +24,12 @@ import { convertObjPropsToHTMLAttr } from "../utils/index";
 
 type TSection = {
   id: string;
-  type: "section" | "group" | "radio" | "button" | "toggle";
   // section and group are the same thing except if group holds a group of radio buttons or buttons since radio buttons by design should be grouped while buttons to be seperated into their own treeitem seems weird to me. if there's a group of toggles/checkboxes, section is used. Not a good design, will restructure
+  type: "section" | "group" | "radio" | "group" | "button" | "toggle";
+  groupType?: "radio" | "button";
   content: string;
   level?: number;
   tabindex?: number;
-  radioGroup?: boolean;
   children?: string[];
   dataAttributes?: {
     [key: string]: string;
@@ -40,6 +40,7 @@ type TSection = {
   name?: string;
   checked?: boolean;
   disabled?: boolean;
+  enabledBy?: string;
   classNames?: string[];
 };
 
@@ -77,13 +78,13 @@ const settingsData: TSection[] = [
   {
     id: "firstMove",
     type: "group",
+    groupType: "radio",
     content: "First Move",
     children: ["alternateRadio", "winnerRadio", "loserRadio"],
     aria: {
       "aria-label":
         "Which player makes the first move at the start of each game",
     },
-    radioGroup: true,
   },
   {
     id: "alternateRadio",
@@ -91,7 +92,9 @@ const settingsData: TSection[] = [
     name: "firstMove",
     content: "Alternate",
     dataAttributes: {
-      moveFirst: "alternate",
+      settingInput: "true",
+      type: "firstMove",
+      value: "alternate",
     },
     checked: true,
   },
@@ -101,7 +104,9 @@ const settingsData: TSection[] = [
     name: "firstMove",
     content: "Winner",
     dataAttributes: {
-      moveFirst: "winner",
+      settingInput: "true",
+      type: "firstMove",
+      value: "winner",
     },
   },
   {
@@ -110,7 +115,9 @@ const settingsData: TSection[] = [
     name: "firstMove",
     content: "Loser",
     dataAttributes: {
-      moveFirst: "loser",
+      settingInput: "true",
+      type: "firstMove",
+      value: "loser",
     },
   },
   {
@@ -123,22 +130,35 @@ const settingsData: TSection[] = [
     id: "toggleAi",
     type: "toggle",
     content: "Enable as Computer",
+    dataAttributes: {
+      settingId: "toggleAi",
+      settingInput: "true",
+      type: "aiEnabled",
+      toggleOthers: "true",
+    },
   },
   {
     id: "aiDifficulty",
     type: "group",
+    groupType: "radio",
     content: "Difficulty",
-    radioGroup: true,
     disabled: true,
     children: ["mediumRadio", "hardRadio", "cheaterRadio"],
+    dataAttributes: {
+      toggledBy: "toggleAi",
+    },
   },
   {
     id: "mediumRadio",
     type: "radio",
     name: "difficulty",
     content: "Medium",
+    disabled: true,
     dataAttributes: {
-      aiDifficulty: "medium",
+      settingInput: "true",
+      type: "aiDifficulty",
+      value: "medium",
+      toggledBy: "toggleAi",
     },
   },
   {
@@ -146,8 +166,12 @@ const settingsData: TSection[] = [
     type: "radio",
     name: "difficulty",
     content: "Hard",
+    disabled: true,
     dataAttributes: {
-      aiDifficulty: "hard",
+      settingInput: "true",
+      type: "aiDifficulty",
+      value: "hard",
+      toggledBy: "toggleAi",
     },
     checked: true,
   },
@@ -156,29 +180,70 @@ const settingsData: TSection[] = [
     type: "radio",
     name: "difficulty",
     content: "Cheater",
+    disabled: true,
     dataAttributes: {
-      aiDifficulty: "cheater",
+      settingInput: "true",
+      type: "aiDifficulty",
+      value: "cheater",
+      toggledBy: "toggleAi",
     },
   },
+  // MULTIPLAYER
+  // {
+  //   id: "multiplayer",
+  //   level: 1,
+  //   type: "section",
+  //   content: "Multiplayer",
+  //   children: ["createGame"],
+  // },
+  // {
+  //   id: "createGame",
+  //   type: "group",
+  //   groupType: "button",
+  //   content: "Create Game",
+  //   children: ["privateGameBtn", "publicGameBtn"],
+  // },
+  // {
+  //   id: "privateGameBtn",
+  //   level: 2,
+  //   type: "button",
+  //   content: "Share Private Game",
+  // },
+  // {
+  //   id: "publicGameBtn",
+  //   level: 2,
+  //   type: "button",
+  //   content: "Join Game With Random Player",
+  // },
   // SITE
   {
     id: "site",
     level: 1,
     type: "section",
     content: "Site",
-    children: ["toggleAnimations", "toggleDarkMode"],
+    children: ["toggleAnimations"],
+    // children: ["toggleAnimations", "toggleDarkMode"],
   },
   {
     id: "toggleAnimations",
     type: "toggle",
     content: "Enable Animations",
+    dataAttributes: {
+      settingToggleId: "toggleAnimations",
+      settingInput: "true",
+      type: "animationsEnabled",
+    },
     checked: true,
   },
-  {
-    id: "toggleDarkMode",
-    type: "toggle",
-    content: "Enable Dark Mode",
-  },
+  // {
+  //   id: "toggleDarkMode",
+  //   type: "toggle",
+  //   content: "Enable Dark Mode",
+  //   dataAttributes: {
+  //     settingInput: "true",
+  //     type: "darkModeEnabled",
+  //   },
+  // },
 ];
 
 const buildSetting = ({
@@ -217,8 +282,6 @@ const buildSetting = ({
         ariaPosinset,
       });
   }
-
-  return "";
 };
 
 const buildSection = ({
@@ -264,7 +327,7 @@ const buildSection = ({
       .join("");
   }
 
-  if (item.type === "section" && item.children) {
+  if (item.type === "section") {
     siblings = children;
     directChild = `
       <div class="title">
@@ -274,25 +337,13 @@ const buildSection = ({
   `;
   }
 
-  if (item.type === "group" && item.children) {
-    // console.log("heelo?");
-    // childrenGroup = `
-    // <div
-    //  class="section widgets-group"
-    //  data-level="${ariaLevel + 1}"
-    // >
-    //   ${children}
-    // </div>
-    // `;
-    directChild = `${item.content}${childrenGroup}`;
-  }
-
   if (item.type === "toggle") {
     directChild = `${item.content}${childrenGroup}`;
   }
 
-  if (item.radioGroup) {
-    directChild = buildRadioGroup({
+  if (item.type === "group") {
+    // buildGroup
+    directChild = buildGroup({
       parentId: item.id,
       children,
       item,
@@ -338,6 +389,41 @@ const buildToggle = (item: TSection) => {
   });
 };
 
+const buildGroup = (props: {
+  parentId: string;
+  children: string;
+  item: TSection;
+  level: number;
+}) => {
+  switch (props.item.groupType!) {
+    case "button":
+      return buildButtonGroup(props);
+    case "radio":
+      return buildRadioGroup(props);
+  }
+};
+
+const buildButtonGroup = ({
+  parentId,
+  children,
+  item,
+  level,
+}: {
+  parentId: string;
+  children: string;
+  item: TSection;
+  level: number;
+}) => {
+  return `
+    <div class="group">
+      <div class="title">
+        ${item.content}
+      </div>
+      ${children}
+    </div>
+    `;
+};
+
 const buildRadioGroup = ({
   parentId,
   children,
@@ -355,17 +441,23 @@ const buildRadioGroup = ({
   });
   ariaAttributes = ariaAttributes || `aria-label="${item.content}"`;
   const headingId = "radiogroup" + item.id;
-  const heading = `<h${level! + 1} id="${headingId}" ${ariaAttributes}>${
-    item.content
-  }</h${level! + 1}>`;
+  const heading = `<h${
+    level! + 1
+  } id="${headingId}" class="title" ${ariaAttributes}>${item.content}</h${
+    level! + 1
+  }>`;
+  const disabled = item.disabled ? "disabled" : "";
+  const toggledById = item.dataAttributes && item.dataAttributes["toggledBy"];
+  const toggledBy = toggledById ? `data-toggled-by="${toggledById}"` : "";
 
   return `
-      <div role="radiogroup" aria-labelledby="${headingId}" >
+      <div role="radiogroup" class="radio-group group ${disabled}" ${toggledBy} aria-labelledby="${headingId}" >
         ${heading}
         ${children}
       </div>
     `;
 };
+
 const buildRadio = (item: TSection) => {
   const { content, aria, checked, disabled, dataAttributes, name } = item;
   const dataAttr = convertObjPropsToHTMLAttr({
@@ -376,6 +468,8 @@ const buildRadio = (item: TSection) => {
     type: "aria",
     obj: aria!,
   });
+  const toggledById = dataAttributes && dataAttributes["toggledBy"];
+  const toggledBy = toggledById ? `data-toggled-by="${toggledById}"` : "";
 
   return radioMarkup({
     value: content,
@@ -384,11 +478,13 @@ const buildRadio = (item: TSection) => {
     aria: ariaAttr!,
     dataAttributes: dataAttr,
     name: name!,
+    toggledBy,
   });
 };
+
 const buildButton = (content: string) => {
   return `
-  <div>${content}</div>
+  <button>${content}</button>
   `;
 };
 
@@ -414,6 +510,7 @@ const radioMarkup = ({
   disabled,
   dataAttributes,
   aria,
+  toggledBy,
 }: {
   value: string;
   name: string;
@@ -421,6 +518,7 @@ const radioMarkup = ({
   disabled: boolean;
   dataAttributes: string;
   aria: string;
+  toggledBy?: string;
 }) => {
   const valueCapitalize = value[0].toUpperCase() + value.slice(1).toLowerCase();
   const checkedVal = checked ? "checked" : "";
@@ -428,8 +526,8 @@ const radioMarkup = ({
   const radioIcon = svg.radio;
 
   return `
-    <div class="radio" ${dataAttributes}>
-      <input type="radio" id="for-${value}" name="${name}" ${checkedVal} ${disabledVal}>
+    <div class="radio ${disabledVal}" ${dataAttributes}>
+      <input type="radio" id="for-${value}" name="${name}" ${toggledBy} ${checkedVal} ${disabledVal}>
       <label for="for-${value}" ${aria}>
         <span class="radio-icon">${radioIcon}</span>
         <span class="label-content">

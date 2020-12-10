@@ -34,7 +34,7 @@ type TFocusTreeState = {
   };
   prevFocusedTreeItem: HTMLElement;
 };
-export const focusTree = ({ el }: { el: HTMLElement }) => {
+export const settingsTree = ({ el }: { el: HTMLElement }) => {
   const treeItems = Array.from(
     el.querySelectorAll('[role="treeitem"]')
   ) as HTMLElement[];

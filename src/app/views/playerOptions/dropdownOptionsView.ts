@@ -61,7 +61,7 @@ export default class DropdownOptionsView extends View {
     });
   }
 
-  protected initQuerySelectors() {
+  protected markupDidGenerate() {
     const {
       currentPlayer: { id },
     } = this.data;

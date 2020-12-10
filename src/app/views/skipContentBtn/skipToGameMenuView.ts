@@ -16,11 +16,11 @@ class SkipToGameMenu extends View {
     `;
   }
 
-  protected initQuerySelectors() {
+  protected markupDidGenerate() {
+    // query selectors
     this.btn = this.parentEl.querySelector(".btn") as HTMLElement;
-  }
 
-  protected initEventListeners() {
+    // add listeners
     this.btn.addEventListener("click", () => {
       const btnAi = document.querySelector(
         "#game-menu [data-focus='true']"

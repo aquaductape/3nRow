@@ -182,6 +182,28 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html:not([data-prefers-reduced-motion="false"]) {
+    .cell {
+      .animate__first-line,
+      .animate__second-line,
+      .animate__third-line,
+      .animate__right-dot,
+      .animate__left-dot,
+      .animate__left-line,
+      .animate__right-line,
+      .animate__circle-left,
+      .animate__circle-right,
+      .animate__heart {
+        opacity: 1 !important;
+        stroke-dasharray: unset !important;
+        stroke-dashoffset: unset !important;
+        animation: unset !important;
+      }
+    }
+  }
+}
+
+html[data-prefers-reduced-motion="true"] {
   .cell {
     .animate__first-line,
     .animate__second-line,

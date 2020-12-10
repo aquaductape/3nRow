@@ -140,8 +140,10 @@
     background: none;
   }
 }
-@media (min-width: 800px) {
-  .quick-start-menu {
+// font-size: 28px;
+// margin: 15px 0;
+@media (min-width: 400px) {
+  #game-menu {
     .title {
       letter-spacing: 1px;
       font-size: 28px;

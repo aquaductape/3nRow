@@ -37,12 +37,14 @@
     }
 
     &[data-level="1"] {
+      padding-left: 5px;
       .title {
         font-size: 25px;
       }
     }
 
     &[data-level="2"] {
+      padding-left: 5px;
       .title {
         font-size: 20px;
       }
@@ -53,6 +55,13 @@
     }
     &[data-level="4"] {
       padding-left: 30px;
+    }
+
+    .group {
+      .title {
+        font-size: 18px;
+        margin-bottom: 5px;
+      }
     }
   }
 
@@ -108,7 +117,7 @@
     top: -10px;
     left: 0;
     display: none;
-    padding: 30px;
+    padding: 30px 15px;
     width: 100%;
     color: #333;
     background: #eee;
@@ -156,7 +165,7 @@
   }
 }
 
-.radio {
+.settings-dropdown .radio {
   position: relative;
   align-self: flex-start;
 
@@ -176,6 +185,10 @@
     outline: none;
   }
 
+  &.disabled label {
+    cursor: auto;
+  }
+
   label {
     display: flex;
     align-items: center;
@@ -191,14 +204,12 @@
     color: #999;
   }
 
-  svg {
-    .radio-icon-selected {
-      opacity: 0;
-      transform: scale(0);
-      transform-box: fill-box;
-      transform-origin: center;
-      transition: transform 200ms;
-    }
+  .radio-icon-selected {
+    opacity: 0;
+    transform: scale(0);
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 200ms;
   }
 
   input[type="radio"]:checked + label {
@@ -259,7 +270,28 @@
   }
 }
 
+.radio-group {
+  &.disabled {
+    opacity: 0.7;
+    input[type="radio"]:checked + label {
+      .radio-icon {
+        color: #999;
+      }
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  html:not([data-prefers-reduced-motion="false"]) {
+    #settings {
+      .settings-dropdown {
+        transition: transform 50ms;
+      }
+    }
+  }
+}
+
+html[data-prefers-reduced-motion="true"] {
   #settings {
     .settings-dropdown {
       transition: transform 50ms;

@@ -43,9 +43,7 @@ export default class View {
   }
 
   // grab elements that are based from string markup, after they are generated
-  protected initQuerySelectors() {}
-
-  protected initEventListeners() {}
+  protected markupDidGenerate() {}
 
   renderFallback() {
     console.log(this.generateFallback());
@@ -62,8 +60,7 @@ export default class View {
     this.data = data;
     this.clear();
     this.parentEl.insertAdjacentHTML("afterbegin", this.generateMarkup());
-    this.initQuerySelectors();
-    this.initEventListeners();
+    this.markupDidGenerate();
   }
 
   update(markup: string) {

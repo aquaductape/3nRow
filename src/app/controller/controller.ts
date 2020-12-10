@@ -11,29 +11,43 @@ import { getOppositePlayer } from "../views/utils/index";
 import settingsView from "../views/settings/settingsView";
 import skipToGameMenu from "../views/skipContentBtn/skipToGameMenuView";
 import gameStatusAriaLiveRegionView from "../views/ariaLiveRegions/gameStatusAriaLiveRegionView";
-import matchMediaView from "../views/windowEvents/matchMediaView";
 
 export type TControlSettings = (prop: {
-  ai?: {
-    enabled: boolean;
-    difficulty?: string;
-  };
+  type: "aiEnabled" | "aiDifficulty" | "firstMove";
+  value: string | boolean;
+  updatedFromSettingsView?: boolean;
 }) => void;
-const controlSettings: TControlSettings = ({ ai }) => {
-  if (ai) {
+const controlSettings: TControlSettings = ({
+  type,
+  value,
+  updatedFromSettingsView = false,
+}) => {
+  if (type === "aiDifficulty") {
+    model.setAiDifficulty({
+      id: "P2",
+      difficulty: value as string,
+    });
+  }
+  if (type === "aiEnabled") {
     model.setPlayerAsHumanOrAI({
       id: "P2",
-      ai: ai.enabled,
-      difficulty: ai.difficulty,
+      ai: value as boolean,
     });
   }
 
-  settingsView.updateAi(model.state);
+  if (type === "firstMove") {
+    model.setFirstMove(value as string);
+  }
+
+  if (!updatedFromSettingsView) {
+    settingsView.updateSettings({ type, value });
+  }
 };
 
 export type TControlPlayAgain = () => void;
 const controlPlayAgain: TControlPlayAgain = async () => {
   // Model
+  model.setNextPlayerForFirstMove();
   model.resetForNextGame();
   // View
   boardView.clearBoard();
@@ -180,7 +194,8 @@ const controlStartGame: TControlStartGame = ({
 
   // at first any player could be ai,
   // as of now, only 2nd player is hard coded as ai
-  model.setPlayerAsHumanOrAI({ id: "P2", ai, difficulty });
+  model.setPlayerAsHumanOrAI({ id: "P2", ai });
+  model.setAiDifficulty({ id: "P2", difficulty });
   model.setCurrentPlayer(firstMovePlayer);
   playerBtnGroupView.updatePlayerBtnsOnGameStart();
   boardView.startGame();
@@ -189,7 +204,6 @@ const controlStartGame: TControlStartGame = ({
     boardView.preventPlayerToSelect();
   }
   playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
-  // settingsView.updateAi(model.state);
   skipToGameMenu.updateSkipBtnContent();
 
   if (ai) {
@@ -259,7 +273,7 @@ const controlPlayerColor: TControlPlayerColor = ({ player, color }) => {
 };
 
 export const init = () => {
-  localStorage.clear();
+  // localStorage.clear();
   // model
   model.updateStateFromLS();
   model.setShapes(buildShapesForPlayers(model.state.players));

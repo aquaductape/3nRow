@@ -319,6 +319,38 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html:not([data-prefers-reduced-motion="false"]) {
+    .color-item {
+      .color-item-bg {
+        transition: transform 50ms;
+
+        &:after {
+          transition: transform 50ms;
+        }
+      }
+
+      .color-item-inner {
+        transition: transform 50ms;
+      }
+    }
+
+    .shape-item {
+      .shape-item-bg {
+        transition: transform 50ms;
+
+        &:after {
+          transition: transform 50ms;
+        }
+      }
+
+      .shape-item-inner {
+        transition: transform 50ms;
+      }
+    }
+  }
+}
+
+html[data-prefers-reduced-motion="true"] {
   .color-item {
     .color-item-bg {
       transition: transform 50ms;

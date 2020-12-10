@@ -5,22 +5,9 @@ import { svg } from "../constants/constants";
 import overlayView from "../overlay/overlayView";
 import { hideElement, showElement } from "../utils/index";
 import View from "../View";
-import { focusTree } from "./keyboardInteraction";
+import matchMediaView from "../windowEvents/matchMediaView";
+import { settingsTree } from "./keyboardInteraction";
 import { buildSettings } from "./settingsData";
-
-// Common
-//  restartBtn resetScoreBtn
-// Gameplay
-//  toggle player 2 as ai
-//  choose ai difficulty
-//  choose first move
-// UI
-//  toggle enable animations
-//  toggle dark mode
-// About
-//  name
-//  about
-//  github
 
 class SettingsView extends View {
   protected data: TState;
@@ -42,7 +29,33 @@ class SettingsView extends View {
     this.handlerMoveAi = () => {};
   }
 
-  protected initEventListeners() {
+  protected markupDidGenerate() {
+    this.updateFromLS();
+
+    this.settingsBtn = this.parentEl.querySelector(
+      ".settings-btn"
+    ) as HTMLElement;
+    this.settingsDropdown = this.parentEl.querySelector(
+      ".settings-dropdown"
+    ) as HTMLElement;
+    this.closeButton = this.parentEl.querySelector(".btn-close") as HTMLElement;
+
+    matchMediaView.subscribe({
+      media: "(prefers-reduced-motion: reduce)",
+      handler: ({ matches }) => {
+        if (localStorage.getItem("(prefers-reduced-motion: reduce)")) return;
+
+        const id = "toggleAnimations";
+        const animationToggle = this.parentEl.querySelector(
+          `[data-setting-toggle-id="${id}"]`
+        ) as HTMLInputElement;
+
+        if (!animationToggle) return;
+
+        animationToggle.checked = !matches;
+      },
+    });
+
     this.settingsBtn.addEventListener("click", () => {
       onFocusOut({
         button: this.settingsBtn,
@@ -58,7 +71,6 @@ class SettingsView extends View {
       const treeItem = this.parentEl.querySelector(
         '.settings-tree [tabindex="0"]'
       ) as HTMLElement;
-      // debugger;
       treeItem.focus();
       e.preventDefault();
       e.stopPropagation();
@@ -70,7 +82,6 @@ class SettingsView extends View {
       const treeItem = this.parentEl.querySelector(
         '.settings-tree [tabindex="0"]'
       ) as HTMLElement;
-      // debugger;
       treeItem.focus();
       e.preventDefault();
       e.stopPropagation();
@@ -81,39 +92,95 @@ class SettingsView extends View {
     this.parentEl.addEventListener("change", (e) => {
       const target = e.target as HTMLElement;
 
-      const aiRadio = target.closest(".ai-radio") as HTMLElement;
-      const aiEnable = target.closest(".toggle-ai") as HTMLElement;
+      const setting = target.closest(
+        "[data-setting-input='true']"
+      ) as HTMLElement;
+      const settingType = setting.dataset.type!;
+      const settingValue = setting.dataset.value
+        ? setting.dataset.value
+        : (setting as HTMLInputElement).checked;
+      const settingId = setting.dataset.settingId!;
+      const toggleOthersVal = setting.dataset.toggleOthers!;
 
-      if (aiRadio) {
-        const difficulty = aiRadio.dataset.difficulty!;
-        this.handlerSettings({ ai: { enabled: true, difficulty } });
+      if (setting) {
+        this.handlerSettings({
+          type: settingType as any,
+          value: settingValue,
+          updatedFromSettingsView: true,
+        });
       }
 
-      if (aiEnable) {
-        const checkbox = aiEnable.querySelector("input") as HTMLInputElement;
-        this.toggleDisableDifficultyContainer();
-        this.handlerSettings({ ai: { enabled: checkbox.checked } });
+      if (settingType === "animationsEnabled") {
+        localStorage.setItem(
+          "(prefers-reduced-motion: reduce)",
+          `${!settingValue}`
+        );
+        matchMediaView.fire({
+          media: "(prefers-reduced-motion: reduce)",
+          matches: !settingValue as boolean,
+        });
+      }
+
+      if (toggleOthersVal) {
+        this.toggleOthers({ settingId, settingValue: settingValue as boolean });
       }
     });
 
-    focusTree({
+    settingsTree({
       el: this.parentEl.querySelector(".settings-tree") as HTMLElement,
     });
   }
 
-  protected initQuerySelectors() {
-    this.settingsBtn = this.parentEl.querySelector(
-      ".settings-btn"
-    ) as HTMLElement;
-    this.settingsDropdown = this.parentEl.querySelector(
-      ".settings-dropdown"
-    ) as HTMLElement;
-    this.closeButton = this.parentEl.querySelector(".btn-close") as HTMLElement;
+  private updateFromLS() {
+    const savedPrefersReducedMotion = localStorage.getItem(
+      "(prefers-reduced-motion: reduce)"
+    );
+
+    if (savedPrefersReducedMotion) {
+      const value = savedPrefersReducedMotion === "true";
+      const id = "toggleAnimations";
+      const animationToggle = this.parentEl.querySelector(
+        `[data-setting-toggle-id="${id}"]`
+      ) as HTMLInputElement;
+
+      if (!animationToggle) return;
+
+      animationToggle.checked = !value;
+      matchMediaView.fire({
+        media: "(prefers-reduced-motion: reduce)",
+        matches: value,
+      });
+    }
+  }
+
+  private toggleOthers({
+    settingId,
+    settingValue,
+  }: {
+    settingId: string;
+    settingValue: boolean;
+  }) {
+    const settingInputs = Array.from(
+      this.parentEl.querySelectorAll(`[data-toggled-by="${settingId}"]`)
+    ) as HTMLElement[];
+
+    settingInputs.forEach((settingInput) => {
+      // not good, must refactor
+      // inputs disabled visually and functionally are differently placed in markup across input types
+      if (settingValue) {
+        settingInput.removeAttribute("disabled");
+        settingInput.classList.remove("disabled");
+        return;
+      }
+
+      settingInput.setAttribute("disabled", "true");
+      settingInput.classList.add("disabled");
+    });
   }
 
   private btnCloseMarkup() {
     return `
-    <button data-next-focus="true" class="btn-close" aria-label="close settings dropdown">
+    <button data-next-focus="true" class="btn-close" aria-label="close settings dropdown" title="close settings">
       ${svg.close}
     </button>
     `;
@@ -131,28 +198,12 @@ class SettingsView extends View {
     `;
   }
 
-  private multiplayerMarkup() {
-    return `
-    <li>
-    <!-- disabled in multiplayer -->
-    <div class="multiplayer">
-      <h3 class="settings-h3">Multiplayer</h3>
-      <!-- <div>Must leave to start a new game</div> -->
-      <div class="multiplayer-btns">
-        <button class="btn btn-secondary btn-multiplayer">Share Private Game</button>
-        <button class="btn btn-secondary btn-multiplayer">Join with random Player</button>
-      </div>
-    </div>
-  </li> 
-    `;
-  }
-
   protected generateMarkup() {
     return `
-    <button class="btn settings-btn" aria-label="open settings" >${
+    <button class="btn settings-btn" aria-label="open settings" title="open settings">${
       svg.cevron
     }</button>
-    <div class="settings-dropdown" role="dialog" aria-hidden="true" tabindex="-1">
+    <div class="settings-dropdown" role="dialog" aria-label="settings" aria-hidden="true" tabindex="-1">
       <div class="settings-inner">
         ${this.settingsMarkup()}
         ${this.btnCloseMarkup()}
@@ -194,16 +245,6 @@ class SettingsView extends View {
     this.handlerMoveAi({ delay: 200 });
   }
 
-  private toggleDropdown() {
-    if (this.isOpen) {
-      this.closeDropdown();
-      this.isOpen = false;
-      return;
-    }
-    this.isOpen = true;
-    this.openDropdown();
-  }
-
   addHandlers({
     handlerSettings,
     handlerMoveAi,
@@ -215,52 +256,32 @@ class SettingsView extends View {
     this.handlerMoveAi = handlerMoveAi;
   }
 
-  private toggleDisableDifficultyContainer() {
-    const difficultyContainer = this.parentEl.querySelector(
-      ".ai-difficulty"
-    ) as HTMLElement;
-    const inputs = difficultyContainer.querySelectorAll(
-      "input"
-    ) as NodeListOf<HTMLElement>;
+  // hard coded
+  updateSettings({
+    type,
+    value,
+  }: {
+    type: "aiEnabled" | "aiDifficulty" | "firstMove";
+    value: string | boolean;
+  }) {
+    if (typeof value === "boolean") {
+      const checkbox = this.parentEl.querySelector(
+        `[data-type="${type}"]`
+      ) as HTMLInputElement;
+      const settingId = checkbox.dataset.settingId!;
+      checkbox.checked = value;
 
-    difficultyContainer.classList.toggle("disabled");
-    inputs.forEach((input) => {
-      input.toggleAttribute("disabled");
-    });
-  }
-
-  updateAi(data: TState) {
-    const { game, players } = data;
-
-    const ai = players[1];
-    const toggleInput = this.parentEl.querySelector(
-      "#enable-ai"
-    ) as HTMLInputElement;
-    const difficultyContainer = this.parentEl.querySelector(
-      ".ai-difficulty"
-    ) as HTMLElement;
-    const inputs = difficultyContainer.querySelectorAll(
-      "input"
-    ) as NodeListOf<HTMLElement>;
-
-    if (ai.isAI) {
-      inputs.forEach((input) => {
-        input.removeAttribute("checked");
-        input.removeAttribute("disabled");
-      });
-      const radioEl = this.parentEl.querySelector(
-        `[data-difficulty="${ai.difficulty}"]`
-      )!;
-      const radioInput = radioEl.querySelector("input")!;
-
-      difficultyContainer.classList.remove("disabled");
-      radioInput.setAttribute("checked", "true");
-      toggleInput.checked = true;
+      if (type === "aiEnabled") {
+        this.toggleOthers({ settingId, settingValue: value });
+        return;
+      }
       return;
     }
 
-    difficultyContainer.classList.add("disabled");
-    toggleInput.checked = false;
+    const radio = this.parentEl.querySelector(
+      `[data-type="${type}"][data-value="${value.toLowerCase()}"] input`
+    ) as HTMLInputElement;
+    radio.checked = true;
   }
 }
 

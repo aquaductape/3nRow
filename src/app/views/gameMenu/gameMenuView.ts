@@ -171,7 +171,7 @@ class GameMenuView extends View {
   private playAgainMarkup() {
     return `
       <div class="play-again-container hidden">
-        <button class="btn btn-primary btn-play-again" aria-label="play again" data-play-against="again">
+        <button class="btn btn-primary btn-play-again" aria-label="play again" title="play again" data-play-against="again">
           ${svg.playAgainCircleBtn}
         </button>
       </div>
@@ -375,13 +375,23 @@ class GameMenuView extends View {
       const vs = btn.dataset.vs!;
 
       if (difficulty) {
-        handlerSettings({ ai: { enabled: true, difficulty } });
+        handlerSettings({
+          type: "aiEnabled",
+          value: true,
+        });
+        handlerSettings({
+          type: "aiDifficulty",
+          value: difficulty,
+        });
       }
 
       if (vs) {
         this.vsPlayer = vs;
         if (vs === "human") {
-          handlerSettings({ ai: { enabled: false } });
+          handlerSettings({
+            type: "aiEnabled",
+            value: false,
+          });
         }
         this.updatePlayersMark(this.data);
       }
@@ -390,7 +400,10 @@ class GameMenuView extends View {
         this.transitionToNextSection({ sectionType: transitionTo, clicked });
 
         if (transitionTo === "aiDifficulty") {
-          handlerSettings({ ai: { enabled: true } });
+          handlerSettings({
+            type: "aiEnabled",
+            value: true,
+          });
         }
         return;
       }
@@ -398,7 +411,10 @@ class GameMenuView extends View {
       if (playAgainst === "human") {
         this.hideMenu();
         this.sectionVisible = null;
-        handlerSettings({ ai: { enabled: false } });
+        handlerSettings({
+          type: "aiEnabled",
+          value: false,
+        });
         handlerStartGame({ firstMovePlayer: playerId, ai: false });
         return;
       }
@@ -406,7 +422,10 @@ class GameMenuView extends View {
       if (playAgainst === "ai") {
         this.hideMenu();
         this.sectionVisible = null;
-        handlerSettings({ ai: { enabled: true } });
+        handlerSettings({
+          type: "aiEnabled",
+          value: true,
+        });
         handlerStartGame({ firstMovePlayer: playerId, ai: true, difficulty });
         return;
       }
@@ -423,7 +442,6 @@ class GameMenuView extends View {
     this.data = data;
     this.clear();
     this.parentEl.insertAdjacentHTML("afterbegin", this.generateMarkup());
-    this.initQuerySelectors();
     this.updatePlayersMark(data);
     this.renderInit = false;
   }

@@ -2,6 +2,7 @@ import { TPosition } from "../../ts/index";
 import { randomItemFromArr } from "../../utils/index";
 import gameContainerView from "../../views/gameContainer/gameContainerView";
 import playerBtnGroupView from "../../views/playerOptions/playerBtnGroupView";
+import { getOppositePlayer } from "../../views/utils";
 import { state, TColors, TPlayer, TShapes } from "../state";
 import { decideMove, delayAi } from "./ai";
 
@@ -100,23 +101,73 @@ export const setCurrentPlayer = (id: string) => {
   state.game.playerTurn = id;
 };
 
+export const setFirstMove = (whoMoves: string) => {
+  const { game } = state;
+
+  game.firstMove = whoMoves as any;
+};
+
 export const setPlayerAsHumanOrAI = ({
   ai,
   id,
-  difficulty,
 }: {
   id: string;
   ai: boolean;
-  difficulty?: string;
 }) => {
   const { players, game } = state;
   const player = players.find((player) => player.id === id)!;
 
   player.isAI = ai;
   game.hasAI = ai;
-  if (ai) {
-    player.difficulty = difficulty || player.difficulty;
+};
+
+export const setNextPlayerForFirstMove = () => {
+  const { game, players } = state;
+  const { firstMove, firstMovePlayer, winner, gameTie } = game;
+
+  if (firstMove === "alternate") {
+    const nextPlayer = getOppositePlayer({ id: firstMovePlayer, players }).id;
+
+    game.playerTurn = nextPlayer;
+    game.firstMovePlayer = nextPlayer;
+
+    return;
   }
+
+  if (firstMove === "winner") {
+    if (gameTie) {
+      game.playerTurn = game.firstMovePlayer;
+      return;
+    }
+    const nextPlayer = winner!;
+    game.playerTurn = nextPlayer;
+    game.firstMovePlayer = nextPlayer;
+    return;
+  }
+
+  if (firstMove === "loser") {
+    if (gameTie) {
+      game.playerTurn = game.firstMovePlayer;
+      return;
+    }
+
+    const nextPlayer = getOppositePlayer({ id: winner!, players }).id;
+    game.playerTurn = nextPlayer!;
+    game.firstMovePlayer = nextPlayer!;
+  }
+};
+
+export const setAiDifficulty = ({
+  id,
+  difficulty,
+}: {
+  id: string;
+  difficulty?: string;
+}) => {
+  const { players } = state;
+  const player = players.find((player) => player.id === id)!;
+
+  player.difficulty = difficulty ? difficulty.toUpperCase() : player.difficulty;
 };
 
 export const goAI = async ({ delay }: { delay?: number } = {}) => {

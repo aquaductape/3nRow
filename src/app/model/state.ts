@@ -61,7 +61,7 @@ export const state: TState = {
 };
 
 // @ts-ignore
-// window.$state = state;
+window.$state = state;
 
 export type TBoard = (number | "X" | "O")[][];
 
