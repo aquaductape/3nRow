@@ -16,5 +16,4 @@
 4. Logo text on quick start menu
 5. dropdown svg mask, for now just place it within HTML element that will be animated, it breaks in Firefox, god knows what Safari will do
 6. try catch with localStorage
-7. fix cross dots when animations are set to none;
-8. have close button at bottom of dropdown
+7. have close button at bottom of dropdown
