@@ -200,6 +200,14 @@
         animation: unset !important;
       }
     }
+
+    .animate__line-long,
+    .animate__line-short {
+      opacity: 1 !important;
+      stroke-dasharray: unset !important;
+      stroke-dashoffset: unset !important;
+      animation: unset !important;
+    }
   }
 }
 
@@ -220,5 +228,12 @@ html[data-prefers-reduced-motion="true"] {
       stroke-dashoffset: unset !important;
       animation: unset !important;
     }
+  }
+  .animate__line-long,
+  .animate__line-short {
+    opacity: 1 !important;
+    stroke-dasharray: unset !important;
+    stroke-dashoffset: unset !important;
+    animation: unset !important;
   }
 }
