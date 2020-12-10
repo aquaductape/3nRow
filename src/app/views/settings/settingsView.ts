@@ -240,6 +240,7 @@ class SettingsView extends View {
       },
     });
     overlayView.hide();
+    window.scrollTo({ top: 0 });
 
     settingsDropdown.setAttribute("aria-hidden", "true");
     this.handlerMoveAi({ delay: 200 });
