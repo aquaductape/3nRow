@@ -1,5 +1,10 @@
 import { TMovePlayer, TControlStartGame } from "../../controller/controller";
-import { IOS, IOS13, Safari } from "../../lib/onFocusOut/browserInfo";
+import {
+  EdgeLegacy,
+  IOS,
+  IOS13,
+  Safari,
+} from "../../lib/onFocusOut/browserInfo";
 import { TGame, TPlayer, TState } from "../../model/state";
 import { colorMap } from "../constants/constants";
 import { createHTMLFromString } from "../utils/index";
@@ -100,11 +105,27 @@ class BoardView extends View {
       this.selectCell({ cell, player });
       const shapeEl = createHTMLFromString(shapes[shape]) as SVGElement;
 
+      // fires multiple times, debounce then when it ends add block-animation
+      const animationEnd = () => {
+        // cell.classList.add("block-animation");
+        console.log("end");
+        // cell.removeEventListener("animationend", animationEnd);
+      };
+
       if (IOS || Safari) {
         shapeEl.style.animation = "Force-Full-Repaint-Frame 2000ms";
       }
 
+      // remove circle shadow in cross
       cell.appendChild(shapeEl);
+
+      // if (EdgeLegacy) {
+      setTimeout(() => {
+        cell.classList.add("block-animation");
+      }, 2500);
+      // }
+
+      // cell.addEventListener("animationend", animationEnd);
     });
   }
 
