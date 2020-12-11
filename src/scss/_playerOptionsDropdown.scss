@@ -40,9 +40,15 @@
   display: none;
   position: absolute;
   left: 50%;
-  bottom: -100%;
+  bottom: -10px; // why does this work? originally i had auto
   transform: translateX(-50%);
   z-index: 50;
+
+  .tooltip-player {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+  }
 
   &.active {
     display: block;
@@ -50,10 +56,21 @@
   }
 
   .tooltip {
+    position: absolute; // bottom 0 won't work unless this is position absolute
     width: 150px;
     padding: 10px;
     border-radius: 10px;
     background: #eee;
+    transform: translateX(-50%);
+
+    &:before {
+      position: absolute;
+      content: "";
+      top: -20px;
+      left: 0;
+      width: 100%;
+      height: 20px;
+    }
   }
 
   .arrow-up {
@@ -111,6 +128,15 @@
 .shape-item-container,
 .color-item-container {
   position: relative;
+
+  .mini-svg-mark {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    margin: 0px 10px;
+    background: #000;
+    border-radius: 5px;
+  }
 
   &:hover {
     .tooltip-container.ready {

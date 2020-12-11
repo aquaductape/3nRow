@@ -29,6 +29,11 @@
       border-bottom: 2px solid #b6b6b6;
     }
 
+    .title {
+      display: flex;
+      align-items: center;
+    }
+
     // support Edge Legacy
     &[data-focused="true"] {
       background: #dfdfdf;
@@ -62,6 +67,15 @@
         font-size: 18px;
         margin-bottom: 5px;
       }
+    }
+
+    .mini-svg-mark {
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      margin: 0px 10px;
+      background: #000;
+      border-radius: 5px;
     }
   }
 

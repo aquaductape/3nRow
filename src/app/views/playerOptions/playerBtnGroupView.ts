@@ -166,25 +166,26 @@ class PlayerBtnGroup extends View {
 
   updateSkinDisabledInDropdown({
     id,
-    player,
+    oppositePlayer,
     type,
   }: {
     id: string;
-    player: TPlayer;
+    oppositePlayer: TPlayer;
     type: TSkinProps;
   }) {
     const { dropdownOptionsView } = this.playerDom[id];
-    const svgMark = ``;
+    const svgMark = `<span class="mini-svg-mark">${oppositePlayer.getSvgShape()}</span>`;
     // get opposite id from player
-    const toolTipMsg = `Player ${
-      id === "P1" ? "2" : "1"
-    } ${svgMark} has this ${type}`;
+    const toolTipMsg = dropdownOptionsView.radioToolTipMessage({
+      type,
+      player: oppositePlayer,
+    });
 
     if (Array.isArray(type)) {
       type.forEach((t) => {
         dropdownOptionsView.updatePlayerSkinDisabled({
           type: t,
-          value: player[t],
+          value: oppositePlayer[t],
           toolTipMsg,
         });
       });
@@ -193,7 +194,7 @@ class PlayerBtnGroup extends View {
 
     dropdownOptionsView.updatePlayerSkinDisabled({
       type,
-      value: player[type],
+      value: oppositePlayer[type],
       toolTipMsg,
     });
   }

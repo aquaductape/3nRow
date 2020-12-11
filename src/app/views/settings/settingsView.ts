@@ -1,6 +1,6 @@
 import { TControlSettings, TMoveAi } from "../../controller/controller";
 import onFocusOut from "../../lib/onFocusOut/onFocusOut";
-import { TState } from "../../model/state";
+import { TPlayer, TState } from "../../model/state";
 import { svg } from "../constants/constants";
 import overlayView from "../overlay/overlayView";
 import { hideElement, showElement } from "../utils/index";
@@ -31,6 +31,8 @@ class SettingsView extends View {
 
   protected markupDidGenerate() {
     this.updateFromLS();
+
+    this.updatePlayerSVGMark(this.data.players[1]);
 
     this.settingsBtn = this.parentEl.querySelector(
       ".settings-btn"
@@ -255,6 +257,21 @@ class SettingsView extends View {
   }) {
     this.handlerSettings = handlerSettings;
     this.handlerMoveAi = handlerMoveAi;
+  }
+
+  updatePlayerSVGMark(player: TPlayer) {
+    const shape = player.getSvgShape();
+    const svgMark = shape.replace(/filter="url\(#drop-shadow-filter\)"/g, "");
+    const svgClass = "mini-svg-mark";
+    const query = '[data-setting-id="player2"]';
+    const title = this.parentEl.querySelector(`${query} .title`) as HTMLElement;
+    const svg = title.querySelector(`.${svgClass}`) as HTMLElement;
+
+    if (!svg) {
+      title.innerHTML = `${title.textContent} <span class="${svgClass}">${svgMark}</span>`;
+      return;
+    }
+    svg.innerHTML = svgMark;
   }
 
   // hard coded

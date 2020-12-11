@@ -72,7 +72,7 @@ const controlPlayAgain: TControlPlayAgain = async () => {
     playerBtnGroupView.updateSkinDisabledInDropdown({
       id: otherPlayer.id,
       type: ["color", "shape"],
-      player: aiPlayer,
+      oppositePlayer: aiPlayer,
     });
   }
 
@@ -228,15 +228,17 @@ const controlPlayerShape: TControlPlayerShape = ({ player, shape }) => {
   //update marks on other View components
   boardView.updateShapeInCells(player);
   gameMenuView.updatePlayerMark(player);
+  if (player.id === "P2") settingsView.updatePlayerSVGMark(player);
   // update disabled for other player
   const otherPlayer = getOppositePlayer({
     id: player.id,
     players: model.state.players,
   });
+  // i need to come up with better names
   playerBtnGroupView.updateSkinDisabledInDropdown({
     id: otherPlayer.id,
     type: "shape",
-    player,
+    oppositePlayer: player,
   });
 };
 
@@ -270,7 +272,7 @@ const controlPlayerColor: TControlPlayerColor = ({ player, color }) => {
   playerBtnGroupView.updateSkinDisabledInDropdown({
     id: otherPlayer.id,
     type: "color",
-    player,
+    oppositePlayer: player,
   });
 };
 
