@@ -64,6 +64,7 @@ const controlPlayAgain: TControlPlayAgain = async () => {
     // update View shape and color
     svgDefsView.updateShapeColors(model.state.players);
     playerBtnGroupView.updateSvgMark(aiPlayer);
+    settingsView.updatePlayerSVGMark(aiPlayer);
     // update dropdown lists
     playerBtnGroupView.updateSkinSelectionInDropdown({
       type: ["color", "shape"],
