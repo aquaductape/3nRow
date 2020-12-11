@@ -112,6 +112,8 @@ class GameMenuView extends View {
             content: "Cheater",
             aria: {
               "aria-describedby": "ai-difficulty",
+              "aria-label":
+                "Cheater: computer sometimes takes several cells per turn",
             },
             dataAttributes: {
               difficulty: "CHEATER",
