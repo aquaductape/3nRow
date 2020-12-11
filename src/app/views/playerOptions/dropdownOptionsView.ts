@@ -350,20 +350,19 @@ export default class DropdownOptionsView extends View {
     const toolTipContainer = item.querySelector(
       ".tooltip-container"
     ) as HTMLElement;
-    console.log(toolTipContainer);
+    console.log("add", toolTipContainer);
     toolTipContainer.classList.add("ready");
     toolTipContainer.insertAdjacentHTML(
       "beforeend",
       this.toolTipInnerMarkup({ msg: toolTipMsg })
     );
-
-    this.removePreviousToolTip();
   }
 
-  private removePreviousToolTip() {
-    const toolTipContainer = this.parentEl.querySelector(
+  private removeToolTip(item: HTMLElement) {
+    const toolTipContainer = item.querySelector(
       ".tooltip-container.ready"
     ) as HTMLElement;
+    console.log("remove", toolTipContainer, toolTipContainer.parentElement);
     toolTipContainer.classList.remove("ready");
     this.clearChildren(toolTipContainer);
   }
@@ -410,7 +409,6 @@ export default class DropdownOptionsView extends View {
     const newItem = group.querySelector(
       `[data-${type}="${value}"]`
     ) as HTMLElement;
-    const itemContainer = newItem.parentElement as HTMLElement;
 
     currentItem.setAttribute("data-disabled", "false");
     currentItem.setAttribute("aria-disabled", "false");
@@ -420,7 +418,23 @@ export default class DropdownOptionsView extends View {
     newItem.setAttribute("aria-disabled", "true");
     newItem.classList.add("disabled");
 
-    this.addToolTip({ item: itemContainer, toolTipMsg });
+    this.updateToolTips({ currentItem, newItem, toolTipMsg });
+  }
+
+  private updateToolTips({
+    currentItem,
+    newItem,
+    toolTipMsg,
+  }: {
+    newItem: HTMLElement;
+    currentItem: HTMLElement;
+    toolTipMsg: string;
+  }) {
+    const currentItemContainer = currentItem.parentElement as HTMLElement;
+    const newItemContainer = newItem.parentElement as HTMLElement;
+
+    this.addToolTip({ item: newItemContainer, toolTipMsg });
+    this.removeToolTip(currentItemContainer);
   }
 
   addHandlerChangeShape(handler: TControlPlayerShape) {
