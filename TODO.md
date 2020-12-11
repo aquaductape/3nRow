@@ -5,16 +5,11 @@
 
 # ARIA
 
-1. Easier introduction/navigation when user first loads the page
-2. ARIA Live Region for updates on game
-
 # UI
 
 1. Icon on player 2 (or either) indicating that it's an AI
-2. If option dropdown height is greater than viewport, match viewport height and use inner scrollbars, same with inner list width
-3. Tooltip (on menu button and replay button since they are icons)
-4. Logo text on quick start menu
-5. dropdown svg mask, for now just place it within HTML element that will be animated, it breaks in Firefox, god knows what Safari will do
-6. try catch with localStorage
-7. have close button at bottom of dropdown
-8. restart board remove cell animation
+2. Logo text on quick start menu
+3. try catch with localStorage
+4. have close button at bottom of dropdown
+5. restart board remove cell animation
+6. close X hover is rounded bg
