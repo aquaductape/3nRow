@@ -293,7 +293,6 @@ class GameMenuView extends View {
 
     const btnSVGMark = playerBtn.querySelector(".btn-svg-mark svg")!;
     btnSVGMark.replaceWith(createHTMLFromString(playerSVGShape));
-    console.log("update mark in menu");
 
     if (vsPlayer !== "ai") return;
     const btnTxtContent = playerBtn.querySelector(".btn-txt-content")!;

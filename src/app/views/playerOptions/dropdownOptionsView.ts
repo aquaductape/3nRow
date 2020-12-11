@@ -350,7 +350,6 @@ export default class DropdownOptionsView extends View {
     const toolTipContainer = item.querySelector(
       ".tooltip-container"
     ) as HTMLElement;
-    console.log("add", toolTipContainer);
     toolTipContainer.classList.add("ready");
     toolTipContainer.insertAdjacentHTML(
       "beforeend",
@@ -362,7 +361,6 @@ export default class DropdownOptionsView extends View {
     const toolTipContainer = item.querySelector(
       ".tooltip-container.ready"
     ) as HTMLElement;
-    console.log("remove", toolTipContainer, toolTipContainer.parentElement);
     toolTipContainer.classList.remove("ready");
     this.clearChildren(toolTipContainer);
   }

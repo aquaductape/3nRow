@@ -101,9 +101,9 @@ export const animateDropdown = ({
     if (refs.canceled) {
       onCancel && onCancel(x);
 
-      console.log("interrupted!", {
-        timestamp,
-      });
+      // console.log("interrupted!", {
+      //   timestamp,
+      // });
       return;
     }
 
