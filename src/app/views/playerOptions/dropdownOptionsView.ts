@@ -3,6 +3,7 @@ import {
   TControlPlayerShape,
 } from "../../controller/controller";
 import { IOS, IOS13, Safari } from "../../lib/onFocusOut/browserInfo";
+import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TPlayer } from "../../model/state";
 import { colorMap, colors, shapes, svg } from "../constants/constants";
 import { radioGroup } from "../utils/aria";
@@ -87,9 +88,23 @@ export default class DropdownOptionsView extends View {
     ) as HTMLElement;
 
     this.onRadioGroup();
-    this.parentEl.addEventListener("click", (e) => {
-      // const
-    });
+    //     this.parentEl.addEventListener("click", (e) => {
+    //       const target = e.target as HTMLElement;
+    //       const disabledItem = target.closest('[data-disabled="true"]');
+    //       if (!disabledItem) return;
+    //       const itemContainer = disabledItem.parentElement as HTMLElement;
+    //       const toolTip = itemContainer.querySelector(".tooltip") as HTMLElement;
+    //
+    //       onFocusOut({
+    //         button: itemContainer,
+    //         run: () => {
+    //           toolTip.classList.add("active");
+    //         },
+    //         onExit: () => {
+    //           toolTip.classList.remove("active");
+    //         },
+    //       });
+    //     });
   }
 
   private generateBtnHighlight() {
@@ -100,6 +115,32 @@ export default class DropdownOptionsView extends View {
       <div class="fake-player-btns">
         <div class="player-btn-highlight ${id}-player-btn-highlight"></div>
       </div>
+    `;
+  }
+
+  private toolTipInnerMarkup({ msg }: { msg: string }) {
+    return `
+      <div class="arrow-up hidden"></div>
+      <div class="tooltip hidden" role="tooltip">${msg}</div>
+    `;
+  }
+
+  private toolTipMarkup({
+    enabled,
+    playerId,
+    type,
+  }: {
+    type: "colors" | "shapes";
+    enabled: boolean;
+    playerId: string;
+  }) {
+    const item = type === "colors" ? "color" : "shape";
+    const msg = `Player ${playerId === "P1" ? "1" : "2"} has this ${item}`;
+    const innerTooltip = this.toolTipInnerMarkup({ msg });
+    return `
+    <div class="tooltip-container ${enabled ? "ready" : ""}">
+      ${enabled ? innerTooltip : ""}
+    </div>
     `;
   }
 
@@ -126,6 +167,11 @@ export default class DropdownOptionsView extends View {
       const selected = playerColor === item ? "true" : "false";
       // already selected by other player
       const disabled = oppositePlayer.color === item;
+      const toolTip = this.toolTipMarkup({
+        type,
+        playerId: oppositePlayer.id,
+        enabled: disabled,
+      });
       const classBase = "color-item";
       const classSelected = playerColor === item ? "color-item--selected" : "";
       const classDisabled = disabled ? "disabled" : "";
@@ -157,8 +203,8 @@ export default class DropdownOptionsView extends View {
             </div>
           </div>
         </div>
-
-        <div class="tooltip" role="tooltip"></div>
+        
+        ${toolTip}
 
       </div>
         `;
@@ -169,6 +215,11 @@ export default class DropdownOptionsView extends View {
       const selected = playerShape === item ? "true" : "false";
       // already selected by other player
       const disabled = oppositePlayer.shape === item;
+      const toolTip = this.toolTipMarkup({
+        type,
+        playerId: oppositePlayer.id,
+        enabled: disabled,
+      });
       const classBase = "shape-item";
       const classSelected = playerShape === item ? "shape-item--selected" : "";
       const classDisabled = disabled ? "disabled" : "";
@@ -204,7 +255,7 @@ export default class DropdownOptionsView extends View {
           </div>
         </div>
 
-        <div class="tooltip" role="tooltip"></div>
+        ${toolTip}
 
       </div>
       `;
@@ -293,19 +344,25 @@ export default class DropdownOptionsView extends View {
     toolTipMsg: string;
     item: HTMLElement;
   }) {
-    const toolTip = item.querySelector(".tooltip") as HTMLElement;
-    toolTip.classList.add("ready");
-    toolTip.insertAdjacentHTML("beforeend", toolTipMsg);
+    const toolTipContainer = item.querySelector(
+      ".tooltip-container"
+    ) as HTMLElement;
+    console.log(toolTipContainer);
+    toolTipContainer.classList.add("ready");
+    toolTipContainer.insertAdjacentHTML(
+      "beforeend",
+      this.toolTipInnerMarkup({ msg: toolTipMsg })
+    );
 
     this.removePreviousToolTip();
   }
 
   private removePreviousToolTip() {
-    const toolTip = this.parentEl.querySelector(
-      ".tooltip.ready"
+    const toolTipContainer = this.parentEl.querySelector(
+      ".tooltip-container.ready"
     ) as HTMLElement;
-    toolTip.classList.remove("ready");
-    this.clearChildren(toolTip);
+    toolTipContainer.classList.remove("ready");
+    this.clearChildren(toolTipContainer);
   }
 
   updatePlayerSkinSelection({
@@ -350,6 +407,7 @@ export default class DropdownOptionsView extends View {
     const newItem = group.querySelector(
       `[data-${type}="${value}"]`
     ) as HTMLElement;
+    const itemContainer = newItem.parentElement as HTMLElement;
 
     currentItem.setAttribute("data-disabled", "false");
     currentItem.setAttribute("aria-disabled", "false");
@@ -359,7 +417,7 @@ export default class DropdownOptionsView extends View {
     newItem.setAttribute("aria-disabled", "true");
     newItem.classList.add("disabled");
 
-    this.addToolTip({ item: newItem, toolTipMsg });
+    this.addToolTip({ item: itemContainer, toolTipMsg });
   }
 
   addHandlerChangeShape(handler: TControlPlayerShape) {

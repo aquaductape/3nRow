@@ -6,7 +6,7 @@ import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TPlayer, TState } from "../../model/state";
 import { TSkin, TSkinProps } from "../../ts/index";
 import { colorMap, svg } from "../constants/constants";
-import { createHTMLFromString } from "../utils/index";
+import { createHTMLFromString, getOppositePlayer } from "../utils/index";
 import View from "../View";
 import DropdownOptionsView from "./dropdownOptionsView";
 
@@ -175,8 +175,9 @@ class PlayerBtnGroup extends View {
   }) {
     const { dropdownOptionsView } = this.playerDom[id];
     const svgMark = ``;
+    // get opposite id from player
     const toolTipMsg = `Player ${
-      id === "P1" ? "1" : "2"
+      id === "P1" ? "2" : "1"
     } ${svgMark} has this ${type}`;
 
     if (Array.isArray(type)) {
