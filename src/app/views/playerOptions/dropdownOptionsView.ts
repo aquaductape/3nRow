@@ -88,23 +88,26 @@ export default class DropdownOptionsView extends View {
     ) as HTMLElement;
 
     this.onRadioGroup();
-    //     this.parentEl.addEventListener("click", (e) => {
-    //       const target = e.target as HTMLElement;
-    //       const disabledItem = target.closest('[data-disabled="true"]');
-    //       if (!disabledItem) return;
-    //       const itemContainer = disabledItem.parentElement as HTMLElement;
-    //       const toolTip = itemContainer.querySelector(".tooltip") as HTMLElement;
-    //
-    //       onFocusOut({
-    //         button: itemContainer,
-    //         run: () => {
-    //           toolTip.classList.add("active");
-    //         },
-    //         onExit: () => {
-    //           toolTip.classList.remove("active");
-    //         },
-    //       });
-    //     });
+
+    this.parentEl.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      const disabledItem = target.closest('[data-disabled="true"]');
+      if (!disabledItem) return;
+      const itemContainer = disabledItem.parentElement as HTMLElement;
+      const toolTipContainer = itemContainer.querySelector(
+        ".tooltip-container"
+      ) as HTMLElement;
+
+      // onFocusOut({
+      //   button: itemContainer,
+      //   run: () => {
+      //     toolTipContainer.classList.add("active");
+      //   },
+      //   onExit: () => {
+      //     toolTipContainer.classList.remove("active");
+      //   },
+      // });
+    });
   }
 
   private generateBtnHighlight() {
@@ -120,8 +123,8 @@ export default class DropdownOptionsView extends View {
 
   private toolTipInnerMarkup({ msg }: { msg: string }) {
     return `
-      <div class="arrow-up hidden"></div>
-      <div class="tooltip hidden" role="tooltip">${msg}</div>
+      <div class="arrow-up"></div>
+      <div class="tooltip" role="tooltip">${msg}</div>
     `;
   }
 
