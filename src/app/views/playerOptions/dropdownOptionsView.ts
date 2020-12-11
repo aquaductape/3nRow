@@ -5,7 +5,7 @@ import {
 import { IOS, IOS13, Safari } from "../../lib/onFocusOut/browserInfo";
 import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TPlayer } from "../../model/state";
-import { TSkinProps } from "../../ts";
+import { TSkin } from "../../ts";
 import { colorMap, colors, shapes, svg } from "../constants/constants";
 import { radioGroup } from "../utils/aria";
 import { diagonalLengthOfElement, getOppositePlayer } from "../utils/index";
@@ -147,7 +147,7 @@ export default class DropdownOptionsView extends View {
     `;
   }
 
-  private listItem({ item, type }: { item: string; type: TSkinProps }) {
+  private listItem({ item, type }: { item: string; type: TSkin }) {
     const { currentPlayer, players } = this.data;
     const {
       svgShapes: shapes,
@@ -259,7 +259,7 @@ export default class DropdownOptionsView extends View {
     }
   }
 
-  private renderGroup({ type }: { type: TSkinProps }) {
+  private renderGroup({ type }: { type: TSkin }) {
     if (type === "color")
       return colors
         .map((color) => this.listItem({ type, item: color }))
@@ -380,7 +380,7 @@ export default class DropdownOptionsView extends View {
     type,
   }: {
     player: TPlayer;
-    type: TSkinProps;
+    type: TSkin;
   }) => {
     const svgMark = `<span class="mini-svg-mark" aria-hidden="true">${player.getSvgShape()}</span>`;
 
