@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["es6"],
+    "esModuleInterop": true,
+    "target": "ES2016",
+    "noImplicitAny": true,
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "experimentalDecorators": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": ["node_modules/*"]
+    }
+  },
+  "include": ["**/*.ts"]
+}
+// {
+//   "compilerOptions": {
+//     "module": "commonjs",
+//     "esModuleInterop": true,
+//     "target": "es6",
+//     "lib": ["es6"],
+//     "noImplicitAny": true,
+//     "moduleResolution": "node",
+//     "sourceMap": true,
+//     "strict": true,
+//     "strictNullChecks": true,
+//     "outDir": "./dist",
+//     "baseUrl": ".",
+//     "resolveJsonModule": true,
+//     "experimentalDecorators": true,
+//     "paths": {
+//       "*": ["node_modules/*"]
+//     }
+//   },
+//   "include": ["**/*.ts"]
+// }

@@ -40,7 +40,10 @@
     "webpack-dev-server": "^3.9.0",
     "webpack-merge": "^4.2.2"
   },
-  "dependencies": {},
+  "dependencies": {
+    "colyseus.js": "^0.14.1",
+    "socket.io-client": "^3.0.4"
+  },
   "browserslist": [
     "defaults",
     "not ie < 11",
