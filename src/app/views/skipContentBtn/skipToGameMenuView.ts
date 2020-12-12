@@ -1,6 +1,6 @@
 import View from "../View";
 
-class SkipToGameMenu extends View {
+class SkipToGameMenuView extends View {
   gameMenuExist: boolean;
   btn: HTMLElement;
 
@@ -42,4 +42,4 @@ class SkipToGameMenu extends View {
   }
 }
 
-export default new SkipToGameMenu();
+export default new SkipToGameMenuView();

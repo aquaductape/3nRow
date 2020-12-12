@@ -1,4 +1,4 @@
 import "./lib/noFocusClick/noFocusClick";
-import { init } from "./controller/controller";
+import { init } from "./controllers/init";
 
 init();

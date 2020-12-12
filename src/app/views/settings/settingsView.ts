@@ -1,4 +1,5 @@
-import { TControlSettings, TMoveAi } from "../../controller/controller";
+import { TMoveAi } from "../../controllers/move";
+import { TControlSettings } from "../../controllers/settings";
 import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TPlayer, TState } from "../../model/state";
 import { svg } from "../constants/constants";

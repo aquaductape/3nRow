@@ -1,7 +1,7 @@
 import {
   TControlPlayerColor,
   TControlPlayerShape,
-} from "../../controller/controller";
+} from "../../controllers/playerOptions";
 import { IOS, IOS13, Safari } from "../../lib/onFocusOut/browserInfo";
 import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TPlayer } from "../../model/state";

@@ -1,4 +1,4 @@
-import { TMovePlayer, TControlStartGame } from "../../controller/controller";
+import { TMovePlayer } from "../../controllers/move";
 import {
   EdgeLegacy,
   IOS,

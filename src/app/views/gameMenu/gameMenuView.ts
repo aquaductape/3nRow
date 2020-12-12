@@ -1,8 +1,5 @@
-import {
-  TControlSettings,
-  TControlPlayAgain,
-  TControlStartGame,
-} from "../../controller/controller";
+import { TControlPlayAgain, TControlStartGame } from "../../controllers/menu";
+import { TControlSettings } from "../../controllers/settings";
 import { TPlayer } from "../../model/state";
 import { shapes, svg } from "../constants/constants";
 import gameContainerView from "../gameContainer/gameContainerView";

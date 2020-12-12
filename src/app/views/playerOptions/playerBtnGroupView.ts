@@ -1,7 +1,7 @@
 import {
   TControlPlayerColor,
   TControlPlayerShape,
-} from "../../controller/controller";
+} from "../../controllers/playerOptions";
 import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TPlayer, TState } from "../../model/state";
 import { TSkin, TSkinProps } from "../../ts/index";
