@@ -22,6 +22,7 @@ class GameContainerView extends View {
     playAgainBtn: HTMLElement;
     gameMenuBtns: HTMLElement[];
     gameMenuBtnPickPlayer: HTMLElement[];
+    navigationBackBtn: HTMLElement;
   };
   debouncedGetSelectors: Function;
 
@@ -81,6 +82,9 @@ class GameContainerView extends View {
     dom.playAgainBtn = this.parentEl.querySelector(
       ".btn-play-again"
     ) as HTMLElement;
+    dom.navigationBackBtn = this.parentEl.querySelector(
+      ".btn-navigation-back"
+    ) as HTMLElement;
   }
 
   private resizeElements(boardWidth: number) {
@@ -105,6 +109,7 @@ class GameContainerView extends View {
       gameMenuBtns,
       gameMenuBtnPickPlayer,
       playAgainBtn,
+      navigationBackBtn,
     } = this.dom;
 
     const matchDropdownWidthToBoard = () => {
@@ -295,6 +300,18 @@ class GameContainerView extends View {
             boardWidth > 300 ? px(boardWidth / 3.47) : px(boardWidth / 2.5),
           width: () =>
             boardWidth > 300 ? px(boardWidth / 3.47) : px(boardWidth / 2.5),
+        },
+      });
+      scaleStyles({
+        el: navigationBackBtn,
+        numerator: boardWidth,
+        styleRatio: {
+          top: 21.5,
+          left: 21.5,
+          padding: 64.53,
+          height: 8.06625,
+          width: 8.06625,
+          borderRadius: 64.53,
         },
       });
     };

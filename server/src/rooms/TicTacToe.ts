@@ -33,10 +33,8 @@ export class TicTacToe extends Room<State> {
 
   onJoin(client: Client) {
     this.state.players.set(client.sessionId, true);
-    console.log("joined. player amount", this.state.players.size);
 
     if (this.state.players.size === 2) {
-      console.log("locked room. player amount", this.state.players.size);
       this.state.currentTurn = client.sessionId;
 
       // lock this room for new users

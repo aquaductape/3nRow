@@ -13,9 +13,15 @@ import View from "../View";
 
 // vs Friend
 // Online
-type TSections = "aiDifficulty" | "start" | "goFirst";
+type TSections =
+  | "aiDifficulty"
+  | "start"
+  | "goFirst"
+  | "multiplayer"
+  | "multiplayerChoices";
 type TBtn = {
   id?: string;
+  type?: "button" | "link";
   content: string;
   dataAttributes: {
     [key: string]: string;
@@ -23,6 +29,7 @@ type TBtn = {
   aria: {
     [key: string]: string;
   };
+  toolTip?: string;
   classNames: string[];
 };
 type TMenu = {
@@ -36,6 +43,8 @@ type TGameMenuState = {
   start: TMenu;
   aiDifficulty: TMenu;
   goFirst: TMenu;
+  multiplayer: TMenu;
+  multiplayerChoices: TMenu;
   // human: TBtn[];
 };
 class GameMenuView extends View {
@@ -69,7 +78,8 @@ class GameMenuView extends View {
               "aria-label": "Play against Human",
             },
             dataAttributes: {
-              transitionTo: "goFirst",
+              // transitionTo: "goFirst",
+              transitionTo: "multiplayer",
               vs: "human",
             },
             classNames: ["btn", "btn-primary", "btn-pick"],
@@ -121,6 +131,59 @@ class GameMenuView extends View {
           },
         ],
       },
+      multiplayer: {
+        title: "Multiplayer",
+        listBtns: [
+          {
+            content: "Local",
+            aria: {
+              "aria-label": "Local: Play against a Friend next to You",
+            },
+            dataAttributes: {
+              transitionTo: "goFirst",
+              focus: "true",
+            },
+            toolTip: "Play against a Friend next to You",
+            classNames: ["btn", "btn-primary", "btn-pick"],
+          },
+          {
+            content: "Online",
+            aria: {
+              "aria-label": "Online: Play against an online buddy",
+            },
+            dataAttributes: {
+              transitionTo: "multiplayerChoices",
+            },
+            classNames: ["btn", "btn-primary", "btn-pick"],
+          },
+        ],
+      },
+      multiplayerChoices: {
+        title: "",
+        listBtns: [
+          {
+            content: "Join Public Game",
+            dataAttributes: {
+              open: "lobby", // checks for games, has red exit button
+              focus: "true",
+            },
+            aria: {},
+            classNames: ["btn", "btn-primary", "btn-pick"],
+          },
+          {
+            content: "Create Private Game", // when clicked generates simple code to share
+            dataAttributes: {},
+            aria: {},
+            classNames: ["btn", "btn-primary", "btn-pick"],
+          },
+          {
+            content: "Enter Private Game Code",
+            dataAttributes: {},
+            aria: {},
+            classNames: ["btn", "btn-primary", "btn-pick"],
+          },
+        ],
+      },
       goFirst: {
         title: "Who Goes First?",
         listBtns: [
@@ -159,10 +222,58 @@ class GameMenuView extends View {
   protected generateMarkup() {
     return `
     <div class="menu">
+    ${this.backgroundSVG()}
+    ${this.navigationBackMarkup()}
       <div class="section">
       ${this.menuMarkup({ sectionType: "start" })}
       </div>
       ${this.playAgainMarkup()}
+    </div>
+    `;
+  }
+
+  private navigationBackMarkup() {
+    return `
+    <button class="btn btn-navigation-back" aria-label="go back to previous menu selection">${svg.navigationArrow}</button>
+    `;
+  }
+
+  private backgroundSVG() {
+    return `
+    <div class="background-svg">${svg.menuBg}</div>
+    `;
+  }
+
+  private loaderSpinnerMarkup() {
+    return `
+    <div class="loader-container">
+      <div class="loader">
+    </div>
+    `;
+  }
+
+  private pickPlayerSkinsMiniGame() {}
+
+  private dialogModalMarkup(type: "lobby" | "share" | "code input") {
+    let dialogLabel = "lobby";
+    // default lobby
+    // when mini game starts, it mutates lobby content and close button disappears
+    let content = `
+    <div>
+      <div class="busy-players">3 players are busy</div>
+      ${this.loaderSpinnerMarkup()}
+    </div>
+    `;
+
+    if (type === "lobby") {
+    }
+
+    return `
+    <div class="modal" role="dialog" aria-label="${dialogLabel}">
+      ${content}
+      <button data-next-focus="true" class="btn-close" aria-label="close ${dialogLabel} window" title="close ${type}">
+        ${svg.close}
+      </button>
     </div>
     `;
   }

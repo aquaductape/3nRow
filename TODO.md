@@ -16,3 +16,7 @@
 7. Opponent dropdown items are disabled during multiplayer and his/her taken item will be labled as "Opponent has this item".
 8. Have 3 color gradients, have a progressive toggle to toggle 1 - 3
 9. aria region, support cheater moves, only says one currently
+10. on win have current player button change to gradient (animated), has dark borders, svg mark restores to player color and has dark outline, remove player indicator, and place win text for 1.5 seconds. maybe is revealed by clip or mask animation.
+11. claimed skin, should have a red x, animation scale
+12. disable player buttons, disable dropdowns (provide tooltip), when on multiplayer lobby
+13. focus to replay button

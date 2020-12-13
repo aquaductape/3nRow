@@ -125,4 +125,10 @@ export const svg = {
   <path d="M14.4.913L.913 14.4m0-13.487L14.4 14.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
 </svg>
 `,
+  navigationArrow: `
+<svg xmlns="http://www.w3.org/2000/svg" width="47.017" height="38.236" viewBox="0 0 12.44 10.117"><g  stroke="currentColor" stroke-width="1.587" stroke-linecap="round"><path d="M.89 5.058l4.327 4.265"/><path d="M.89 5.058L5.216.794"/><path d="M11.646 5.058H.908"/></g></svg>
+  `,
+  menuBg: `
+      <svg xmlns="http://www.w3.org/2000/svg" width="518.547" height="518.547" viewBox="0 0 137.199 137.199"><path  fill="var(--menu-bg-main)" d="M0 0h137.199v137.199H-.001z"/><path d="M137.199 66.268c-24.94-.161-89.837 36.196-123.674 42.806-4.588.896-8.896 1.187-13.525-1.11v18.71L3.37 137.2h133.829z" fill="var(--menu-bg-layer-2)"/><path d="M137.199 78.87c-10.07.363-36.395 3.706-61.032 27.196-31.274 29.818-63.977 24.947-63.977 24.947l-6.694-1.48L0 127.004v10.47l4.26.065 51.924 1.226 81.015-1.566z" fill="var(--menu-bg-layer-3)"/><path d="M0 0v28.666c10.585-5.78 29.592-14.754 53.187-19.76 30.069-6.38 67.025-4.153 84.012-2.59V0z" fill="var(--menu-bg-layer-1)"/></svg>
+  `,
 };
