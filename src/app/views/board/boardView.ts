@@ -1,4 +1,4 @@
-import { TMovePlayer } from "../../controllers/move";
+import { TControlMovePlayer } from "../../controllers/move";
 import {
   EdgeLegacy,
   IOS,
@@ -136,7 +136,7 @@ class BoardView extends View {
     });
   }
 
-  addHandlerCell(handler: TMovePlayer) {
+  addHandlerCell(handler: TControlMovePlayer) {
     this.parentEl.addEventListener("click", (e) => {
       const target = <HTMLElement>e.target;
       const cell = target.closest("[data-column]") as HTMLElement;

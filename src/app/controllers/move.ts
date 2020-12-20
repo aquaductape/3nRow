@@ -4,12 +4,20 @@ import boardView from "../views/board/boardView";
 import gameMenuView from "../views/gameMenu/gameMenuView";
 import playerBtnGroupView from "../views/playerOptions/playerBtnGroupView";
 
-export type TMovePlayer = (prop: { row: number; column: number }) => void;
-export const movePlayer: TMovePlayer = async ({ column, row }) => {
+export type TControlMovePlayer = (prop: {
+  row: number;
+  column: number;
+  userActionFromServer?: boolean;
+}) => void;
+export const controlMovePlayer: TControlMovePlayer = async ({
+  column,
+  row,
+  userActionFromServer = false,
+}) => {
   if (model.state.game.gameOver) return gameOver();
 
   // if turn is human, then move human and then if AI exists, move AI afterwards
-  moveHuman({ column, row });
+  moveHuman({ column, row, userActionFromServer });
   if (model.state.game.gameOver) return gameOver();
   playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
 
@@ -21,11 +29,23 @@ export const movePlayer: TMovePlayer = async ({ column, row }) => {
   playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
 };
 
-export const moveHuman = ({ column, row }: { column: number; row: number }) => {
+export const moveHuman = ({
+  column,
+  row,
+  userActionFromServer,
+}: {
+  column: number;
+  row: number;
+  userActionFromServer?: boolean;
+}) => {
   const player = model.getCurrentPlayer();
   boardView.preventPlayerToSelect();
   model.startTurn({ column, row });
-  // socket.emit("player move", { column, row });
+  if (model.state.onlineMultiplayer.active && !userActionFromServer) {
+    const { room } = model.state.onlineMultiplayer;
+    console.log("fire send move");
+    room!.send("move", { column, row });
+  }
   // View
   // show mark based on column row
   boardView.updateBoard({ data: model.state, player });
@@ -37,7 +57,7 @@ export const moveHuman = ({ column, row }: { column: number; row: number }) => {
     vs: model.state.game.hasAI ? "ai" : "human",
   });
 
-  if (!model.state.game.hasAI) {
+  if (!model.state.game.hasAI && userActionFromServer) {
     boardView.allowPlayerToSelect();
   }
 

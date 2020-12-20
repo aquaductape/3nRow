@@ -3,9 +3,11 @@ import { getElement, reflow } from "./utils/index";
 export default class View {
   protected data = {};
   protected parentEl: HTMLElement;
+  protected root: string | HTMLElement;
   constructor({ root }: { root: string | HTMLElement }) {
     this.data = {};
     this.parentEl = getElement(root);
+    this.root = root;
   }
 
   protected clear() {
@@ -57,6 +59,13 @@ export default class View {
   // }
 
   render(data?: any) {
+    if (!this.parentEl) {
+      this.parentEl = getElement(this.root);
+      console.log("doesn't exist", this.root, this.parentEl);
+    }
+
+    if (!this.parentEl) return;
+
     this.data = data;
     this.clear();
     this.parentEl.insertAdjacentHTML("afterbegin", this.generateMarkup());

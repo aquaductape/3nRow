@@ -6,6 +6,12 @@ $primary-btn-color: $primary-color;
 $starting-color: #1d2a73;
 $white: #ddd;
 
+// transform: translateY(-5px) rotate(11deg); layer 1
+//     transform-origin: right;
+
+// transform: translateY(22px) rotate(38deg); layer 2
+// transform: translateY(18px) rotate(22deg); layer 3
+
 // menu-bg main #1c2573 #eee
 // menu-bg level 1 #1b246e #f6f6f6
 // menu-bg level 2 #192166 #e7e7e7
@@ -15,8 +21,9 @@ $white: #ddd;
   --blue-bg: #{$starting-color};
   --blue-activated: #4959df;
   --blue-activated: #3d4cc0;
-  --blue-shadow: #0e1051; // #9ea0ba
+  --blue-shadow: #0e1051; // #8688a9
   --board-shadow: var(--blue-shadow);
+  --menu-bg-plain-main: var(--blue-shadow);
   --menu-bg-main: #1c2573;
   --menu-bg-layer-1: #1b246e;
   --menu-bg-layer-2: #192166;

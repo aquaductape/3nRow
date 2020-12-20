@@ -68,12 +68,19 @@ export const controlStartGame: TControlStartGame = ({
   model.setPlayerAsHumanOrAI({ id: "P2", ai });
   model.setAiDifficulty({ id: "P2", difficulty });
   model.setCurrentPlayer(firstMovePlayer);
+
   playerBtnGroupView.updatePlayerBtnsOnGameStart();
   boardView.startGame();
   svgDefsView.updateDropShadow("rgba(0, 0, 0, 0.35)");
+
   if (ai) {
     boardView.preventPlayerToSelect();
   }
+
+  if (model.state.onlineMultiplayer.opponentPlayer === firstMovePlayer) {
+    boardView.preventPlayerToSelect();
+  }
+
   playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
   skipToGameMenuView.updateSkipBtnContent();
 

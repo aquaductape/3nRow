@@ -2,7 +2,7 @@ import http from "http";
 import express from "express";
 import cors from "cors";
 import { Server } from "colyseus";
-import { TicTacToe } from "./rooms/TicTacToe";
+import { Common } from "./rooms/common";
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
@@ -15,7 +15,8 @@ const gameServer = new Server({
   server: server,
   express: app,
 });
-gameServer.define("tictactoe", TicTacToe);
+gameServer.define("public", Common);
+gameServer.define("private", Common).filterBy(["password"]);
 gameServer.listen(port);
 
 console.log(`Listening on ws://localhost:${port}`);

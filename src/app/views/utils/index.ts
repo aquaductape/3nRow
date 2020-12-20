@@ -90,11 +90,15 @@ export const getOppositePlayer = ({
 export const hideElement = ({
   el,
   transition = "200ms",
+  duration = 200,
+  useTransitionEvent = true,
   onStart,
   onEnd,
 }: {
   el: string | HTMLElement;
   transition?: string;
+  duration?: number;
+  useTransitionEvent?: boolean;
   onStart?: (el: HTMLElement) => void;
   onEnd?: (el: HTMLElement) => void;
 }) => {
@@ -103,7 +107,9 @@ export const hideElement = ({
   const element = getElement(el);
   transition = transition + " opacity";
 
-  const onTransitionEnd = () => {
+  const onTransitionEnd = (e: Event) => {
+    const target = e.target;
+    if (target !== element) return;
     if (onEnd) {
       onEnd(element);
     }
@@ -115,16 +121,26 @@ export const hideElement = ({
   const addTransitionListener = () =>
     element.addEventListener("transitionend", onTransitionEnd);
 
+  const timeOut = () => {
+    setTimeout(() => {
+      onEnd && onEnd(element);
+      element.style.pointerEvents = "";
+    }, duration);
+  };
+
   element.style.pointerEvents = "none";
 
   if (onStart) {
     onStart(element);
+    if (!useTransitionEvent) return timeOut();
     addTransitionListener();
     return;
   }
 
   element.style.webkitTransition = transition;
   element.style.transition = transition;
+  element.style.opacity = "1";
+  reflow();
   addTransitionListener();
 
   element.style.opacity = "0";
@@ -146,7 +162,9 @@ export const showElement = ({
   const element = getElement(el);
   transition = transition + " opacity";
 
-  const onTransitionEnd = () => {
+  const onTransitionEnd = (e: Event) => {
+    const target = e.target;
+    if (target !== element) return;
     if (onEnd) onEnd(element);
     element.style.opacity = "";
     element.style.webkitTransition = "";
@@ -177,7 +195,7 @@ export const showElement = ({
 export const getElement = (root: string | HTMLElement) => {
   if (typeof root !== "string") return root;
 
-  if (root[0] === "#") {
+  if (root[0] === "#" && !root.match(/#|\.|\[/g)) {
     return document.getElementById(root.slice(1))!;
   }
 
@@ -190,7 +208,7 @@ export const convertObjPropsToHTMLAttr = ({
   obj,
   type,
 }: {
-  obj: { [key: string]: string };
+  obj: { [key: string]: string | undefined };
   type: "data" | "aria";
 }) => {
   let result = "";

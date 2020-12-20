@@ -1,8 +1,14 @@
+import {
+  TControlCreateRoom,
+  TControlJoinRoom,
+} from "../../controllers/onlineMultiplayer";
 import { TControlPlayAgain, TControlStartGame } from "../../controllers/menu";
 import { TControlSettings } from "../../controllers/settings";
 import { TPlayer } from "../../model/state";
+import boardView from "../board/boardView";
 import { shapes, svg } from "../constants/constants";
 import gameContainerView from "../gameContainer/gameContainerView";
+import LobbyView, { TLobbyType } from "../lobby/lobbyView";
 import {
   convertObjPropsToHTMLAttr,
   createHTMLFromString,
@@ -10,49 +16,28 @@ import {
   showElement,
 } from "../utils/index";
 import View from "../View";
+import menuBtns, { TGameMenuState } from "./menuBtns";
+import lobbyView from "../lobby/lobbyView";
 
-// vs Friend
-// Online
 type TSections =
   | "aiDifficulty"
   | "start"
   | "goFirst"
   | "multiplayer"
   | "multiplayerChoices";
-type TBtn = {
-  id?: string;
-  type?: "button" | "link";
-  content: string;
-  dataAttributes: {
-    [key: string]: string;
-  };
-  aria: {
-    [key: string]: string;
-  };
-  toolTip?: string;
-  classNames: string[];
-};
-type TMenu = {
-  titleId?: string;
-  title: string | null;
-  listBtns: TBtn[];
-  btn?: string;
-};
 
-type TGameMenuState = {
-  start: TMenu;
-  aiDifficulty: TMenu;
-  goFirst: TMenu;
-  multiplayer: TMenu;
-  multiplayerChoices: TMenu;
-  // human: TBtn[];
-};
 class GameMenuView extends View {
   data: TPlayer[];
   menuState: TGameMenuState;
   sectionVisible: TSections | null;
   renderInit: boolean;
   vsPlayer: string;
+  navigationHistory: string[];
+  handlerStartGame: TControlStartGame;
+  handlerPlayAgain: TControlPlayAgain;
+  handlerSettings: TControlSettings;
+  handlerJoinRoom: TControlJoinRoom;
+  handlerCreateRoom: TControlCreateRoom;
   constructor() {
     super({ root: "#game-menu" });
     this.data = [] as TPlayer[];
@@ -60,163 +45,13 @@ class GameMenuView extends View {
     this.sectionVisible = "start";
     this.renderInit = true;
     this.vsPlayer = "ai";
-    this.menuState = {
-      start: {
-        title: "Play Against",
-        listBtns: [
-          {
-            content: "Computer",
-            aria: {
-              "aria-label": "Play against Computer",
-            },
-            dataAttributes: { focus: "true", transitionTo: "aiDifficulty" },
-            classNames: ["btn", "btn-primary", "btn-pick"],
-          },
-          {
-            content: "Human",
-            aria: {
-              "aria-label": "Play against Human",
-            },
-            dataAttributes: {
-              // transitionTo: "goFirst",
-              transitionTo: "multiplayer",
-              vs: "human",
-            },
-            classNames: ["btn", "btn-primary", "btn-pick"],
-          },
-        ],
-      },
-      aiDifficulty: {
-        titleId: "ai-difficulty",
-        title: "Difficulty",
-        listBtns: [
-          {
-            content: "Medium",
-            aria: {
-              "aria-describedby": "ai-difficulty",
-            },
-            dataAttributes: {
-              focus: "true",
-              difficulty: "MEDIUM",
-              transitionTo: "goFirst",
-              vs: "ai",
-            },
-            classNames: ["btn", "btn-primary", "btn-pick"],
-          },
-          {
-            content: "Hard",
-            aria: {
-              "aria-describedby": "ai-difficulty",
-            },
-            dataAttributes: {
-              difficulty: "HARD",
-              transitionTo: "goFirst",
-              vs: "ai",
-            },
-            classNames: ["btn", "btn-primary", "btn-pick"],
-          },
-          {
-            content: "Cheater",
-            aria: {
-              "aria-describedby": "ai-difficulty",
-              "aria-label":
-                "Cheater: computer sometimes takes several cells per turn",
-            },
-            dataAttributes: {
-              difficulty: "CHEATER",
-              transitionTo: "goFirst",
-              vs: "ai",
-            },
-            classNames: ["btn", "btn-primary", "btn-pick"],
-          },
-        ],
-      },
-      multiplayer: {
-        title: "Multiplayer",
-        listBtns: [
-          {
-            content: "Local",
-            aria: {
-              "aria-label": "Local: Play against a Friend next to You",
-            },
-            dataAttributes: {
-              transitionTo: "goFirst",
-              focus: "true",
-            },
-            toolTip: "Play against a Friend next to You",
-            classNames: ["btn", "btn-primary", "btn-pick"],
-          },
-          {
-            content: "Online",
-            aria: {
-              "aria-label": "Online: Play against an online buddy",
-            },
-            dataAttributes: {
-              transitionTo: "multiplayerChoices",
-            },
-            classNames: ["btn", "btn-primary", "btn-pick"],
-          },
-        ],
-      },
-      multiplayerChoices: {
-        title: "",
-        listBtns: [
-          {
-            content: "Join Public Game",
-            dataAttributes: {
-              open: "lobby", // checks for games, has red exit button
-              focus: "true",
-            },
-            aria: {},
-            classNames: ["btn", "btn-primary", "btn-pick"],
-          },
-          {
-            content: "Create Private Game", // when clicked generates simple code to share
-            dataAttributes: {},
-            aria: {},
-            classNames: ["btn", "btn-primary", "btn-pick"],
-          },
-          {
-            content: "Enter Private Game Code",
-            dataAttributes: {},
-            aria: {},
-            classNames: ["btn", "btn-primary", "btn-pick"],
-          },
-        ],
-      },
-      goFirst: {
-        title: "Who Goes First?",
-        listBtns: [
-          {
-            id: "P1",
-            content: "",
-            aria: {
-              "aria-label": "You go First",
-            },
-            dataAttributes: {
-              playerId: "P1",
-              playAgainst: "ai",
-              focus: "true",
-              shape: "cross",
-            },
-            classNames: ["btn", "btn-primary", "btn-pick", "btn-pick-player"],
-          },
-          {
-            id: "P2",
-            content: "",
-            aria: {
-              "aria-label": "Computer goes First",
-            },
-            dataAttributes: {
-              playerId: "P2",
-              playAgainst: "ai",
-              shape: "circle",
-            },
-            classNames: ["btn", "btn-primary", "btn-pick", "btn-pick-player"],
-          },
-        ],
-      },
-    };
+    this.navigationHistory = [];
+    this.menuState = menuBtns;
+    this.handlerStartGame = () => {};
+    this.handlerPlayAgain = () => {};
+    this.handlerSettings = () => {};
+    this.handlerJoinRoom = () => {};
+    this.handlerCreateRoom = () => {};
   }
 
   protected generateMarkup() {
@@ -234,47 +69,13 @@ class GameMenuView extends View {
 
   private navigationBackMarkup() {
     return `
-    <button class="btn btn-navigation-back" aria-label="go back to previous menu selection">${svg.navigationArrow}</button>
+    <button class="btn btn-navigation-back hidden" data-navigation-back="true" aria-label="go back to previous menu selection">${svg.navigationArrow}</button>
     `;
   }
 
   private backgroundSVG() {
     return `
     <div class="background-svg">${svg.menuBg}</div>
-    `;
-  }
-
-  private loaderSpinnerMarkup() {
-    return `
-    <div class="loader-container">
-      <div class="loader">
-    </div>
-    `;
-  }
-
-  private pickPlayerSkinsMiniGame() {}
-
-  private dialogModalMarkup(type: "lobby" | "share" | "code input") {
-    let dialogLabel = "lobby";
-    // default lobby
-    // when mini game starts, it mutates lobby content and close button disappears
-    let content = `
-    <div>
-      <div class="busy-players">3 players are busy</div>
-      ${this.loaderSpinnerMarkup()}
-    </div>
-    `;
-
-    if (type === "lobby") {
-    }
-
-    return `
-    <div class="modal" role="dialog" aria-label="${dialogLabel}">
-      ${content}
-      <button data-next-focus="true" class="btn-close" aria-label="close ${dialogLabel} window" title="close ${type}">
-        ${svg.close}
-      </button>
-    </div>
     `;
   }
 
@@ -289,7 +90,9 @@ class GameMenuView extends View {
   }
 
   private menuMarkup({ sectionType }: { sectionType: TSections }) {
-    const { titleId, listBtns: btns, title } = this.menuState[sectionType];
+    const { titleId, listBtns: btns, title, section } = this.menuState[
+      sectionType
+    ];
     this.sectionVisible = sectionType;
     const btnsMarkup = btns
       .map((item) => {
@@ -308,6 +111,7 @@ class GameMenuView extends View {
             class="${item.classNames.join(" ")}"
             ${dataAttributes}
             ${ariaAttributes}
+            data-section="${section}"
             href="javascript:void(0)"
           >
             ${item.content}
@@ -335,19 +139,59 @@ class GameMenuView extends View {
   }
 
   private hideMenu() {
-    const sections = this.parentEl.querySelectorAll(
-      ".section"
-    ) as NodeListOf<HTMLElement>;
+    return new Promise((resolve, reject) => {
+      const section = this.parentEl.querySelector(".section") as HTMLElement;
+      const btnNavigationBack = this.parentEl.querySelector(
+        ".btn-navigation-back"
+      ) as HTMLElement;
+      const backgroundSVG = this.parentEl.querySelector(
+        ".background-svg"
+      ) as HTMLElement;
 
-    hideElement({
-      el: this.parentEl,
-      transition: "900ms",
-      onEnd: (el) => {
-        el.style.display = "none";
-        el.style.background = "radial-gradient(rgb(0 0 0 / 35%), transparent)";
-        sections.forEach((section) => section.classList.add("hidden"));
-      },
+      const hideSection = () => {
+        hideElement({
+          el: section,
+          // onStart: (el) => (el.style.display = ""),
+          onEnd: (el) => {
+            el.classList.add("hidden");
+            revealBoard();
+          },
+        });
+      };
+
+      const revealBoard = () => {
+        hideElement({
+          el: this.parentEl,
+          duration: 1100,
+          useTransitionEvent: false,
+          onStart: (el) => {
+            el.classList.add("onExit");
+            el.style.background = "none";
+            btnNavigationBack.style.display = "none";
+          },
+          onEnd: (el) => {
+            el.style.display = "none";
+            el.style.background =
+              "radial-gradient(rgb(0 0 0 / 35%), transparent)";
+            el.classList.remove("onExit");
+            backgroundSVG.style.display = "none";
+            resolve();
+          },
+        });
+      };
+
+      hideSection();
     });
+  }
+
+  private changeMenuTheme(theme: "menu" | "lobby") {
+    const gameBoard = document.querySelector(".game") as HTMLElement;
+    if (theme === "lobby") {
+      gameBoard.classList.add("lobby");
+    }
+    if (theme === "menu") {
+      gameBoard.classList.remove("lobby");
+    }
   }
 
   updatePlayerMark(player: TPlayer) {
@@ -427,34 +271,68 @@ class GameMenuView extends View {
     }, 1000);
   }
 
-  private transitionToNextSection({
-    sectionType,
-    clicked,
+  // onBack
+  private onBtnNavigationBack() {
+    const sectionType = this.navigationHistory.pop()! as TSections;
+
+    this.changeMenuTheme("menu");
+    const btnNavigationBack = this.parentEl.querySelector(
+      ".btn-navigation-back"
+    ) as HTMLElement;
+
+    if (!this.navigationHistory.length) {
+      btnNavigationBack.classList.add("hidden");
+    }
+
+    this.transtionToNextGeneralSection({
+      type: "section",
+      backBtnActivated: true,
+      replaceWith: this.menuMarkup({ sectionType }),
+    });
+  }
+
+  // transitionAnimation
+  private transtionToNextGeneralSection({
+    type,
+    replaceWith,
+    backBtnActivated,
+    clicked = false,
   }: {
-    sectionType: TSections;
-    clicked: boolean;
+    type: "section" | "lobby";
+    replaceWith: (() => void) | string;
+    backBtnActivated: boolean;
+    clicked?: boolean;
   }) {
     const sectionEl = this.parentEl.querySelector(".section") as HTMLElement;
-
     hideElement({
       el: sectionEl,
       onEnd: (el) => {
         el.style.display = "none";
         this.clearChildren(sectionEl);
-        sectionEl.innerHTML = this.menuMarkup({ sectionType });
-        gameContainerView.scaleElementsToProportionToBoard({
-          type: "menuBtns",
-        });
+
+        if (typeof replaceWith === "string") sectionEl.innerHTML = replaceWith;
+        if (typeof replaceWith === "function") replaceWith();
+        if (type === "section") {
+          // sectionEl.innerHTML = this.menuMarkup({ sectionType });
+          gameContainerView.scaleElementsToProportionToBoard({
+            type: "menuBtns",
+          });
+        }
 
         showElement({
           el,
           onEnd: (el) => {
+            el.style.display = "";
+            if (type === "lobby") return;
+
             const focusBtn = this.parentEl.querySelector(
               '[data-focus="true"]'
             ) as HTMLElement;
 
+            if (backBtnActivated) return;
+
+            // issue in IOS, the focus bg shows, not the outline which is intended,
             focusBtn.focus();
-            el.style.display = "";
             if (!clicked) focusBtn.classList.add("noFocusClick");
           },
         });
@@ -462,25 +340,65 @@ class GameMenuView extends View {
     });
   }
 
+  private transitionToNextMenuSection({
+    sectionType,
+    currentSection,
+    clicked,
+  }: {
+    sectionType: TSections;
+    currentSection: string;
+    clicked: boolean;
+  }) {
+    const btnNavigationBack = this.parentEl.querySelector(
+      ".btn-navigation-back"
+    ) as HTMLElement;
+
+    if (currentSection) this.navigationHistory.push(currentSection);
+    if (this.navigationHistory.length) {
+      btnNavigationBack.classList.remove("hidden");
+    }
+
+    this.transtionToNextGeneralSection({
+      type: "section",
+      backBtnActivated: false,
+      clicked,
+      replaceWith: this.menuMarkup({ sectionType }),
+    });
+  }
+
   addHandlers({
     handlerPlayAgain,
     handlerStartGame,
     handlerSettings,
+    handlerJoinRoom,
+    handlerCreateRoom,
   }: {
     handlerStartGame: TControlStartGame;
     handlerPlayAgain: TControlPlayAgain;
     handlerSettings: TControlSettings;
+    handlerJoinRoom: TControlJoinRoom;
+    handlerCreateRoom: TControlCreateRoom;
   }) {
+    this.handlerStartGame = handlerStartGame;
+    this.handlerPlayAgain = handlerPlayAgain;
+    this.handlerSettings = handlerSettings;
+    this.handlerJoinRoom = handlerJoinRoom;
+    this.handlerCreateRoom = handlerCreateRoom;
+
     this.parentEl.addEventListener("click", (e) => {
       const target = e.target as HTMLElement;
       const btn = target.closest(".btn") as HTMLElement;
       let clicked = true;
       if (e.detail === 0) clicked = false;
       if (!btn) return;
+      const navigationBtnBack = btn.dataset.navigationBack;
       const playAgainst = btn.dataset.playAgainst;
       const playerId = btn.dataset.playerId!;
       const difficulty = btn.dataset.difficulty;
       const transitionTo = btn.dataset.transitionTo as TSections;
+      const currentSection = btn.dataset.section!;
+      const lobbyType = btn.dataset.lobbyType as TLobbyType;
+      const open = btn.dataset.open!;
       const vs = btn.dataset.vs!;
 
       if (difficulty) {
@@ -506,7 +424,13 @@ class GameMenuView extends View {
       }
 
       if (transitionTo) {
-        this.transitionToNextSection({ sectionType: transitionTo, clicked });
+        this.transitionToNextMenuSection({
+          sectionType: transitionTo,
+          currentSection,
+          clicked,
+        });
+
+        this.changeMenuTheme("menu");
 
         if (transitionTo === "aiDifficulty") {
           handlerSettings({
@@ -517,25 +441,39 @@ class GameMenuView extends View {
         return;
       }
 
-      if (playAgainst === "human") {
-        this.hideMenu();
-        this.sectionVisible = null;
-        handlerSettings({
-          type: "aiEnabled",
-          value: false,
+      if (navigationBtnBack) {
+        this.onBtnNavigationBack();
+      }
+
+      if (open) {
+        const sectionEl = this.parentEl.querySelector(
+          ".section"
+        ) as HTMLElement;
+
+        this.navigationHistory.push(currentSection);
+        this.transtionToNextGeneralSection({
+          type: "lobby",
+          backBtnActivated: false,
+          clicked: true,
+          replaceWith: () => {
+            lobbyView.render({ type: lobbyType });
+            // lobbyView.addHandlers({
+            //     handlerJoinRoom,
+            //     handlerCreateRoom,
+            //     handlerStartGame: () => {},
+            // })
+            this.changeMenuTheme("lobby");
+          },
         });
-        handlerStartGame({ firstMovePlayer: playerId, ai: false });
+      }
+
+      if (playAgainst === "human") {
+        this.startGameAndHideMenu({ firstMovePlayer: playerId, ai: false });
         return;
       }
 
       if (playAgainst === "ai") {
-        this.hideMenu();
-        this.sectionVisible = null;
-        handlerSettings({
-          type: "aiEnabled",
-          value: true,
-        });
-        handlerStartGame({ firstMovePlayer: playerId, ai: true, difficulty });
+        this.startGameAndHideMenu({ firstMovePlayer: playerId, ai: true });
         return;
       }
 
@@ -545,6 +483,30 @@ class GameMenuView extends View {
         return;
       }
     });
+  }
+
+  async startGameAndHideMenu({
+    firstMovePlayer,
+    ai = false,
+    difficulty,
+  }: {
+    firstMovePlayer: string;
+    ai?: boolean;
+    difficulty?: string;
+  }) {
+    this.changeMenuTheme("menu");
+    // remove pregame here instead of inside handlerStartGame
+    await this.hideMenu();
+
+    this.sectionVisible = null;
+
+    if (ai) {
+      this.handlerSettings({
+        type: "aiEnabled",
+        value: true,
+      });
+    }
+    this.handlerStartGame({ firstMovePlayer, ai, difficulty });
   }
 
   render(data: TPlayer[]) {

@@ -129,7 +129,7 @@ class GameContainerView extends View {
           gap: { ratio: 46.25, decimalPlaces: 0 },
           borderRadius: 12.33,
           boxShadow: () =>
-            `0px ${px(boardWidth / 18.8)} 0px var(--blue-shadow)`,
+            `0px ${px(boardWidth / 18.8)} 0px var(--board-shadow)`,
         },
       });
       scaleStyles({
@@ -275,7 +275,17 @@ class GameContainerView extends View {
           maxWidth: () =>
             boardWidth > 500 ? px(boardWidth / 2.1538) : px(boardWidth / 1.5),
           borderRadius: 42,
-          // fontSize: 21,
+          marginTop: (el) => {
+            if (!el.dataset.firstItem) return "";
+            if (boardWidth < 320) return px(30);
+            return "";
+          },
+          fontSize: (el) => {
+            if (!el.classList.contains("btn-multiplayer")) return "";
+            if (boardWidth < 250) return px(13);
+            if (boardWidth < 320) return px(15);
+            return "";
+          },
         },
       });
 
@@ -414,6 +424,17 @@ class GameContainerView extends View {
           maxWidth: () =>
             boardWidth > 500 ? px(boardWidth / 2.1538) : px(boardWidth / 1.5),
           borderRadius: 42,
+          marginTop: (el) => {
+            if (!el.dataset.firstItem) return "";
+            if (boardWidth < 320) return px(30);
+            return "";
+          },
+          fontSize: (el) => {
+            if (!el.classList.contains("btn-multiplayer")) return "";
+            if (boardWidth < 250) return px(13);
+            if (boardWidth < 320) return px(15);
+            return "";
+          },
         },
       });
       scaleStyles({

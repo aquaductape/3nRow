@@ -8,9 +8,11 @@ import svgDefsView from "../views/svg/svgDefsView";
 import settingsView from "../views/settings/settingsView";
 import skipToGameMenu from "../views/skipContentBtn/skipToGameMenuView";
 import { controlSettings } from "./settings";
-import { moveAi, movePlayer } from "./move";
+import { moveAi, controlMovePlayer } from "./move";
 import { controlPlayerColor, controlPlayerShape } from "./playerOptions";
 import { controlPlayAgain, controlStartGame } from "./menu";
+import { controlCreateRoom, controlJoinRoom } from "./onlineMultiplayer";
+import lobbyView from "../views/lobby/lobbyView";
 
 export const init = () => {
   localStorage.clear();
@@ -37,12 +39,19 @@ export const init = () => {
     handlerStartGame: controlStartGame,
     handlerPlayAgain: controlPlayAgain,
     handlerSettings: controlSettings,
+    handlerCreateRoom: controlCreateRoom,
+    handlerJoinRoom: controlJoinRoom,
+  });
+  lobbyView.addHandlers({
+    handlerCreateRoom: controlCreateRoom,
+    handlerJoinRoom: controlJoinRoom,
+    handlerStartGame: () => {},
   });
   settingsView.addHandlers({
     handlerSettings: controlSettings,
     handlerMoveAi: moveAi,
   });
-  boardView.addHandlerCell(movePlayer);
+  boardView.addHandlerCell(controlMovePlayer);
   // run DOM events
   gameContainerView.runResizeListener();
   gameContainerView.revealAfterPageLoad();
