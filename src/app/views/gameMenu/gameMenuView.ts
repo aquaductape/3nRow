@@ -36,8 +36,6 @@ class GameMenuView extends View {
   handlerStartGame: TControlStartGame;
   handlerPlayAgain: TControlPlayAgain;
   handlerSettings: TControlSettings;
-  handlerJoinRoom: TControlJoinRoom;
-  handlerCreateRoom: TControlCreateRoom;
   constructor() {
     super({ root: "#game-menu" });
     this.data = [] as TPlayer[];
@@ -50,8 +48,6 @@ class GameMenuView extends View {
     this.handlerStartGame = () => {};
     this.handlerPlayAgain = () => {};
     this.handlerSettings = () => {};
-    this.handlerJoinRoom = () => {};
-    this.handlerCreateRoom = () => {};
   }
 
   protected generateMarkup() {
@@ -175,6 +171,7 @@ class GameMenuView extends View {
               "radial-gradient(rgb(0 0 0 / 35%), transparent)";
             el.classList.remove("onExit");
             backgroundSVG.style.display = "none";
+            lobbyView.hideAndRemoveCountDownMarkup();
             resolve();
           },
         });
@@ -284,6 +281,7 @@ class GameMenuView extends View {
       btnNavigationBack.classList.add("hidden");
     }
 
+    lobbyView.hideAndRemoveCountDownMarkup();
     this.transtionToNextGeneralSection({
       type: "section",
       backBtnActivated: true,
@@ -331,7 +329,7 @@ class GameMenuView extends View {
 
             if (backBtnActivated) return;
 
-            // issue in IOS, the focus bg shows, not the outline which is intended,
+            // issue in IOS, the focus bg shows on tap
             focusBtn.focus();
             if (!clicked) focusBtn.classList.add("noFocusClick");
           },
@@ -366,24 +364,9 @@ class GameMenuView extends View {
     });
   }
 
-  addHandlers({
-    handlerPlayAgain,
-    handlerStartGame,
-    handlerSettings,
-    handlerJoinRoom,
-    handlerCreateRoom,
-  }: {
-    handlerStartGame: TControlStartGame;
-    handlerPlayAgain: TControlPlayAgain;
-    handlerSettings: TControlSettings;
-    handlerJoinRoom: TControlJoinRoom;
-    handlerCreateRoom: TControlCreateRoom;
-  }) {
-    this.handlerStartGame = handlerStartGame;
-    this.handlerPlayAgain = handlerPlayAgain;
-    this.handlerSettings = handlerSettings;
-    this.handlerJoinRoom = handlerJoinRoom;
-    this.handlerCreateRoom = handlerCreateRoom;
+  markupDidGenerate() {
+    this.updatePlayersMark(this.data);
+    this.renderInit = false;
 
     this.parentEl.addEventListener("click", (e) => {
       const target = e.target as HTMLElement;
@@ -402,11 +385,11 @@ class GameMenuView extends View {
       const vs = btn.dataset.vs!;
 
       if (difficulty) {
-        handlerSettings({
+        this.handlerSettings({
           type: "aiEnabled",
           value: true,
         });
-        handlerSettings({
+        this.handlerSettings({
           type: "aiDifficulty",
           value: difficulty,
         });
@@ -415,7 +398,7 @@ class GameMenuView extends View {
       if (vs) {
         this.vsPlayer = vs;
         if (vs === "human") {
-          handlerSettings({
+          this.handlerSettings({
             type: "aiEnabled",
             value: false,
           });
@@ -433,7 +416,7 @@ class GameMenuView extends View {
         this.changeMenuTheme("menu");
 
         if (transitionTo === "aiDifficulty") {
-          handlerSettings({
+          this.handlerSettings({
             type: "aiEnabled",
             value: true,
           });
@@ -446,22 +429,20 @@ class GameMenuView extends View {
       }
 
       if (open) {
-        const sectionEl = this.parentEl.querySelector(
-          ".section"
-        ) as HTMLElement;
-
         this.navigationHistory.push(currentSection);
         this.transtionToNextGeneralSection({
           type: "lobby",
           backBtnActivated: false,
           clicked: true,
           replaceWith: () => {
-            lobbyView.render({ type: lobbyType });
-            // lobbyView.addHandlers({
-            //     handlerJoinRoom,
-            //     handlerCreateRoom,
-            //     handlerStartGame: () => {},
-            // })
+            const players = this.data;
+
+            lobbyView.render({
+              type: lobbyType,
+              currentPlayer: players[0],
+              players,
+              preGameType: "connect-server",
+            });
             this.changeMenuTheme("lobby");
           },
         });
@@ -479,10 +460,24 @@ class GameMenuView extends View {
 
       if (playAgainst === "again") {
         this.hideMenu();
-        handlerPlayAgain();
+        this.handlerPlayAgain();
         return;
       }
     });
+  }
+
+  addHandlers({
+    handlerPlayAgain,
+    handlerStartGame,
+    handlerSettings,
+  }: {
+    handlerStartGame: TControlStartGame;
+    handlerPlayAgain: TControlPlayAgain;
+    handlerSettings: TControlSettings;
+  }) {
+    this.handlerStartGame = handlerStartGame;
+    this.handlerPlayAgain = handlerPlayAgain;
+    this.handlerSettings = handlerSettings;
   }
 
   async startGameAndHideMenu({
@@ -510,11 +505,7 @@ class GameMenuView extends View {
   }
 
   render(data: TPlayer[]) {
-    this.data = data;
-    this.clear();
-    this.parentEl.insertAdjacentHTML("afterbegin", this.generateMarkup());
-    this.updatePlayersMark(data);
-    this.renderInit = false;
+    super.render(data);
   }
 }
 

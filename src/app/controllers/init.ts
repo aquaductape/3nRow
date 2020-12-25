@@ -11,8 +11,13 @@ import { controlSettings } from "./settings";
 import { moveAi, controlMovePlayer } from "./move";
 import { controlPlayerColor, controlPlayerShape } from "./playerOptions";
 import { controlPlayAgain, controlStartGame } from "./menu";
-import { controlCreateRoom, controlJoinRoom } from "./onlineMultiplayer";
+import {
+  controlExistMultiplayer,
+  controlCreateRoom,
+  controlJoinRoom,
+} from "./onlineMultiplayer";
 import lobbyView from "../views/lobby/lobbyView";
+import { controlPickSkin } from "./lobby";
 
 export const init = () => {
   localStorage.clear();
@@ -39,13 +44,13 @@ export const init = () => {
     handlerStartGame: controlStartGame,
     handlerPlayAgain: controlPlayAgain,
     handlerSettings: controlSettings,
-    handlerCreateRoom: controlCreateRoom,
-    handlerJoinRoom: controlJoinRoom,
   });
   lobbyView.addHandlers({
     handlerCreateRoom: controlCreateRoom,
     handlerJoinRoom: controlJoinRoom,
     handlerStartGame: () => {},
+    handlerPickSkin: controlPickSkin,
+    handlerExitMultiplayer: controlExistMultiplayer,
   });
   settingsView.addHandlers({
     handlerSettings: controlSettings,

@@ -1,5 +1,55 @@
 #game-menu {
   .lobby {
-    color: #000;
+    color: #22156d;
+  }
+
+  .countdown-container {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70px;
+    width: 70px;
+    color: #22156d;
+    font-size: 28px;
+
+    .countdown-circle {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    circle {
+      transition: stroke-dashoffset 300ms;
+    }
+  }
+
+  .pick-skin {
+    .title {
+      font-size: 30px;
+      margin-bottom: 30px;
+      letter-spacing: normal;
+    }
+
+    .items {
+      display: inline-block;
+    }
+  }
+
+  .section {
+    .title {
+      line-height: 40px;
+    }
+  }
+
+  .pick-loader {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 30px;
   }
 }

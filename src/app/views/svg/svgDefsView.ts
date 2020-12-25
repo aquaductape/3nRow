@@ -91,8 +91,7 @@ class SvgDefsView extends View {
 
   // override to set colors immediately after render
   render(data: TPlayer[]) {
-    this.data = data;
-    this.parentEl.innerHTML = this.generateMarkup();
+    super.render(data);
     this.setColors();
   }
 

@@ -100,33 +100,49 @@ export const hideElement = ({
   duration?: number;
   useTransitionEvent?: boolean;
   onStart?: (el: HTMLElement) => void;
-  onEnd?: (el: HTMLElement) => void;
+  /**
+   * Fires when transition is finished. When there are multiple transitions, it will fire until all of them are finished
+   */
+  onEnd?: (el: HTMLElement, e?: TransitionEvent) => void;
 }) => {
-  // default hides by opacity
+  const getTransitionsAmount = () => {
+    if (transitionTotal) return transitionTotal;
+    const transitionsAmount = element.style.transition.match(/,/g);
+    if (!transitionsAmount) return 1;
+    return transitionsAmount.length + 1;
+  };
 
-  const element = getElement(el);
-  transition = transition + " opacity";
-
-  const onTransitionEnd = (e: Event) => {
+  const onTransitionEnd = (e: TransitionEvent) => {
     const target = e.target;
     if (target !== element) return;
-    if (onEnd) {
-      onEnd(element);
-    }
+    // fire when all transition properties are done
+    transitionCount++;
+    if (transitionCount < getTransitionsAmount()) return;
+
+    element.removeEventListener("transitionend", onTransitionEnd);
+    onEnd && onEnd(element, e);
 
     element.style.pointerEvents = "";
     element.style.opacity = "";
-    element.removeEventListener("transitionend", onTransitionEnd);
   };
+
   const addTransitionListener = () =>
     element.addEventListener("transitionend", onTransitionEnd);
 
   const timeOut = () => {
     setTimeout(() => {
       onEnd && onEnd(element);
+
       element.style.pointerEvents = "";
+      element.style.opacity = "";
     }, duration);
   };
+
+  const element = getElement(el);
+  let transitionCount = 0;
+  let transitionTotal = 0;
+  // default hides by opacity
+  transition = transition + " opacity";
 
   element.style.pointerEvents = "none";
 
@@ -151,6 +167,9 @@ export const showElement = ({
   display = "block",
   transition = "200ms",
   onStart,
+  /**
+   * Fires when transition is finished. When there are multiple transitions, it will fire until all of them are finished
+   */
   onEnd,
 }: {
   el: string | HTMLElement;
@@ -159,28 +178,40 @@ export const showElement = ({
   onEnd?: (el: HTMLElement) => void;
   transition?: string;
 }) => {
-  const element = getElement(el);
-  transition = transition + " opacity";
+  const getTransitionsAmount = () => {
+    if (transitionTotal) return transitionTotal;
+    const transitionsAmount = element.style.transition.match(/,/g);
+    if (!transitionsAmount) return 1;
+    return transitionsAmount.length + 1;
+  };
 
-  const onTransitionEnd = (e: Event) => {
+  const onTransitionEnd = (e: TransitionEvent) => {
     const target = e.target;
     if (target !== element) return;
+
+    transitionCount++;
+    if (transitionCount < getTransitionsAmount()) return;
+
+    element.removeEventListener("transitionend", onTransitionEnd);
     if (onEnd) onEnd(element);
     element.style.opacity = "";
     element.style.webkitTransition = "";
     element.style.transition = "";
-
-    element.removeEventListener("transitionend", onTransitionEnd);
   };
+
   const addTransitionListener = () =>
     element.addEventListener("transitionend", onTransitionEnd);
 
-  addTransitionListener();
+  const element = getElement(el);
+  transition = transition + " opacity";
+  let transitionCount = 0;
+  let transitionTotal = 0;
 
   if (onStart) {
     element.style.display = display;
     reflow();
     onStart(element);
+    addTransitionListener();
     return;
   }
 
@@ -190,6 +221,7 @@ export const showElement = ({
   element.style.display = display;
   reflow();
   element.style.opacity = "1";
+  addTransitionListener();
 };
 
 export const getElement = (root: string | HTMLElement) => {

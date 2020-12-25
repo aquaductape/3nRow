@@ -1,5 +1,19 @@
 import { getElement, reflow } from "./utils/index";
 
+/**
+ * scuffed UI Component
+ *
+ * @param data any
+ * UI Component data is mounted from `render`.
+ * When the data needs to be updated, it done either through `setData` or public methods in subclasses that update the data's specific properties
+ *
+ * How it handles data flow to update UI
+ *
+ * It's manually done by good ol DOM interaction, that are declared in public methods in subclasses,
+ * there's no Virtual DOM, nor Proxies to do heavy lifting.
+ *
+ *
+ */
 export default class View {
   protected data = {};
   protected parentEl: HTMLElement;
@@ -53,11 +67,10 @@ export default class View {
     this.parentEl.insertAdjacentHTML("afterbegin", this.generateFallback());
   }
 
-  // renderSpinner() {
-  //   this.clear();
-  //   this.parentEl.insertAdjacentHTML('afterbegin', this.generateSpinner());
-  // }
-
+  /**
+   * pass initial data to component, and generate and loads UI
+   * @param data any
+   */
   render(data?: any) {
     if (!this.parentEl) {
       this.parentEl = getElement(this.root);
@@ -75,5 +88,13 @@ export default class View {
   update(markup: string) {
     this.clear();
     this.parentEl.insertAdjacentHTML("afterbegin", markup);
+  }
+
+  /**
+   * set component data, doesn't trigger UI update
+   * @param data any
+   */
+  setData(data?: any) {
+    this.data = { ...this.data, data };
   }
 }

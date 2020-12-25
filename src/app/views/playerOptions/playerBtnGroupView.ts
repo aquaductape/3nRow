@@ -6,7 +6,11 @@ import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TPlayer, TState } from "../../model/state";
 import { TSkin, TSkinProps } from "../../ts/index";
 import { colorMap, svg } from "../constants/constants";
-import { createHTMLFromString, getOppositePlayer } from "../utils/index";
+import {
+  createHTMLFromString,
+  getOppositePlayer,
+  hideElement,
+} from "../utils/index";
 import View from "../View";
 import DropdownOptionsView from "./dropdownOptionsView";
 
@@ -32,6 +36,41 @@ class PlayerBtnGroup extends View {
     this.data = <TState>{};
     this.playerOptions = document.querySelectorAll(".player-options");
     this.playerDom = <TPlayerDom>{};
+  }
+
+  private hideSvgMark(playerId: string) {
+    const { playerMark } = this.playerDom[playerId];
+
+    hideElement({
+      el: playerMark,
+      onStart: (el) => {
+        el.style.opacity = "1";
+        el.style.transform = "scale(1)";
+        el.style.transition = "500ms transform, 250ms 250ms opacity";
+        this.reflow();
+        el.style.opacity = "0";
+        el.style.transform = "scale(0)";
+      },
+    });
+  }
+
+  private showSvgMark(playerId: string) {
+    const { playerMark } = this.playerDom[playerId];
+
+    hideElement({
+      el: playerMark,
+      onStart: (el) => {
+        el.style.transition = "500ms transform, 250ms 250ms opacity";
+        this.reflow();
+        el.style.opacity = "1";
+        el.style.transform = "scale(1)";
+      },
+      onEnd: (el) => {
+        el.style.opacity = "";
+        el.style.transform = "";
+        el.style.transition = "";
+      },
+    });
   }
 
   private generatePlayerMark({ id, svgMark }: { id: string; svgMark: string }) {
@@ -264,6 +303,18 @@ class PlayerBtnGroup extends View {
       .replace(/filter="url\(#drop-shadow-filter\)"/g, "");
     this.clearChildren(playerMark);
     this.generatePlayerMark({ id, svgMark });
+  }
+
+  showSvgMarks() {
+    const { players } = this.data;
+
+    players.forEach(({ id }) => this.showSvgMark(id));
+  }
+
+  hideSvgMarks() {
+    const { players } = this.data;
+
+    players.forEach(({ id }) => this.hideSvgMark(id));
   }
 }
 

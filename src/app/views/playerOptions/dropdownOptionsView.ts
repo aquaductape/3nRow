@@ -194,9 +194,7 @@ export default class DropdownOptionsView extends View {
             <div class="radio">
               ${svg.radio}
             </div>
-            <div class="${classItemInner}">
-              <div style="background: ${primaryColorHex};" class="primary-color"></div>
-              <div style="background: ${secondaryColorHex};" class="secondary-color"></div>
+            <div class="${classItemInner}"  style="background: linear-gradient(0deg, ${secondaryColorHex}, ${primaryColorHex});">
             </div>
           </div>
         </div>

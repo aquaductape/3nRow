@@ -3,6 +3,7 @@ import model from "../model/model";
 import { TRoomClient } from "../ts/colyseusTypes";
 import gameMenuView from "../views/gameMenu/gameMenuView";
 import lobbyView from "../views/lobby/lobbyView";
+import playerBtnGroupView from "../views/playerOptions/playerBtnGroupView";
 import { controlMovePlayer } from "./move";
 
 // I think it's appropriate to place the multiplayer websocket listeners as Controller
@@ -13,7 +14,6 @@ export type TControlJoinRoom = (props: {
   password?: string;
 }) => void;
 export const controlJoinRoom: TControlJoinRoom = ({ type, password }) => {
-  // model.joinOrCreate({ type, password });
   const client = new Colyseus.Client("ws://localhost:3000");
   let room: TRoomClient;
 
@@ -23,6 +23,8 @@ export const controlJoinRoom: TControlJoinRoom = ({ type, password }) => {
 
       model.setRoom(room as any);
       roomActions({ room: room as any, type });
+
+      lobbyView.transitionPreGameStage({ type: "find-players" });
     }) as any;
   }
 
@@ -33,8 +35,11 @@ export const controlJoinRoom: TControlJoinRoom = ({ type, password }) => {
       })
       .then((room) => {
         console.log("client sucess PRIVATE joined: ", room.sessionId);
+
         model.setRoom(room as any);
         roomActions({ room: room as any, type });
+
+        lobbyView.transitionPreGameStage({ type: "find-players" });
       }) as any;
   }
 };
@@ -69,6 +74,15 @@ export const controlCreateRoom: TControlCreateRoom = ({ type, password }) => {
   }
 };
 
+export type TControlExitMultiplayer = () => void;
+export const controlExistMultiplayer: TControlExitMultiplayer = () => {
+  const { room } = model.state.onlineMultiplayer;
+  if (!room) return;
+
+  room.leave();
+  model.exitMultiplayer();
+};
+
 const roomActions = ({
   room,
   type,
@@ -81,15 +95,59 @@ const roomActions = ({
     controlMovePlayer({ column, row, userActionFromServer: true });
   });
 
-  room.state.listen("skinChange", (skin) => {
+  room.state.listen("skinChange", (foo) => {
     // still allow ui to update without confirmation of the server
     // but source of truth is in server
     // worse case scenario: player skin visually, will not be synced, but listener from the server will correct it, so there will be a flash change
   });
-  // room.state.listen("clock", (foo) => console.log("onclock: ", foo));
-  // room.state.listen("delayedInterval", (foo) => console.log("interval: ", foo));
 
-  room.onMessage("ready", (ids) => {
+  room.onMessage("pickSkin", ({ success, skin, finishedFirst, playerId }) => {
+    console.log("onpickskin", playerId, skin);
+    const mainPlayerClaim = () => {
+      if (!success) {
+        lobbyView.failedPick();
+      }
+
+      if (skin.type === "color") {
+        lobbyView.transitionPickSkin({ type: "shape" });
+        return;
+      }
+
+      if (skin.type === "shape") {
+        if (finishedFirst) {
+          lobbyView.transitionPreGameStage({ type: "wait-for-opponent" });
+        } else {
+          lobbyView.transitionPreGameStage({ type: "declare-players" });
+        }
+      }
+      // set skin on model
+    };
+
+    const opponentPlayerClaim = () => {
+      lobbyView.showOpponentClaimedPick({
+        type: skin.type,
+        item: skin.value,
+        calledByServer: true,
+      });
+      // set skin on model
+    };
+
+    if (playerId === model.state.onlineMultiplayer.mainPlayer) {
+      mainPlayerClaim();
+    } else {
+      opponentPlayerClaim();
+    }
+  });
+
+  room.state.listen("declarePlayers", (result) => {
+    if (result) lobbyView.transitionPreGameStage({ type: "declare-players" });
+  });
+
+  room.onMessage("countDownPickSkin", (counter) => {
+    lobbyView.updateCountDown(counter);
+  });
+
+  room.onMessage("readyPlayers", (ids) => {
     console.log("ready?", ids[room.sessionId]);
     let mainPlayer = "";
     let opponentPlayer = "";
@@ -104,12 +162,24 @@ const roomActions = ({
     }
     model.setMultiplayerPlayers({ mainPlayer, opponentPlayer });
 
+    lobbyView.setData({
+      players: model.state.players,
+      currentPlayer: model.getPlayerById(mainPlayer),
+    });
+    lobbyView.transitionPreGameStage({ type: "pick-skins" });
+    playerBtnGroupView.hideSvgMarks();
+  });
+
+  room.onMessage("startGame", (start) => {
+    if (!start) return;
+
     // gameMenuView.startGameAndHideMenu({
     //   firstMovePlayer: "P1",
     // });
   });
 
   room.onMessage("busyPlayers", (players) => {
+    console.log("busy players: ", players);
     if (players <= 1) return;
 
     lobbyView.updateBusyPlayers(players);

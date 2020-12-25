@@ -38,6 +38,11 @@ body {
   }
 }
 
+.reveal {
+  opacity: 0;
+  animation: Show 500ms 500ms forwards;
+}
+
 hr {
   border: 0.5px solid;
 }

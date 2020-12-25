@@ -1,3 +1,7 @@
+# CODE
+
+1. rename View's data to state
+
 # FROM NOW ON to animate SVGS with clipping or masking
 
 1. Animating HTMLElements with clip/mask: pre IOS13 don't animate with svg, dont bother please
@@ -18,17 +22,17 @@
 
 # UI
 
-1. Icon on player 2 (or either) indicating that it's an AI
 2. Logo text on quick start menu
 3. try catch with localStorage
 4. close X hover is rounded bg
 5. slide up functionality on settings dropdown
 6. Opponent dropdown items are disabled during multiplayer and his/her taken item will be labled as "Opponent has this item".
-7. Have 3 color gradients, have a progressive toggle to toggle 1 - 3
-8. claimed skin, should have a red x, animation scale
-9. disable player buttons, disable dropdowns (provide tooltip), when on multiplayer lobby
-10. focus to replay button
-11. shape icon inside any tooltip seems misaligned in IOS
-12. on online multiplayer, the client state, in their point of view, is always player 1
-13. disable opponent dropdown, visually is greyed out, probably have a header content "Cannot edit opponent options"
-14. New idea when game over. Menu background (theme "menu") is restored.
+7. claimed skin, should have a red x, animation scale
+8. disable player buttons, disable dropdowns (provide tooltip), when on multiplayer lobby
+9. shape icon inside any tooltip seems misaligned in IOS
+10. on online multiplayer, the client state, in their point of view, is always player 1
+11. disable opponent dropdown on multiplayer, have a tooltip "Opponent settings cannot be edited"
+12. New idea when game over. Menu background (theme "menu") is restored, see menu-prototype in assets
+13. while picking shapes in lobby, hide player options shape by scaling down animation
+14. When it's not your turn and and you tap anyway, show snackbar notification that it's not your turn. It's removed by outside click, timeout or click on close button
+15. When "who goes first" is declared, show opponent shape in playerBtn as color until declared animtion is done, show animation pulse on current player indicator and pulse until declared animtion is done to emphasize. **Maybe** Future games, show weaker pulse

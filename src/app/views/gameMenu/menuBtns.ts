@@ -140,7 +140,7 @@ const menuBtns: TGameMenuState = {
           "Join <span style='text-decoration: underline;'>Public</span> Game",
         dataAttributes: {
           open: "lobby",
-          lobbyType: "find-players",
+          lobbyType: "enter-pre-game",
           focus: "true",
           firstItem: "true",
         },

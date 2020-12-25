@@ -30,3 +30,5 @@ export const camelToKebabCase = (str: string) =>
   str
     .slice(1, str.length)
     .replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+
+export const capitalize = (str: string) => str[0].toUpperCase() + str.slice(1);
