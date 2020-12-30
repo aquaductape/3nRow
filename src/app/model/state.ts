@@ -65,6 +65,11 @@ export const state: TState = {
     room: null,
     mainPlayer: "P1",
     opponentPlayer: "P2",
+    hasPickedSkin: false,
+    pickedItems: {
+      color: "",
+      shape: "",
+    },
   },
 };
 
@@ -128,6 +133,12 @@ type TOnlineMultiplayer = {
   room: null | TRoomClient;
   mainPlayer: string; // Player id
   opponentPlayer: string; // Player id
+  hasPickedSkin: boolean;
+  pickedItems: {
+    color: string;
+    shape: string;
+    [key: string]: string;
+  };
 };
 
 export type TState = {

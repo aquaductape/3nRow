@@ -27,9 +27,9 @@ type TPlayerDom = {
 };
 
 class PlayerBtnGroup extends View {
-  data: TState;
-  playerOptions: NodeListOf<HTMLElement>;
-  playerDom: TPlayerDom;
+  protected data: TState;
+  private playerOptions: NodeListOf<HTMLElement>;
+  private playerDom: TPlayerDom;
 
   constructor() {
     super({ root: ".player-btn-group" });
@@ -130,15 +130,14 @@ class PlayerBtnGroup extends View {
         button: playerBtn,
         allow: [".dropdown-options-container"],
         run: () => {
-          playerBtn.classList.add("active");
+          this.activateColorSvgMark(playerId!);
           dropdownOptionsView.addDropdown();
           playerBtn.setAttribute("aria-expanded", "true");
         },
         onExit: () => {
-          const removeActiveBtn = () => {
-            playerBtn.classList.remove("active");
-          };
-          dropdownOptionsView.removeDropdown(removeActiveBtn);
+          dropdownOptionsView.removeDropdown(() =>
+            this.deactiveColorSvgMark(playerId!)
+          );
           playerBtn.setAttribute("aria-expanded", "false");
         },
       });
@@ -315,6 +314,17 @@ class PlayerBtnGroup extends View {
     const { players } = this.data;
 
     players.forEach(({ id }) => this.hideSvgMark(id));
+  }
+
+  activateColorSvgMark(playerId: string) {
+    const { playerBtn } = this.playerDom[playerId];
+
+    playerBtn.classList.add("active");
+  }
+  deactiveColorSvgMark(playerId: string) {
+    const { playerBtn } = this.playerDom[playerId];
+
+    playerBtn.classList.remove("active");
   }
 }
 

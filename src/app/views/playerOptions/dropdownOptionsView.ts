@@ -14,21 +14,21 @@ import matchMediaView from "../windowEvents/matchMediaView";
 import { animateDropdown } from "./animation";
 
 export default class DropdownOptionsView extends View {
-  data: { players: TPlayer[]; currentPlayer: TPlayer };
-  reducedAnimation: boolean;
-  dropdownOptions: HTMLElement;
-  playerBtnHighlight: HTMLElement;
-  playerBtnGroup: HTMLElement;
-  dropdownBtn: HTMLElement;
-  dropdownTimeout: number;
-  shapeGroup: HTMLElement;
-  colorGroup: HTMLElement;
-  dropdownAnimation: {
+  protected data: { players: TPlayer[]; currentPlayer: TPlayer };
+  private reducedAnimation: boolean;
+  private dropdownOptions: HTMLElement;
+  private playerBtnHighlight: HTMLElement;
+  private playerBtnGroup: HTMLElement;
+  private dropdownBtn: HTMLElement;
+  private dropdownTimeout: number;
+  private shapeGroup: HTMLElement;
+  private colorGroup: HTMLElement;
+  private dropdownAnimation: {
     canceled: boolean;
     lastPosition: number;
   };
-  handlerShape: TControlPlayerShape;
-  handlerColor: TControlPlayerColor;
+  private handlerShape: TControlPlayerShape;
+  private handlerColor: TControlPlayerColor;
 
   constructor({
     root,

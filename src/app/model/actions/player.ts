@@ -35,6 +35,19 @@ export const setShapes = (shapes: TSetShapesProp) => {
   );
 };
 
+export const setPickedSkinInLobby = ({
+  type,
+  item,
+}: {
+  type: string;
+  item: string;
+}) => {
+  const { pickedItems } = state.onlineMultiplayer;
+
+  state.onlineMultiplayer.hasPickedSkin = true;
+  pickedItems[type] = item;
+};
+
 export const setPlayerCurrentShape = ({
   player,
   shape,

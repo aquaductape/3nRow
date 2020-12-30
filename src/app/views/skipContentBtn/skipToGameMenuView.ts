@@ -1,8 +1,8 @@
 import View from "../View";
 
 class SkipToGameMenuView extends View {
-  gameMenuExist: boolean;
-  btn: HTMLElement;
+  private gameMenuExist: boolean;
+  private btn: HTMLElement;
 
   constructor() {
     super({ root: "#skip-to-game-menu" });

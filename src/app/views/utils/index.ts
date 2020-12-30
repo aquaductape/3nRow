@@ -15,6 +15,16 @@ export const createHTMLFromString = (string: string): Element => {
   return <Element>template.content.firstChild;
 };
 
+export const clearChildren = (element: HTMLElement) => {
+  // Accomplishes the same result as code below
+  // this.parentEl.innerHTML = "";
+  // However certain browsers might have optimize clearing elements with innerHTML if the string is empty
+  // Generally it's faster to remove last item than the first
+  while (element.firstChild) {
+    element.removeChild(element.lastChild!);
+  }
+};
+
 export const debounce = (
   cb: Function,
   { time, leading = false }: { time: number; leading: boolean }
@@ -73,7 +83,7 @@ export const svgStringWithUniqueIds = ({
     );
 };
 
-export const removeChild = (el: HTMLElement) => {
+export const removeElement = (el: HTMLElement) => {
   const parent = el.parentElement;
   if (!parent) return null;
   parent.removeChild(el);
@@ -98,12 +108,14 @@ export const hideElement = ({
   el: string | HTMLElement;
   transition?: string;
   duration?: number;
+  delay?: number;
   useTransitionEvent?: boolean;
   onStart?: (el: HTMLElement) => void;
   /**
    * Fires when transition is finished. When there are multiple transitions, it will fire until all of them are finished
    */
   onEnd?: (el: HTMLElement, e?: TransitionEvent) => void;
+  onCancel?: (el: HTMLElement) => void;
 }) => {
   const getTransitionsAmount = () => {
     if (transitionTotal) return transitionTotal;
@@ -120,6 +132,7 @@ export const hideElement = ({
     if (transitionCount < getTransitionsAmount()) return;
 
     element.removeEventListener("transitionend", onTransitionEnd);
+
     onEnd && onEnd(element, e);
 
     element.style.pointerEvents = "";
@@ -153,19 +166,27 @@ export const hideElement = ({
     return;
   }
 
+  element.style.opacity = "1";
   element.style.webkitTransition = transition;
   element.style.transition = transition;
-  element.style.opacity = "1";
   reflow();
   addTransitionListener();
 
   element.style.opacity = "0";
 };
 
-export const showElement = ({
+const delayP = (delay: number) =>
+  new Promise((resolve) => {
+    setTimeout(() => {
+      return resolve(true);
+    }, delay);
+  });
+
+export const showElement = async ({
   el,
   display = "block",
   transition = "200ms",
+  delay = 0,
   onStart,
   /**
    * Fires when transition is finished. When there are multiple transitions, it will fire until all of them are finished
@@ -176,6 +197,7 @@ export const showElement = ({
   display?: string;
   onStart?: (el: HTMLElement) => void;
   onEnd?: (el: HTMLElement) => void;
+  delay?: number;
   transition?: string;
 }) => {
   const getTransitionsAmount = () => {
@@ -208,12 +230,15 @@ export const showElement = ({
   let transitionTotal = 0;
 
   if (onStart) {
+    if (delay) await delayP(delay);
     element.style.display = display;
     reflow();
     onStart(element);
     addTransitionListener();
     return;
   }
+
+  if (delay) await delayP(delay);
 
   element.style.opacity = "0";
   element.style.webkitTransition = transition;

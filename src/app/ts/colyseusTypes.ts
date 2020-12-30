@@ -18,19 +18,29 @@ export type TPickSkin = {
   value: string;
   playerId: string;
 };
+export type TDeclarePlayers = {
+  P1: {
+    color: string;
+    shape: string;
+  };
+  P2: {
+    color: string;
+    shape: string;
+  };
+  [key: string]: { color: string; shape: string };
+};
 
 export type TRoomClient = {
   state: {
     listen: {
       (listener: "skinChange", props: TOnSkinChange): void;
-      /**will only fire on the person who picks last */
-      (listener: "declarePlayers", props: (props: boolean) => void): void;
     };
   };
   send: {
     (action: "move", props: TMovePosition): void;
     (action: "skinChange", props: string): void;
     (action: "pickSkin", props: TPickSkin): void;
+    (action: "prepareGame", props: boolean): void;
   };
   onMessage: {
     (
@@ -38,7 +48,7 @@ export type TRoomClient = {
       props: (props: { [key: string]: string }) => void
     ): void;
     (listener: "pickSkin", props: TOnPickSkin): void;
-    (listener: "startGame", props: (props: boolean) => void): void;
+    (listener: "declarePlayers", props: (props: TDeclarePlayers) => void): void;
     (listener: "busyPlayers", props: (props: number) => void): void;
     (listener: "move", props: (props: TMovePosition) => void): void;
     (listener: "countDownPickSkin", props: (props: number) => void): void;

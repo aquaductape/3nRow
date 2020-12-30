@@ -71,7 +71,9 @@ class SvgDefsView extends View {
     `;
   }
 
-  private setColor(player: TPlayer, shape: string) {
+  private setColorOfPlayer(player: TPlayer, shape: string) {
+    if (!player.color) return;
+
     const [primaryColor, secondaryColor] = colorMap[player.color];
     const shapeColorPrimary = `.color-primary-${shape}-${player.id}`;
     const shapeColorSecondary = `.color-secondary-${shape}-${player.id}`;
@@ -104,6 +106,7 @@ class SvgDefsView extends View {
 
   updateShapeColors(data: TPlayer[]) {
     this.data = data;
+
     const shapeDefsContainer = this.parentEl.querySelector(
       ".shape-defs-container"
     ) as HTMLElement;
@@ -111,16 +114,17 @@ class SvgDefsView extends View {
     this.setColors();
   }
 
-  setColors() {
-    const setAllColors = (player: TPlayer) => {
-      for (let shape of shapesDefs) {
-        this.setColor(player, shape);
-      }
-    };
+  private setColor(player: TPlayer) {
+    for (let shape of shapesDefs) {
+      // this.setColorOfPlayer(player, shape);
+      this.setColorOfPlayer(player, shape);
+    }
+  }
 
+  setColors() {
     const players = this.data;
 
-    players.forEach(setAllColors);
+    players.forEach((player) => this.setColor(player));
   }
 }
 type TDefsCollection = {

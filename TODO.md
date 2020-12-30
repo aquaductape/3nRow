@@ -35,4 +35,8 @@
 12. New idea when game over. Menu background (theme "menu") is restored, see menu-prototype in assets
 13. while picking shapes in lobby, hide player options shape by scaling down animation
 14. When it's not your turn and and you tap anyway, show snackbar notification that it's not your turn. It's removed by outside click, timeout or click on close button
-15. When "who goes first" is declared, show opponent shape in playerBtn as color until declared animtion is done, show animation pulse on current player indicator and pulse until declared animtion is done to emphasize. **Maybe** Future games, show weaker pulse
+15. in player options during multiplayer, upon selection, don't change skin, still show as selected, but show spinner loader (the same one from lobby), then upon confirmation, change skin.
+16. when opponent leaves in lobby, client stays in lobby and get's rematched with someone else and notification bar pops with "Opponent left. Looking for another player to match".
+17. Store First Move in server
+18. "First Move" should have a description
+19. change favicon based on player turn, which is based on player shape and color, background is black

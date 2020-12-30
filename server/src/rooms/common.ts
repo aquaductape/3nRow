@@ -22,6 +22,8 @@ const getRandomPlayerId = (arr: string[]) => {
   return arr.splice(Math.floor(Math.random() * arr.length), 1)[0];
 };
 
+const playerIds = ["P1", "P2"];
+
 class State extends Schema {
   @type("number") foo: number;
   @type("boolean") ready = false;
@@ -42,8 +44,10 @@ class State extends Schema {
     "white,grey": "",
   });
   @type(Move) move: Move = new Move();
-  @type("string") moveStr = "";
-  @type(["string"]) playerIds = new ArraySchema<string>("P1", "P2");
+  @type("string") claimedColorFirst = "";
+  @type("string") claimedShapeFirst = "";
+  @type(["string"]) playerIdsSlots = new ArraySchema<string>(...playerIds);
+  @type("boolean") bothPickedSkins = false;
 }
 // Pre-game TIMELINE
 //
@@ -54,6 +58,7 @@ class State extends Schema {
 //  pick skins
 //    color
 //    shape
+// PreparePlayers
 // Declare Match
 //  who's who, and who goes first
 // Start Game
@@ -79,12 +84,17 @@ export class Common extends Room<State> {
     this.onMessage<TPickSkin>("pickSkin", (client, message) => {
       this.playerPickSkin(client, message);
     });
+    this.onMessage<boolean>("prepareGame", (client, msg) => {
+      // setTimeout(() => {
+      this.declarePlayers(client);
+      // }, 5000);
+    });
   }
 
   onJoin(client: Client, options: { password: string }) {
     this.state.players.set(
       client.sessionId,
-      getRandomPlayerId(this.state.playerIds)
+      getRandomPlayerId(this.state.playerIdsSlots)
     );
 
     if (options.password) {
@@ -122,8 +132,61 @@ export class Common extends Room<State> {
     this.startPickSkin();
   }
 
-  startGame() {
-    this.broadcast("startGame", true);
+  endCountdown() {
+    this.broadcast("endCountdown", true);
+  }
+
+  declarePlayers(client: Client) {
+    const pickRandomSkinForLatePlayers = () => {
+      playerIds.forEach((playerId) => {
+        const skins = ["colors", "shapes"];
+        skins.forEach((skin) => {
+          // @ts-ignore
+          const existingValue = (getByValue(
+            // @ts-ignore
+            this.state[skin],
+            playerId
+          ) as unknown) as string;
+          if (existingValue) return;
+          // @ts-ignore
+          const arr = (Array.from(this.state[skin]) as unknown) as [
+            [string, string]
+          ];
+          const filtered = arr.filter(([_, value]) => !value);
+          const randomKey =
+            filtered[Math.floor(Math.random() * filtered.length)][0];
+          // @ts-ignore
+          this.state[skin].set(randomKey, playerId);
+          // @ts-ignore
+        });
+      });
+    };
+
+    if (!this.state.bothPickedSkins) {
+      pickRandomSkinForLatePlayers();
+    }
+
+    console.log("DECLARE!!!");
+    this.broadcast("declarePlayers", {
+      P1: {
+        color: getByValue(this.state.colors, "P1"),
+        shape: getByValue(this.state.shapes, "P1"),
+      },
+      P2: {
+        color: getByValue(this.state.colors, "P2"),
+        shape: getByValue(this.state.shapes, "P2"),
+      },
+    }); // send skins as well
+    // client.send("declarePlayers", {
+    //   P1: {
+    //     color: getByValue(this.state.colors, "P1"),
+    //     shape: getByValue(this.state.shapes, "P1"),
+    //   },
+    //   P2: {
+    //     color: getByValue(this.state.colors, "P2"),
+    //     shape: getByValue(this.state.shapes, "P2"),
+    //   },
+    // });
   }
 
   startPickSkin() {
@@ -134,7 +197,6 @@ export class Common extends Room<State> {
     const time = 15;
     let counter = time;
     this.clock.start();
-    this.clock.currentTime;
     // Set an interval and store a reference to it
     // so that we may clear it later
     this.delayedInterval = this.clock.setInterval(() => {
@@ -146,8 +208,13 @@ export class Common extends Room<State> {
     this.clock.setTimeout(() => {
       this.delayedInterval.clear();
       counter = time;
-      this.startGame();
+      // this.endCountdown();
     }, (time + 1) * 1000);
+  }
+
+  stopClock() {
+    this.clock.stop();
+    this.delayedInterval.clear();
   }
 
   playerSkinChange(client: Client, message: string) {}
@@ -155,25 +222,24 @@ export class Common extends Room<State> {
   playerPickSkin(client: Client, message: TPickSkin) {
     const { value, playerId, type } = message;
     const skin = { type, value };
-    let finishedFirst = false;
+    let claimedFirst = false;
     let success = false;
+
     if (type === "color") {
       const prevColorItem = getByValue(this.state.colors, playerId);
       const currentColorItem = this.state.colors.get(value);
 
       if (currentColorItem && currentColorItem !== playerId) {
-        // send error
-        this.broadcast("pickSkin", {
-          success,
-          skin,
-          finishedFirst,
-          playerId,
-        });
+        // item was already picked by another player
+        // no need to send error, earlier broadcast sent by other player will arrive earlier
         return;
       }
 
       if (!prevColorItem) {
-        finishedFirst = true;
+        if (!this.state.claimedColorFirst) {
+          this.state.claimedColorFirst = playerId;
+          claimedFirst = true;
+        }
         this.state.colors.set(value, playerId);
       }
       this.state.colors.set(prevColorItem, "");
@@ -182,22 +248,20 @@ export class Common extends Room<State> {
     }
 
     if (type === "shape") {
-      const prevShapeItem = getByValue(this.state.colors, playerId);
+      const prevShapeItem = getByValue(this.state.shapes, playerId);
       const currentShapeItem = this.state.shapes.get(value);
 
       if (currentShapeItem && currentShapeItem !== playerId) {
-        // send error
-        this.broadcast("pickSkin", {
-          success,
-          skin,
-          finishedFirst,
-          playerId,
-        });
+        // item was already picked by another player
+        // no need to send error, earlier broadcast sent by other player will arrive earlier
         return;
       }
 
       if (!prevShapeItem) {
-        finishedFirst = true;
+        if (!this.state.claimedShapeFirst) {
+          this.state.claimedShapeFirst = playerId;
+          claimedFirst = true;
+        }
         this.state.shapes.set(value, playerId);
       }
       this.state.shapes.set(prevShapeItem, "");
@@ -205,10 +269,32 @@ export class Common extends Room<State> {
       success = true;
     }
 
+    // both players picked all skins before countdown
+    if (
+      playerIds.every((playerId) => {
+        const hasColorItem = getByValue(this.state.colors, playerId);
+        const hasShapeItem = getByValue(this.state.shapes, playerId);
+        console.log(playerId, { hasColorItem, hasShapeItem });
+        return hasColorItem && hasShapeItem;
+      })
+    ) {
+      console.log("STOP clock");
+      this.stopClock();
+      this.declarePlayers(client);
+      this.state.bothPickedSkins = true;
+    }
+
+    // no need to broadcast data back to late client, already done by previous broadcast
+    if (type === "color") {
+      if (this.state.claimedColorFirst !== playerId) return;
+    } else {
+      if (this.state.claimedShapeFirst !== playerId) return;
+    }
+
     this.broadcast("pickSkin", {
       success,
       skin,
-      finishedFirst,
+      finishedFirst: claimedFirst,
       playerId,
     });
   }

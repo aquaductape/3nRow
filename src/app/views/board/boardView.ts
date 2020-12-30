@@ -16,13 +16,14 @@ import {
 import { renderWinnerSlash } from "./renderLine";
 
 class BoardView extends View {
-  firstCell: HTMLElement;
-  slashContainer: HTMLElement;
-  data: TState;
-  state: {
+  protected data: TState;
+  private firstCell: HTMLElement;
+  private slashContainer: HTMLElement;
+  private state: {
     playerCanSelectCell: boolean;
     boardCleared: boolean;
   };
+
   constructor() {
     super({ root: ".board" });
     this.state = {

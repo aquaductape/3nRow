@@ -8,5 +8,10 @@ export const setRoom = (room: TRoomClient) => {
 
 export const exitMultiplayer = () => {
   state.onlineMultiplayer.active = false;
+  resetMultiplayer();
+};
+
+const resetMultiplayer = () => {
   state.onlineMultiplayer.room = null;
+  state.onlineMultiplayer.pickedItems = { color: "", shape: "" };
 };

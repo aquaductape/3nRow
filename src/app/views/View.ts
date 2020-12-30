@@ -1,4 +1,4 @@
-import { getElement, reflow } from "./utils/index";
+import { clearChildren, getElement, reflow } from "./utils/index";
 
 /**
  * scuffed UI Component
@@ -37,13 +37,7 @@ export default class View {
   }
 
   protected clearChildren(element: HTMLElement) {
-    // Accomplishes the same result as code below
-    // this.parentEl.innerHTML = "";
-    // However certain browsers might have optimize clearing elements with innerHTML if the string is empty
-    // Generally it's faster to remove last item than the first
-    while (element.firstChild) {
-      element.removeChild(element.lastChild!);
-    }
+    clearChildren(element);
   }
 
   protected generateFallback() {
@@ -94,7 +88,7 @@ export default class View {
    * set component data, doesn't trigger UI update
    * @param data any
    */
-  setData(data?: any) {
-    this.data = { ...this.data, data };
+  setData(data?: object) {
+    this.data = { ...this.data, ...data };
   }
 }

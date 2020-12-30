@@ -4,7 +4,7 @@ import View from "../View";
 import { scaleStyles } from "./scale";
 
 class GameContainerView extends View {
-  dom: {
+  private dom: {
     playerBtnGroup: HTMLElement;
     playerBtns: HTMLElement[];
     p1BtnOptions: HTMLElement;
@@ -23,13 +23,18 @@ class GameContainerView extends View {
     gameMenuBtns: HTMLElement[];
     gameMenuBtnPickPlayer: HTMLElement[];
     navigationBackBtn: HTMLElement;
+    declarePlayersShape: HTMLElement;
+    declarePlayersDeclaration: HTMLElement;
+    playerPickSkinCountDown: HTMLElement;
   };
-  debouncedGetSelectors: Function;
+  declarePlayersAnimationRunning: boolean;
+  private debouncedGetSelectors: Function;
 
   constructor() {
     super({ root: ".game-container" });
     this.dom = {} as any;
     this.debouncedGetSelectors = () => {};
+    this.declarePlayersAnimationRunning = false;
     this.init();
   }
 
@@ -85,12 +90,14 @@ class GameContainerView extends View {
     dom.navigationBackBtn = this.parentEl.querySelector(
       ".btn-navigation-back"
     ) as HTMLElement;
+    dom.playerPickSkinCountDown = this.parentEl.querySelector(
+      ".player-pick-skin-countdown"
+    ) as HTMLElement;
   }
 
   private resizeElements(boardWidth: number) {
     this.debouncedGetSelectors();
 
-    const gameContainer = this.parentEl;
     const {
       board,
       boardBackground,
@@ -110,6 +117,7 @@ class GameContainerView extends View {
       gameMenuBtnPickPlayer,
       playAgainBtn,
       navigationBackBtn,
+      playerPickSkinCountDown,
     } = this.dom;
 
     const matchDropdownWidthToBoard = () => {
@@ -324,10 +332,27 @@ class GameContainerView extends View {
           borderRadius: 64.53,
         },
       });
+      scaleStyles({
+        el: playerPickSkinCountDown,
+        numerator: boardWidth,
+        styleRatio: {
+          top: 21.5,
+          right: 21.5,
+          height: 8.06625,
+          width: 8.06625,
+          fontSize: 20.1612,
+        },
+      });
     };
+
+    // font
+    // 20.1612
 
     scaleBoardFromWidth();
     matchDropdownWidthToBoard();
+    if (this.declarePlayersAnimationRunning) {
+      this.scaleElementsToProportionToBoard({ type: "declare-players" });
+    }
   }
 
   runResizeListener() {
@@ -403,16 +428,21 @@ class GameContainerView extends View {
     });
   }
 
-  scaleElementsToProportionToBoard({ type }: { type: "menuBtns" }) {
-    const gameMenuBtns = Array.from(
-      this.parentEl.querySelectorAll(".btn-pick")
-    ) as HTMLElement[];
-    const gameMenuBtnPickPlayer = Array.from(
-      this.parentEl.querySelectorAll(".btn-pick-player")
-    ) as HTMLElement[];
+  scaleElementsToProportionToBoard({
+    type,
+  }: {
+    type: "menuBtns" | "declare-players" | "player-pick-skin-countdown";
+  }) {
     const boardWidth = this.parentEl.clientWidth;
 
     if (type === "menuBtns") {
+      const gameMenuBtns = Array.from(
+        this.parentEl.querySelectorAll(".btn-pick")
+      ) as HTMLElement[];
+      const gameMenuBtnPickPlayer = Array.from(
+        this.parentEl.querySelectorAll(".btn-pick-player")
+      ) as HTMLElement[];
+
       scaleStyles({
         el: gameMenuBtns,
         numerator: boardWidth,
@@ -447,6 +477,66 @@ class GameContainerView extends View {
             boardWidth > 500
               ? px(boardWidth / 10.082)
               : px(boardWidth / 5.5875),
+        },
+      });
+    }
+
+    if (type === "declare-players") {
+      const declarePlayersShape = this.parentEl.querySelector(
+        ".lobby .player-shape"
+      ) as HTMLElement;
+      const declarePlayersDeclaration = this.parentEl.querySelector(
+        ".lobby .declaration"
+      ) as HTMLElement;
+      document.documentElement.style.setProperty(
+        "--declareAfterStop",
+        px(-(boardWidth * 0.025))
+      );
+      document.documentElement.style.setProperty(
+        "--declareBeforeStop",
+        px(boardWidth * 0.025)
+      );
+      document.documentElement.style.setProperty(
+        "--declarePlayerShape",
+        px(boardWidth / 2)
+      );
+
+      scaleStyles({
+        el: declarePlayersShape,
+        numerator: boardWidth,
+        styleRatio: {
+          width: 2.3465,
+          height: 2.3465,
+        },
+      });
+      scaleStyles({
+        el: declarePlayersDeclaration,
+        numerator: boardWidth,
+        styleRatio: {
+          margin: () =>
+            boardWidth < 500
+              ? `${px(boardWidth / 18.333)} 0`
+              : `${px(boardWidth / 25.8119)} 0`,
+          fontSize: () =>
+            boardWidth < 500 ? px(boardWidth / 11) : px(boardWidth / 16.1325),
+        },
+      });
+    }
+
+    if (type === "player-pick-skin-countdown") {
+      const playerPickSkinCountDown = this.parentEl.querySelector(
+        ".player-pick-skin-countdown"
+      ) as HTMLElement;
+
+      scaleStyles({
+        el: playerPickSkinCountDown,
+        numerator: boardWidth,
+        styleRatio: {
+          top: 21.5,
+          right: 21.5,
+          height: 8.06625,
+          width: 8.06625,
+          fontSize: 20.1612,
         },
       });
     }

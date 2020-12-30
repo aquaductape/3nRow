@@ -4,6 +4,8 @@ import { TRoomClient } from "../ts/colyseusTypes";
 import gameMenuView from "../views/gameMenu/gameMenuView";
 import lobbyView from "../views/lobby/lobbyView";
 import playerBtnGroupView from "../views/playerOptions/playerBtnGroupView";
+import svgDefsView from "../views/svg/svgDefsView";
+import { getOppositePlayer } from "../views/utils";
 import { controlMovePlayer } from "./move";
 
 // I think it's appropriate to place the multiplayer websocket listeners as Controller
@@ -101,14 +103,26 @@ const roomActions = ({
     // worse case scenario: player skin visually, will not be synced, but listener from the server will correct it, so there will be a flash change
   });
 
+  // late pick
   room.onMessage("pickSkin", ({ success, skin, finishedFirst, playerId }) => {
     console.log("onpickskin", playerId, skin);
+    const player = model.getPlayerById(playerId)!;
+
     const mainPlayerClaim = () => {
       if (!success) {
-        lobbyView.failedPick();
+        lobbyView.failedPick({ type: skin.type, value: skin.value });
+        return;
       }
 
       if (skin.type === "color") {
+        console.log(
+          "mainPlayerClaim: ",
+          playerId,
+          model.getPlayerById(playerId)
+        );
+        model.setPlayerCurrentColor({ player, color: skin.value });
+        svgDefsView.updateShapeColors(model.state.players);
+        lobbyView.setData({ mainPlayer: model.getPlayerById(playerId) });
         lobbyView.transitionPickSkin({ type: "shape" });
         return;
       }
@@ -117,19 +131,54 @@ const roomActions = ({
         if (finishedFirst) {
           lobbyView.transitionPreGameStage({ type: "wait-for-opponent" });
         } else {
-          lobbyView.transitionPreGameStage({ type: "declare-players" });
+          lobbyView.transitionPreGameStage({ type: "preparing-game" });
         }
       }
-      // set skin on model
     };
 
     const opponentPlayerClaim = () => {
+      // if picked item is not the same as client picked
+      const { pickedItems } = model.state.onlineMultiplayer;
+
+      if (pickedItems[skin.type]) {
+        if (pickedItems[skin.type] === skin.value) {
+          lobbyView.failedPick({ type: skin.type, value: skin.value });
+        } else {
+          // client picked item will not conflict other player, go ahead and transition to next stage
+          if (skin.type === "color") {
+            model.setPlayerCurrentColor({
+              player: getOppositePlayer({
+                id: playerId,
+                players: model.state.players,
+              }),
+              color: pickedItems[skin.type],
+            });
+            svgDefsView.updateShapeColors(model.state.players);
+            lobbyView.setData({
+              mainPlayer: getOppositePlayer({
+                id: playerId,
+                players: model.state.players,
+              }),
+            });
+
+            lobbyView.transitionPickSkin({ type: "shape" });
+            return;
+          }
+
+          if (skin.type === "shape") {
+            lobbyView.transitionPreGameStage({
+              type: "preparing-game",
+            });
+          }
+        }
+      }
+
+      console.log("opponent already claimed");
+
       lobbyView.showOpponentClaimedPick({
         type: skin.type,
         item: skin.value,
-        calledByServer: true,
       });
-      // set skin on model
     };
 
     if (playerId === model.state.onlineMultiplayer.mainPlayer) {
@@ -137,14 +186,22 @@ const roomActions = ({
     } else {
       opponentPlayerClaim();
     }
-  });
 
-  room.state.listen("declarePlayers", (result) => {
-    if (result) lobbyView.transitionPreGameStage({ type: "declare-players" });
+    if (skin.type === "color") {
+      model.setPlayerCurrentColor({ player, color: skin.value });
+    }
+
+    if (skin.type === "shape") {
+      model.setPlayerCurrentShape({ player, shape: skin.value });
+    }
   });
 
   room.onMessage("countDownPickSkin", (counter) => {
     lobbyView.updateCountDown(counter);
+    if (counter === 0) {
+      room.send("prepareGame", true);
+      lobbyView.transitionPreGameStage({ type: "preparing-game" });
+    }
   });
 
   room.onMessage("readyPlayers", (ids) => {
@@ -154,6 +211,10 @@ const roomActions = ({
 
     for (const id in ids) {
       const playerId = ids[id];
+      const player = model.getPlayerById(playerId)!;
+
+      model.setPlayerCurrentColor({ player, color: "" });
+      model.setPlayerCurrentShape({ player, shape: "" });
       if (id === room.sessionId) {
         mainPlayer = playerId;
       } else {
@@ -164,18 +225,45 @@ const roomActions = ({
 
     lobbyView.setData({
       players: model.state.players,
-      currentPlayer: model.getPlayerById(mainPlayer),
+      mainPlayer: model.getPlayerById(mainPlayer),
     });
     lobbyView.transitionPreGameStage({ type: "pick-skins" });
     playerBtnGroupView.hideSvgMarks();
   });
 
-  room.onMessage("startGame", (start) => {
-    if (!start) return;
+  // pesky global variable
+  let hasDeclaredPlayers = false;
+  room.onMessage("declarePlayers", (players) => {
+    console.log("declare-players");
+    if (hasDeclaredPlayers) return;
+    hasDeclaredPlayers = true;
+    if (!players) return;
+    const mainPlayer = model.getPlayerById(
+      model.state.onlineMultiplayer.mainPlayer
+    );
 
-    // gameMenuView.startGameAndHideMenu({
-    //   firstMovePlayer: "P1",
-    // });
+    for (const playerId in players) {
+      const { color, shape } = players[playerId];
+      const player = model.getPlayerById(playerId)!;
+      console.log(player);
+
+      model.setPlayerCurrentColor({ color, player });
+      model.setPlayerCurrentShape({ shape, player });
+      playerBtnGroupView.updateSvgMark(player);
+    }
+
+    svgDefsView.updateShapeColors(model.state.players);
+    lobbyView.hideAndRemoveCountDownMarkup({ duration: 50 });
+    playerBtnGroupView.showSvgMarks();
+    lobbyView.setData({
+      players: model.state.players,
+      mainPlayer,
+    });
+
+    svgDefsView.updateDropShadow("rgba(0,0,0, 0.3)");
+    gameMenuView.changeMenuTheme("menu");
+    gameMenuView.hideBtnNavigationBack();
+    lobbyView.transitionPreGameStage({ type: "declare-players" });
   });
 
   room.onMessage("busyPlayers", (players) => {

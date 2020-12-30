@@ -7,12 +7,22 @@ import {
 import { TPlayer } from "../../model/state";
 import { TPosition } from "../../ts";
 import { capitalize } from "../../utils";
-import { loaderEllipsis, loaderSquare } from "../components/loaders";
+import {
+  loaderCircle,
+  loaderEllipsis,
+  loaderSquare,
+} from "../components/loaders";
 import { colors, shapes, svg } from "../constants/constants";
+import gameContainerView from "../gameContainer/gameContainerView";
 import playerBtnGroupView from "../playerOptions/playerBtnGroupView";
-import { hideElement, removeChild, showElement } from "../utils";
+import {
+  hasAttributeValue,
+  hideElement,
+  removeElement,
+  showElement,
+} from "../utils";
 import View from "../View";
-import { btnItem } from "./skinBtns";
+import { btnItem, toolTipMarkup } from "./skinBtns";
 
 // Pre-game TIMELINE
 //
@@ -24,6 +34,7 @@ import { btnItem } from "./skinBtns";
 //    color
 //    shape
 // WaitForOpponent
+// Preparing Game
 // DeclarePlayers
 //  who's who, and who goes first
 // Start Game
@@ -37,6 +48,7 @@ export type TPreGameType =
   | "connect-server"
   | "find-players"
   | "pick-skins"
+  | "preparing-game"
   | "declare-players"
   | "wait-for-opponent"
   | "found-players";
@@ -44,7 +56,8 @@ export type TPreGameType =
 type TProps = {
   type: TLobbyType;
   preGameType?: TPreGameType;
-  currentPlayer: TPlayer;
+  mainPlayer: TPlayer;
+  firstPlayer: TPlayer;
   players: TPlayer[];
 };
 
@@ -54,7 +67,7 @@ type TProps = {
  */
 
 class LobbyView extends View {
-  data: TProps;
+  protected data: TProps;
   private hasSelectedSkin: boolean;
   private onJoinRoom: TControlJoinRoom;
   private onCreateRoom: TControlCreateRoom;
@@ -67,6 +80,7 @@ class LobbyView extends View {
     color: string;
     shape: string;
   };
+  private countDownElHidden: boolean;
 
   constructor() {
     super({ root: "#game-menu .section" });
@@ -75,6 +89,7 @@ class LobbyView extends View {
     this.addedEventListeners = false;
     this.loaderPickSkinTimeoutID = 0;
     this.opponentPickedSkin = { color: "", shape: "" };
+    this.countDownElHidden = false;
     // minigame
     // find random players -> minigame
     // generated code -> **subscribe** -> load players -> minigame
@@ -97,13 +112,13 @@ class LobbyView extends View {
   }
 
   private colorsMarkup() {
-    const { currentPlayer, players } = this.data;
+    const { mainPlayer, players } = this.data;
     const content = colors
       .map((color) =>
         btnItem({
           type: "color",
           item: color,
-          playerData: { currentPlayer, players },
+          playerData: { currentPlayer: mainPlayer, players },
           opponentSkin: this.opponentPickedSkin,
         })
       )
@@ -116,13 +131,13 @@ class LobbyView extends View {
   }
 
   private shapesMarkup() {
-    const { currentPlayer, players } = this.data;
+    const { mainPlayer, players } = this.data;
     const content = shapes
       .map((shape) =>
         btnItem({
           type: "shape",
           item: shape,
-          playerData: { currentPlayer, players },
+          playerData: { currentPlayer: mainPlayer, players },
           opponentSkin: this.opponentPickedSkin,
         })
       )
@@ -142,7 +157,7 @@ class LobbyView extends View {
 
     <div class="pick-skin">
       <div class="title">Pick a ${capitalize(type)}</div>
-      <div class="items">
+      <div class="btns-group">
         ${content}
       </div>
     </div>
@@ -156,6 +171,15 @@ class LobbyView extends View {
     <div class="section reveal">
     <div class="title">Waiting for Opponent ${loaderEllipsis()}</div>
     </div>
+    `;
+  }
+
+  private preparingGame() {
+    return `
+    <div class="section reveal">
+    <div class="title">Preparing Game ${loaderEllipsis()}</div>
+    </div>
+    
     `;
   }
 
@@ -178,9 +202,18 @@ class LobbyView extends View {
   }
 
   private declarePlayersMarkup() {
+    const { firstPlayer, mainPlayer } = this.data;
+    const svgMark = firstPlayer.getSvgShape();
+    let msg =
+      firstPlayer === mainPlayer
+        ? "<span class='which-player'>You</span> go"
+        : "<span class='which-player'>Opponent</span> goes";
+    msg += " First!";
+
     return `
-    <div>
-    You go First!!!!
+    <div class="declare-players">
+      <div class="player-shape">${svgMark}</div>
+      <div class="declaration">${msg}</div>
     </div>
     `;
   }
@@ -208,12 +241,15 @@ class LobbyView extends View {
   }
   private generateCountDownMarkp() {
     const timerMarkup = `
-    <div class="countdown-container">
+    <div class="player-pick-skin-countdown countdown-container">
       <div class="countdown-circle">${svg.countdownCircle}</div>
       <div class="countdown">15</div>
     </div>
     `;
     this.parentEl.insertAdjacentHTML("beforebegin", timerMarkup);
+    gameContainerView.scaleElementsToProportionToBoard({
+      type: "player-pick-skin-countdown",
+    });
   }
 
   private connectServerMarkup() {
@@ -234,12 +270,14 @@ class LobbyView extends View {
       case "found-players":
         return this.foundPlayersMarkup();
       case "pick-skins":
-        this.generateCountDownMarkp();
+        if (!this.countDownElHidden) this.generateCountDownMarkp();
         return this.pickSkinsMarkup({ type: "color" });
       case "declare-players":
         return this.declarePlayersMarkup();
       case "wait-for-opponent":
         return this.waitForOpponent();
+      case "preparing-game":
+        return this.preparingGame();
     }
   }
 
@@ -279,6 +317,11 @@ class LobbyView extends View {
       ".countdown-container"
     ) as HTMLElement;
 
+    if (counter === 0) {
+      this.countDownElHidden = true;
+      this.hideAndRemoveCountDownMarkup({ delay: 100 });
+    }
+
     if (!counterContainer) return;
 
     const counterEl = counterContainer.querySelector(
@@ -291,10 +334,6 @@ class LobbyView extends View {
     circle.style.strokeDashoffset = `${
       ((counterStart - counter) / counterStart) * strokeDash
     }px`;
-
-    if (counter === 0) {
-      this.hideAndRemoveCountDownMarkup({ delay: 100 });
-    }
   }
 
   transitionPickSkin({ type }: { type: "color" | "shape" }) {
@@ -302,8 +341,10 @@ class LobbyView extends View {
 
     hideElement({
       el: lobbyEl,
+      // delay: 100,
       onStart: (el) => {
-        el.style.transition = "transform 200ms, opacity 200ms";
+        el.style.opacity = "1";
+        el.style.transition = "transform 250ms, opacity 200ms";
         this.reflow();
         el.style.transform = "translateY(-50px)";
         el.style.opacity = "0";
@@ -319,6 +360,7 @@ class LobbyView extends View {
 
         showElement({
           el,
+          delay: 200,
           transition: "1000ms",
           onEnd: (el) => {
             el.style.display = "";
@@ -330,11 +372,35 @@ class LobbyView extends View {
 
   transitionPreGameStage({ type }: { type: TPreGameType }) {
     const lobbyEl = this.parentEl.querySelector(".lobby") as HTMLElement;
+
+    console.log("transitionPreGameStage: ", type);
+
+    if (this.data.preGameType === type) return;
+
     this.data.preGameType = type;
     let onStart: ((el: HTMLElement) => void) | undefined = undefined;
     let onEndClearStyle: ((el: HTMLElement) => void) | undefined = undefined;
+    let onEnd: (el: HTMLElement) => void = (el) => {
+      // hideOnEnd is running
+      this.clearChildren(el);
 
-    if (type === "declare-players") {
+      onEndClearStyle && onEndClearStyle(el);
+      el.style.display = "none";
+      el.innerHTML = this.preGameMarkup({ type });
+      // hideOnEnd finished
+
+      showElement({
+        el,
+        onStart: () => {
+          // showAnimation is running
+        },
+        onEnd: () => {
+          // showAnimation finished
+        },
+      });
+    };
+
+    if (type === "preparing-game") {
       onStart = (el) => {
         el.style.transition = "transform 200ms, opacity 200ms";
         this.reflow();
@@ -348,25 +414,46 @@ class LobbyView extends View {
       };
     }
 
-    hideElement({
-      el: lobbyEl,
-      onStart,
-      onEnd: (el) => {
+    if (type === "declare-players") {
+      onEnd = (el) => {
         this.clearChildren(el);
 
-        onEndClearStyle && onEndClearStyle(el);
         el.style.display = "none";
         el.innerHTML = this.preGameMarkup({ type });
+        gameContainerView.declarePlayersAnimationRunning = true;
+        gameContainerView.scaleElementsToProportionToBoard({
+          type: "declare-players",
+        });
+
+        setTimeout(() => {
+          const { firstPlayer } = this.data;
+
+          playerBtnGroupView.activateColorSvgMark(firstPlayer.id);
+          playerBtnGroupView.updatePlayerIndicator(firstPlayer);
+        }, 500);
 
         showElement({
           el,
+          delay: 200,
+          transition: "200ms",
+          onEnd: (el) => {},
         });
-      },
+      };
+    }
+
+    hideElement({
+      el: lobbyEl,
+      onStart,
+      onEnd,
     });
   }
 
   hideAndRemoveCountDownMarkup(
-    { duration = 200, delay = 0 }: { duration?: number; delay?: number } = {
+    {
+      duration = 200,
+      delay = 0,
+      removeDelay = 0,
+    }: { duration?: number; delay?: number; removeDelay?: number } = {
       duration: 200,
       delay: 0,
     }
@@ -388,7 +475,7 @@ class LobbyView extends View {
       transition: `${duration}ms ${delay}ms`,
       onEnd: (el) => {
         el.style.display = "none";
-        removeChild(el);
+        removeElement(el);
       },
     });
   }
@@ -403,6 +490,9 @@ class LobbyView extends View {
     const onLobbyEvents = (e: Event) => {
       const target = e.target as HTMLElement;
       const btn = target.closest("button") as HTMLElement;
+
+      if (!btn) return;
+
       const color = btn.dataset.color;
       const shape = btn.dataset.shape;
       const disabled = btn.dataset.disabled === "true";
@@ -410,25 +500,15 @@ class LobbyView extends View {
       if (disabled || this.hasSelectedSkin) return;
 
       if (color) {
-        // send to server
-        // 500ms if no confirmation due to lag, show loader
-        // return result
-        // if picked
-        // this.transitionPickSkin({ type: "shape" });
-        // this.hasSelectedSkin.color = true;
-        // if opponent already picked, show error message
         this.onPickSkin({ type: "color", item: color });
-        this.hasSelectedSkin = true;
         // show loader
-        this.showPickLoader({ container: btn, delay: 1500 });
+        this.freezeBtnsAndAwaitConfirmation({ pickedBtn: btn });
       }
 
       if (shape) {
-        // this.transitionPreGameStage({ type: "declare-players" });
         this.onPickSkin({ type: "shape", item: shape });
-        this.hasSelectedSkin = true;
         // show loader
-        this.showPickLoader({ container: btn, delay: 1500 });
+        this.freezeBtnsAndAwaitConfirmation({ pickedBtn: btn });
       }
     };
 
@@ -452,20 +532,61 @@ class LobbyView extends View {
     lobbyEl.addEventListener("click", onLobbyEvents);
   }
 
-  showPickLoader({
-    container,
+  private unfreezeBtns() {
+    const btnsContainer = this.parentEl.querySelector(
+      ".btns-group"
+    ) as HTMLElement;
+    const btns = btnsContainer.querySelectorAll("button");
+
+    btns.forEach((btn) => {
+      btn.classList.remove("frozen");
+      btn.classList.remove("selected");
+    });
+
+    this.hasSelectedSkin = false;
+  }
+
+  private freezeBtnsAndAwaitConfirmation({
+    pickedBtn,
+  }: {
+    pickedBtn: HTMLElement;
+  }) {
+    const btnsContainer = this.parentEl.querySelector(
+      ".btns-group"
+    ) as HTMLElement;
+    const btns = btnsContainer.querySelectorAll("button");
+    // make grayscale
+    // btnsContainer.classList.add("selected");
+    btns.forEach((btn) => {
+      if (btn !== pickedBtn) {
+        btn.classList.add("frozen");
+      }
+    });
+
+    this.hasSelectedSkin = true;
+    // select pick btn
+    pickedBtn.classList.add("selected");
+    // show loader
+    this.showPickLoader({ pickedBtn, delay: 500 });
+  }
+
+  private showPickLoader({
+    pickedBtn,
     delay,
   }: {
-    container: HTMLElement;
+    pickedBtn: HTMLElement;
     delay: number;
   }) {
+    const itemInner = pickedBtn.querySelector(
+      "[data-pick-item-inner]"
+    ) as HTMLElement;
     const generateLoader = () => {
       const markup = `
       <div class="pick-loader reveal">
-        ${loaderSquare()}
+        <div class="picker-loader-circle">${loaderCircle()}</div>
       </div>
       `;
-      container.insertAdjacentHTML("afterend", markup);
+      itemInner.insertAdjacentHTML("beforeend", markup);
     };
     console.log("pick loader fired");
 
@@ -482,12 +603,17 @@ class LobbyView extends View {
 
     if (!pickLoader) return;
 
-    removeChild(pickLoader);
+    removeElement(pickLoader);
   }
 
-  failedPick() {
+  failedPick({ type, value }: { type: "color" | "shape"; value: string }) {
+    const btn = this.parentEl.querySelector(
+      `[data-${type}="${value}"]`
+    ) as HTMLElement;
+
     this.cancelOrHidePickLoader();
-    this.hasSelectedSkin = false;
+    this.unfreezeBtns();
+    this.updateTooltip({ type, pickedBtn: btn });
   }
 
   showOpponentClaimedPick({
@@ -496,7 +622,6 @@ class LobbyView extends View {
   }: {
     type: "color" | "shape";
     item: string;
-    calledByServer?: boolean;
   }) {
     const btn = this.parentEl.querySelector(
       `[data-${type}="${item}"]`
@@ -514,6 +639,26 @@ class LobbyView extends View {
     btn.classList.add("disabled");
 
     // set tooltip
+    this.updateTooltip({ type, pickedBtn: btn });
+  }
+
+  private updateTooltip({
+    type,
+    pickedBtn,
+  }: {
+    type: "color" | "shape";
+    pickedBtn: HTMLElement;
+  }) {
+    // tooltip-container
+    const parentBtn = pickedBtn.parentElement as HTMLElement;
+    const tooltipEl = parentBtn.querySelector(
+      ".tooltip-container"
+    ) as HTMLElement;
+    removeElement(tooltipEl);
+    parentBtn.insertAdjacentHTML(
+      "beforeend",
+      toolTipMarkup({ type, enabled: true })
+    );
   }
 
   addHandlers({

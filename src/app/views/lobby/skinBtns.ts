@@ -28,12 +28,12 @@ export const btnItem = ({
   if (type === "color") {
     const [primaryColor, secondaryColor] = item.split(",");
     const [primaryColorHex, secondaryColorHex] = colorMap[item];
+    const disabled = opponentSkin.color === item;
     // already selected by Opponent
     const toolTip = toolTipMarkup({
       type,
-      enabled: false,
+      enabled: disabled,
     });
-    const disabled = opponentSkin.color === item;
     const classBase = "color-item";
     // const classSelected = playerColor === item ? "color-item--selected" : "";
     const classDisabled = disabled ? "disabled" : "";
@@ -50,7 +50,7 @@ export const btnItem = ({
           ${disabled ? "disabled" : ""}
           aria-label="choose gradient color of shape. Primary Color ${primaryColor}, Secondary Color ${secondaryColor}"
         >
-          <div class="${classItemBg}">
+          <div class="${classItemBg}" data-pick-item-inner="${type}">
             <div class="${classItemInner}"  style="background: linear-gradient(0deg, ${secondaryColorHex}, ${primaryColorHex});">
             </div>
           </div>
@@ -64,12 +64,12 @@ export const btnItem = ({
 
   if (type === "shape") {
     // already selected by other player
+    const disabled = opponentSkin.shape === item;
     const toolTip = toolTipMarkup({
       type,
-      enabled: false,
+      enabled: disabled,
     });
 
-    const disabled = opponentSkin.shape === item;
     // const classSelected = playerColor === item ? "color-item--selected" : "";
     const classDisabled = disabled ? "disabled" : "";
     const classBase = "shape-item";
@@ -91,7 +91,7 @@ export const btnItem = ({
           ${disabled ? "disabled" : ""}
           aria-label="choose shape: ${item}"
         >
-          <div class="${classItemBg}">
+          <div class="${classItemBg}" data-pick-item-inner="${type}">
             <div class="${classItemInner}">
               ${shape}
             </div>
@@ -112,7 +112,7 @@ const toolTipInnerMarkup = ({ msg }: { msg: string }) => {
     `;
 };
 
-const toolTipMarkup = ({
+export const toolTipMarkup = ({
   enabled,
   type,
 }: {

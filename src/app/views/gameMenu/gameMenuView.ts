@@ -18,6 +18,7 @@ import {
 import View from "../View";
 import menuBtns, { TGameMenuState } from "./menuBtns";
 import lobbyView from "../lobby/lobbyView";
+import svgDefsView from "../svg/svgDefsView";
 
 type TSections =
   | "aiDifficulty"
@@ -27,15 +28,15 @@ type TSections =
   | "multiplayerChoices";
 
 class GameMenuView extends View {
-  data: TPlayer[];
-  menuState: TGameMenuState;
-  sectionVisible: TSections | null;
-  renderInit: boolean;
-  vsPlayer: string;
-  navigationHistory: string[];
-  handlerStartGame: TControlStartGame;
-  handlerPlayAgain: TControlPlayAgain;
-  handlerSettings: TControlSettings;
+  protected data: TPlayer[];
+  private menuState: TGameMenuState;
+  private sectionVisible: TSections | null;
+  private renderInit: boolean;
+  private vsPlayer: string;
+  private navigationHistory: string[];
+  private handlerStartGame: TControlStartGame;
+  private handlerPlayAgain: TControlPlayAgain;
+  private handlerSettings: TControlSettings;
   constructor() {
     super({ root: "#game-menu" });
     this.data = [] as TPlayer[];
@@ -137,9 +138,6 @@ class GameMenuView extends View {
   private hideMenu() {
     return new Promise((resolve, reject) => {
       const section = this.parentEl.querySelector(".section") as HTMLElement;
-      const btnNavigationBack = this.parentEl.querySelector(
-        ".btn-navigation-back"
-      ) as HTMLElement;
       const backgroundSVG = this.parentEl.querySelector(
         ".background-svg"
       ) as HTMLElement;
@@ -163,7 +161,7 @@ class GameMenuView extends View {
           onStart: (el) => {
             el.classList.add("onExit");
             el.style.background = "none";
-            btnNavigationBack.style.display = "none";
+            this.hideBtnNavigationBack();
           },
           onEnd: (el) => {
             el.style.display = "none";
@@ -181,7 +179,7 @@ class GameMenuView extends View {
     });
   }
 
-  private changeMenuTheme(theme: "menu" | "lobby") {
+  changeMenuTheme(theme: "menu" | "lobby") {
     const gameBoard = document.querySelector(".game") as HTMLElement;
     if (theme === "lobby") {
       gameBoard.classList.add("lobby");
@@ -273,12 +271,9 @@ class GameMenuView extends View {
     const sectionType = this.navigationHistory.pop()! as TSections;
 
     this.changeMenuTheme("menu");
-    const btnNavigationBack = this.parentEl.querySelector(
-      ".btn-navigation-back"
-    ) as HTMLElement;
 
     if (!this.navigationHistory.length) {
-      btnNavigationBack.classList.add("hidden");
+      this.hideBtnNavigationBack();
     }
 
     lobbyView.hideAndRemoveCountDownMarkup();
@@ -347,13 +342,13 @@ class GameMenuView extends View {
     currentSection: string;
     clicked: boolean;
   }) {
-    const btnNavigationBack = this.parentEl.querySelector(
-      ".btn-navigation-back"
-    ) as HTMLElement;
-
     if (currentSection) this.navigationHistory.push(currentSection);
     if (this.navigationHistory.length) {
-      btnNavigationBack.classList.remove("hidden");
+      this.showBtnNavigationBack();
+    }
+
+    if (sectionType === "goFirst") {
+      svgDefsView.updateDropShadow("#000");
     }
 
     this.transtionToNextGeneralSection({
@@ -439,7 +434,8 @@ class GameMenuView extends View {
 
             lobbyView.render({
               type: lobbyType,
-              currentPlayer: players[0],
+              mainPlayer: players[0],
+              firstPlayer: players[0],
               players,
               preGameType: "connect-server",
             });
@@ -464,6 +460,20 @@ class GameMenuView extends View {
         return;
       }
     });
+  }
+
+  hideBtnNavigationBack() {
+    const btnNavigationBack = this.parentEl.querySelector(
+      ".btn-navigation-back"
+    ) as HTMLElement;
+    btnNavigationBack.classList.add("hidden");
+  }
+
+  showBtnNavigationBack() {
+    const btnNavigationBack = this.parentEl.querySelector(
+      ".btn-navigation-back"
+    ) as HTMLElement;
+    btnNavigationBack.classList.remove("hidden");
   }
 
   addHandlers({
