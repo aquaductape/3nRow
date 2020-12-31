@@ -97,13 +97,14 @@ export const getOppositePlayer = ({
   players: TPlayer[];
 }) => players.filter((player) => player.id !== id)[0];
 
-export const hideElement = ({
+const _hideElement = ({
   el,
   transition = "200ms",
   duration = 200,
   useTransitionEvent = true,
   onStart,
   onEnd,
+  resolve,
 }: {
   el: string | HTMLElement;
   transition?: string;
@@ -116,6 +117,7 @@ export const hideElement = ({
    */
   onEnd?: (el: HTMLElement, e?: TransitionEvent) => void;
   onCancel?: (el: HTMLElement) => void;
+  resolve: (value: boolean | PromiseLike<boolean>) => void;
 }) => {
   const getTransitionsAmount = () => {
     if (transitionTotal) return transitionTotal;
@@ -137,6 +139,7 @@ export const hideElement = ({
 
     element.style.pointerEvents = "";
     element.style.opacity = "";
+    resolve(true);
   };
 
   const addTransitionListener = () =>
@@ -148,6 +151,7 @@ export const hideElement = ({
 
       element.style.pointerEvents = "";
       element.style.opacity = "";
+      resolve(true);
     }, duration);
   };
 
@@ -175,6 +179,42 @@ export const hideElement = ({
   element.style.opacity = "0";
 };
 
+export const hideElement = ({
+  el,
+  transition = "200ms",
+  duration = 200,
+  useTransitionEvent = true,
+  delay,
+  onCancel,
+  onStart,
+  onEnd,
+}: {
+  el: string | HTMLElement;
+  transition?: string;
+  duration?: number;
+  delay?: number;
+  useTransitionEvent?: boolean;
+  onStart?: (el: HTMLElement) => void;
+  /**
+   * Fires when transition is finished. When there are multiple transitions, it will fire until all of them are finished
+   */
+  onEnd?: (el: HTMLElement, e?: TransitionEvent) => void;
+  onCancel?: (el: HTMLElement) => void;
+}) =>
+  new Promise<boolean>((resolve) =>
+    _hideElement({
+      el,
+      delay,
+      duration,
+      onCancel,
+      onEnd,
+      onStart,
+      transition,
+      useTransitionEvent,
+      resolve,
+    })
+  );
+
 const delayP = (delay: number) =>
   new Promise((resolve) => {
     setTimeout(() => {
@@ -182,23 +222,25 @@ const delayP = (delay: number) =>
     }, delay);
   });
 
-export const showElement = async ({
+export const _showElement = async ({
   el,
   display = "block",
   transition = "200ms",
   delay = 0,
   onStart,
-  /**
-   * Fires when transition is finished. When there are multiple transitions, it will fire until all of them are finished
-   */
   onEnd,
+  resolve,
 }: {
   el: string | HTMLElement;
   display?: string;
   onStart?: (el: HTMLElement) => void;
+  /**
+   * Fires when transition is finished. When there are multiple transitions, it will fire until all of them are finished
+   */
   onEnd?: (el: HTMLElement) => void;
   delay?: number;
   transition?: string;
+  resolve: (value: boolean | PromiseLike<boolean>) => void;
 }) => {
   const getTransitionsAmount = () => {
     if (transitionTotal) return transitionTotal;
@@ -219,6 +261,7 @@ export const showElement = async ({
     element.style.opacity = "";
     element.style.webkitTransition = "";
     element.style.transition = "";
+    resolve(true);
   };
 
   const addTransitionListener = () =>
@@ -248,6 +291,28 @@ export const showElement = async ({
   element.style.opacity = "1";
   addTransitionListener();
 };
+
+export const showElement = ({
+  el,
+  display = "block",
+  transition = "200ms",
+  delay = 0,
+  onStart,
+  onEnd,
+}: {
+  el: string | HTMLElement;
+  display?: string;
+  onStart?: (el: HTMLElement) => void;
+  /**
+   * Fires when transition is finished. When there are multiple transitions, it will fire until all of them are finished
+   */
+  onEnd?: (el: HTMLElement) => void;
+  delay?: number;
+  transition?: string;
+}) =>
+  new Promise<boolean>((resolve) =>
+    _showElement({ el, resolve, delay, display, onEnd, onStart, transition })
+  );
 
 export const getElement = (root: string | HTMLElement) => {
   if (typeof root !== "string") return root;
@@ -292,4 +357,33 @@ export const hasAttributeValue = (
   const attrResult = el.getAttribute(attr);
   if (!attrResult) return false;
   return attrResult === val;
+};
+
+const animationInstances: { [key: string]: Function[] } = {};
+let hideRunning = false;
+const showInstances: { id: string; show: Function }[] = [];
+export const transitionHideThenShow = async ({
+  id,
+  hide,
+  show,
+}: {
+  id: string;
+  hide: Function;
+  show: Function;
+}) => {
+  const animationIdExist = animationInstances[id];
+  if (!animationIdExist) {
+    animationInstances[id].push(show);
+  }
+
+  // if(animationIdExist) {
+  //   showInstances.push({id, show})
+  // }
+
+  hide().then(() => {
+    show().then(() => {
+      // animationInstances.slice(animationInstances.indexOf(id), 1);
+      // showInstances
+    });
+  });
 };

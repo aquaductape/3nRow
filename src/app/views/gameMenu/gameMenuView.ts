@@ -170,7 +170,7 @@ class GameMenuView extends View {
             el.classList.remove("onExit");
             backgroundSVG.style.display = "none";
             lobbyView.hideAndRemoveCountDownMarkup();
-            resolve();
+            resolve(true);
           },
         });
       };
