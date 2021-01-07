@@ -2,7 +2,7 @@ export const flattenArr = <T>(arr: T[]): any[] => {
   const flatArr: any[] = [];
   arr.forEach((item) => {
     if (Array.isArray(item)) {
-      flatArr.push(...flattenArr(item));
+      flatArr.push(...flattenArr(item as any));
     } else {
       flatArr.push(item);
     }

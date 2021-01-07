@@ -57,8 +57,11 @@ svg {
 }
 
 .hidden {
-  // visibility: hidden;
   display: none;
+}
+
+.visibility-hidden {
+  visibility: hidden;
 }
 
 .svg-defs-container {

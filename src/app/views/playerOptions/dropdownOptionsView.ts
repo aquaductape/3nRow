@@ -12,23 +12,39 @@ import { diagonalLengthOfElement, getOppositePlayer } from "../utils/index";
 import View from "../View";
 import matchMediaView from "../windowEvents/matchMediaView";
 import { animateDropdown } from "./animation";
+import { DropdownExpando } from "./dropdownExpando";
+
+// Dropdown animation support
+// if Web Animation API supported
+//   if `reverse` supported
+//      utilize: by adding appropriate keyframes, when interrupted use `reverse`
+//   else if `commitStyles` supported
+//        utilize: by adding appropriate keyframes, when interrupted, onremove > commitStyles > generate new keyframes > animate
+//
+// else use CSS animation
+// no need to provide additional fallbacks since this app doesn't support IE and even IE 11 supports animation
+type TAnimationStateOptions = {
+  interrupted: boolean;
+  running: boolean;
+};
 
 export default class DropdownOptionsView extends View {
   protected data: { players: TPlayer[]; currentPlayer: TPlayer };
-  private reducedAnimation: boolean;
-  private dropdownOptions: HTMLElement;
-  private playerBtnHighlight: HTMLElement;
-  private playerBtnGroup: HTMLElement;
-  private dropdownBtn: HTMLElement;
-  private dropdownTimeout: number;
-  private shapeGroup: HTMLElement;
-  private colorGroup: HTMLElement;
-  private dropdownAnimation: {
-    canceled: boolean;
-    lastPosition: number;
-  };
-  private handlerShape: TControlPlayerShape;
-  private handlerColor: TControlPlayerColor;
+  private reducedAnimation = false;
+  private dropdownTimeout = 0;
+  // The Four Wrappers that enables Dropdown circular animation: container > shell > mask > inner
+  private maskEl: HTMLElement = {} as HTMLElement;
+  private innerEl: HTMLElement = {} as HTMLElement;
+  private dropdownOptionsEl: HTMLElement = {} as HTMLElement;
+  private playerBtnHighlightEl: HTMLElement = {} as HTMLElement;
+  private playerBtnGroupEl: HTMLElement = {} as HTMLElement;
+  private dropdownBtnEl: HTMLElement = {} as HTMLElement;
+  private shapeGroupEl: HTMLElement = {} as HTMLElement;
+  private colorGroupEl: HTMLElement = {} as HTMLElement;
+  private handlerShape: TControlPlayerShape = () => {};
+  private handlerColor: TControlPlayerColor = () => {};
+  private onRemoveActiveBtn: Function = () => {};
+  private dropdownExpando: DropdownExpando = {} as any;
 
   constructor({
     root,
@@ -40,20 +56,6 @@ export default class DropdownOptionsView extends View {
     super({ root });
 
     this.data = data;
-    this.reducedAnimation = false;
-    this.dropdownAnimation = {
-      canceled: false,
-      lastPosition: 0,
-    };
-    this.dropdownOptions = {} as HTMLElement;
-    this.playerBtnHighlight = {} as HTMLElement;
-    this.playerBtnGroup = {} as HTMLElement;
-    this.dropdownBtn = {} as HTMLElement;
-    this.shapeGroup = {} as HTMLElement;
-    this.colorGroup = {} as HTMLElement;
-    this.dropdownTimeout = 0;
-    this.handlerColor = () => {};
-    this.handlerShape = () => {};
 
     matchMediaView.subscribe({
       media: "(prefers-reduced-motion: reduce)",
@@ -68,25 +70,47 @@ export default class DropdownOptionsView extends View {
       currentPlayer: { id },
     } = this.data;
 
-    this.dropdownOptions = this.parentEl.querySelector(
+    this.dropdownOptionsEl = this.parentEl.querySelector(
       ".dropdown-options"
     ) as HTMLElement;
-    this.playerBtnHighlight = this.parentEl.querySelector(
+    this.playerBtnHighlightEl = this.parentEl.querySelector(
       `[data-player-id="${id}"]`
     ) as HTMLElement;
 
-    this.dropdownBtn = this.parentEl.querySelector(
+    this.dropdownBtnEl = this.parentEl.querySelector(
       ".dropdown-btn"
     ) as HTMLElement;
-    this.colorGroup = this.parentEl.querySelector(
+    this.colorGroupEl = this.parentEl.querySelector(
       ".color-group"
     ) as HTMLElement;
-    this.shapeGroup = this.parentEl.querySelector(
+    this.shapeGroupEl = this.parentEl.querySelector(
       ".shape-group"
     ) as HTMLElement;
-    this.playerBtnGroup = document.querySelector(
+    this.playerBtnGroupEl = this.parentEl.querySelector(
       ".player-btn-group"
     ) as HTMLElement;
+    this.maskEl = this.parentEl.querySelector(
+      ".dropdown-options-mask"
+    ) as HTMLElement;
+    this.innerEl = this.parentEl.querySelector(
+      ".dropdown-options-inner"
+    ) as HTMLElement;
+
+    this.dropdownExpando = new DropdownExpando({
+      id,
+      innerEl: this.innerEl,
+      maskEl: this.maskEl,
+    });
+
+    if (id === "P1") {
+      setTimeout(() => {
+        this.dropdownExpando.calculate();
+      }, 300);
+    } else {
+      setTimeout(() => {
+        this.dropdownExpando.calculate({ updateStylesheet: false });
+      }, 300);
+    }
 
     this.onRadioGroup();
 
@@ -116,9 +140,7 @@ export default class DropdownOptionsView extends View {
       currentPlayer: { id },
     } = this.data;
     return `
-      <div class="fake-player-btns">
-        <div class="player-btn-highlight ${id}-player-btn-highlight"></div>
-      </div>
+      <div class="fake-player-btn ${id}-player-btn-highlight"></div>
     `;
   }
 
@@ -266,19 +288,11 @@ export default class DropdownOptionsView extends View {
     return shapes.map((shape) => this.listItem({ type, item: shape })).join("");
   }
 
-  protected generateMarkup() {
+  private dropdownContentMarkup() {
     const {
       currentPlayer: { id },
     } = this.data;
-    const markup = `
-    <svg class="svg-clip-path-container" xmlns="http://www.w3.org/2000/svg">
-      <clipPath id="clipPath-dropdown-${id}">
-        <use href="#clipPath-dropdown-${id}-circle">
-      </clipPath>
-    </svg>
-    <!-- btn highlight for player --> 
-    ${this.generateBtnHighlight()}
-
+    return `
     <ul class="dropdown-options ${id}-options">
       <li>
         <div class="options-shape">
@@ -300,6 +314,33 @@ export default class DropdownOptionsView extends View {
       </li>
     </ul>
     `;
+  }
+
+  protected generateMarkup() {
+    const {
+      currentPlayer: { id },
+    } = this.data;
+    // The Four Wrappers that enables Dropdown circular animation: container > shell > mask > inner
+
+    // container - to allow to generate keyframes while still visibly hidding dropdown by keeping it's layout to 0 size and overflow hidden, this will prevent overflow activating scrollbars (such as viewport). When dropdown animtion starts, its overflow property changes to visible to allow content to be displayed
+
+    // shell       - has same size as content, clips circular animation mask, otherwise element would be huge and act as an overlay (prevent clicking other elements)
+
+    // mask        - to attach expand circular animation
+    // inner       - to attach inverse scale animtion in order for circular animtion to work with mask
+
+    const markup = `
+    <div class="dropdown-options-shell">
+      <div class="dropdown-options-mask">
+        <div class="dropdown-options-inner">
+          <!-- btn highlight for player --> 
+          ${this.generateBtnHighlight()}
+
+          ${this.dropdownContentMarkup()}
+        </div>
+      </div>
+    </div>
+    `;
 
     return markup;
   }
@@ -307,7 +348,7 @@ export default class DropdownOptionsView extends View {
   private onRadioGroup() {
     const { currentPlayer: player } = this.data;
     radioGroup({
-      group: this.shapeGroup,
+      group: this.shapeGroupEl,
       onSelect: ({ currentElement, prevElement }) => {
         const shape = currentElement.dataset.shape!;
         prevElement.setAttribute("data-selected", "false");
@@ -319,7 +360,7 @@ export default class DropdownOptionsView extends View {
       },
     });
     radioGroup({
-      group: this.colorGroup,
+      group: this.colorGroupEl,
       onSelect: ({ currentElement, prevElement }) => {
         const color = currentElement.dataset.color!;
         prevElement.setAttribute("data-selected", "false");
@@ -398,7 +439,7 @@ export default class DropdownOptionsView extends View {
     type: "color" | "shape";
     value: string;
   }) {
-    const group = type === "color" ? this.colorGroup : this.shapeGroup;
+    const group = type === "color" ? this.colorGroupEl : this.shapeGroupEl;
     const currentItem = group.querySelector(
       '[data-selected="true"]'
     ) as HTMLElement;
@@ -426,7 +467,7 @@ export default class DropdownOptionsView extends View {
     value: string;
     toolTipMsg: string;
   }) {
-    const group = type === "color" ? this.colorGroup : this.shapeGroup;
+    const group = type === "color" ? this.colorGroupEl : this.shapeGroupEl;
     const currentItem = group.querySelector(
       '[data-disabled="true"]'
     ) as HTMLElement;
@@ -453,95 +494,22 @@ export default class DropdownOptionsView extends View {
     this.handlerColor = handler;
   }
 
-  removeDropdown(removeActiveBtn: Function) {
-    this.leaveEnter(removeActiveBtn);
-  }
-
-  cancelHiddingDropdown() {
-    clearTimeout(this.dropdownTimeout);
-  }
-
-  addDropdown() {
-    this.parentEl.classList.remove("hidden");
-    this.reflow();
-    this.appearEnter();
-  }
-
-  private appearEnter() {
-    const {
-      currentPlayer: { id },
-    } = this.data;
-
-    if (this.reducedAnimation || IOS || Safari) {
-      return;
-    }
-
-    const clipPathId = `clipPath-dropdown-${id}`;
-    const clipPath = (document.getElementById(
-      `${clipPathId}-circle`
-    ) as unknown) as SVGElement;
-    const circleCY = 60;
-
-    const diagonalLength = diagonalLengthOfElement(this.dropdownOptions);
-    const radius = diagonalLength - circleCY + this.playerBtnGroup.clientHeight;
-
-    animateDropdown({
-      el: this.parentEl,
-      from: 0,
-      to: radius,
-      duration: 350,
-      onStart: () => {
-        this.parentEl.style.willChange = "opacity";
-        this.parentEl.style.clipPath = `url(#${clipPathId})`;
-      },
-      onDraw: (val) => {
-        clipPath.setAttribute("r", `${val}px`);
-      },
-      onEnd: () => {
-        this.parentEl.style.clipPath = "";
-        this.parentEl.style.willChange = "";
+  collapseDropdown(removeActiveBtn: Function) {
+    this.dropdownExpando.play({
+      mode: "collapse",
+      onEnd: (animationState) => {
+        removeActiveBtn();
+        // if(animationState.)
+        this.parentEl.style.overflow = "";
       },
     });
   }
 
-  private leaveEnter(removeActiveBtn: Function) {
-    const {
-      currentPlayer: { id },
-    } = this.data;
-
-    if (this.reducedAnimation || IOS || Safari) {
-      this.parentEl.classList.add("hidden");
-      this.parentEl.style.clipPath = "";
-      removeActiveBtn();
-      return;
-    }
-
-    const clipPathId = `clipPath-dropdown-${id}`;
-    const clipPath = (document.getElementById(
-      `${clipPathId}-circle`
-    ) as unknown) as SVGElement;
-    const circleCY = 60;
-
-    const diagonalLength = diagonalLengthOfElement(this.dropdownOptions);
-    const radius = diagonalLength - circleCY + this.playerBtnGroup.clientHeight;
-
-    animateDropdown({
-      el: this.parentEl,
-      from: radius,
-      to: 0,
-      duration: 350,
+  expandDropdown() {
+    this.dropdownExpando.play({
+      mode: "expand",
       onStart: () => {
-        this.parentEl.style.willChange = "opacity";
-        this.parentEl.style.clipPath = `url(#${clipPathId})`;
-      },
-      onDraw: (val) => {
-        clipPath.setAttribute("r", `${val}px`);
-      },
-      onEnd: () => {
-        this.parentEl.classList.add("hidden");
-        this.parentEl.style.clipPath = "";
-        this.parentEl.style.willChange = "";
-        removeActiveBtn();
+        this.parentEl.style.overflow = "visible";
       },
     });
   }

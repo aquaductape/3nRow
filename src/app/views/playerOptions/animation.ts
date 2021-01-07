@@ -1,10 +1,10 @@
 import { getElement } from "../utils/index";
 
-const clamp = (value: number, min: number, max: number) => {
+export const clamp = (value: number, min: number, max: number) => {
   return Math.max(min, Math.min(max, value));
 };
 
-const ease = (v: number, pow = 4) => {
+export const ease = (v: number, pow = 4) => {
   v = clamp(v, 0, 1);
 
   return 1 - Math.pow(1 - v, pow);

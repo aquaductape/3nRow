@@ -110,7 +110,7 @@ class PlayerBtnGroup extends View {
       const target = e.target as HTMLElement;
       const btn = target.closest(".player-btn-options") as HTMLElement;
 
-      // if (target.classList.contains("dropdown-options-container")) {
+      // if (target.classList.contains("dropdown-options-shell")) {
       //   return;
       // }
 
@@ -128,14 +128,14 @@ class PlayerBtnGroup extends View {
 
       onFocusOut({
         button: playerBtn,
-        allow: [".dropdown-options-container"],
+        allow: [".dropdown-options"],
         run: () => {
           this.activateColorSvgMark(playerId!);
-          dropdownOptionsView.addDropdown();
+          dropdownOptionsView.expandDropdown();
           playerBtn.setAttribute("aria-expanded", "true");
         },
         onExit: () => {
-          dropdownOptionsView.removeDropdown(() =>
+          dropdownOptionsView.collapseDropdown(() =>
             this.deactiveColorSvgMark(playerId!)
           );
           playerBtn.setAttribute("aria-expanded", "false");

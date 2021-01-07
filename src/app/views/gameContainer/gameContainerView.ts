@@ -9,8 +9,10 @@ class GameContainerView extends View {
     playerBtns: HTMLElement[];
     p1BtnOptions: HTMLElement;
     fakePlayerBtns: HTMLElement[];
-    fakePlayerBtnsHighlight: HTMLElement[];
     playerDropdowns: HTMLElement[];
+    playerDropdownInners: HTMLElement[];
+    playerDropdownShells: HTMLElement[];
+    playerDropdownMasks: HTMLElement[];
     playerIndicators: HTMLElement[];
     rows: HTMLElement[];
     cells: HTMLElement[];
@@ -28,18 +30,26 @@ class GameContainerView extends View {
     playerPickSkinCountDown: HTMLElement;
   };
   declarePlayersAnimationRunning: boolean;
+  playerDropdownContentHeight: number;
   private debouncedGetSelectors: Function;
+  private debouncedResizeAnimation: Function;
 
   constructor() {
     super({ root: ".game-container" });
     this.dom = {} as any;
     this.debouncedGetSelectors = () => {};
+    this.debouncedResizeAnimation = () => {};
     this.declarePlayersAnimationRunning = false;
+    this.playerDropdownContentHeight = 0;
     this.init();
   }
 
   protected init() {
     this.debouncedGetSelectors = debounce(this.getSelectors.bind(this), {
+      time: 200,
+      leading: true,
+    });
+    this.debouncedResizeAnimation = debounce(this.resizeAnimation.bind(this), {
       time: 200,
       leading: true,
     });
@@ -62,11 +72,17 @@ class GameContainerView extends View {
     dom.playerIndicators = Array.from(
       this.parentEl.querySelectorAll(".player-current-indicator")
     );
-    dom.fakePlayerBtns = Array.from(
-      this.parentEl.querySelectorAll(".fake-player-btns")
+    dom.playerDropdownMasks = Array.from(
+      this.parentEl.querySelectorAll(".dropdown-options-mask")
     );
-    dom.fakePlayerBtnsHighlight = Array.from(
-      this.parentEl.querySelectorAll(".player-btn-highlight")
+    dom.playerDropdownShells = Array.from(
+      this.parentEl.querySelectorAll(".dropdown-options-shell")
+    );
+    dom.playerDropdownInners = Array.from(
+      this.parentEl.querySelectorAll(".dropdown-options-inner")
+    );
+    dom.fakePlayerBtns = Array.from(
+      this.parentEl.querySelectorAll(".fake-player-btn")
     );
     dom.playerDropdowns = Array.from(
       this.parentEl.querySelectorAll(".dropdown-options")
@@ -110,8 +126,12 @@ class GameContainerView extends View {
       playerBtns,
       p1BtnOptions,
       playerDropdowns,
+      playerDropdownShells,
+      playerDropdownInners,
+      playerDropdownMasks,
       fakePlayerBtns,
-      fakePlayerBtnsHighlight,
+
+      // fakePlayerBtnsHighlight,
       gameMenu,
       gameMenuBtns,
       gameMenuBtnPickPlayer,
@@ -122,13 +142,52 @@ class GameContainerView extends View {
 
     const matchDropdownWidthToBoard = () => {
       playerDropdowns.forEach((playerDropdown) => {
-        playerDropdown.style.width = `${boardWidth}px`;
+        playerDropdown.style.width = px(boardWidth);
+      });
+      playerDropdownShells.forEach((playerDropdownShell) => {
+        playerDropdownShell.style.width = px(boardWidth);
+      });
+    };
+
+    const matchFakePlayerBtnWidthToBtnParent = () => {
+      const playerBtnWidth = playerBtns[0].clientWidth;
+      const width = px(boardWidth / 37 + playerBtnWidth);
+
+      fakePlayerBtns.forEach((fakePlayerBtn) => {
+        fakePlayerBtn.style.width = width;
+      });
+    };
+
+    const matchDropdownOuterSizeFromInnerContent = () => {
+      // should run after width is set from boardWidth, which would update dropdown content's layout
+      // playerDropdownShells.forEach((playerDropdownShell) => {
+      //   playerDropdownShell.style.visibility = "hidden";
+      //   playerDropdownShell.classList.remove("hidden");
+      // });
+
+      const playerBtnHeight = playerBtns[0].clientHeight;
+      const playerDropdownWidth = playerDropdowns[0].clientWidth;
+      const playerDropdownHeight = playerDropdowns[0].clientHeight;
+      const shadowHeight = 100;
+      const totalNewPlayerDropdownHeight =
+        playerBtnHeight + playerDropdownHeight + shadowHeight;
+
+      this.playerDropdownContentHeight = totalNewPlayerDropdownHeight;
+
+      playerDropdownInners.forEach((playerDropdownInner) => {
+        playerDropdownInner.style.height = px(totalNewPlayerDropdownHeight);
+        playerDropdownInner.style.width = px(playerDropdownWidth);
+      });
+      playerDropdownShells.forEach((playerDropdownShell) => {
+        playerDropdownShell.style.height = px(totalNewPlayerDropdownHeight);
+        // playerDropdownShell.classList.add("hidden");
+        // playerDropdownShell.style.visibility = "";
       });
     };
 
     const scaleBoardFromWidth = () => {
-      if (boardWidth > 1600) boardWidth *= 0.7;
-      if (boardWidth > 700) boardWidth *= 0.8;
+      // if (boardWidth > 1600) boardWidth *= 0.7;
+      // if (boardWidth > 700) boardWidth *= 0.8;
 
       scaleStyles({
         el: board,
@@ -202,6 +261,15 @@ class GameContainerView extends View {
         },
       });
       scaleStyles({
+        el: playerDropdownMasks,
+        numerator: boardWidth,
+        styleRatio: {
+          top: 8.06625,
+          width: 21.5827,
+          height: 21.5827,
+        },
+      });
+      scaleStyles({
         el: playerDropdowns,
         numerator: boardWidth,
         styleRatio: {
@@ -211,7 +279,7 @@ class GameContainerView extends View {
           borderTopRightRadius: (el) =>
             el.classList.contains("P2-options") ? "0" : px(boardWidth / 12.33),
           padding: 12.33,
-          top: 5.692,
+          top: 18.758,
           boxShadow: (el) =>
             el.classList.contains("P1-options")
               ? `0px ${px(boardWidth / 37)} 0px #bbb,
@@ -228,24 +296,13 @@ class GameContainerView extends View {
         el: fakePlayerBtns,
         numerator: boardWidth,
         styleRatio: {
-          top: 37,
-          height: 5.692,
-        },
-      });
-      scaleStyles({
-        el: fakePlayerBtnsHighlight,
-        numerator: boardWidth,
-        styleRatio: {
-          top: 37,
+          top: -10.5097,
+          height: 4.29,
           borderRadius: 37,
           borderBottomRightRadius: (el) =>
             el.classList.contains("P1-player-btn-highlight") ? "0" : "",
           borderBottomLeftRadius: (el) =>
             el.classList.contains("P2-player-btn-highlight") ? "0" : "",
-          boxShadow: (el) =>
-            el.classList.contains("P1-player-btn-highlight")
-              ? `${px(boardWidth / 37)} 0px 0px 0px #eee`
-              : `-${px(boardWidth / 37)} 0px 0px 0px #eee`,
         },
       });
 
@@ -350,15 +407,36 @@ class GameContainerView extends View {
 
     scaleBoardFromWidth();
     matchDropdownWidthToBoard();
+    matchFakePlayerBtnWidthToBtnParent();
     if (this.declarePlayersAnimationRunning) {
       this.scaleElementsToProportionToBoard({ type: "declare-players" });
     }
+    // this.reflow();
+    matchDropdownOuterSizeFromInnerContent();
+  }
+
+  private resizeAnimation() {
+    const playerDropdownShells = (document.querySelectorAll(
+      ".dropdown-options-shell"
+    ) as unknown) as HTMLElement[];
+    const playerDropdownInners = (document.querySelectorAll(
+      ".dropdown-options-inner"
+    ) as unknown) as HTMLElement[];
+    const playerDropdownMasks = (document.querySelectorAll(
+      ".dropdown-options-mask"
+    ) as unknown) as HTMLElement[];
+
+    // createExpandoKeyframes({
+    //   contentsEl: playerDropdownInners,
+    //   masksEl: playerDropdownMasks,
+    //   outerEl: playerDropdownShells[0],
+    // });
   }
 
   runResizeListener() {
     const gameContainer = this.parentEl;
 
-    const changeHeight = ({ init }: { init: boolean } = { init: false }) => {
+    const resize = () => {
       const browserInnerHeight =
         window.innerHeight || document.documentElement.clientHeight;
       const browserInnerWidth =
@@ -376,6 +454,7 @@ class GameContainerView extends View {
         gameContainer.style.maxWidth = px(boardWidth);
 
         this.resizeElements(boardWidth);
+        this.debouncedResizeAnimation();
       }
       // viewport has greater height
       if (heightSlice > browserInnerWidth) {
@@ -385,26 +464,27 @@ class GameContainerView extends View {
         gameContainer.style.maxWidth = px(boardWidth);
 
         this.resizeElements(boardWidth);
+        this.debouncedResizeAnimation();
       }
     };
 
     // init height
-    changeHeight({ init: true });
+    resize();
 
-    const debouncedChangeHeight = debounce(changeHeight, {
+    const debouncedResize = debounce(resize, {
       leading: false,
       time: 200,
     });
     window.addEventListener("resize", () => {
-      changeHeight();
+      resize();
       // to cover for changing device viewport on Chrome devtools
-      debouncedChangeHeight();
+      debouncedResize();
     });
   }
 
   /**
    * responsive board is utilized by JS instead of CSS, therefore there's a flash of default board size.
-   * hiding it for 200ms, hides the flash, giving a clean native feel
+   * hiding it for 100ms, hides the flash, giving a clean native feel
    */
   revealAfterPageLoad() {
     requestAnimationFrame(() => {
@@ -424,7 +504,7 @@ class GameContainerView extends View {
         playerBtns.forEach((playerBtn) => {
           playerBtn.style.transition = "";
         });
-      }, 200);
+      }, 100);
     });
   }
 
@@ -482,6 +562,7 @@ class GameContainerView extends View {
     }
 
     if (type === "declare-players") {
+      // this will probably fail in safari
       const declarePlayersShape = this.parentEl.querySelector(
         ".lobby .player-shape"
       ) as HTMLElement;

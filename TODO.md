@@ -1,6 +1,7 @@
 # CODE
 
 1. rename View's data to state
+2. In classes when defining properties, set them as well, this will lead less code and seperation of setting properties based from init and constructor
 
 # FROM NOW ON to animate SVGS with clipping or masking
 
@@ -40,3 +41,4 @@
 17. Store First Move in server
 18. "First Move" should have a description
 19. change favicon based on player turn, which is based on player shape and color, background is black
+20. Two new shapes: Square and Kite. Why? To match color choices count
