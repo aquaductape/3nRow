@@ -14,27 +14,14 @@ import matchMediaView from "../windowEvents/matchMediaView";
 import { animateDropdown } from "./animation";
 import { DropdownExpando } from "./dropdownExpando";
 
-// Dropdown animation support
-// if Web Animation API supported
-//   if `reverse` supported
-//      utilize: by adding appropriate keyframes, when interrupted use `reverse`
-//   else if `commitStyles` supported
-//        utilize: by adding appropriate keyframes, when interrupted, onremove > commitStyles > generate new keyframes > animate
-//
-// else use CSS animation
-// no need to provide additional fallbacks since this app doesn't support IE and even IE 11 supports animation
-type TAnimationStateOptions = {
-  interrupted: boolean;
-  running: boolean;
-};
-
 export default class DropdownOptionsView extends View {
   protected data: { players: TPlayer[]; currentPlayer: TPlayer };
   private reducedAnimation = false;
   private dropdownTimeout = 0;
-  // The Four Wrappers that enables Dropdown circular animation: container > shell > mask > inner
+  // The Five Wrappers that enables Dropdown circular animation: container > shell > sub-shell > mask > inner
   private maskEl: HTMLElement = {} as HTMLElement;
   private innerEl: HTMLElement = {} as HTMLElement;
+  private shellShadow: HTMLElement = {} as HTMLElement;
   private dropdownOptionsEl: HTMLElement = {} as HTMLElement;
   private playerBtnHighlightEl: HTMLElement = {} as HTMLElement;
   private playerBtnGroupEl: HTMLElement = {} as HTMLElement;
@@ -44,7 +31,7 @@ export default class DropdownOptionsView extends View {
   private handlerShape: TControlPlayerShape = () => {};
   private handlerColor: TControlPlayerColor = () => {};
   private onRemoveActiveBtn: Function = () => {};
-  private dropdownExpando: DropdownExpando = {} as any;
+  private dropdownExpando: DropdownExpando = {} as DropdownExpando;
 
   constructor({
     root,
@@ -95,22 +82,15 @@ export default class DropdownOptionsView extends View {
     this.innerEl = this.parentEl.querySelector(
       ".dropdown-options-inner"
     ) as HTMLElement;
+    this.shellShadow = this.parentEl.querySelector(
+      ".shell-shadow"
+    ) as HTMLElement;
 
     this.dropdownExpando = new DropdownExpando({
       id,
       innerEl: this.innerEl,
       maskEl: this.maskEl,
     });
-
-    if (id === "P1") {
-      setTimeout(() => {
-        this.dropdownExpando.calculate();
-      }, 300);
-    } else {
-      setTimeout(() => {
-        this.dropdownExpando.calculate({ updateStylesheet: false });
-      }, 300);
-    }
 
     this.onRadioGroup();
 
@@ -123,15 +103,15 @@ export default class DropdownOptionsView extends View {
         ".tooltip-container"
       ) as HTMLElement;
 
-      // onFocusOut({
-      //   button: itemContainer,
-      //   run: () => {
-      //     toolTipContainer.classList.add("active");
-      //   },
-      //   onExit: () => {
-      //     toolTipContainer.classList.remove("active");
-      //   },
-      // });
+      onFocusOut({
+        button: itemContainer,
+        run: () => {
+          toolTipContainer.classList.add("active");
+        },
+        onExit: () => {
+          toolTipContainer.classList.remove("active");
+        },
+      });
     });
   }
 
@@ -320,25 +300,30 @@ export default class DropdownOptionsView extends View {
     const {
       currentPlayer: { id },
     } = this.data;
-    // The Four Wrappers that enables Dropdown circular animation: container > shell > mask > inner
+    // The Five Wrappers that enables Dropdown circular animation: container > shell > sub-shell > mask > inner
 
     // container - to allow to generate keyframes while still visibly hidding dropdown by keeping it's layout to 0 size and overflow hidden, this will prevent overflow activating scrollbars (such as viewport). When dropdown animtion starts, its overflow property changes to visible to allow content to be displayed
 
-    // shell       - has same size as content, clips circular animation mask, otherwise element would be huge and act as an overlay (prevent clicking other elements)
+    // shell       - has same size as content and provides shadow (shell-shadow el) when dropdown is finished animated
+
+    // sub-shell   - has same size as shell and clips finished circular animation mask, otherwise dropdown geometry would be huge and act as an overlay (prevent clicking other elements)
 
     // mask        - to attach expand circular animation
     // inner       - to attach inverse scale animtion in order for circular animtion to work with mask
 
     const markup = `
     <div class="dropdown-options-shell">
-      <div class="dropdown-options-mask">
-        <div class="dropdown-options-inner">
-          <!-- btn highlight for player --> 
-          ${this.generateBtnHighlight()}
+      <div class="dropdown-options-sub-shell">
+        <div class="dropdown-options-mask">
+          <div class="dropdown-options-inner">
+            <!-- btn highlight for player --> 
+            ${this.generateBtnHighlight()}
 
-          ${this.dropdownContentMarkup()}
+            ${this.dropdownContentMarkup()}
+          </div>
         </div>
       </div>
+      <div class="shell-shadow ${id}"></div>
     </div>
     `;
 
@@ -494,12 +479,31 @@ export default class DropdownOptionsView extends View {
     this.handlerColor = handler;
   }
 
+  recalculateDropdownAnimation() {
+    const {
+      currentPlayer: { id },
+    } = this.data;
+
+    if (id === "P1") {
+      this.dropdownExpando.calculate();
+    } else {
+      this.dropdownExpando.calculate({ updateStylesheet: false });
+    }
+  }
+
+  removeForwardFillOnFinishedExpanded() {
+    this.dropdownExpando.removeForwardFillOnFinishedExpanded();
+  }
+
   collapseDropdown(removeActiveBtn: Function) {
     this.dropdownExpando.play({
       mode: "collapse",
-      onEnd: (animationState) => {
+      onStart: () => {
+        this.shellShadow.style.transition = "";
+        this.shellShadow.style.opacity = "";
+      },
+      onEnd: () => {
         removeActiveBtn();
-        // if(animationState.)
         this.parentEl.style.overflow = "";
       },
     });
@@ -510,6 +514,10 @@ export default class DropdownOptionsView extends View {
       mode: "expand",
       onStart: () => {
         this.parentEl.style.overflow = "visible";
+      },
+      onEnd: () => {
+        this.shellShadow.style.opacity = "1";
+        this.shellShadow.style.transition = "opacity 400ms";
       },
     });
   }

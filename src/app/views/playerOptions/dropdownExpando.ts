@@ -20,15 +20,12 @@ type TCustomKeyFrame = {
   offset: number;
 } & CustomStyle;
 
-// should be debounced
 let animationId = 1;
 
 // Safari has issue where animation applied to element is cached and cannot be updated. Workaround is setting element style to a different animation name or a more expensive route if you want to keep the animation name, is to "refresh" the element (remove from dom, then append it back).
 const updateId = (id: number) => {
   return (id = (id + 1) % 5);
 };
-
-let fooMaskWidth = 1;
 
 export class DropdownExpando {
   private id: string;
@@ -64,10 +61,10 @@ export class DropdownExpando {
   private interruptedId = 1;
   private styleSheetName = "dropdown-expando-animation";
   private styleSheetNameInterrupted = `${this.styleSheetName}-interrupted`;
-  private timestamp = 0;
   private collapsedMaskWidth = 0;
   private collapsedMaskHeight = 0;
   private expandedScale = 0;
+  private expanded = false;
 
   constructor({
     id,
@@ -85,12 +82,12 @@ export class DropdownExpando {
     this.animationMode = "css";
     this.webAPIAnimationReverseMode = "reverse";
 
-    //     if ("animate" in maskEl && typeof new Animation().pause === "function") {
+    //     if ("animate" in maskEl && typeof new Animation().reverse === "function") {
     //       this.animationMode = "webAPI";
     //
-    //       if (typeof new Animation().reverse === "function") {
-    //         this.webAPIAnimationReverseMode = "commitStyles";
-    //       }
+    //       // if (typeof new Animation().reverse === "function") {
+    //       //   this.webAPIAnimationReverseMode = "commitStyles";
+    //       // }
     //     }
   }
 
@@ -113,7 +110,6 @@ export class DropdownExpando {
 
     const scale = (exRadius - colRadius) / colRadius;
     this.expandedScale = scale;
-    console.log({ scale });
 
     // Set initial transformOrigin.
     this.maskEl.style.transformOrigin = `${collapsedWidth / 2}px ${
@@ -151,6 +147,8 @@ export class DropdownExpando {
     if (this.animationMode === "css" && updateStylesheet) {
       this.addKeyframesToStyleSheet();
     }
+
+    this.removeForwardFillOnFinishedExpanded();
   }
 
   play({
@@ -270,7 +268,6 @@ export class DropdownExpando {
     this.animationPlayState[oppositeMode].running = false;
   }
 
-  // updatePlayState(mode,{interrupted = true, running =false}) -- resets opposite mode
   private playCSSAnimation({
     mode,
     onStart,
@@ -299,23 +296,20 @@ export class DropdownExpando {
           ? `InterruptedExpandInnerAnimation-${this.interruptedId}`
           : `InterruptedCollapseInnerAnimation-${this.interruptedId}`;
 
-      debugger;
       this.useInterruptedKeyframes({ mode });
       duration = this.interruptedDuration;
       this.updatePlayState(mode, { running: false, interrupted: true });
     }
 
     this.updatePlayState(mode, { running: true, interrupted: false });
-    // this.animationPlayState[mode].interrupted = false;
-    // this.animationPlayState[mode].running = true;
 
-    this.timestamp = Date.now();
+    this.maskEl.style.overflow = "";
     this.maskEl.style.animation = `${maskAnimationName} ${duration}ms linear forwards`;
     this.innerEl.style.animation = `${innerAnimationName} ${duration}ms linear forwards`;
     this.maskEl.style.animationPlayState = "running";
     this.innerEl.style.animationPlayState = "running";
 
-    this.finishedDropdown = this.finishedDropdown.bind(this);
+    // this.finishedDropdown = this.finishedDropdown.bind(this);
 
     this.maskEl.addEventListener("animationend", this.finishedDropdown);
     this.animationPlayState.running = true;
@@ -337,14 +331,20 @@ export class DropdownExpando {
     }
   }
 
-  private finishedDropdown(e?: AnimationEvent) {
+  private finishedDropdown = (e?: AnimationEvent) => {
     if (this.animationMode === "css" && e) {
       const target = e.target as HTMLElement;
       if (target !== this.maskEl && target !== this.innerEl) return;
     }
     console.log("fire");
 
-    this.onEnd && this.onEnd(this.animationPlayState); // passdropdownstate
+    this.onEnd && this.onEnd(this.animationPlayState);
+
+    if (this.animationPlayState.expand) {
+      this.expanded = true;
+    } else {
+      this.expanded = false;
+    }
 
     this.animationPlayState = {
       running: false,
@@ -355,13 +355,9 @@ export class DropdownExpando {
     if (this.animationMode === "css") {
       this.maskEl.removeEventListener("animationend", this.finishedDropdown);
     }
-  }
+  };
 
   useInterruptedKeyframes({ mode }: { mode: "collapse" | "expand" }) {
-    const fullKeyframes =
-      mode === "collapse"
-        ? this.collapseMaskKeyframes
-        : this.expandMaskKeyframes;
     const maskInterruptedKeyframes =
       mode === "collapse"
         ? this.collapseMaskInterruptedKeyframes
@@ -456,8 +452,6 @@ export class DropdownExpando {
           ${this.keyframesToString(this.collapseInnerKeyframes)}
         }
       `;
-
-    // this.styleSheetInit = true;
   }
 
   private appendKeyFrames({
@@ -480,6 +474,14 @@ export class DropdownExpando {
 
     outerAnimation.push({ transform: `scale(${scale})`, offset });
     innerAnimation.push({ transform: `scale(${invScale})`, offset });
+  }
+
+  removeForwardFillOnFinishedExpanded() {
+    if (this.expanded) {
+      this.maskEl.style.overflow = "visible";
+      this.maskEl.style.animation = "none";
+      this.innerEl.style.animation = "none";
+    }
   }
 }
 

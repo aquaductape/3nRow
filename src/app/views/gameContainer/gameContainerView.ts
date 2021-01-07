@@ -1,4 +1,5 @@
 import { round } from "../../utils/index";
+import playerBtnGroupView from "../playerOptions/playerBtnGroupView";
 import { debounce } from "../utils/index";
 import View from "../View";
 import { scaleStyles } from "./scale";
@@ -12,6 +13,7 @@ class GameContainerView extends View {
     playerDropdowns: HTMLElement[];
     playerDropdownInners: HTMLElement[];
     playerDropdownShells: HTMLElement[];
+    playerDropdownShellShadows: HTMLElement[];
     playerDropdownMasks: HTMLElement[];
     playerIndicators: HTMLElement[];
     rows: HTMLElement[];
@@ -51,7 +53,7 @@ class GameContainerView extends View {
     });
     this.debouncedResizeAnimation = debounce(this.resizeAnimation.bind(this), {
       time: 200,
-      leading: true,
+      leading: false,
     });
   }
 
@@ -77,6 +79,9 @@ class GameContainerView extends View {
     );
     dom.playerDropdownShells = Array.from(
       this.parentEl.querySelectorAll(".dropdown-options-shell")
+    );
+    dom.playerDropdownShellShadows = Array.from(
+      this.parentEl.querySelectorAll(".dropdown-options-shell .shell-shadow")
     );
     dom.playerDropdownInners = Array.from(
       this.parentEl.querySelectorAll(".dropdown-options-inner")
@@ -127,6 +132,7 @@ class GameContainerView extends View {
       p1BtnOptions,
       playerDropdowns,
       playerDropdownShells,
+      playerDropdownShellShadows,
       playerDropdownInners,
       playerDropdownMasks,
       fakePlayerBtns,
@@ -160,34 +166,38 @@ class GameContainerView extends View {
 
     const matchDropdownOuterSizeFromInnerContent = () => {
       // should run after width is set from boardWidth, which would update dropdown content's layout
-      // playerDropdownShells.forEach((playerDropdownShell) => {
-      //   playerDropdownShell.style.visibility = "hidden";
-      //   playerDropdownShell.classList.remove("hidden");
-      // });
-
-      const playerBtnHeight = playerBtns[0].clientHeight;
-      const playerDropdownWidth = playerDropdowns[0].clientWidth;
-      const playerDropdownHeight = playerDropdowns[0].clientHeight;
-      const shadowHeight = 100;
+      const playerBtnHeight = playerBtns[0].getBoundingClientRect().height;
+      const playerDropdownWidth = playerDropdowns[0].getBoundingClientRect()
+        .width;
+      const playerDropdownHeight = playerDropdowns[0].getBoundingClientRect()
+        .height;
+      const playerDropdownMaskHeight = playerDropdownMasks[0].getBoundingClientRect()
+        .height;
+      const shadowHeight = boardWidth / 35.5;
       const totalNewPlayerDropdownHeight =
         playerBtnHeight + playerDropdownHeight + shadowHeight;
 
       this.playerDropdownContentHeight = totalNewPlayerDropdownHeight;
 
       playerDropdownInners.forEach((playerDropdownInner) => {
-        playerDropdownInner.style.height = px(totalNewPlayerDropdownHeight);
+        playerDropdownInner.style.height = px(
+          playerDropdownHeight + shadowHeight + playerDropdownMaskHeight * 2
+        );
         playerDropdownInner.style.width = px(playerDropdownWidth);
       });
       playerDropdownShells.forEach((playerDropdownShell) => {
         playerDropdownShell.style.height = px(totalNewPlayerDropdownHeight);
-        // playerDropdownShell.classList.add("hidden");
-        // playerDropdownShell.style.visibility = "";
+      });
+      playerDropdownShellShadows.forEach((playerDropdownShellShadow) => {
+        playerDropdownShellShadow.style.height = px(
+          playerDropdownHeight * 0.95
+        );
       });
     };
 
     const scaleBoardFromWidth = () => {
-      // if (boardWidth > 1600) boardWidth *= 0.7;
-      // if (boardWidth > 700) boardWidth *= 0.8;
+      if (boardWidth > 1600) boardWidth *= 0.7;
+      if (boardWidth > 700) boardWidth *= 0.8;
 
       scaleStyles({
         el: board,
@@ -282,12 +292,23 @@ class GameContainerView extends View {
           top: 18.758,
           boxShadow: (el) =>
             el.classList.contains("P1-options")
-              ? `0px ${px(boardWidth / 37)} 0px #bbb,
-               ${px(boardWidth / 113.6)} ${px(boardWidth / 27.0476)} ${px(
+              ? `0px ${px(boardWidth / 37)} 0px #bbb`
+              : `0px ${px(boardWidth / 37)} 0px #bbb`,
+        },
+      });
+      scaleStyles({
+        el: playerDropdownShellShadows,
+        numerator: boardWidth,
+        styleRatio: {
+          borderRadius: 12.33,
+          boxShadow: (el) =>
+            el.classList.contains("P1")
+              ? `
+               ${px(boardWidth / 113.6)} ${px(boardWidth / 80.6625)} ${px(
                   boardWidth / 47.33
                 )} rgba(0, 0, 0, 0.35)`
-              : `0px ${px(boardWidth / 37)} 0px #bbb,
-               -${px(boardWidth / 113.6)} ${px(boardWidth / 27.0476)} ${px(
+              : `
+               -${px(boardWidth / 113.6)} ${px(boardWidth / 80.6625)} ${px(
                   boardWidth / 47.33
                 )} rgba(0, 0, 0, 0.35)`,
         },
@@ -416,27 +437,15 @@ class GameContainerView extends View {
   }
 
   private resizeAnimation() {
-    const playerDropdownShells = (document.querySelectorAll(
-      ".dropdown-options-shell"
-    ) as unknown) as HTMLElement[];
-    const playerDropdownInners = (document.querySelectorAll(
-      ".dropdown-options-inner"
-    ) as unknown) as HTMLElement[];
-    const playerDropdownMasks = (document.querySelectorAll(
-      ".dropdown-options-mask"
-    ) as unknown) as HTMLElement[];
-
-    // createExpandoKeyframes({
-    //   contentsEl: playerDropdownInners,
-    //   masksEl: playerDropdownMasks,
-    //   outerEl: playerDropdownShells[0],
-    // });
+    playerBtnGroupView.recalculateDropdownAnimations();
   }
 
   runResizeListener() {
     const gameContainer = this.parentEl;
 
     const resize = () => {
+      playerBtnGroupView.removeForwardFillOnFinishedExpandedDropdowns();
+
       const browserInnerHeight =
         window.innerHeight || document.documentElement.clientHeight;
       const browserInnerWidth =
@@ -471,14 +480,14 @@ class GameContainerView extends View {
     // init height
     resize();
 
-    const debouncedResize = debounce(resize, {
-      leading: false,
-      time: 200,
-    });
+    // const debouncedResize = debounce(resize, {
+    //   leading: false,
+    //   time: 200,
+    // });
     window.addEventListener("resize", () => {
       resize();
       // to cover for changing device viewport on Chrome devtools
-      debouncedResize();
+      // debouncedResize();
     });
   }
 

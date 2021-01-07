@@ -146,6 +146,25 @@ class PlayerBtnGroup extends View {
     this.parentEl.addEventListener("click", onAction);
   }
 
+  recalculateDropdownAnimations() {
+    const { players } = this.data;
+
+    players.forEach(({ id }) => {
+      const { dropdownOptionsView } = this.playerDom[id];
+
+      dropdownOptionsView.recalculateDropdownAnimation();
+    });
+  }
+  removeForwardFillOnFinishedExpandedDropdowns() {
+    const { players } = this.data;
+
+    players.forEach(({ id }) => {
+      const { dropdownOptionsView } = this.playerDom[id];
+
+      dropdownOptionsView.recalculateDropdownAnimation();
+    });
+  }
+
   resetPlayerIndicators() {
     const { players } = this.data;
 
