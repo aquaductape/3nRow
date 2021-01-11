@@ -28,6 +28,7 @@ export type TGameMenuState = {
   goFirst: TMenu;
   multiplayer: TMenu;
   multiplayerChoices: TMenu;
+  playAgain: TMenu;
 };
 
 const menuBtns: TGameMenuState = {
@@ -199,6 +200,33 @@ const menuBtns: TGameMenuState = {
           shape: "circle",
         },
         classNames: ["btn", "btn-primary", "btn-pick", "btn-pick-player"],
+      },
+    ],
+  },
+  playAgain: {
+    title: "",
+    section: "playAgain",
+    listBtns: [
+      {
+        content: "Rematch?",
+        aria: {
+          "aria-label": "Rematch? Play Again?",
+        },
+        dataAttributes: {
+          playAgain: "true",
+        },
+        classNames: ["btn", "btn-primary", "btn-pick"],
+      },
+      {
+        content: "Leave",
+        aria: {
+          "aria-label": "Leave Game",
+        },
+        dataAttributes: {
+          transitionTo: "start",
+          focus: "true",
+        },
+        classNames: ["btn", "btn-primary", "btn-leave"],
       },
     ],
   },

@@ -27,23 +27,49 @@ export const clearChildren = (element: HTMLElement) => {
 
 export const debounce = (
   cb: Function,
-  { time, leading = false }: { time: number; leading: boolean }
+  {
+    time,
+    leading = false,
+    throttle = null,
+  }: { time: number; leading: boolean; throttle?: number | null }
 ) => {
-  let timeout = 0;
+  let timeoutCb = 0;
+  let throttleTimeStamp: number | null = null;
   let fire = true;
+  let throttleFired = false;
 
-  return function () {
+  const debounced = (...args: any[]) => {
     if (leading && fire) {
-      cb();
+      cb(...args);
       fire = false;
     }
 
-    clearTimeout(timeout);
-    timeout = window.setTimeout(() => {
-      if (!leading) cb();
+    if (throttle != null) {
+      if (throttleTimeStamp == null) {
+        throttleTimeStamp = Date.now();
+      }
+
+      if (Date.now() - throttleTimeStamp! >= throttle) {
+        cb(...args);
+        throttleTimeStamp = null;
+        throttleFired = true;
+      }
+    }
+
+    if (throttleFired) {
+      clearTimeout(timeoutCb);
+      throttleFired = false;
+      return;
+    }
+
+    clearTimeout(timeoutCb);
+    timeoutCb = window.setTimeout(() => {
+      if (!leading) cb(...args);
       fire = true;
     }, time);
   };
+
+  return debounced;
 };
 
 export const randomRoundAmount = (rounds: number = 0) => {
@@ -240,6 +266,11 @@ export const _showElement = async ({
   onEnd?: (el: HTMLElement) => void;
   delay?: number;
   transition?: string;
+  // TODO
+  /**
+   * Choose transition elements to listen to. Default is `el`
+   */
+  // transitionElements?: (HTMLElement | string)[]
   resolve: (value: boolean | PromiseLike<boolean>) => void;
 }) => {
   const getTransitionsAmount = () => {

@@ -14,18 +14,14 @@ import {
   createHTMLFromString,
   hideElement,
   showElement,
+  transitionHideThenShow,
 } from "../utils/index";
 import View from "../View";
 import menuBtns, { TGameMenuState } from "./menuBtns";
 import lobbyView from "../lobby/lobbyView";
 import svgDefsView from "../svg/svgDefsView";
 
-type TSections =
-  | "aiDifficulty"
-  | "start"
-  | "goFirst"
-  | "multiplayer"
-  | "multiplayerChoices";
+type TSections = keyof TGameMenuState;
 
 class GameMenuView extends View {
   protected data: TPlayer[];
@@ -118,10 +114,12 @@ class GameMenuView extends View {
       })
       .join("");
 
+    const ariaLabel =
+      title === "Difficulty" ? 'aria-label="Computer Difficulty"' : "";
     const titleMarkupId = titleId ? `id="${titleId}"` : "";
     const titleMarkup = title
       ? `
-    <div ${titleMarkupId} class="title" aria-label="AI difficulty">${title}</div> 
+    <div ${titleMarkupId} class="title" ${ariaLabel}>${title}</div> 
     `
       : "";
 
@@ -135,52 +133,75 @@ class GameMenuView extends View {
     `;
   }
 
-  private hideMenu() {
-    return new Promise((resolve, reject) => {
-      const section = this.parentEl.querySelector(".section") as HTMLElement;
-      const backgroundSVG = this.parentEl.querySelector(
-        ".background-svg"
-      ) as HTMLElement;
+  private revealMenu() {
+    const section = this.parentEl.querySelector(".section") as HTMLElement;
+    const revealBoardTimeout = 1000;
 
-      const hideSection = () => {
-        hideElement({
-          el: section,
-          // onStart: (el) => (el.style.display = ""),
-          onEnd: (el) => {
-            el.classList.add("hidden");
-            revealBoard();
-          },
-        });
-      };
+    this.transtionToNextGeneralSection({
+      type: "section",
+      backBtnSelected: true,
+      replaceWith: this.menuMarkup({ sectionType: "playAgain" }),
+      updateToNextWithoutTransition: true,
+    });
 
-      const revealBoard = () => {
-        hideElement({
-          el: this.parentEl,
-          duration: 1100,
-          useTransitionEvent: false,
-          onStart: (el) => {
-            el.classList.add("onExit");
-            el.style.background = "none";
-            this.hideBtnNavigationBack();
-          },
-          onEnd: (el) => {
-            el.style.display = "none";
-            el.style.background =
-              "radial-gradient(rgb(0 0 0 / 35%), transparent)";
-            el.classList.remove("onExit");
-            backgroundSVG.style.display = "none";
-            lobbyView.hideAndRemoveCountDownMarkup();
-            resolve(true);
-          },
-        });
-      };
+    this.parentEl.style.display = "";
+    this.reflow();
+    this.parentEl.classList.remove("onExit");
 
-      hideSection();
+    const showSection = () => {
+      showElement({
+        el: section,
+        onEnd(el) {
+          section.classList.remove("hidden");
+        },
+      });
+    };
+
+    setTimeout(() => {
+      showSection();
+    }, revealBoardTimeout);
+  }
+
+  private async hideMenu() {
+    const section = this.parentEl.querySelector(".section") as HTMLElement;
+    const backgroundSVG = this.parentEl.querySelector(
+      ".background-svg"
+    ) as HTMLElement;
+
+    // hide section
+    await hideElement({
+      el: section,
+      // onStart: (el) => (el.style.display = ""),
+      onEnd: (el) => {
+        el.classList.add("hidden");
+      },
+    });
+
+    // hide menu
+    await hideElement({
+      el: this.parentEl,
+      duration: 800,
+      useTransitionEvent: false,
+      onStart: (el) => {
+        el.classList.add("onExit");
+        el.style.background = "none";
+        this.hideBtnNavigationBack();
+      },
+      onEnd: (el) => {
+        el.style.display = "none";
+
+        lobbyView.hideAndRemoveCountDownMarkup();
+      },
     });
   }
 
   changeMenuTheme(theme: "menu" | "lobby") {
     const gameBoard = document.querySelector(".game") as HTMLElement;
+    const board = document.querySelector(".board") as HTMLElement;
+
+    board.style.transition = "box-shadow 500ms";
+    this.reflow();
+
     if (theme === "lobby") {
       gameBoard.classList.add("lobby");
     }
@@ -255,15 +276,52 @@ class GameMenuView extends View {
     players.forEach((player) => this.updatePlayerMark(player));
   }
 
-  renderPlayAgainButton() {
-    const btnPlayAgain = this.parentEl.querySelector(
-      ".btn-play-again"
-    ) as HTMLElement;
+  //   renderPlayAgainButton() {
+  //     const btnPlayAgain = this.parentEl.querySelector(
+  //       ".btn-play-again"
+  //     ) as HTMLElement;
+  //
+  //     btnPlayAgain.parentElement!.classList.remove("hidden");
+  //     setTimeout(() => {
+  //       showElement({ el: this.parentEl, display: "flex" });
+  //     }, 1000);
+  //   }
 
-    btnPlayAgain.parentElement!.classList.remove("hidden");
-    setTimeout(() => {
-      showElement({ el: this.parentEl, display: "flex" });
-    }, 1000);
+  renderResultMenu({
+    declare,
+    player,
+    tie,
+  }: {
+    tie: boolean;
+    declare: "winner" | "loser";
+    player: TPlayer;
+  }) {
+    this.menuState.playAgain.title = this.resultMenuDeclarePlayerMarkup({
+      declare,
+      player,
+      tie,
+    });
+    this.revealMenu();
+  }
+
+  private resultMenuDeclarePlayerMarkup({
+    declare,
+    player,
+    tie,
+  }: {
+    tie: boolean;
+    declare: "winner" | "loser";
+    player: TPlayer;
+  }) {
+    if (tie) {
+      return `<div class="player-status">Tie!</div>`;
+    }
+    const declareMessage = declare === "winner" ? "Victory!" : "Defeat!";
+
+    return `
+    <div class="player-shape">${player.getSvgShape()}</div>
+    <div class="player-status">${declareMessage}</div>
+    `;
   }
 
   // onBack
@@ -279,25 +337,36 @@ class GameMenuView extends View {
     lobbyView.hideAndRemoveCountDownMarkup();
     this.transtionToNextGeneralSection({
       type: "section",
-      backBtnActivated: true,
+      backBtnSelected: true,
       replaceWith: this.menuMarkup({ sectionType }),
     });
   }
 
   // transitionAnimation
-  private transtionToNextGeneralSection({
+  private async transtionToNextGeneralSection({
     type,
     replaceWith,
-    backBtnActivated,
+    backBtnSelected,
     clicked = false,
+    updateToNextWithoutTransition = false,
   }: {
     type: "section" | "lobby";
     replaceWith: (() => void) | string;
-    backBtnActivated: boolean;
+    /**
+     * selected such as clicked
+     */
+    backBtnSelected: boolean;
     clicked?: boolean;
+    updateToNextWithoutTransition?: boolean;
   }) {
     const sectionEl = this.parentEl.querySelector(".section") as HTMLElement;
-    hideElement({
+
+    if (updateToNextWithoutTransition) {
+      if (typeof replaceWith === "string") sectionEl.innerHTML = replaceWith;
+      if (typeof replaceWith === "function") replaceWith();
+    }
+
+    await hideElement({
       el: sectionEl,
       onEnd: (el) => {
         el.style.display = "none";
@@ -311,24 +380,25 @@ class GameMenuView extends View {
             type: "menuBtns",
           });
         }
+      },
+    });
 
-        showElement({
-          el,
-          onEnd: (el) => {
-            el.style.display = "";
-            if (type === "lobby") return;
+    await showElement({
+      el: sectionEl,
+      onEnd: (el) => {
+        el.style.display = "";
 
-            const focusBtn = this.parentEl.querySelector(
-              '[data-focus="true"]'
-            ) as HTMLElement;
+        console.log("show onEnd");
+        if (type === "lobby") return;
+        if (backBtnSelected) return;
 
-            if (backBtnActivated) return;
+        const focusBtn = this.parentEl.querySelector(
+          '[data-focus="true"]'
+        ) as HTMLElement;
 
-            // issue in IOS, the focus bg shows on tap
-            focusBtn.focus();
-            if (!clicked) focusBtn.classList.add("noFocusClick");
-          },
-        });
+        // issue in iOS, the focus bg shows on tap
+        focusBtn.focus();
+        if (!clicked) focusBtn.classList.add("noFocusClick");
       },
     });
   }
@@ -353,7 +423,7 @@ class GameMenuView extends View {
 
     this.transtionToNextGeneralSection({
       type: "section",
-      backBtnActivated: false,
+      backBtnSelected: false,
       clicked,
       replaceWith: this.menuMarkup({ sectionType }),
     });
@@ -371,6 +441,7 @@ class GameMenuView extends View {
       if (!btn) return;
       const navigationBtnBack = btn.dataset.navigationBack;
       const playAgainst = btn.dataset.playAgainst;
+      const playAgain = btn.dataset.playAgain;
       const playerId = btn.dataset.playerId!;
       const difficulty = btn.dataset.difficulty;
       const transitionTo = btn.dataset.transitionTo as TSections;
@@ -427,7 +498,7 @@ class GameMenuView extends View {
         this.navigationHistory.push(currentSection);
         this.transtionToNextGeneralSection({
           type: "lobby",
-          backBtnActivated: false,
+          backBtnSelected: false,
           clicked: true,
           replaceWith: () => {
             const players = this.data;
@@ -444,6 +515,12 @@ class GameMenuView extends View {
         });
       }
 
+      if (playAgain === "true") {
+        this.hideMenu();
+        this.handlerPlayAgain();
+        return;
+      }
+
       if (playAgainst === "human") {
         this.startGameAndHideMenu({ firstMovePlayer: playerId, ai: false });
         return;
@@ -451,12 +528,6 @@ class GameMenuView extends View {
 
       if (playAgainst === "ai") {
         this.startGameAndHideMenu({ firstMovePlayer: playerId, ai: true });
-        return;
-      }
-
-      if (playAgainst === "again") {
-        this.hideMenu();
-        this.handlerPlayAgain();
         return;
       }
     });

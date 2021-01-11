@@ -12,7 +12,7 @@ import {
   hideElement,
 } from "../utils/index";
 import View from "../View";
-import DropdownOptionsView from "./dropdownOptionsView";
+import DropdownOptionsView from "./DropdownOptionsView";
 
 type TPlayerDom = {
   [key: string]: {
@@ -128,7 +128,7 @@ class PlayerBtnGroup extends View {
 
       onFocusOut({
         button: playerBtn,
-        allow: [".dropdown-options"],
+        allow: [".dropdown-options", ".tooltip-shell"],
         run: () => {
           this.activateColorSvgMark(playerId!);
           dropdownOptionsView.expandDropdown();
@@ -195,6 +195,13 @@ class PlayerBtnGroup extends View {
       playerBtn.classList.remove("pre-game");
     });
   }
+  updatePlayerBtnsOnPreGame() {
+    const { players } = this.data;
+    players.forEach(({ id }) => {
+      const { playerBtn } = this.playerDom[id];
+      playerBtn.classList.add("pre-game");
+    });
+  }
 
   updateSkinSelectionInDropdown({
     player,
@@ -231,33 +238,20 @@ class PlayerBtnGroup extends View {
     type: TSkinProps;
   }) {
     const { dropdownOptionsView } = this.playerDom[id];
-    // get opposite id from player
 
     if (Array.isArray(type)) {
       type.forEach((t) => {
-        const toolTipMsg = dropdownOptionsView.radioToolTipMessage({
-          type: t,
-          player: oppositePlayer,
-        });
-
         dropdownOptionsView.updatePlayerSkinDisabled({
           type: t,
           value: oppositePlayer[t],
-          toolTipMsg,
         });
       });
       return;
     }
 
-    const toolTipMsg = dropdownOptionsView.radioToolTipMessage({
-      type,
-      player: oppositePlayer,
-    });
-
     dropdownOptionsView.updatePlayerSkinDisabled({
       type,
       value: oppositePlayer[type],
-      toolTipMsg,
     });
   }
 

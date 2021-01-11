@@ -42,6 +42,7 @@ export const state: TState = {
     firstMove: "alternate",
     firstMovePlayer: "P1",
     winner: null,
+    loser: null,
     hasAI: false,
     winPosition: "",
     difficulties: ["MEDIUM", "HARD", "CHEATER"],
@@ -83,6 +84,8 @@ export type TShapes = {
   cross: string;
   triangle: string;
   heart: string;
+  square: string;
+  kite: string;
   [key: string]: string;
 };
 
@@ -119,6 +122,7 @@ export type TGame = {
   gameTie: boolean;
   startAgain: boolean;
   winner: string | null; // Player id
+  loser: string | null; // Player id
   hasAI: boolean;
   board: TBoard;
   difficulties: ("MEDIUM" | "HARD" | "CHEATER")[];

@@ -1,7 +1,6 @@
 import { TPosition } from "../../ts/index";
-import { getOppositePlayer } from "../../views/utils";
-import { state, TColors, TPlayer, TShapes } from "../state";
-import { getCurrentPlayer } from "./player";
+import { state } from "../state";
+import { getCurrentPlayer, getOppositePlayer } from "./player";
 import { decideMove, delayAi } from "./ai";
 
 export const goAI = async ({ delay }: { delay?: number } = {}) => {
@@ -70,6 +69,10 @@ const checkBoardForWinner = () => {
       game.winPosition = `ROW_${row}`;
       game.gameOver = true;
       game.winner = player.id;
+      game.loser = getOppositePlayer({
+        id: player.id,
+        players: state.players,
+      }).id;
       return;
     }
 
@@ -83,6 +86,10 @@ const checkBoardForWinner = () => {
           game.winPosition = `COL_${item}`;
           game.gameOver = true;
           game.winner = player.id;
+          game.loser = getOppositePlayer({
+            id: player.id,
+            players: state.players,
+          }).id;
           return;
         }
       }
@@ -101,6 +108,10 @@ const checkBoardForWinner = () => {
         game.winPosition = "DIAG_TOP_LEFT";
         game.gameOver = true;
         game.winner = player.id;
+        game.loser = getOppositePlayer({
+          id: player.id,
+          players: state.players,
+        }).id;
         return;
       }
     }
@@ -110,6 +121,10 @@ const checkBoardForWinner = () => {
         game.winPosition = "DIAG_BOT_LEFT";
         game.gameOver = true;
         game.winner = player.id;
+        game.loser = getOppositePlayer({
+          id: player.id,
+          players: state.players,
+        }).id;
         return;
       }
     }
@@ -146,6 +161,7 @@ export const resetForNextGame = () => {
   game.gameRunning = true;
   game.winPosition = "";
   game.winner = null;
+  game.loser = null;
   game.board = [
     [0, 1, 2],
     [3, 4, 5],

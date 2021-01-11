@@ -6,32 +6,54 @@ import { IOS, IOS13, Safari } from "../../lib/onFocusOut/browserInfo";
 import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TPlayer } from "../../model/state";
 import { TSkin } from "../../ts";
+import { Tooltip } from "../components/Tooltip/Tooltip";
 import { colorMap, colors, shapes, svg } from "../constants/constants";
 import { radioGroup } from "../utils/aria";
-import { diagonalLengthOfElement, getOppositePlayer } from "../utils/index";
+import {
+  debounce,
+  diagonalLengthOfElement,
+  getOppositePlayer,
+} from "../utils/index";
 import View from "../View";
 import matchMediaView from "../windowEvents/matchMediaView";
 import { animateDropdown } from "./animation";
-import { DropdownExpando } from "./dropdownExpando";
+import { DropdownExpando } from "./DropdownExpando";
+
+type TGroupItem = {
+  item: string;
+  toolTipActive: boolean;
+  toolTip: Tooltip | null;
+  ariaLabel: string;
+  selected: boolean;
+  drafted: boolean;
+  disabled: boolean;
+};
+
+type TSkinGroups = {
+  colors: TGroupItem[];
+  shapes: TGroupItem[];
+};
 
 export default class DropdownOptionsView extends View {
   protected data: { players: TPlayer[]; currentPlayer: TPlayer };
   private reducedAnimation = false;
   private dropdownTimeout = 0;
   // The Five Wrappers that enables Dropdown circular animation: container > shell > sub-shell > mask > inner
-  private maskEl: HTMLElement = {} as HTMLElement;
-  private innerEl: HTMLElement = {} as HTMLElement;
-  private shellShadow: HTMLElement = {} as HTMLElement;
-  private dropdownOptionsEl: HTMLElement = {} as HTMLElement;
-  private playerBtnHighlightEl: HTMLElement = {} as HTMLElement;
-  private playerBtnGroupEl: HTMLElement = {} as HTMLElement;
-  private dropdownBtnEl: HTMLElement = {} as HTMLElement;
-  private shapeGroupEl: HTMLElement = {} as HTMLElement;
-  private colorGroupEl: HTMLElement = {} as HTMLElement;
+  private maskEl = {} as HTMLElement;
+  private innerEl = {} as HTMLElement;
+  private shellEl = {} as HTMLElement;
+  private shellShadowEl = {} as HTMLElement;
+  private dropdownOptionsEl = {} as HTMLElement;
+  private playerBtnHighlightEl = {} as HTMLElement;
+  private playerBtnGroupEl = {} as HTMLElement;
+  private dropdownBtnEl = {} as HTMLElement;
+  private shapeGroupEl = {} as HTMLElement;
+  private colorGroupEl = {} as HTMLElement;
   private handlerShape: TControlPlayerShape = () => {};
   private handlerColor: TControlPlayerColor = () => {};
   private onRemoveActiveBtn: Function = () => {};
-  private dropdownExpando: DropdownExpando = {} as DropdownExpando;
+  private dropdownExpando = {} as DropdownExpando;
+  private skinGroups = {} as TSkinGroups;
 
   constructor({
     root,
@@ -43,6 +65,8 @@ export default class DropdownOptionsView extends View {
     super({ root });
 
     this.data = data;
+
+    this.initSkinGroups();
 
     matchMediaView.subscribe({
       media: "(prefers-reduced-motion: reduce)",
@@ -82,7 +106,10 @@ export default class DropdownOptionsView extends View {
     this.innerEl = this.parentEl.querySelector(
       ".dropdown-options-inner"
     ) as HTMLElement;
-    this.shellShadow = this.parentEl.querySelector(
+    this.shellEl = this.parentEl.querySelector(
+      ".dropdown-options-shell"
+    ) as HTMLElement;
+    this.shellShadowEl = this.parentEl.querySelector(
       ".shell-shadow"
     ) as HTMLElement;
 
@@ -94,24 +121,76 @@ export default class DropdownOptionsView extends View {
 
     this.onRadioGroup();
 
-    this.parentEl.addEventListener("click", (e) => {
-      const target = e.target as HTMLElement;
-      const disabledItem = target.closest('[data-disabled="true"]');
-      if (!disabledItem) return;
-      const itemContainer = disabledItem.parentElement as HTMLElement;
-      const toolTipContainer = itemContainer.querySelector(
-        ".tooltip-container"
-      ) as HTMLElement;
+    const disabledEls = this.parentEl.querySelectorAll(
+      '[data-disabled="true"]'
+    ) as NodeListOf<HTMLElement>;
+    disabledEls.forEach((disabledItemEl) => {
+      this.prepareTooltip({ disabledItemEl });
+    });
 
-      onFocusOut({
-        button: itemContainer,
-        run: () => {
-          toolTipContainer.classList.add("active");
-        },
-        onExit: () => {
-          toolTipContainer.classList.remove("active");
-        },
+    //     this.parentEl.addEventListener("click", (e) => {
+    //       const target = e.target as HTMLElement;
+    //       const disabledItemEl = target.closest(
+    //         '[data-disabled="true"]'
+    //       ) as HTMLElement;
+    //
+    //       if (!disabledItemEl) return;
+    //
+    //       this.showTooltip({ triggeredBy: "click", disabledItemEl });
+    //     });
+  }
+
+  private prepareTooltip({ disabledItemEl }: { disabledItemEl: HTMLElement }) {
+    const type = disabledItemEl.dataset.type as TSkin;
+    const typePlural = (type + "s") as "colors" | "shapes";
+    const item = disabledItemEl.dataset[type];
+    const group = this.skinGroups[typePlural].find(
+      (group) => group.item === item
+    )!;
+    const message = this.radioToolTipMessage({
+      type,
+    });
+
+    if (!group.toolTip) {
+      group.toolTip = new Tooltip({
+        message,
+        tooltipTargetEl: disabledItemEl,
       });
+    }
+  }
+
+  private initSkinGroups() {
+    const { currentPlayer, players } = this.data;
+    const { color: playerColor, shape: playerShape } = currentPlayer;
+
+    const oppositePlayer = getOppositePlayer({ id: currentPlayer.id, players });
+
+    this.skinGroups.colors = colors.map((color) => {
+      const [primaryColor, secondaryColor] = color.split(",");
+      const ariaLabel = `choose gradient color of shape. Primary Color ${primaryColor}, Secondary Color ${secondaryColor}`;
+      const disabled = oppositePlayer.color === color;
+      return {
+        item: color,
+        disabled,
+        drafted: false,
+        selected: playerColor === color,
+        ariaLabel,
+        toolTip: null,
+        toolTipActive: disabled,
+      };
+    });
+    this.skinGroups.shapes = shapes.map((shape) => {
+      const ariaLabel = `choose shape: ${shape}`;
+      const disabled = oppositePlayer.shape === shape;
+      return {
+        item: shape,
+        disabled,
+        drafted: false,
+        selected: playerShape === shape,
+        ariaLabel,
+        toolTip: null,
+        toolTipActive: disabled,
+      };
     });
   }
 
@@ -124,148 +203,93 @@ export default class DropdownOptionsView extends View {
     `;
   }
 
-  private toolTipInnerMarkup({ msg }: { msg: string }) {
-    return `
-      <div class="arrow-up"></div>
-      <div class="tooltip" role="tooltip">${msg}</div>
-    `;
-  }
-
-  private toolTipMarkup({
-    enabled,
-    player,
-    type,
-  }: {
-    type: "color" | "shape";
-    enabled: boolean;
-    player: TPlayer;
-  }) {
-    const msg = this.radioToolTipMessage({ type, player });
-    const innerTooltip = this.toolTipInnerMarkup({ msg });
-    return `
-    <div class="tooltip-container ${enabled ? "ready" : ""}">
-      ${enabled ? innerTooltip : ""}
-    </div>
-    `;
-  }
-
-  private listItem({ item, type }: { item: string; type: TSkin }) {
-    const { currentPlayer, players } = this.data;
+  radioToolTipMessage = ({ type }: { type: TSkin }) => {
     const {
-      svgShapes: shapes,
-      color: playerColor,
-      shape: playerShape,
-    } = currentPlayer;
+      currentPlayer: { id },
+      players,
+    } = this.data;
+    const oppositePlayer = getOppositePlayer({ id, players });
 
-    const oppositePlayer = getOppositePlayer({ id: currentPlayer.id, players });
+    const svgMark = `<span class="mini-svg-mark" aria-hidden="true">${oppositePlayer.getSvgShape()}</span>`;
 
-    if (type === "color") {
-      const [primaryColor, secondaryColor] = item.split(",");
-      const [primaryColorHex, secondaryColorHex] = colorMap[item];
-      const tabindex = playerColor === item ? "0" : "-1";
-      const selected = playerColor === item ? "true" : "false";
-      // already selected by other player
-      const disabled = oppositePlayer.color === item;
-      const toolTip = this.toolTipMarkup({
-        type,
-        player: oppositePlayer,
-        enabled: disabled,
-      });
-      const classBase = "color-item";
-      const classSelected = playerColor === item ? "color-item--selected" : "";
-      const classDisabled = disabled ? "disabled" : "";
-      const classItem = `${classBase} ${classSelected} ${classDisabled}`;
-      const classItemInner = `${classBase}-inner`;
-      const classItemBg = `${classBase}-bg`;
+    return `
+    <span>
+      <span class="tooltip-player">
+      Player ${oppositePlayer.id.replace("P", "")} ${svgMark}
+      </span>
+      has this <strong>${type}</strong>
+    </span>`;
+  };
 
-      return `
-      <div class="${classBase}-container">
-        <div 
-          role="radio"
-          tabindex="${tabindex}"
-          class="${classItem}"
-          data-selected="${selected}"
-          data-disabled="${disabled}"
-          data-color="${item}"
-          aria-checked="${selected}"
-          aria-disabled="${disabled}"
-          aria-hidden="${disabled}"
-          aria-label="choose gradient color of shape. Primary Color ${primaryColor}, Secondary Color ${secondaryColor}"
-        >
-          <div class="${classItemBg}">
-            <div class="radio">
-              ${svg.radio}
-            </div>
-            <div class="${classItemInner}"  style="background: linear-gradient(0deg, ${secondaryColorHex}, ${primaryColorHex});">
-            </div>
-          </div>
-        </div>
-        
-        ${toolTip}
+  private renderGroup({ type }: { type: TSkin }) {
+    const skin = (type + "s") as "colors" | "shapes";
 
-      </div>
-        `;
-    }
+    return this.skinGroups[skin]
+      .map((item) => this.listItem(type, item))
+      .join("");
+  }
+
+  private listItem(type: TSkin, groupItem: TGroupItem) {
+    const { currentPlayer } = this.data;
+    const { svgShapes } = currentPlayer;
+    const { ariaLabel, disabled, drafted, item, selected } = groupItem;
+    let itemInnerMarkup = "";
+
+    const tabindex = selected ? "0" : "-1";
+    const dataSelected = selected ? "true" : "false";
+    const classBase = `${type}-item`;
+    const classSelected = selected ? `${type}-item--selected` : "";
+    const classDisabled = disabled ? "disabled" : "";
+    const classItem = `${classBase} ${classSelected} ${classDisabled}`;
+    const classItemInner = `${classBase}-inner`;
+    const classItemBg = `${classBase}-bg`;
 
     if (type === "shape") {
-      const tabindex = playerShape === item ? "0" : "-1";
-      const selected = playerShape === item ? "true" : "false";
-      // already selected by other player
-      const disabled = oppositePlayer.shape === item;
-      const toolTip = this.toolTipMarkup({
-        type,
-        player: oppositePlayer,
-        enabled: disabled,
-      });
-      const classBase = "shape-item";
-      const classSelected = playerShape === item ? "shape-item--selected" : "";
-      const classDisabled = disabled ? "disabled" : "";
-      const classItem = `${classBase} ${classSelected} ${classDisabled}`;
-      const classItemInner = `${classBase}-inner`;
-      const classItemBg = `${classBase}-bg`;
-      const shape = shapes[item].replace(
+      const shape = svgShapes[item].replace(
         /filter="url\(#drop-shadow-filter\)"/g,
         ""
       );
 
-      return `
+      itemInnerMarkup = `
+      <div class="${classItemInner}">
+        ${shape}
+      </div>
+      `;
+    }
+
+    if (type === "color") {
+      const [primaryColorHex, secondaryColorHex] = colorMap[item];
+      itemInnerMarkup = `
+      <div class="${classItemInner}"  style="background: linear-gradient(0deg, ${secondaryColorHex}, ${primaryColorHex});"></div>
+      `;
+    }
+
+    return `
       <div class="${classBase}-container">
         <div 
           role="radio" 
           tabindex="${tabindex}" 
           class="${classItem}" 
-          data-selected="${selected}"
+          data-type="${type}"
+          data-${type}="${item}" 
+          data-value="${item}" 
+          data-selected="${dataSelected}"
           data-disabled="${disabled}"
-          data-shape="${item}" 
           aria-checked="${selected}" 
           aria-disabled="${disabled}"
           aria-hidden="${disabled}"
-          aria-label="choose shape: ${item}"
+          aria-label="${ariaLabel}"
         >
           <div class="${classItemBg}">
             <div class="radio">
               ${svg.radio}
             </div>
-            <div class="${classItemInner}">
-              ${shape}
-            </div>
+
+            ${itemInnerMarkup}
           </div>
         </div>
-
-        ${toolTip}
-
       </div>
       `;
-    }
-  }
-
-  private renderGroup({ type }: { type: TSkin }) {
-    if (type === "color")
-      return colors
-        .map((color) => this.listItem({ type, item: color }))
-        .join("");
-
-    return shapes.map((shape) => this.listItem({ type, item: shape })).join("");
   }
 
   private dropdownContentMarkup() {
@@ -358,65 +382,6 @@ export default class DropdownOptionsView extends View {
     });
   }
 
-  private addToolTip({
-    item,
-    toolTipMsg,
-  }: {
-    toolTipMsg: string;
-    item: HTMLElement;
-  }) {
-    const toolTipContainer = item.querySelector(
-      ".tooltip-container"
-    ) as HTMLElement;
-    toolTipContainer.classList.add("ready");
-    toolTipContainer.insertAdjacentHTML(
-      "beforeend",
-      this.toolTipInnerMarkup({ msg: toolTipMsg })
-    );
-  }
-
-  private removeToolTip(item: HTMLElement) {
-    const toolTipContainer = item.querySelector(
-      ".tooltip-container.ready"
-    ) as HTMLElement;
-    toolTipContainer.classList.remove("ready");
-    this.clearChildren(toolTipContainer);
-  }
-
-  private updateToolTips({
-    currentItem,
-    newItem,
-    toolTipMsg,
-  }: {
-    newItem: HTMLElement;
-    currentItem: HTMLElement;
-    toolTipMsg: string;
-  }) {
-    const currentItemContainer = currentItem.parentElement as HTMLElement;
-    const newItemContainer = newItem.parentElement as HTMLElement;
-
-    this.addToolTip({ item: newItemContainer, toolTipMsg });
-    this.removeToolTip(currentItemContainer);
-  }
-
-  radioToolTipMessage = ({
-    player,
-    type,
-  }: {
-    player: TPlayer;
-    type: TSkin;
-  }) => {
-    const svgMark = `<span class="mini-svg-mark" aria-hidden="true">${player.getSvgShape()}</span>`;
-
-    return `
-    <span>
-      <span class="tooltip-player">
-      Player ${player.id === "P1" ? "1" : "2"} ${svgMark}
-      </span>
-      has this <strong>${type}</strong>
-    </span>`;
-  };
-
   updatePlayerSkinSelection({
     type,
     value,
@@ -446,19 +411,71 @@ export default class DropdownOptionsView extends View {
   updatePlayerSkinDisabled({
     type,
     value,
-    toolTipMsg,
   }: {
     type: "color" | "shape";
     value: string;
-    toolTipMsg: string;
   }) {
+    const otherType = type === "color" ? "shape" : "color";
+    const typePlural = (type + "s") as "colors" | "shapes";
+    const otherTypePlural = typePlural === "colors" ? "shapes" : "colors";
     const group = type === "color" ? this.colorGroupEl : this.shapeGroupEl;
+    const otherGroup = type === "color" ? this.shapeGroupEl : this.colorGroupEl;
+    const skinGroup = this.skinGroups[typePlural];
+    const otherSkinGroup = this.skinGroups[otherTypePlural];
     const currentItem = group.querySelector(
+      '[data-disabled="true"]'
+    ) as HTMLElement;
+    const currentItemOtherSkin = otherGroup.querySelector(
       '[data-disabled="true"]'
     ) as HTMLElement;
     const newItem = group.querySelector(
       `[data-${type}="${value}"]`
     ) as HTMLElement;
+
+    const currentOtherSkinValue = currentItemOtherSkin.dataset.value;
+    console.log({ currentOtherSkinValue });
+
+    if (type === "shape") {
+      otherSkinGroup.find((item) => {
+        const { toolTip } = item;
+        if (item.item === currentOtherSkinValue) {
+          if (toolTip) {
+            if (toolTip.disabled) toolTip.enable();
+            toolTip.updateTooltip({
+              message: this.radioToolTipMessage({ type: otherType }),
+            });
+          }
+          return true;
+        }
+      });
+    }
+
+    skinGroup.forEach((item) => {
+      const { toolTip } = item;
+      if (item.disabled) {
+        item.disabled = false;
+        if (toolTip) {
+          toolTip.disable();
+        }
+      }
+      if (item.item === value) {
+        item.disabled = true;
+
+        if (toolTip) {
+          toolTip.enable();
+          console.log("correct update");
+          toolTip.updateTooltip({
+            message: this.radioToolTipMessage({ type }),
+          });
+          return;
+        }
+
+        item.toolTip = new Tooltip({
+          tooltipTargetEl: newItem,
+          message: this.radioToolTipMessage({ type }),
+        });
+      }
+    });
 
     currentItem.setAttribute("data-disabled", "false");
     currentItem.setAttribute("aria-disabled", "false");
@@ -467,8 +484,6 @@ export default class DropdownOptionsView extends View {
     newItem.setAttribute("data-disabled", "true");
     newItem.setAttribute("aria-disabled", "true");
     newItem.classList.add("disabled");
-
-    this.updateToolTips({ currentItem, newItem, toolTipMsg });
   }
 
   addHandlerChangeShape(handler: TControlPlayerShape) {
@@ -496,28 +511,38 @@ export default class DropdownOptionsView extends View {
   }
 
   collapseDropdown(removeActiveBtn: Function) {
+    if (this.reducedAnimation) {
+      throw new Error("reduced animation");
+      return;
+    }
+
     this.dropdownExpando.play({
       mode: "collapse",
       onStart: () => {
-        this.shellShadow.style.transition = "";
-        this.shellShadow.style.opacity = "";
+        this.shellShadowEl.style.transition = "";
+        this.shellShadowEl.style.opacity = "";
       },
       onEnd: () => {
         removeActiveBtn();
-        this.parentEl.style.overflow = "";
+        this.parentEl.classList.remove("active");
       },
     });
   }
 
   expandDropdown() {
+    if (this.reducedAnimation) {
+      throw new Error("reduced animation");
+      return;
+    }
+
     this.dropdownExpando.play({
       mode: "expand",
       onStart: () => {
-        this.parentEl.style.overflow = "visible";
+        this.parentEl.classList.add("active");
       },
       onEnd: () => {
-        this.shellShadow.style.opacity = "1";
-        this.shellShadow.style.transition = "opacity 400ms";
+        this.shellShadowEl.style.opacity = "1";
+        this.shellShadowEl.style.transition = "opacity 400ms";
       },
     });
   }

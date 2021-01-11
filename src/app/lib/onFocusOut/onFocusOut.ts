@@ -16,7 +16,7 @@ interface IOnFocusOut {
    *
    * runs when Escape is pressed or focused outside of intented target
    */
-  onExit: () => void;
+  onExit: (customE?: ICustomEvent) => void;
   /**
    * runs when click or keydown event starts. Is run before `allow` or `not` selectors are evaluated
    *
@@ -27,7 +27,7 @@ interface IOnFocusOut {
    * callback parameter holds a custom Event, that does have native event property "event"
    *
    */
-  onStart?: (e: IEvent) => boolean;
+  onStart?: (customE: ICustomEvent) => boolean;
   /**
    * list to allow focus on
    *
@@ -37,7 +37,7 @@ interface IOnFocusOut {
   /**
    * list to run onExit when focused on
    *
-   * Example: A close button within a dropdown. Place a {@link https://developer.mozilla.org/en-US/docs/Web/API/Element/closest|string selector} inside not list, so that it will run onExit on interaction
+   * Place a {@link https://developer.mozilla.org/en-US/docs/Web/API/Element/closest|string selector} inside not list, so that it will run onExit on interaction. Example: A close button within a dropdown.
    */
   not?: string[];
   /**
@@ -54,23 +54,30 @@ interface IOnFocusOut {
    * if in a nested dropdown situation, if focused only removes one dropdown, it will stop
    */
   stopWhenTargetIsRemoved?: boolean;
+  /**
+   * pass event
+   */
+  event?: Event;
 }
 
-type IEvent = {
+type ICustomEvent = {
+  firedByReselectButton: boolean;
   event: MouseEvent | TouchEvent | KeyboardEvent;
-  element: Element | null;
-  parentOfRemovedElement: Element | null;
-  keepElementRef: () => void;
-  runAllExits: () => void;
+  element?: Element | null;
+  parentOfRemovedElement?: Element | null;
+  keepElementRef?: () => void;
+  runAllExits?: () => void;
 };
+
 type ICallBackList = {
+  id: string;
   button: HTMLElement;
   stopWhenTargetIsRemoved: boolean;
   isInit: () => boolean;
   allow: string[];
   not: string[];
-  onExit: () => void;
-  onStart?: (e: IEvent) => boolean;
+  onExit: (customE?: ICustomEvent) => void;
+  onStart?: (customE: ICustomEvent) => boolean;
 };
 
 type IGlobalListener = {
@@ -92,6 +99,11 @@ type IGlobalListener = {
   onKeyDown?: (e: KeyboardEvent) => void;
 };
 
+export type TManualExit = {
+  runAllExits: () => void;
+  runExit: (e?: ICustomEvent) => void;
+};
+
 if (IOS && !IOS13) {
   const html = document.querySelector("html")!;
   html.style.cursor = "pointer";
@@ -104,7 +116,7 @@ const globalListener: IGlobalListener = {};
 let listeners: ICallBackList[] = [];
 
 // to filter
-let markedListener: number[] = [];
+let markedListener: string[] = [];
 let isGlobalListenerAdded = false;
 
 /**
@@ -123,9 +135,27 @@ export default function onFocusOut({
   not = [],
   toggle = true,
   stopWhenTargetIsRemoved = true,
+  event,
 }: IOnFocusOut) {
-  if (reClickButton({ button, toggle })) {
-    return manualExit; // returns a reference, incase you want to manually remove the listeners
+  const id = uuid();
+  const customEvent = <ICustomEvent>{
+    runAllExits: runAllExitsAndDestroy,
+    event,
+  };
+
+  const manualExit: TManualExit = {
+    runAllExits: runAllExitsAndDestroy,
+    runExit: () => {
+      onExit();
+      markListener(id);
+      removeListeners();
+      removeGlobalListener();
+    },
+  };
+
+  if (reSelectButton({ button, toggle, customEvent })) {
+    // TODO: should return null if there are no listeners
+    return manualExit; // returns a reference, in case you want to manually remove the listeners
   }
 
   // create dropdown, popover, tooltip ect
@@ -141,6 +171,7 @@ export default function onFocusOut({
   };
 
   listeners.push({
+    id,
     button: button as HTMLElement,
     stopWhenTargetIsRemoved,
     isInit,
@@ -154,17 +185,18 @@ export default function onFocusOut({
     return manualExit;
   }
 
-  const customEvent = <IEvent>{
-    runAllExits: runAllExitsAndDestroy,
-  };
-
   globalListener.onClick = (e: TouchEvent | MouseEvent) => {
     const clickedTarget = e.target as HTMLElement;
     const listenersLength = listeners.length;
-    customEvent.event = e;
+    const customEvent = <ICustomEvent>{
+      event: e,
+      runAllExits: runAllExitsAndDestroy,
+      firedByReselectButton: false,
+    };
 
     for (let i = 0; i < listenersLength; i++) {
       const {
+        id,
         onStart,
         onExit,
         stopWhenTargetIsRemoved,
@@ -179,14 +211,14 @@ export default function onFocusOut({
         not.length &&
         not.some((selector) => clickedTarget.closest(selector))
       ) {
-        onExit();
-        markListener(i);
+        onExit(customEvent);
+        markListener(id);
         continue;
       }
       if (allow.some((selector) => clickedTarget.closest(selector))) continue;
 
-      onExit();
-      markListener(i);
+      onExit(customEvent);
+      markListener(id);
       // if (stopWhenTargetIsRemoved && !clickedTarget.isConnected) return null;
     }
 
@@ -198,17 +230,21 @@ export default function onFocusOut({
   globalListener.onKeyDown = (e: KeyboardEvent) => {
     const clickedTarget = e.target as HTMLElement;
     const listenersLength = listeners.length;
-    customEvent.event = e;
+    const customEvent = <ICustomEvent>{
+      event: e,
+      runAllExits: runAllExitsAndDestroy,
+      firedByReselectButton: false,
+    };
 
     if (e.key.match(/escape/i)) {
       const idx = listeners.length - 1;
-      const { button, onExit } = listeners[idx];
-      onExit();
+      const { id, button, onExit } = listeners[idx];
+      onExit(customEvent);
       button.focus();
 
       customEvent.parentOfRemovedElement = null;
 
-      markListener(idx);
+      markListener(id);
 
       removeListeners();
       removeGlobalListener();
@@ -220,7 +256,7 @@ export default function onFocusOut({
     if (!e.key.match(/tab/i)) return null;
 
     for (let i = 0; i < listenersLength; i++) {
-      const { button, onStart, onExit, allow, isInit } = listeners[i];
+      const { id, button, onStart, onExit, allow, isInit } = listeners[i];
       if (isInit()) continue;
       // even when a previous click event fires within dropdown, if no focusable element is clicked, then activeElement is set to body
       if (document.activeElement === document.body) continue;
@@ -232,8 +268,8 @@ export default function onFocusOut({
       if (onStart && onStart(customEvent)) continue;
       if (allow.some((selector) => clickedTarget.closest(selector))) continue;
 
-      onExit();
-      markListener(i);
+      onExit(customEvent);
+      markListener(id);
     }
     removeListeners();
     removeGlobalListener();
@@ -242,13 +278,18 @@ export default function onFocusOut({
   globalListener.onKeyUp = (e: KeyboardEvent) => {
     const clickedTarget = e.target as HTMLElement;
     const listenersLength = listeners.length;
-    customEvent.event = e;
+    const customEvent = <ICustomEvent>{
+      event: e,
+      runAllExits: runAllExitsAndDestroy,
+      firedByReselectButton: false,
+    };
     // console.log("keyup", clickedTarget);
 
     if (!e.key.match(/tab/i)) return null;
 
     for (let i = 0; i < listenersLength; i++) {
       const {
+        id,
         button,
         onStart,
         onExit,
@@ -266,8 +307,8 @@ export default function onFocusOut({
       if (onStart && onStart(customEvent)) continue;
       if (allow.some((selector) => clickedTarget.closest(selector))) continue;
 
-      onExit();
-      markListener(i);
+      onExit(customEvent);
+      markListener(id);
     }
     removeListeners();
     removeGlobalListener();
@@ -280,11 +321,11 @@ export default function onFocusOut({
 
 const removeListeners = () => {
   if (!markedListener.length) return;
-  listeners = listeners.filter((_, idx) => !markedListener.includes(idx));
+  listeners = listeners.filter(({ id }) => !markedListener.includes(id));
   markedListener = [];
 };
 
-const markListener = (idx: number) => {
+const markListener = (idx: string) => {
   markedListener.push(idx);
 };
 
@@ -319,33 +360,36 @@ const addGlobalListener = () => {
   document.addEventListener("keyup", onKeyUp!);
 };
 
-// optional manual remove as opposed to events
-const manualExit = {
-  runAllExits() {
-    runAllExitsAndDestroy();
-  },
-};
-
+// TODO replace to remove with id instead
 const findButton = (element: Element) => {
   return listeners.findIndex((listener) => listener.button.contains(element));
 };
 
 const removeListenersSliceFromIdx = (idx: number) => {
-  listeners.splice(idx);
+  listeners.splice(idx, 1);
 };
 
-const reClickButton = ({
+const clickEventFiredByKeyboard = (e: MouseEvent) => {
+  return e.detail === 0;
+};
+
+const reSelectButton = ({
   button,
   toggle,
+  customEvent,
 }: {
   button: Element;
   toggle: boolean;
+  customEvent: ICustomEvent;
 }) => {
   const buttonIdx = findButton(button);
   if (buttonIdx > -1) {
     if (!toggle) return true;
+    customEvent.firedByReselectButton = true;
+
     const { onExit } = listeners[buttonIdx];
-    onExit();
+    onExit(customEvent);
+    console.log(listeners);
     removeListenersSliceFromIdx(buttonIdx);
 
     removeGlobalListener();
@@ -353,4 +397,16 @@ const reClickButton = ({
   }
 
   return false;
+};
+
+// https://gist.github.com/jed/982883
+// https://stackoverflow.com/a/2117523/8234457
+const uuid = () => {
+  // @ts-ignore
+  return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c: number) =>
+    (
+      c ^
+      (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
+    ).toString(16)
+  );
 };

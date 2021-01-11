@@ -1,10 +1,10 @@
+import { getOppositePlayer } from "../model/actions/player";
 import model from "../model/model";
 import boardView from "../views/board/boardView";
 import playerBtnGroupView from "../views/playerOptions/playerBtnGroupView";
 import settingsView from "../views/settings/settingsView";
 import skipToGameMenuView from "../views/skipContentBtn/skipToGameMenuView";
 import svgDefsView from "../views/svg/svgDefsView";
-import { getOppositePlayer } from "../views/utils";
 import { moveAi } from "./move";
 
 export type TControlPlayAgain = () => void;

@@ -5,7 +5,7 @@
 
 # FROM NOW ON to animate SVGS with clipping or masking
 
-1. Animating HTMLElements with clip/mask: pre IOS13 don't animate with svg, dont bother please
+1. Animating HTMLElements with clip/mask: Safaria/iOS don't animate with svg, dont bother please
 2. Animating SVG with clip/mask: always use masks, has best browser consistency
 
 # ARIA
@@ -16,7 +16,6 @@
 
 # BUGS 🐛
 
-1. shape icon inside color tooltip is not updated when shape is selected, it is only updated when color is selected
 2. aria region, support cheater moves, only says one currently
 3. can't interact board in IOS. In VoiceOver columns and rows need to explicit, they are set as zero when implicit
 4. alternate turns doesn't work when Player 2 goes first
@@ -40,5 +39,13 @@
 16. when opponent leaves in lobby, client stays in lobby and get's rematched with someone else and notification bar pops with "Opponent left. Looking for another player to match".
 17. Store First Move in server
 18. "First Move" should have a description
-19. change favicon based on player turn, which is based on player shape and color, background is black
+19. change favicon based on player turn, which is based on player shape and color, background is black.
+    Change document title "Your turn!"
+    Only do this when document is not currently viewed
 20. Two new shapes: Square and Kite. Why? To match color choices count
+21. Tooltip in dropdown. To keep them visible, place markup in shell, place fixed positioning based on item selected position. When scrolling or resizing, hide tooltip immediatly. Tooltip is smart and will change position if can't be viewed in viewport.
+    Or dont hide when scrolling, to keep tooltip position match with item selected, when scrolling up/down update it's position by translationY
+
+# Browser Bug: I'm not sure since it requires thorough knowledge/testing, but listing them anyway
+
+1. position fixed will place element in context of root, will ignore parents context. However in this case an element that has position fixed, it's context was set to parent that had transform scale(-1, 1), which swaps the element like a vertical mirror.

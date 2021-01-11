@@ -99,6 +99,7 @@ button {
   transition: 250ms color ease-in-out, 250ms background-color ease-in-out;
   border-style: none;
   text-decoration: none;
+  user-select: none;
 }
 
 .btn-primary {

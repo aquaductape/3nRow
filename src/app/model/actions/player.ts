@@ -1,5 +1,5 @@
+import { KnownKeys } from "../../ts";
 import { randomItemFromArr } from "../../utils/index";
-import { getOppositePlayer } from "../../views/utils";
 import { state, TColors, TPlayer, TShapes } from "../state";
 
 type TSetShapesProp = {
@@ -75,7 +75,15 @@ export const getCurrentPlayer = () =>
 export const getAiPlayer = () => state.players.find(({ isAI }) => isAI)!;
 export const getPlayerById = (id: string) =>
   state.players.find((player) => player.id === id);
+export const getOppositePlayer = ({
+  players,
+  id,
+}: {
+  id: string;
+  players: TPlayer[];
+}) => players.filter((player) => player.id !== id)[0];
 export const getWinner = () => getPlayerById(state.game.winner!);
+export const getLoser = () => getPlayerById(state.game.loser!);
 export const increaseWinnerScore = () => {
   const player = getWinner();
 
@@ -181,9 +189,16 @@ export const randomChangePlayerSkin = (player: TPlayer) => {
   const { players } = state;
 
   // !!!!!!! duplicated, already defined on constants in View, I should restructure where this constant is stored
-  const shapes = ["circle", "cross", "triangle", "heart"];
+  const shapes: KnownKeys<TShapes>[] = [
+    "circle",
+    "cross",
+    "triangle",
+    "heart",
+    "square",
+    "kite",
+  ];
   // !!!!!!! duplicated, already defined on constants in View, I should restructure where this constant is stored
-  const colors = [
+  const colors: TColors[] = [
     "sky_blue,cyan",
     "green,yellow",
     "red,orange",

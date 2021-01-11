@@ -146,6 +146,8 @@ class GameContainerView extends View {
       playerPickSkinCountDown,
     } = this.dom;
 
+    board.style.transition = "";
+
     const matchDropdownWidthToBoard = () => {
       playerDropdowns.forEach((playerDropdown) => {
         playerDropdown.style.width = px(boardWidth);

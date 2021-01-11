@@ -101,12 +101,12 @@ class BoardView extends View {
     const {
       game: { markedPositions },
     } = this.data;
-    const { shape, svgShapes: shapes } = player;
+    const { shape, svgShapes } = player;
 
     markedPositions.forEach((markedPosition) => {
       const cell = this.getCellElement(markedPosition);
       this.selectCell({ cell, player });
-      const shapeEl = createHTMLFromString(shapes[shape]) as SVGElement;
+      const shapeEl = createHTMLFromString(svgShapes[shape]) as SVGElement;
 
       // fires multiple times, debounce then when it ends add block-animation
       const animationEnd = () => {
@@ -237,12 +237,23 @@ class BoardView extends View {
     this.firstCell.focus();
     this.state.playerCanSelectCell = true;
     this.parentEl.removeAttribute("aria-hidden");
-    setTimeout(() => {
-      this.parentEl.classList.remove("pre-game");
-    }, 300);
+    this.parentEl.classList.remove("pre-game");
+
     setTimeout(() => {
       this.parentEl.classList.remove("transition-out");
-    }, 400);
+    }, 100);
+  }
+
+  preGame() {
+    this.state.playerCanSelectCell = false;
+    setTimeout(() => {
+      this.parentEl.classList.add("transition-out");
+      this.parentEl.classList.add("pre-game");
+    }, 300);
+    this.parentEl.setAttribute("aria-hidden", "true");
+    this.firstCell = this.parentEl.querySelector(
+      '[tabindex="0"]'
+    ) as HTMLElement;
   }
 
   clearBoard() {

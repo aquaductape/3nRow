@@ -1,3 +1,4 @@
+import { getOppositePlayer } from "../model/actions/player";
 import Colyseus from "../model/colyseus";
 import model from "../model/model";
 import { TRoomClient } from "../ts/colyseusTypes";
@@ -5,7 +6,6 @@ import gameMenuView from "../views/gameMenu/gameMenuView";
 import lobbyView from "../views/lobby/lobbyView";
 import playerBtnGroupView from "../views/playerOptions/playerBtnGroupView";
 import svgDefsView from "../views/svg/svgDefsView";
-import { getOppositePlayer } from "../views/utils";
 import { controlMovePlayer } from "./move";
 
 // I think it's appropriate to place the multiplayer websocket listeners as Controller

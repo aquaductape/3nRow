@@ -14,7 +14,7 @@ export const controlMovePlayer: TControlMovePlayer = async ({
   row,
   userActionFromServer = false,
 }) => {
-  if (model.state.game.gameOver) return gameOver();
+  if (model.state.game.gameOver) return;
 
   // if turn is human, then move human and then if AI exists, move AI afterwards
   moveHuman({ column, row, userActionFromServer });
@@ -57,13 +57,17 @@ export const moveHuman = ({
     vs: model.state.game.hasAI ? "ai" : "human",
   });
 
-  if (!model.state.game.hasAI && userActionFromServer) {
-    boardView.allowPlayerToSelect();
+  if (!model.state.game.hasAI) {
+    if (model.state.onlineMultiplayer.active) {
+      if (userActionFromServer) {
+        boardView.allowPlayerToSelect();
+      }
+    } else {
+      boardView.allowPlayerToSelect();
+    }
   }
 
   if (model.state.game.gameOver) {
-    // model update random shape or color
-    gameMenuView.renderPlayAgainButton();
     gameStatusAriaLiveRegionView.announce({
       playerId: player.id,
       state: model.state.game.gameTie ? "tie" : "win",
@@ -95,7 +99,6 @@ export const moveAi: TMoveAi = async ({ delay } = {}) => {
   model.clearMarkedPositions();
 
   if (model.state.game.gameOver) {
-    gameMenuView.renderPlayAgainButton();
     gameStatusAriaLiveRegionView.announce({
       playerId: ai.id,
       state: model.state.game.gameTie ? "tie" : "win",
@@ -108,7 +111,39 @@ export const moveAi: TMoveAi = async ({ delay } = {}) => {
 };
 
 const gameOver = () => {
+  const transitionTimeout = model.state.game.gameTie ? 900 : 1200;
+  const mainPlayer = model.getPlayerById(
+    model.state.onlineMultiplayer.mainPlayer
+  )!;
+  const winnerPlayer = model.getWinner()!;
+  const loserPlayer = model.getLoser()!;
+  let player = winnerPlayer;
+  let declare = "winner" as "winner" | "loser";
+
   model.runGameOver();
+  boardView.preventPlayerToSelect();
+  model.state.game.getCurrentPlayer;
+
+  if (model.state.game.hasAI && model.getAiPlayer() === winnerPlayer) {
+    declare = "loser";
+    player = loserPlayer;
+  }
+
+  if (model.state.onlineMultiplayer.active && mainPlayer !== winnerPlayer) {
+    declare = "loser";
+    player = loserPlayer;
+  }
+
+  // gameMenuView.renderPlayAgainButton();
+  setTimeout(() => {
+    gameMenuView.renderResultMenu({
+      declare,
+      player,
+      tie: model.state.game.gameTie,
+    });
+    boardView.preGame();
+    playerBtnGroupView.updatePlayerBtnsOnPreGame();
+  }, transitionTimeout);
 
   if (model.state.game.gameTie) {
     playerBtnGroupView.resetPlayerIndicators();
@@ -116,5 +151,5 @@ const gameOver = () => {
   }
 
   model.increaseWinnerScore();
-  playerBtnGroupView.updatePlayerScore(model.getWinner()!);
+  playerBtnGroupView.updatePlayerScore(winnerPlayer);
 };

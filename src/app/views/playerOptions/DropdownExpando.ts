@@ -1,5 +1,4 @@
-import { round } from "../../utils";
-import { clamp, ease, easeInOutQuad } from "../playerOptions/animation";
+import { easeInOutQuad } from "./animation";
 
 type TAnimationStateOptions = {
   interrupted: boolean;
@@ -20,19 +19,18 @@ type TCustomKeyFrame = {
   offset: number;
 } & CustomStyle;
 
+/**
+ * global animationId, since both dropdowns have same geometry, it's safe and cost efficent referencing the same keyframes
+ */
 let animationId = 1;
-
-// Safari has issue where animation applied to element is cached and cannot be updated. Workaround is setting element style to a different animation name or a more expensive route if you want to keep the animation name, is to "refresh" the element (remove from dom, then append it back).
-const updateId = (id: number) => {
-  return (id = (id + 1) % 5);
-};
 
 export class DropdownExpando {
   private id: string;
+  private animationInterruptedId = 1;
   private animationMode: "css" | "webAPI" = "css";
   private webAPIAnimationReverseMode: "reverse" | "commitStyles" = "reverse";
-  private maskEl: HTMLElement = {} as any;
-  private innerEl: HTMLElement = {} as any;
+  private maskEl = {} as HTMLElement;
+  private innerEl = {} as HTMLElement;
   private expandMaskKeyframes: TCustomKeyFrame[] = [];
   private expandInnerKeyframes: TCustomKeyFrame[] = [];
   private collapseMaskKeyframes: TCustomKeyFrame[] = [];
@@ -58,7 +56,6 @@ export class DropdownExpando {
   };
   private onEnd?: (props: TAnimationState) => void = () => {};
   private styleSheetInit: boolean = false;
-  private interruptedId = 1;
   private styleSheetName = "dropdown-expando-animation";
   private styleSheetNameInterrupted = `${this.styleSheetName}-interrupted`;
   private collapsedMaskWidth = 0;
@@ -143,6 +140,8 @@ export class DropdownExpando {
         outerAnimation: this.collapseMaskKeyframes,
       });
     }
+
+    this.updateId(animationId);
 
     if (this.animationMode === "css" && updateStylesheet) {
       this.addKeyframesToStyleSheet();
@@ -289,12 +288,12 @@ export class DropdownExpando {
     if (this.animationPlayState.running) {
       maskAnimationName =
         mode === "expand"
-          ? `InterruptedExpandMaskAnimation-${this.interruptedId}`
-          : `InterruptedCollapseMaskAnimation-${this.interruptedId}`;
+          ? `InterruptedExpandMaskAnimation-${this.id}-${this.animationInterruptedId}`
+          : `InterruptedCollapseMaskAnimation-${this.id}-${this.animationInterruptedId}`;
       innerAnimationName =
         mode === "expand"
-          ? `InterruptedExpandInnerAnimation-${this.interruptedId}`
-          : `InterruptedCollapseInnerAnimation-${this.interruptedId}`;
+          ? `InterruptedExpandInnerAnimation-${this.id}-${this.animationInterruptedId}`
+          : `InterruptedCollapseInnerAnimation-${this.id}-${this.animationInterruptedId}`;
 
       this.useInterruptedKeyframes({ mode });
       duration = this.interruptedDuration;
@@ -403,14 +402,15 @@ export class DropdownExpando {
 
     const styleSheet = document.getElementById(this.styleSheetNameInterrupted)!;
     styleSheet.textContent = `
-    @keyframes ${maskKeyframeName}-${this.interruptedId} {
+    @keyframes ${maskKeyframeName}-${this.id}-${this.animationInterruptedId} {
       ${this.keyframesToString(maskInterruptedKeyframes)}
     }
-    @keyframes ${innerKeyframeName}-${this.interruptedId} {
+    @keyframes ${innerKeyframeName}-${this.id}-${this.animationInterruptedId} {
       ${this.keyframesToString(innerInterruptedKeyframes)}
     }
     `;
 
+    this.updateAnimationInteruptedId();
     // reset
     this.collapseMaskInterruptedKeyframes = [];
     this.collapseInnerInterruptedKeyframes = [];
@@ -482,6 +482,19 @@ export class DropdownExpando {
       this.maskEl.style.animation = "none";
       this.innerEl.style.animation = "none";
     }
+  }
+
+  /**
+   * Safari has issue where animation applied to element is cached and cannot be updated. Workaround is setting element style to a different animation name or a more expensive route if you want to keep the animation name, is to "refresh" the element (remove from dom, then append it back).
+   */
+  private updateId(id: number) {
+    return (id = (id + 1) % 5);
+  }
+  /**
+   * Safari has issue where animation applied to element is cached and cannot be updated. Workaround is setting element style to a different animation name or a more expensive route if you want to keep the animation name, is to "refresh" the element (remove from dom, then append it back).
+   */
+  private updateAnimationInteruptedId() {
+    this.animationInterruptedId = (this.animationInterruptedId + 1) % 5;
   }
 }
 

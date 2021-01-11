@@ -30,6 +30,7 @@
       }
       .layer-1 {
         transition: transform 1000ms, fill 500ms;
+        transform-origin: right;
       }
       .layer-2 {
         transition: transform 800ms 200ms, fill 500ms;
@@ -46,7 +47,6 @@
     }
     .layer-1 {
       transform: translateY(-5px) rotate(11deg);
-      transform-origin: right;
     }
     .layer-2 {
       transform: translateY(22px) rotate(38deg);
