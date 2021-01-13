@@ -38,9 +38,13 @@ body {
   }
 }
 
-.reveal {
+.delayed-reveal {
   opacity: 0;
   animation: Show 500ms 500ms forwards;
+}
+.reveal {
+  opacity: 0;
+  animation: Show 500ms forwards;
 }
 
 hr {
@@ -134,8 +138,25 @@ button {
   }
 }
 
+.btn-leave {
+  background: #e05276;
+
+  &:hover,
+  &.noFocusClick:focus {
+    background: #fab0c4;
+    color: #5d0019;
+  }
+
+  &.noFocusClick:focus {
+    transition: none;
+    outline: 2px solid #fff;
+    outline-offset: 5px;
+  }
+}
+
 .btn-pick,
-.btn-start {
+.btn-start,
+.btn-leave {
   padding: 15px 20px;
   font-size: 20px;
   font-weight: 700;

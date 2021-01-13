@@ -111,7 +111,7 @@ export const moveAi: TMoveAi = async ({ delay } = {}) => {
 };
 
 const gameOver = () => {
-  const transitionTimeout = model.state.game.gameTie ? 900 : 1200;
+  const transitionTimeout = model.state.game.gameTie ? 800 : 1200;
   const mainPlayer = model.getPlayerById(
     model.state.onlineMultiplayer.mainPlayer
   )!;
@@ -122,7 +122,12 @@ const gameOver = () => {
 
   model.runGameOver();
   boardView.preventPlayerToSelect();
-  model.state.game.getCurrentPlayer;
+  playerBtnGroupView.resetPlayerIndicators();
+
+  if (!model.state.game.gameTie) {
+    model.increaseWinnerScore();
+    playerBtnGroupView.updatePlayerScore(winnerPlayer);
+  }
 
   if (model.state.game.hasAI && model.getAiPlayer() === winnerPlayer) {
     declare = "loser";
@@ -134,9 +139,8 @@ const gameOver = () => {
     player = loserPlayer;
   }
 
-  // gameMenuView.renderPlayAgainButton();
   setTimeout(() => {
-    gameMenuView.renderResultMenu({
+    gameMenuView.renderGameOverMenu({
       declare,
       player,
       tie: model.state.game.gameTie,
@@ -144,12 +148,4 @@ const gameOver = () => {
     boardView.preGame();
     playerBtnGroupView.updatePlayerBtnsOnPreGame();
   }, transitionTimeout);
-
-  if (model.state.game.gameTie) {
-    playerBtnGroupView.resetPlayerIndicators();
-    return;
-  }
-
-  model.increaseWinnerScore();
-  playerBtnGroupView.updatePlayerScore(winnerPlayer);
 };

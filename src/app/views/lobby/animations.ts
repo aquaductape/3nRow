@@ -1,8 +1,9 @@
 import { TPlayer } from "../../model/state";
 import gameContainerView from "../gameContainer/gameContainerView";
 import playerBtnGroupView from "../playerOptions/playerBtnGroupView";
-import { clearChildren, hideElement, reflow, showElement } from "../utils";
-import { TPreGameType } from "./lobbyView";
+import { clearChildren, reflow } from "../utils";
+import { hideElement, showElement } from "../utils/animation";
+import { TPreGameType } from "./joinPublicGameView";
 
 export const transitionPreGameStage = ({
   type,

@@ -389,7 +389,6 @@ const reSelectButton = ({
 
     const { onExit } = listeners[buttonIdx];
     onExit(customEvent);
-    console.log(listeners);
     removeListenersSliceFromIdx(buttonIdx);
 
     removeGlobalListener();

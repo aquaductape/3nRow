@@ -7,15 +7,21 @@ import skipToGameMenuView from "../views/skipContentBtn/skipToGameMenuView";
 import svgDefsView from "../views/svg/svgDefsView";
 import { moveAi } from "./move";
 
-export type TControlPlayAgain = () => void;
-export const controlPlayAgain: TControlPlayAgain = async () => {
+export type TControlPlayAgain = (prop: { triggeredByClick: boolean }) => void;
+export const controlPlayAgain: TControlPlayAgain = async ({
+  triggeredByClick = true,
+}) => {
   // Model
   model.setNextPlayerForFirstMove();
   model.resetForNextGame();
   // View
   boardView.clearBoard();
+  boardView.startingGameTriggeredByKeyboard = !triggeredByClick;
+  boardView.startGame();
+  playerBtnGroupView.updatePlayerBtnsOnGameStart();
 
   const aiPlayer = model.getAiPlayer();
+  const currentPlayer = model.getCurrentPlayer();
 
   // change ai skin
   if (model.state.game.hasAI) {
@@ -40,6 +46,15 @@ export const controlPlayAgain: TControlPlayAgain = async () => {
     });
   }
 
+  if (
+    currentPlayer.isAI ||
+    model.state.onlineMultiplayer.opponentPlayer === currentPlayer.id
+  ) {
+    boardView.preventPlayerToSelect();
+  } else {
+    boardView.allowPlayerToSelect();
+  }
+
   if (model.getCurrentPlayer().isAI) {
     playerBtnGroupView.updatePlayerIndicator(model.getAiPlayer());
     await moveAi();
@@ -55,11 +70,13 @@ export type TControlStartGame = (prop: {
   firstMovePlayer: string;
   ai: boolean;
   difficulty?: string;
+  triggeredByClick?: boolean;
 }) => void;
 export const controlStartGame: TControlStartGame = ({
   ai,
   firstMovePlayer,
   difficulty,
+  triggeredByClick = true,
 }) => {
   model.startGame();
 
@@ -70,15 +87,14 @@ export const controlStartGame: TControlStartGame = ({
   model.setCurrentPlayer(firstMovePlayer);
 
   playerBtnGroupView.updatePlayerBtnsOnGameStart();
+  boardView.startingGameTriggeredByKeyboard = !triggeredByClick;
   boardView.startGame();
   svgDefsView.updateDropShadow("rgba(0, 0, 0, 0.35)");
 
-  if (ai) {
+  if (ai || model.state.onlineMultiplayer.opponentPlayer === firstMovePlayer) {
     boardView.preventPlayerToSelect();
-  }
-
-  if (model.state.onlineMultiplayer.opponentPlayer === firstMovePlayer) {
-    boardView.preventPlayerToSelect();
+  } else {
+    boardView.allowPlayerToSelect();
   }
 
   playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());

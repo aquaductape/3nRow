@@ -6,11 +6,8 @@ import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TPlayer, TState } from "../../model/state";
 import { TSkin, TSkinProps } from "../../ts/index";
 import { colorMap, svg } from "../constants/constants";
-import {
-  createHTMLFromString,
-  getOppositePlayer,
-  hideElement,
-} from "../utils/index";
+import { hideElement } from "../utils/animation";
+import { createHTMLFromString, getOppositePlayer } from "../utils/index";
 import View from "../View";
 import DropdownOptionsView from "./DropdownOptionsView";
 

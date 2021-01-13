@@ -55,10 +55,15 @@
     display: block;
     padding-bottom: 100%;
   }
-  &:hover,
-  &.noFocusClick:focus {
+
+  &:hover {
     background: #3c2a6d;
   }
+
+  &.noFocusClick:focus {
+    background: #2d1d5a;
+  }
+
   &:hover svg {
     outline: none;
   }

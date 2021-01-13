@@ -29,6 +29,8 @@ class GameContainerView extends View {
     navigationBackBtn: HTMLElement;
     declarePlayersShape: HTMLElement;
     declarePlayersDeclaration: HTMLElement;
+    gameOverPlayerShape: HTMLElement;
+    gameOverPlayerResult: HTMLElement;
     playerPickSkinCountDown: HTMLElement;
   };
   declarePlayersAnimationRunning: boolean;
@@ -97,7 +99,9 @@ class GameContainerView extends View {
       ".board-background"
     ) as HTMLElement;
     dom.gameMenu = this.parentEl.querySelector("#game-menu") as HTMLElement;
-    dom.gameMenuBtns = Array.from(dom.gameMenu.querySelectorAll(".btn-pick"));
+    dom.gameMenuBtns = Array.from(
+      dom.gameMenu.querySelectorAll(".btn-pick, .btn-leave")
+    );
     dom.gameMenuBtnPickPlayer = Array.from(
       dom.gameMenu.querySelectorAll(".btn-pick-player")
     );
@@ -113,6 +117,12 @@ class GameContainerView extends View {
     ) as HTMLElement;
     dom.playerPickSkinCountDown = this.parentEl.querySelector(
       ".player-pick-skin-countdown"
+    ) as HTMLElement;
+    dom.gameOverPlayerShape = this.parentEl.querySelector(
+      ".game-over-title .player-shape"
+    ) as HTMLElement;
+    dom.gameOverPlayerResult = this.parentEl.querySelector(
+      ".game-over-title .player-result"
     ) as HTMLElement;
   }
 
@@ -136,14 +146,14 @@ class GameContainerView extends View {
       playerDropdownInners,
       playerDropdownMasks,
       fakePlayerBtns,
-
-      // fakePlayerBtnsHighlight,
       gameMenu,
       gameMenuBtns,
       gameMenuBtnPickPlayer,
       playAgainBtn,
       navigationBackBtn,
       playerPickSkinCountDown,
+      gameOverPlayerResult,
+      gameOverPlayerShape,
     } = this.dom;
 
     board.style.transition = "";
@@ -425,6 +435,32 @@ class GameContainerView extends View {
       });
     };
 
+    scaleStyles({
+      el: gameOverPlayerResult,
+      numerator: boardWidth,
+      styleRatio: {
+        fontSize: 12.906,
+        marginBottom: () =>
+          boardWidth < 270
+            ? px(boardWidth / -54)
+            : boardWidth < 434
+            ? px(boardWidth / 17.0866)
+            : px(boardWidth / 8.604),
+        marginTop: () => (boardWidth < 270 ? px(boardWidth / -54) : ""),
+      },
+    });
+
+    scaleStyles({
+      el: gameOverPlayerShape,
+      numerator: boardWidth,
+      styleRatio: {
+        width: () =>
+          boardWidth < 434 ? px(boardWidth / 4.265) : px(boardWidth / 3.2265),
+        height: () =>
+          boardWidth < 434 ? px(boardWidth / 4.265) : px(boardWidth / 3.2265),
+      },
+    });
+
     // font
     // 20.1612
 
@@ -482,14 +518,14 @@ class GameContainerView extends View {
     // init height
     resize();
 
-    // const debouncedResize = debounce(resize, {
-    //   leading: false,
-    //   time: 200,
-    // });
+    const debouncedResize = debounce(resize, {
+      leading: false,
+      time: 200,
+      throttle: 200,
+    });
+
     window.addEventListener("resize", () => {
-      resize();
-      // to cover for changing device viewport on Chrome devtools
-      // debouncedResize();
+      debouncedResize();
     });
   }
 
@@ -522,13 +558,17 @@ class GameContainerView extends View {
   scaleElementsToProportionToBoard({
     type,
   }: {
-    type: "menuBtns" | "declare-players" | "player-pick-skin-countdown";
+    type:
+      | "menuBtns"
+      | "declare-players"
+      | "player-pick-skin-countdown"
+      | "game-over-title";
   }) {
     const boardWidth = this.parentEl.clientWidth;
 
     if (type === "menuBtns") {
       const gameMenuBtns = Array.from(
-        this.parentEl.querySelectorAll(".btn-pick")
+        this.parentEl.querySelectorAll(".btn-pick, .btn-leave")
       ) as HTMLElement[];
       const gameMenuBtnPickPlayer = Array.from(
         this.parentEl.querySelectorAll(".btn-pick-player")
@@ -611,6 +651,41 @@ class GameContainerView extends View {
               : `${px(boardWidth / 25.8119)} 0`,
           fontSize: () =>
             boardWidth < 500 ? px(boardWidth / 11) : px(boardWidth / 16.1325),
+        },
+      });
+    }
+
+    if (type === "game-over-title") {
+      const gameOverPlayerShape = this.parentEl.querySelector(
+        ".game-over-title .player-shape"
+      ) as HTMLElement;
+      const gameOverPlayerResult = this.parentEl.querySelector(
+        ".game-over-title .player-result"
+      ) as HTMLElement;
+
+      scaleStyles({
+        el: gameOverPlayerResult,
+        numerator: boardWidth,
+        styleRatio: {
+          fontSize: 12.906,
+          marginBottom: () =>
+            boardWidth < 270
+              ? px(boardWidth / -54)
+              : boardWidth < 434
+              ? px(boardWidth / 17.0866)
+              : px(boardWidth / 8.604),
+          marginTop: () => (boardWidth < 270 ? px(boardWidth / -54) : ""),
+        },
+      });
+
+      scaleStyles({
+        el: gameOverPlayerShape,
+        numerator: boardWidth,
+        styleRatio: {
+          width: () =>
+            boardWidth < 434 ? px(boardWidth / 4.265) : px(boardWidth / 3.2265),
+          height: () =>
+            boardWidth < 434 ? px(boardWidth / 4.265) : px(boardWidth / 3.2265),
         },
       });
     }
