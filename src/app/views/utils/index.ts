@@ -15,25 +15,61 @@ export const createHTMLFromString = (string: string): Element => {
   return <Element>template.content.firstChild;
 };
 
+export const clearChildren = (element: HTMLElement) => {
+  // Accomplishes the same result as code below
+  // this.parentEl.innerHTML = "";
+  // However certain browsers might have optimize clearing elements with innerHTML if the string is empty
+  // Generally it's faster to remove last item than the first
+  while (element.firstChild) {
+    element.removeChild(element.lastChild!);
+  }
+};
+
 export const debounce = (
   cb: Function,
-  { time, leading = false }: { time: number; leading: boolean }
+  {
+    time,
+    leading = false,
+    throttle = null,
+  }: { time: number; leading: boolean; throttle?: number | null }
 ) => {
-  let timeout = 0;
+  let timeoutCb = 0;
+  let throttleTimeStamp: number | null = null;
   let fire = true;
+  let throttleFired = false;
 
-  return function () {
+  const debounced = (...args: any[]) => {
     if (leading && fire) {
-      cb();
+      cb(...args);
       fire = false;
     }
 
-    clearTimeout(timeout);
-    timeout = window.setTimeout(() => {
-      if (!leading) cb();
+    if (throttle != null) {
+      if (throttleTimeStamp == null) {
+        throttleTimeStamp = Date.now();
+      }
+
+      if (Date.now() - throttleTimeStamp! >= throttle) {
+        cb(...args);
+        throttleTimeStamp = null;
+        throttleFired = true;
+      }
+    }
+
+    if (throttleFired) {
+      clearTimeout(timeoutCb);
+      throttleFired = false;
+      return;
+    }
+
+    clearTimeout(timeoutCb);
+    timeoutCb = window.setTimeout(() => {
+      if (!leading) cb(...args);
       fire = true;
     }, time);
   };
+
+  return debounced;
 };
 
 export const randomRoundAmount = (rounds: number = 0) => {
@@ -73,7 +109,7 @@ export const svgStringWithUniqueIds = ({
     );
 };
 
-export const removeChild = (el: HTMLElement) => {
+export const removeElement = (el: HTMLElement) => {
   const parent = el.parentElement;
   if (!parent) return null;
   parent.removeChild(el);
@@ -87,97 +123,10 @@ export const getOppositePlayer = ({
   players: TPlayer[];
 }) => players.filter((player) => player.id !== id)[0];
 
-export const hideElement = ({
-  el,
-  transition = "200ms",
-  onStart,
-  onEnd,
-}: {
-  el: string | HTMLElement;
-  transition?: string;
-  onStart?: (el: HTMLElement) => void;
-  onEnd?: (el: HTMLElement) => void;
-}) => {
-  // default hides by opacity
-
-  const element = getElement(el);
-  transition = transition + " opacity";
-
-  const onTransitionEnd = () => {
-    if (onEnd) {
-      onEnd(element);
-    }
-
-    element.style.pointerEvents = "";
-    element.style.opacity = "";
-    element.removeEventListener("transitionend", onTransitionEnd);
-  };
-  const addTransitionListener = () =>
-    element.addEventListener("transitionend", onTransitionEnd);
-
-  element.style.pointerEvents = "none";
-
-  if (onStart) {
-    onStart(element);
-    addTransitionListener();
-    return;
-  }
-
-  element.style.webkitTransition = transition;
-  element.style.transition = transition;
-  addTransitionListener();
-
-  element.style.opacity = "0";
-};
-
-export const showElement = ({
-  el,
-  display = "block",
-  transition = "200ms",
-  onStart,
-  onEnd,
-}: {
-  el: string | HTMLElement;
-  display?: string;
-  onStart?: (el: HTMLElement) => void;
-  onEnd?: (el: HTMLElement) => void;
-  transition?: string;
-}) => {
-  const element = getElement(el);
-  transition = transition + " opacity";
-
-  const onTransitionEnd = () => {
-    if (onEnd) onEnd(element);
-    element.style.opacity = "";
-    element.style.webkitTransition = "";
-    element.style.transition = "";
-
-    element.removeEventListener("transitionend", onTransitionEnd);
-  };
-  const addTransitionListener = () =>
-    element.addEventListener("transitionend", onTransitionEnd);
-
-  addTransitionListener();
-
-  if (onStart) {
-    element.style.display = display;
-    reflow();
-    onStart(element);
-    return;
-  }
-
-  element.style.opacity = "0";
-  element.style.webkitTransition = transition;
-  element.style.transition = transition;
-  element.style.display = display;
-  reflow();
-  element.style.opacity = "1";
-};
-
 export const getElement = (root: string | HTMLElement) => {
   if (typeof root !== "string") return root;
 
-  if (root[0] === "#") {
+  if (root[0] === "#" && !root.match(/#|\.|\[/g)) {
     return document.getElementById(root.slice(1))!;
   }
 
@@ -190,7 +139,7 @@ export const convertObjPropsToHTMLAttr = ({
   obj,
   type,
 }: {
-  obj: { [key: string]: string };
+  obj: { [key: string]: string | undefined };
   type: "data" | "aria";
 }) => {
   let result = "";
@@ -217,4 +166,37 @@ export const hasAttributeValue = (
   const attrResult = el.getAttribute(attr);
   if (!attrResult) return false;
   return attrResult === val;
+};
+
+const animationInstances: { [key: string]: Function[] } = {};
+let hideRunning = false;
+const showInstances: { id: string; show: Function }[] = [];
+export const transitionHideThenShow = async ({
+  id,
+  hide,
+  show,
+}: {
+  id: string;
+  hide: Function;
+  show: Function;
+}) => {
+  const animationIdExist = animationInstances[id];
+  if (!animationIdExist) {
+    animationInstances[id].push(show);
+  }
+
+  // if(animationIdExist) {
+  //   showInstances.push({id, show})
+  // }
+
+  hide().then(() => {
+    show().then(() => {
+      // animationInstances.slice(animationInstances.indexOf(id), 1);
+      // showInstances
+    });
+  });
+};
+
+export const clickEventFiredByKeyboard = (e: MouseEvent) => {
+  return e.detail === 0;
 };

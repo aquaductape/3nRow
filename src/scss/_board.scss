@@ -7,9 +7,10 @@
   gap: var(--board-gap);
   position: relative;
   margin: 0 auto;
-  box-shadow: 0 25px 0 0px var(--blue-shadow);
+  box-shadow: 0 25px 0 0px var(--board-shadow);
   border-radius: 30px;
   overflow: hidden;
+  // transition: box-shadow 500ms;
 
   &-background {
     position: absolute;
@@ -17,7 +18,7 @@
     left: 0;
     height: 100%;
     width: 100%;
-    background: var(--blue-shadow);
+    background: var(--menu-bg-plain-main);
   }
 
   &.transition-out {
@@ -27,6 +28,7 @@
   }
 
   &.pre-game {
+    pointer-events: none;
     .cell {
       background: var(--blue-bg);
     }
@@ -53,10 +55,15 @@
     display: block;
     padding-bottom: 100%;
   }
-  &:hover,
-  &.noFocusClick:focus {
+
+  &:hover {
     background: #3c2a6d;
   }
+
+  &.noFocusClick:focus {
+    background: #2d1d5a;
+  }
+
   &:hover svg {
     outline: none;
   }
@@ -92,6 +99,45 @@
     height: 100%;
     width: 100%;
     pointer-events: none;
+
+    .animate__square-dot-1,
+    .animate__square-dot-2,
+    .animate__square-dot-3,
+    .animate__square-dot-4 {
+      opacity: 0;
+    }
+
+    .animate__square-dot-1 {
+      animation: Square-A-Dot-Outer-1 500ms ease-in-out;
+      circle {
+        animation: Square-A-Dot-Inner-1 500ms ease-in-out;
+      }
+    }
+    .animate__square-dot-2 {
+      animation: Square-A-Dot-Outer-2 500ms ease-in-out;
+      circle {
+        animation: Square-A-Dot-Inner-2 500ms ease-in-out;
+      }
+    }
+    .animate__square-dot-3 {
+      animation: Square-A-Dot-Outer-3 500ms ease-in-out;
+      circle {
+        animation: Square-A-Dot-Inner-3 500ms ease-in-out;
+      }
+    }
+    .animate__square-dot-4 {
+      animation: Square-A-Dot-Outer-4 500ms ease-in-out;
+      circle {
+        animation: Square-A-Dot-Inner-4 500ms ease-in-out;
+      }
+    }
+
+    .animate__square-line-1,
+    .animate__square-line-2,
+    .animate__square-line-3,
+    .animate__square-line-4 {
+      opacity: 0;
+    }
 
     .animate__first-line,
     .animate__second-line,

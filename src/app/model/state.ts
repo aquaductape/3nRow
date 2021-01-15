@@ -1,3 +1,4 @@
+import { TRoomClient } from "../ts/colyseusTypes";
 import { TPosition } from "../ts/index";
 
 export const state: TState = {
@@ -41,6 +42,7 @@ export const state: TState = {
     firstMove: "alternate",
     firstMovePlayer: "P1",
     winner: null,
+    loser: null,
     hasAI: false,
     winPosition: "",
     difficulties: ["MEDIUM", "HARD", "CHEATER"],
@@ -58,10 +60,22 @@ export const state: TState = {
       return players.find((player) => player.id === playerTurn)!;
     },
   },
+  onlineMultiplayer: {
+    active: false,
+    password: "",
+    room: null,
+    mainPlayer: "P1",
+    opponentPlayer: "P2",
+    hasPickedSkin: false,
+    pickedItems: {
+      color: "",
+      shape: "",
+    },
+  },
 };
 
 // @ts-ignore
-window.$state = state;
+// window.$state = state;
 
 export type TBoard = (number | "X" | "O")[][];
 
@@ -70,6 +84,8 @@ export type TShapes = {
   cross: string;
   triangle: string;
   heart: string;
+  // square: string;
+  // kite: string;
   [key: string]: string;
 };
 
@@ -106,15 +122,31 @@ export type TGame = {
   gameTie: boolean;
   startAgain: boolean;
   winner: string | null; // Player id
+  loser: string | null; // Player id
   hasAI: boolean;
   board: TBoard;
   difficulties: ("MEDIUM" | "HARD" | "CHEATER")[];
-  /** why an array, to allow the AI to cheat and take several positions in one turn */
+  /** why an array? To allow the AI to cheat and take several positions in one turn */
   markedPositions: TPosition[];
   winPosition: string;
+};
+
+type TOnlineMultiplayer = {
+  active: boolean;
+  password: string;
+  room: null | TRoomClient;
+  mainPlayer: string; // Player id
+  opponentPlayer: string; // Player id
+  hasPickedSkin: boolean;
+  pickedItems: {
+    color: string;
+    shape: string;
+    [key: string]: string;
+  };
 };
 
 export type TState = {
   players: TPlayer[];
   game: TGame;
+  onlineMultiplayer: TOnlineMultiplayer;
 };

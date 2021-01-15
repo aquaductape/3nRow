@@ -6,9 +6,10 @@ import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TPlayer, TState } from "../../model/state";
 import { TSkin, TSkinProps } from "../../ts/index";
 import { colorMap, svg } from "../constants/constants";
+import { hideElement } from "../utils/animation";
 import { createHTMLFromString, getOppositePlayer } from "../utils/index";
 import View from "../View";
-import DropdownOptionsView from "./dropdownOptionsView";
+import DropdownOptionsView from "./DropdownOptionsView";
 
 type TPlayerDom = {
   [key: string]: {
@@ -23,15 +24,50 @@ type TPlayerDom = {
 };
 
 class PlayerBtnGroup extends View {
-  data: TState;
-  playerOptions: NodeListOf<HTMLElement>;
-  playerDom: TPlayerDom;
+  protected data: TState;
+  private playerOptions: NodeListOf<HTMLElement>;
+  private playerDom: TPlayerDom;
 
   constructor() {
     super({ root: ".player-btn-group" });
     this.data = <TState>{};
     this.playerOptions = document.querySelectorAll(".player-options");
     this.playerDom = <TPlayerDom>{};
+  }
+
+  private hideSvgMark(playerId: string) {
+    const { playerMark } = this.playerDom[playerId];
+
+    hideElement({
+      el: playerMark,
+      onStart: (el) => {
+        el.style.opacity = "1";
+        el.style.transform = "scale(1)";
+        el.style.transition = "500ms transform, 250ms 250ms opacity";
+        this.reflow();
+        el.style.opacity = "0";
+        el.style.transform = "scale(0)";
+      },
+    });
+  }
+
+  private showSvgMark(playerId: string) {
+    const { playerMark } = this.playerDom[playerId];
+
+    hideElement({
+      el: playerMark,
+      onStart: (el) => {
+        el.style.transition = "500ms transform, 250ms 250ms opacity";
+        this.reflow();
+        el.style.opacity = "1";
+        el.style.transform = "scale(1)";
+      },
+      onEnd: (el) => {
+        el.style.opacity = "";
+        el.style.transform = "";
+        el.style.transition = "";
+      },
+    });
   }
 
   private generatePlayerMark({ id, svgMark }: { id: string; svgMark: string }) {
@@ -71,7 +107,7 @@ class PlayerBtnGroup extends View {
       const target = e.target as HTMLElement;
       const btn = target.closest(".player-btn-options") as HTMLElement;
 
-      // if (target.classList.contains("dropdown-options-container")) {
+      // if (target.classList.contains("dropdown-options-shell")) {
       //   return;
       // }
 
@@ -89,23 +125,41 @@ class PlayerBtnGroup extends View {
 
       onFocusOut({
         button: playerBtn,
-        allow: [".dropdown-options-container"],
+        allow: [".dropdown-options", ".tooltip-shell"],
         run: () => {
-          playerBtn.classList.add("active");
-          dropdownOptionsView.addDropdown();
+          this.activateBtnHoverState(playerId!);
+          dropdownOptionsView.expandDropdown();
           playerBtn.setAttribute("aria-expanded", "true");
         },
         onExit: () => {
-          const removeActiveBtn = () => {
-            playerBtn.classList.remove("active");
-          };
-          dropdownOptionsView.removeDropdown(removeActiveBtn);
+          dropdownOptionsView.collapseDropdown(() =>
+            this.deactiveBtnHoverState(playerId!)
+          );
           playerBtn.setAttribute("aria-expanded", "false");
         },
       });
     };
 
     this.parentEl.addEventListener("click", onAction);
+  }
+
+  recalculateDropdownAnimations() {
+    const { players } = this.data;
+
+    players.forEach(({ id }) => {
+      const { dropdownOptionsView } = this.playerDom[id];
+
+      dropdownOptionsView.recalculateDropdownAnimation();
+    });
+  }
+  removeForwardFillOnFinishedExpandedDropdowns() {
+    const { players } = this.data;
+
+    players.forEach(({ id }) => {
+      const { dropdownOptionsView } = this.playerDom[id];
+
+      dropdownOptionsView.recalculateDropdownAnimation();
+    });
   }
 
   resetPlayerIndicators() {
@@ -136,6 +190,13 @@ class PlayerBtnGroup extends View {
     players.forEach(({ id }) => {
       const { playerBtn } = this.playerDom[id];
       playerBtn.classList.remove("pre-game");
+    });
+  }
+  updatePlayerBtnsOnPreGame() {
+    const { players } = this.data;
+    players.forEach(({ id }) => {
+      const { playerBtn } = this.playerDom[id];
+      playerBtn.classList.add("pre-game");
     });
   }
 
@@ -174,33 +235,20 @@ class PlayerBtnGroup extends View {
     type: TSkinProps;
   }) {
     const { dropdownOptionsView } = this.playerDom[id];
-    // get opposite id from player
 
     if (Array.isArray(type)) {
       type.forEach((t) => {
-        const toolTipMsg = dropdownOptionsView.radioToolTipMessage({
-          type: t,
-          player: oppositePlayer,
-        });
-
         dropdownOptionsView.updatePlayerSkinDisabled({
           type: t,
           value: oppositePlayer[t],
-          toolTipMsg,
         });
       });
       return;
     }
 
-    const toolTipMsg = dropdownOptionsView.radioToolTipMessage({
-      type,
-      player: oppositePlayer,
-    });
-
     dropdownOptionsView.updatePlayerSkinDisabled({
       type,
       value: oppositePlayer[type],
-      toolTipMsg,
     });
   }
 
@@ -264,6 +312,42 @@ class PlayerBtnGroup extends View {
       .replace(/filter="url\(#drop-shadow-filter\)"/g, "");
     this.clearChildren(playerMark);
     this.generatePlayerMark({ id, svgMark });
+  }
+
+  showSvgMarks() {
+    const { players } = this.data;
+
+    players.forEach(({ id }) => this.showSvgMark(id));
+  }
+
+  hideSvgMarks() {
+    const { players } = this.data;
+
+    players.forEach(({ id }) => this.hideSvgMark(id));
+  }
+
+  activateColorShape(playerId: string) {
+    const { playerBtn } = this.playerDom[playerId];
+
+    playerBtn.classList.add("active-color-shape");
+  }
+
+  deactivateColorShape(playerId: string) {
+    const { playerBtn } = this.playerDom[playerId];
+
+    playerBtn.classList.remove("active-color-shape");
+  }
+
+  activateBtnHoverState(playerId: string) {
+    const { playerBtn } = this.playerDom[playerId];
+
+    playerBtn.classList.add("active");
+  }
+
+  deactiveBtnHoverState(playerId: string) {
+    const { playerBtn } = this.playerDom[playerId];
+
+    playerBtn.classList.remove("active");
   }
 }
 

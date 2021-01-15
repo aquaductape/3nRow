@@ -71,7 +71,9 @@ class SvgDefsView extends View {
     `;
   }
 
-  private setColor(player: TPlayer, shape: string) {
+  private setColorOfPlayer(player: TPlayer, shape: string) {
+    if (!player.color) return;
+
     const [primaryColor, secondaryColor] = colorMap[player.color];
     const shapeColorPrimary = `.color-primary-${shape}-${player.id}`;
     const shapeColorSecondary = `.color-secondary-${shape}-${player.id}`;
@@ -91,8 +93,7 @@ class SvgDefsView extends View {
 
   // override to set colors immediately after render
   render(data: TPlayer[]) {
-    this.data = data;
-    this.parentEl.innerHTML = this.generateMarkup();
+    super.render(data);
     this.setColors();
   }
 
@@ -105,6 +106,7 @@ class SvgDefsView extends View {
 
   updateShapeColors(data: TPlayer[]) {
     this.data = data;
+
     const shapeDefsContainer = this.parentEl.querySelector(
       ".shape-defs-container"
     ) as HTMLElement;
@@ -112,27 +114,30 @@ class SvgDefsView extends View {
     this.setColors();
   }
 
-  setColors() {
-    const setAllColors = (player: TPlayer) => {
-      for (let shape of shapesDefs) {
-        this.setColor(player, shape);
-      }
-    };
+  private setColor(player: TPlayer) {
+    for (let shape of shapesDefs) {
+      // this.setColorOfPlayer(player, shape);
+      this.setColorOfPlayer(player, shape);
+    }
+  }
 
+  setColors() {
     const players = this.data;
 
-    players.forEach(setAllColors);
+    players.forEach((player) => this.setColor(player));
   }
 }
 type TDefsCollection = {
   openingDef: string;
   closingDef: string;
-  crossLeftDot: string;
-  crossRightDot: string;
+  primaryColor: string;
+  secondaryColor: string;
   circle: string;
   cross: string;
   triangle: string;
   heart: string;
+  square: string;
+  kite: string;
   dropShadow: string;
   [key: string]: string;
 };
@@ -141,10 +146,10 @@ const defsCollection: TDefsCollection = {
   openingDef: `<svg xmlns="http://www.w3.org/2000/svg" class="defs-collection" height="0" width="0" viewBox="0 0 32 32">
     <defs>`,
   closingDef: `</defs></svg>`,
-  crossLeftDot: `<linearGradient id="a">
+  primaryColor: `<linearGradient id="a">
       <stop class="color-primary" stop-color="#000"/>
     </linearGradient>`,
-  crossRightDot: `<linearGradient id="a">
+  secondaryColor: `<linearGradient id="a">
     <stop class="color-secondary" stop-color="#000"/>
   </linearGradient>`,
   circle: `<linearGradient id="a">
@@ -178,6 +183,29 @@ const defsCollection: TDefsCollection = {
       <stop class="color-secondary" offset="1" stop-color="#ff00e4" stop-opacity=".9843"/>
     </linearGradient>
     <linearGradient gradientUnits="userSpaceOnUse" y2="20.5725" x2="15.9935" y1="4.2042" x1="12.8753" id="f" xlink:href="#e"/>`,
+  square: `
+    <linearGradient id="b">
+      <stop class="color-secondary" offset="0" stop-color="#5fd"/>
+      <stop class="color-primary" offset="1" stop-color="#3befe8"/>
+    </linearGradient>
+    <linearGradient id="a">
+      <stop class="color-secondary" offset="0" stop-color="#5fd"/>
+      <stop class="color-primary" offset="1" stop-color="#0cf"/>
+    </linearGradient>
+    <linearGradient xlink:href="#a" id="f" gradientUnits="userSpaceOnUse" gradientTransform="rotate(45 3.692 13.23)" x1="4.126" y1="10.97" x2="12.653" y2="12.746"/>
+    <linearGradient xlink:href="#a" id="e" gradientUnits="userSpaceOnUse" gradientTransform="rotate(-45 19.973 6.486)" x1="24.009" y1="1.258" x2="6.456" y2="18.869"/>
+    <linearGradient xlink:href="#a" id="d" gradientUnits="userSpaceOnUse" gradientTransform="rotate(-135 13.23 9.279)" x1="17.574" y1="10.419" x2="12.49" y2="9.696"/>
+    <linearGradient xlink:href="#a" id="c" gradientUnits="userSpaceOnUse" gradientTransform="rotate(-45 13.23 22.766)" x1="15.711" y1="2.769" x2="11.511" y2="15.047"/>
+    <linearGradient xlink:href="#b" id="g" x1="19.962" y1="1.869" x2="19.962" y2="7.468" gradientUnits="userSpaceOnUse" gradientTransform="translate(-6.753 6.725)"/>
+  `,
+  kite: `
+    <linearGradient id="a">
+    <stop class="color-secondary" offset="0" stop-color="#5fd"/>
+     <stop class="color-primary" offset="1" stop-color="#0cf"/>
+    </linearGradient>
+    <linearGradient xlink:href="#a" id="g" gradientUnits="userSpaceOnUse" gradientTransform="rotate(45 45.101 49.789)" x1="20.896" y1="8.919" x2="13.883" y2="6.051"/>
+    <linearGradient xlink:href="#a" id="f" gradientUnits="userSpaceOnUse" gradientTransform="rotate(135 31.877 12.388)" x1="14.14" y1="10.931" x2="14.156" y2="4.928"/>
+  `,
   dropShadow: `
     <filter id="drop-shadow-filter" height="100" width="100" filterUnits="userSpaceOnUse"  color-interpolation-filters="sRGB">
       <feFlood flood-opacity="1" flood-color="#000" result="flood"/>
@@ -202,8 +230,10 @@ const shapesDefs = [
   "circle",
   "triangle",
   "heart",
-  "crossLeftDot",
-  "crossRightDot",
+  // "square",
+  // "kite",
+  "primaryColor",
+  "secondaryColor",
 ];
 
 export default new SvgDefsView();

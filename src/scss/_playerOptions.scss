@@ -40,8 +40,8 @@
   margin-bottom: 30px;
 
   // { fix clip animation in Safari
-  z-index: 10;
-  transform: translateZ(0);
+  // z-index: 10;
+  // transform: translateZ(0);
   // }
 }
 
@@ -71,6 +71,7 @@
   outline: none;
   cursor: pointer;
   user-select: none;
+  font-family: "Roboto";
   transition: 250ms background-color, 250ms box-shadow;
   z-index: 2;
 
@@ -111,6 +112,17 @@
     }
   }
 
+  &.active-color-shape {
+    .monochrome {
+      opacity: 0;
+      transition: opacity 250ms;
+    }
+
+    .full-color {
+      opacity: 1;
+    }
+  }
+
   &.noFocusClick:focus {
     outline: 2px solid #fff;
     outline-offset: 5px;
@@ -140,31 +152,14 @@
   box-shadow: 0px 10px 0px var(--blue-shadow);
 }
 
-.fake-player-btns {
+.fake-player-btn {
   position: relative;
   top: 10px;
-  display: flex;
-  justify-content: space-between;
   height: 65px;
+  border-radius: 10px;
+  border-bottom-right-radius: 0px;
+  background: #eee;
   pointer-events: none;
-  z-index: 1;
-  transform: translateZ(0);
-
-  & .player-btn-highlight {
-    height: 100%;
-    width: 100%;
-    border-radius: 10px;
-    border-bottom-right-radius: 0px;
-    pointer-events: none;
-    background: #eee;
-    box-shadow: -10px 0px 0px 0px #eee;
-  }
-}
-
-#P1-btn-options {
-  & .player-btn-highlight {
-    box-shadow: 10px 0px 0px 0px #eee;
-  }
 }
 
 .player-mark {

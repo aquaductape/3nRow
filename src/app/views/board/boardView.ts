@@ -1,4 +1,4 @@
-import { TMovePlayer } from "../../controllers/move";
+import { TControlMovePlayer } from "../../controllers/move";
 import {
   EdgeLegacy,
   IOS,
@@ -9,27 +9,21 @@ import { TGame, TPlayer, TState } from "../../model/state";
 import { colorMap } from "../constants/constants";
 import { createHTMLFromString } from "../utils/index";
 import View from "../View";
-import {
-  keyboardInteraction,
-  prevCellChangeTabindex,
-} from "./keyboardInteraction";
+import { keyboardInteraction } from "./keyboardInteraction";
 import { renderWinnerSlash } from "./renderLine";
 
 class BoardView extends View {
-  firstCell: HTMLElement;
-  slashContainer: HTMLElement;
-  data: TState;
-  state: {
-    playerCanSelectCell: boolean;
-    boardCleared: boolean;
-  };
+  protected data: TState;
+  private focusableCell: HTMLElement;
+  private slashContainer: HTMLElement;
+  private playerCanSelectCell = false;
+  private playerCanNavigateCells = false;
+  private boardCleared = true;
+  startingGameTriggeredByKeyboard = false;
+
   constructor() {
     super({ root: ".board" });
-    this.state = {
-      playerCanSelectCell: false,
-      boardCleared: true,
-    };
-    this.firstCell = this.parentEl.querySelector(
+    this.focusableCell = this.parentEl.querySelector(
       '[data-column="0"]'
     ) as HTMLElement;
     this.slashContainer = this.parentEl.querySelector(
@@ -75,7 +69,7 @@ class BoardView extends View {
     cell.setAttribute("data-selected", "true");
     cell.setAttribute("data-player-id", player.id);
     cell.setAttribute("aria-label", `Marked by ${player.name}`);
-    this.state.playerCanSelectCell = false;
+    this.playerCanSelectCell = false;
   }
 
   private updateEmptyCellsAriaLabel(player: TPlayer) {
@@ -100,12 +94,12 @@ class BoardView extends View {
     const {
       game: { markedPositions },
     } = this.data;
-    const { shape, svgShapes: shapes } = player;
+    const { shape, svgShapes } = player;
 
     markedPositions.forEach((markedPosition) => {
       const cell = this.getCellElement(markedPosition);
       this.selectCell({ cell, player });
-      const shapeEl = createHTMLFromString(shapes[shape]) as SVGElement;
+      const shapeEl = createHTMLFromString(svgShapes[shape]) as SVGElement;
 
       // fires multiple times, debounce then when it ends add block-animation
       const animationEnd = () => {
@@ -123,7 +117,7 @@ class BoardView extends View {
       // if (EdgeLegacy) {
       // BAD solution, use debounce instead
       setTimeout(() => {
-        if (this.state.boardCleared) return;
+        if (this.boardCleared) return;
         cell.classList.add("block-animation");
       }, 2000);
       // }
@@ -131,25 +125,31 @@ class BoardView extends View {
       // cell.addEventListener("animationend", animationEnd);
       // BAD solution, use debounce instead
       setTimeout(() => {
-        this.state.boardCleared = false;
+        this.boardCleared = false;
       }, 1000);
     });
   }
 
-  addHandlerCell(handler: TMovePlayer) {
+  private prevCellChangeTabindex() {
+    const prevCell = this.parentEl.querySelector(
+      '[data-column][tabindex="0"]'
+    )!;
+    if (!prevCell) return;
+    prevCell.setAttribute("tabindex", "-1");
+  }
+
+  addHandlerCell(handler: TControlMovePlayer) {
     this.parentEl.addEventListener("click", (e) => {
       const target = <HTMLElement>e.target;
       const cell = target.closest("[data-column]") as HTMLElement;
 
       if (!cell) return;
 
-      prevCellChangeTabindex(
-        () => this.parentEl.querySelector('[data-column][tabindex="0"]')!
-      );
+      this.prevCellChangeTabindex();
 
       cell.setAttribute("tabindex", "0");
 
-      if (!this.state.playerCanSelectCell) return;
+      if (!this.playerCanSelectCell) return;
       if (this.isCellSelected(cell)) return;
 
       this.selectCell({ cell });
@@ -165,9 +165,9 @@ class BoardView extends View {
 
       if (!cell) return;
 
-      keyboardInteraction(e);
+      keyboardInteraction(e, { onFocusNewCell: this.onFocusNewCell });
 
-      if (!this.state.playerCanSelectCell) return;
+      if (!this.playerCanSelectCell) return;
       if (!keys.includes(e.key) || this.isCellSelected(cell)) return;
 
       this.selectCell({ cell });
@@ -175,6 +175,10 @@ class BoardView extends View {
       handler(this.getPositionFromCell(cell));
     });
   }
+
+  private onFocusNewCell = (el: HTMLElement) => {
+    this.focusableCell = el;
+  };
 
   updateShapeInCells(player: TPlayer) {
     const cells = this.parentEl.querySelectorAll(
@@ -208,10 +212,20 @@ class BoardView extends View {
   }
 
   allowPlayerToSelect() {
-    this.state.playerCanSelectCell = true;
+    this.playerCanSelectCell = true;
   }
+  allowPlayerToNavigate() {
+    this.playerCanNavigateCells = true;
+    this.focusableCell.tabIndex = 0;
+  }
+
+  preventPlayerToNavigate() {
+    this.playerCanNavigateCells = false;
+    this.focusableCell.removeAttribute("tabindex");
+  }
+
   preventPlayerToSelect() {
-    this.state.playerCanSelectCell = false;
+    this.playerCanSelectCell = false;
   }
 
   updateWinnerSlashColor(color: string) {
@@ -232,16 +246,29 @@ class BoardView extends View {
   }
 
   startGame() {
-    this.firstCell.tabIndex = 0;
-    this.firstCell.focus();
-    this.state.playerCanSelectCell = true;
+    this.allowPlayerToNavigate();
+    if (this.startingGameTriggeredByKeyboard) {
+      this.focusableCell.classList.add("noFocusClick");
+    }
+    this.focusableCell.focus();
     this.parentEl.removeAttribute("aria-hidden");
-    setTimeout(() => {
-      this.parentEl.classList.remove("pre-game");
-    }, 300);
+    this.parentEl.classList.remove("pre-game");
+
     setTimeout(() => {
       this.parentEl.classList.remove("transition-out");
-    }, 400);
+    }, 100);
+    this.startingGameTriggeredByKeyboard = false;
+  }
+
+  preGame() {
+    this.preventPlayerToSelect();
+    this.preventPlayerToNavigate();
+
+    setTimeout(() => {
+      this.parentEl.classList.add("transition-out");
+      this.parentEl.classList.add("pre-game");
+    }, 300);
+    this.parentEl.setAttribute("aria-hidden", "true");
   }
 
   clearBoard() {
@@ -262,13 +289,8 @@ class BoardView extends View {
     // remove slash
     this.clearChildren(this.slashContainer);
 
-    // focus on cell
-    const activeCell = this.parentEl.querySelector(
-      '[tabindex="0"]'
-    ) as HTMLElement;
-    activeCell.focus();
     // BAD solution, use debounce instead
-    this.state.boardCleared = true;
+    this.boardCleared = true;
   }
 
   // override render

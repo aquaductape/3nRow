@@ -15,11 +15,15 @@
   <meta name="description"
     content="3nRow is a Tic Tac Toe game, where you can play against your rivals, either human or computer, also there's a variety of shapes to choose in case you get tired of the classic X and O">
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+  <style id="dropdown-expando-animation"></style>
+  <style id="dropdown-expando-animation-interrupted-P1"></style>
+  <style id="dropdown-expando-animation-interrupted-P2"></style>
   <title>3nRow</title>
 </head>
 
 <body>
   <div id="skip-to-game-menu"></div>
+  <div class="tooltips-container"></div>
   <div id="game-status" role="region" aria-live="off" style="position: absolute; pointer-events: none; opacity: 0;">
   </div>
   <div class="game-container" style="opacity: 0;">
@@ -36,7 +40,7 @@
           <div class="player-options">
           </div>
         </button>
-        <div class="dropdown-options-container hidden" aria-labelledby="Player_1_options">
+        <div class="dropdown-options-container" aria-labelledby="Player_1_options">
         </div>
         <div class="player-current-indicator"></div>
       </div>
@@ -49,13 +53,7 @@
           </div>
           <div class="player-options"></div>
         </button>
-        <div class="dropdown-options-container hidden" aria-labelledby="Player_2_options">
-          <!-- AI Options -->
-          <!-- <li>
-              <div class="options-gameplay">
-                <hr> <button id="options-restart" class="btn btn-secondary options-btn">Restart</button> <button
-                  id="options-reset-scores" class="btn btn-secondary options-btn">Reset Scores</button> </div>
-            </li> -->
+        <div class="dropdown-options-container" aria-labelledby="Player_2_options">
         </div>
         <div class="player-current-indicator"></div>
       </div>

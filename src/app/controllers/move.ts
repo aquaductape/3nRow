@@ -4,12 +4,20 @@ import boardView from "../views/board/boardView";
 import gameMenuView from "../views/gameMenu/gameMenuView";
 import playerBtnGroupView from "../views/playerOptions/playerBtnGroupView";
 
-export type TMovePlayer = (prop: { row: number; column: number }) => void;
-export const movePlayer: TMovePlayer = async ({ column, row }) => {
-  if (model.state.game.gameOver) return gameOver();
+export type TControlMovePlayer = (prop: {
+  row: number;
+  column: number;
+  userActionFromServer?: boolean;
+}) => void;
+export const controlMovePlayer: TControlMovePlayer = async ({
+  column,
+  row,
+  userActionFromServer = false,
+}) => {
+  if (model.state.game.gameOver) return;
 
   // if turn is human, then move human and then if AI exists, move AI afterwards
-  moveHuman({ column, row });
+  moveHuman({ column, row, userActionFromServer });
   if (model.state.game.gameOver) return gameOver();
   playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
 
@@ -21,11 +29,25 @@ export const movePlayer: TMovePlayer = async ({ column, row }) => {
   playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
 };
 
-export const moveHuman = ({ column, row }: { column: number; row: number }) => {
+export const moveHuman = ({
+  column,
+  row,
+  userActionFromServer,
+}: {
+  column: number;
+  row: number;
+  userActionFromServer?: boolean;
+}) => {
   const player = model.getCurrentPlayer();
+  // console.log(player);
   boardView.preventPlayerToSelect();
   model.startTurn({ column, row });
-  // socket.emit("player move", { column, row });
+  // console.log("currentPlayer after moveHuman", model.getCurrentPlayer());
+  if (model.state.onlineMultiplayer.active && !userActionFromServer) {
+    const { room } = model.state.onlineMultiplayer;
+    // console.log("fire send move");
+    room!.send("move", { column, row });
+  }
   // View
   // show mark based on column row
   boardView.updateBoard({ data: model.state, player });
@@ -38,12 +60,16 @@ export const moveHuman = ({ column, row }: { column: number; row: number }) => {
   });
 
   if (!model.state.game.hasAI) {
-    boardView.allowPlayerToSelect();
+    if (model.state.onlineMultiplayer.active) {
+      if (userActionFromServer) {
+        boardView.allowPlayerToSelect();
+      }
+    } else {
+      boardView.allowPlayerToSelect();
+    }
   }
 
   if (model.state.game.gameOver) {
-    // model update random shape or color
-    gameMenuView.renderPlayAgainButton();
     gameStatusAriaLiveRegionView.announce({
       playerId: player.id,
       state: model.state.game.gameTie ? "tie" : "win",
@@ -75,7 +101,6 @@ export const moveAi: TMoveAi = async ({ delay } = {}) => {
   model.clearMarkedPositions();
 
   if (model.state.game.gameOver) {
-    gameMenuView.renderPlayAgainButton();
     gameStatusAriaLiveRegionView.announce({
       playerId: ai.id,
       state: model.state.game.gameTie ? "tie" : "win",
@@ -88,13 +113,41 @@ export const moveAi: TMoveAi = async ({ delay } = {}) => {
 };
 
 const gameOver = () => {
-  model.runGameOver();
+  const transitionTimeout = model.state.game.gameTie ? 800 : 1200;
+  const mainPlayer = model.getPlayerById(
+    model.state.onlineMultiplayer.mainPlayer
+  )!;
+  const winnerPlayer = model.getWinner()!;
+  const loserPlayer = model.getLoser()!;
+  let player = winnerPlayer;
+  let declare = "winner" as "winner" | "loser";
 
-  if (model.state.game.gameTie) {
-    playerBtnGroupView.resetPlayerIndicators();
-    return;
+  model.runGameOver();
+  boardView.preventPlayerToSelect();
+  playerBtnGroupView.resetPlayerIndicators();
+
+  if (!model.state.game.gameTie) {
+    model.increaseWinnerScore();
+    playerBtnGroupView.updatePlayerScore(winnerPlayer);
   }
 
-  model.increaseWinnerScore();
-  playerBtnGroupView.updatePlayerScore(model.getWinner()!);
+  if (model.state.game.hasAI && model.getAiPlayer() === winnerPlayer) {
+    declare = "loser";
+    player = loserPlayer;
+  }
+
+  if (model.state.onlineMultiplayer.active && mainPlayer !== winnerPlayer) {
+    declare = "loser";
+    player = loserPlayer;
+  }
+
+  setTimeout(() => {
+    gameMenuView.renderGameOverMenu({
+      declare,
+      player,
+      tie: model.state.game.gameTie,
+    });
+    boardView.preGame();
+    playerBtnGroupView.updatePlayerBtnsOnPreGame();
+  }, transitionTimeout);
 };

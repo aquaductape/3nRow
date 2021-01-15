@@ -10,19 +10,18 @@ const ARROW_RIGHT = "ArrowRight";
 const HOME = "Home";
 const END = "End";
 
-const focusNewCell = ({ column, row }: TPosition) => {
+const focusNewCell = ({
+  column,
+  row,
+  onFocusNewCell,
+}: TPosition & { onFocusNewCell: (el: HTMLElement) => void }) => {
   const cell = document.querySelector(
     `[data-row="${row}"] [data-column="${column}"]`
   ) as HTMLElement;
 
   cell.focus();
   cell.setAttribute("tabindex", "0");
-};
-
-export const prevCellChangeTabindex = (callback: () => Element | null) => {
-  const prevCell = callback();
-  if (!prevCell) return;
-  prevCell.setAttribute("tabindex", "-1");
+  onFocusNewCell(cell);
 };
 
 export const guardKey = (key: string) => {
@@ -33,7 +32,10 @@ export const guardKey = (key: string) => {
 /**
  * {@link https://www.w3.org/TR/wai-aria-practices-1.1/#keyboard-interaction-for-data-grids| Grid ARIA}
  */
-export const keyboardInteraction = (e: KeyboardEvent) => {
+export const keyboardInteraction = (
+  e: KeyboardEvent,
+  { onFocusNewCell }: { onFocusNewCell: (el: HTMLElement) => void }
+) => {
   if (!guardKey(e.key)) return;
 
   const currentCell = document.activeElement as HTMLElement;
@@ -52,7 +54,7 @@ export const keyboardInteraction = (e: KeyboardEvent) => {
     if (column > maxColumn) return;
 
     currentCell.setAttribute("tabindex", "-1");
-    focusNewCell({ row, column });
+    focusNewCell({ row, column, onFocusNewCell });
   };
 
   // Control + Home: moves focus to the first cell in the first row

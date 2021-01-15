@@ -29,8 +29,7 @@ const keys = [
 ];
 
 document.addEventListener("click", (e) => {
-  // detect if fired by keyboard
-  if (e.detail === 0) return;
+  if (clickEventFiredByKeyboard(e)) return;
 
   if (prevEl) {
     prevEl.classList.remove(className);
@@ -68,5 +67,9 @@ document.addEventListener("keyup", (e) => {
 
   prevEl = activeElement;
 });
+
+const clickEventFiredByKeyboard = (e: MouseEvent) => {
+  return e.detail === 0;
+};
 
 export {};

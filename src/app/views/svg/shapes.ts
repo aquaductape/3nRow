@@ -16,9 +16,19 @@ const buildShapes = (id: string) => {
     "animate__left-line",
   ];
   const ignoreCircleClasses = ["animate__circle-left", "animate__circle-right"];
+  const ignoreSquareClasses = [
+    "animate__square-dot-1",
+    "animate__square-dot-2",
+    "animate__square-dot-3",
+    "animate__square-dot-4",
+    "animate__square-line-1",
+    "animate__square-line-2",
+    "animate__square-line-3",
+    "animate__square-line-4",
+  ];
   const ignoreUrl = [
-    "%crossLeftDot%",
-    "%crossRightDot%",
+    "%primaryColor%",
+    "%secondaryColor%",
     "#drop-shadow-filter",
   ];
 
@@ -35,8 +45,8 @@ const buildShapes = (id: string) => {
       ignoreClass: ignoreCrossClasses,
       ignoreUrl,
     })
-      .replace("%crossLeftDot%", `#a-crossLeftDot-${id}`)
-      .replace("%crossRightDot%", `#a-crossRightDot-${id}`),
+      .replace("%primaryColor%", `#a-primaryColor-${id}`)
+      .replace("%secondaryColor%", `#a-secondaryColor-${id}`),
     triangle: svgStringWithUniqueIds({
       svg: svg.triangle,
       id: `-triangle-${id}`,
@@ -49,6 +59,19 @@ const buildShapes = (id: string) => {
       ignoreClass: ignoreHeartClasses,
       ignoreUrl,
     }),
+    square: svgStringWithUniqueIds({
+      svg: svg.square,
+      id: `-square-${id}`,
+      ignoreClass: ignoreSquareClasses,
+      ignoreUrl,
+    })
+      .replace(/%primaryColor%/g, `#a-primaryColor-${id}`)
+      .replace(/%secondaryColor%/g, `#a-secondaryColor-${id}`),
+    kite: svgStringWithUniqueIds({
+      svg: svg.kite,
+      id: `-kite-${id}`,
+      ignoreUrl,
+    }).replace(/%primaryColor%/g, `#a-primaryColor-${id}`),
   };
 };
 

@@ -4,7 +4,7 @@ import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TPlayer, TState } from "../../model/state";
 import { svg } from "../constants/constants";
 import overlayView from "../overlay/overlayView";
-import { hideElement, showElement } from "../utils/index";
+import { hideElement, showElement } from "../utils/animation";
 import View from "../View";
 import matchMediaView from "../windowEvents/matchMediaView";
 import { settingsTree } from "./keyboardInteraction";

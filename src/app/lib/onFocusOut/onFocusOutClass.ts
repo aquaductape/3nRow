@@ -241,7 +241,7 @@ const reClickButton = ({
   if (parentContains(button)) {
     // if (!toggle) return manualExit;
     if (!toggle) return true;
-    console.log("on toggle exit");
+    // console.log("on toggle exit");
     runExitAndTearDownListener();
     if (!listeners.length) {
       removeGlobalListener();

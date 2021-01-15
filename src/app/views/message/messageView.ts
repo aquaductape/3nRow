@@ -1,7 +1,7 @@
 import View from "../View";
 
 class MessageView extends View {
-  data: string;
+  protected data: string;
   constructor() {
     super({ root: ".message" });
     this.data = "";
