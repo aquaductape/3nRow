@@ -24,8 +24,8 @@ export const shapes = [
   "cross",
   "triangle",
   "heart",
-  "square",
-  "kite",
+  // "square",
+  // "kite",
 ];
 
 export const svg = {

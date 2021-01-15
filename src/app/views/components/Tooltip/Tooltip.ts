@@ -69,7 +69,7 @@ export class Tooltip {
     ) {
       return;
     }
-    console.log("remove by mousemove");
+    // console.log("remove by mousemove");
 
     this.removeTooltip();
     document.removeEventListener(
@@ -132,7 +132,7 @@ export class Tooltip {
   }
 
   private onTransitionend = (e: Event) => {
-    console.log("ontransitionend");
+    // console.log("ontransitionend");
     if (e.target !== this.tooltipContainerEl) return;
 
     this.tooltipContainerEl.classList.remove("active");
@@ -143,7 +143,7 @@ export class Tooltip {
   };
 
   private hideTooltip() {
-    console.log("hide");
+    // console.log("hide");
     this.tooltipContainerEl.classList.remove("visible");
     this.tooltipContainerEl.addEventListener(
       "transitionend",
@@ -152,7 +152,7 @@ export class Tooltip {
   }
 
   private revealTooltip() {
-    console.log("reveal");
+    // console.log("reveal");
     this.tooltipContainerEl.removeEventListener(
       "transitionend",
       this.onTransitionend
@@ -250,7 +250,7 @@ export class Tooltip {
     if (triggeredBy === "click") this.activatedByClick = true;
     if (triggeredBy === "hover") this.activatedByHover = true;
 
-    console.log("bypass");
+    // console.log("bypass");
 
     this.tooltipFocusOutEvent = onFocusOut({
       button: this.tooltipTargetEl,
@@ -310,9 +310,9 @@ export class Tooltip {
       "mousemove",
       this.debouncedOnMousemoveTargetEl
     );
-    console.log("remove");
+    // console.log("remove");
     if (!this.tooltipContainerEl.isConnected) {
-      console.log("is not connected: remove");
+      // console.log("is not connected: remove");
       return;
     }
   }

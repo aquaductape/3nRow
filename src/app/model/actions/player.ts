@@ -99,6 +99,7 @@ export const startGame = () => {
 };
 
 export const setCurrentPlayer = (id: string) => {
+  // console.log("seeeet");
   state.game.playerTurn = id;
 };
 
@@ -135,9 +136,17 @@ export const setPlayerAsHumanOrAI = ({
   game.hasAI = ai;
 };
 
-export const setNextPlayerForFirstMove = () => {
+export const setNextPlayerForFirstMove = ({
+  firstMovePlayer: arg_firstMovePlayer,
+}: { firstMovePlayer?: string } = {}) => {
   const { game, players } = state;
   const { firstMove, firstMovePlayer, winner, gameTie } = game;
+
+  if (arg_firstMovePlayer) {
+    game.playerTurn = arg_firstMovePlayer;
+    game.firstMovePlayer = arg_firstMovePlayer;
+    return;
+  }
 
   if (firstMove === "alternate") {
     const nextPlayer = getOppositePlayer({ id: firstMovePlayer, players }).id;
@@ -194,8 +203,8 @@ export const randomChangePlayerSkin = (player: TPlayer) => {
     "cross",
     "triangle",
     "heart",
-    "square",
-    "kite",
+    // "square",
+    // "kite",
   ];
   // !!!!!!! duplicated, already defined on constants in View, I should restructure where this constant is stored
   const colors: TColors[] = [

@@ -39,11 +39,13 @@ export const moveHuman = ({
   userActionFromServer?: boolean;
 }) => {
   const player = model.getCurrentPlayer();
+  // console.log(player);
   boardView.preventPlayerToSelect();
   model.startTurn({ column, row });
+  // console.log("currentPlayer after moveHuman", model.getCurrentPlayer());
   if (model.state.onlineMultiplayer.active && !userActionFromServer) {
     const { room } = model.state.onlineMultiplayer;
-    console.log("fire send move");
+    // console.log("fire send move");
     room!.send("move", { column, row });
   }
   // View

@@ -112,6 +112,17 @@
     }
   }
 
+  &.active-color-shape {
+    .monochrome {
+      opacity: 0;
+      transition: opacity 250ms;
+    }
+
+    .full-color {
+      opacity: 1;
+    }
+  }
+
   &.noFocusClick:focus {
     outline: 2px solid #fff;
     outline-offset: 5px;

@@ -29,6 +29,9 @@ export type TDeclarePlayers = {
   };
   [key: string]: { color: string; shape: string };
 };
+type TPlayAgainResult = {
+  firstMovePlayer: string;
+};
 
 export type TRoomClient = {
   state: {
@@ -41,16 +44,16 @@ export type TRoomClient = {
     (action: "skinChange", props: string): void;
     (action: "pickSkin", props: TPickSkin): void;
     (action: "prepareGame", props: boolean): void;
+    (action: "votePlayAgain", props: any): void;
+    (action: "playAgainNow", props: any): void;
   };
   onMessage: {
-    (
-      listener: "readyPlayers",
-      props: (props: { [key: string]: string }) => void
-    ): void;
+    (listener: "readyPlayers", props: (props: string) => void): void;
     (listener: "pickSkin", props: TOnPickSkin): void;
     (listener: "declarePlayers", props: (props: TDeclarePlayers) => void): void;
     (listener: "busyPlayers", props: (props: number) => void): void;
     (listener: "move", props: (props: TMovePosition) => void): void;
     (listener: "countDownPickSkin", props: (props: number) => void): void;
+    (listener: "playAgain", props: (props: TPlayAgainResult) => void): void;
   };
 } & Omit<Room<unknown>, "send">;

@@ -141,33 +141,33 @@ const menuBtns: TGameMenuState = {
           "Join <span style='text-decoration: underline;'>Public</span> Game",
         dataAttributes: {
           open: "lobby",
-          lobbyType: "enter-pre-game",
+          lobbyType: "join-public-game",
           focus: "true",
           firstItem: "true",
         },
         aria: {},
         classNames: ["btn", "btn-primary", "btn-pick", "btn-multiplayer"],
       },
-      {
-        content:
-          "Create <span style='text-decoration: underline;'>Private</span> Game", // when clicked generates simple code to share
-        dataAttributes: {
-          open: "lobby",
-          lobbyType: "share-private-game",
-        },
-        aria: {},
-        classNames: ["btn", "btn-primary", "btn-pick", "btn-multiplayer"],
-      },
-      {
-        content:
-          "Join <span style='text-decoration: underline;'>Private</span> Game",
-        dataAttributes: {
-          open: "lobby",
-          lobbyType: "join-private-game",
-        },
-        aria: {},
-        classNames: ["btn", "btn-primary", "btn-pick", "btn-multiplayer"],
-      },
+      // {
+      //   content:
+      //     "Join <span style='text-decoration: underline;'>Private</span> Game",
+      //   dataAttributes: {
+      //     open: "lobby",
+      //     lobbyType: "join-private-game",
+      //   },
+      //   aria: {},
+      //   classNames: ["btn", "btn-primary", "btn-pick", "btn-multiplayer"],
+      // },
+      // {
+      //   content:
+      //     "Create <span style='text-decoration: underline;'>Private</span> Game", // when clicked generates simple code to share
+      //   dataAttributes: {
+      //     open: "lobby",
+      //     lobbyType: "create-private-game",
+      //   },
+      //   aria: {},
+      //   classNames: ["btn", "btn-primary", "btn-pick", "btn-multiplayer"],
+      // },
     ],
   },
   goFirst: {

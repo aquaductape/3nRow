@@ -127,13 +127,13 @@ class PlayerBtnGroup extends View {
         button: playerBtn,
         allow: [".dropdown-options", ".tooltip-shell"],
         run: () => {
-          this.activateColorSvgMark(playerId!);
+          this.activateBtnHoverState(playerId!);
           dropdownOptionsView.expandDropdown();
           playerBtn.setAttribute("aria-expanded", "true");
         },
         onExit: () => {
           dropdownOptionsView.collapseDropdown(() =>
-            this.deactiveColorSvgMark(playerId!)
+            this.deactiveBtnHoverState(playerId!)
           );
           playerBtn.setAttribute("aria-expanded", "false");
         },
@@ -326,12 +326,25 @@ class PlayerBtnGroup extends View {
     players.forEach(({ id }) => this.hideSvgMark(id));
   }
 
-  activateColorSvgMark(playerId: string) {
+  activateColorShape(playerId: string) {
+    const { playerBtn } = this.playerDom[playerId];
+
+    playerBtn.classList.add("active-color-shape");
+  }
+
+  deactivateColorShape(playerId: string) {
+    const { playerBtn } = this.playerDom[playerId];
+
+    playerBtn.classList.remove("active-color-shape");
+  }
+
+  activateBtnHoverState(playerId: string) {
     const { playerBtn } = this.playerDom[playerId];
 
     playerBtn.classList.add("active");
   }
-  deactiveColorSvgMark(playerId: string) {
+
+  deactiveBtnHoverState(playerId: string) {
     const { playerBtn } = this.playerDom[playerId];
 
     playerBtn.classList.remove("active");

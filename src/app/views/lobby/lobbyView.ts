@@ -7,9 +7,9 @@ import {
 import { TPlayer } from "../../model/state";
 import playerBtnGroupView from "../playerOptions/playerBtnGroupView";
 import View from "../View";
-import createPrivateGame from "./createPrivateGame";
-import joinPrivateGame from "./joinPrivateGame";
-import joinPublicGame, { TPreGameType } from "./joinPublicGameView";
+import createPrivateGameView from "./createPrivateGameView";
+import joinPrivateGameView from "./joinPrivateGameView";
+import preGameView, { TPreGameType } from "./preGameView";
 import { btnItem, toolTipMarkup } from "./skinBtns";
 
 export type TLobbyType =
@@ -19,7 +19,6 @@ export type TLobbyType =
 
 type TProps = {
   type: TLobbyType;
-  preGameType?: TPreGameType;
   mainPlayer: TPlayer;
   firstPlayer: TPlayer;
   players: TPlayer[];
@@ -32,6 +31,7 @@ type TProps = {
 
 class LobbyView extends View {
   protected data: TProps;
+  private navigationBackBtnForeign = {} as HTMLElement;
 
   constructor() {
     super({ root: "#game-menu .section" });
@@ -40,50 +40,57 @@ class LobbyView extends View {
 
   protected markupDidGenerate() {
     const parentForeign = this.parentEl.parentElement as HTMLElement;
-    const navigationBackBtnForeign = parentForeign.querySelector(
+    this.navigationBackBtnForeign = parentForeign.querySelector(
       ".btn-navigation-back"
     ) as HTMLElement;
 
-    const onNavigationBackBtnForeign = () => {
-      // also restore single player shapes from LS
-      playerBtnGroupView.showSvgMarks();
-
-      navigationBackBtnForeign.removeEventListener(
-        "click",
-        onNavigationBackBtnForeign
-      );
-    };
-
-    navigationBackBtnForeign.addEventListener(
+    this.navigationBackBtnForeign.addEventListener(
       "click",
-      onNavigationBackBtnForeign
+      this.onNavigationBackBtnForeign
     );
 
     this.renderLobbyType();
   }
 
+  private onNavigationBackBtnForeign = () => {
+    // also restore single player shapes from LS
+    playerBtnGroupView.showSvgMarks();
+
+    this.navigationBackBtnForeign.removeEventListener(
+      "click",
+      this.onNavigationBackBtnForeign
+    );
+  };
+
+  removeEventListeners() {
+    this.navigationBackBtnForeign.removeEventListener(
+      "click",
+      this.onNavigationBackBtnForeign
+    );
+    preGameView.removeEventListeners();
+  }
+
   protected renderLobbyType() {
-    const { type, preGameType, firstPlayer, mainPlayer, players } = this.data;
+    const { type, firstPlayer, mainPlayer, players } = this.data;
 
     switch (type) {
       case "join-public-game":
-        joinPublicGame.render({
-          type,
-          preGameType,
+        preGameView.render({
+          preGameType: "connect-server",
           firstPlayer,
           mainPlayer,
           players,
         });
         return;
       case "join-private-game":
-        joinPrivateGame.render({
+        joinPrivateGameView.render({
           firstPlayer,
           mainPlayer,
           players,
         });
         return;
       case "create-private-game":
-        createPrivateGame.render({
+        createPrivateGameView.render({
           firstPlayer,
           mainPlayer,
           players,
@@ -99,6 +106,19 @@ class LobbyView extends View {
     `;
   }
 
+  hideAndRemoveCountDownMarkup(
+    {
+      duration = 200,
+      delay = 0,
+      removeDelay = 0,
+    }: { duration?: number; delay?: number; removeDelay?: number } = {
+      duration: 200,
+      delay: 0,
+    }
+  ) {
+    preGameView.hideAndRemoveCountDownMarkup({ delay, duration, removeDelay });
+  }
+
   addHandlers({
     handlerJoinRoom,
     handlerCreateRoom,
@@ -112,18 +132,18 @@ class LobbyView extends View {
     handlerPickSkin: TControlPickSkin;
     handlerExitMultiplayer: TControlExitMultiplayer;
   }) {
-    joinPublicGame.addHandlers({
+    preGameView.addHandlers({
       handlerExitMultiplayer,
       handlerJoinRoom,
       handlerPickSkin,
       handlerStartGame,
     });
-    joinPrivateGame.addHandlers({
+    joinPrivateGameView.addHandlers({
       handlerExitMultiplayer,
       handlerJoinRoom,
       handlerStartGame,
     });
-    createPrivateGame.addHandlers({
+    createPrivateGameView.addHandlers({
       handlerCreateRoom,
       handlerExitMultiplayer,
       handlerStartGame,

@@ -19,5 +19,4 @@ gameServer.define("public", Common);
 gameServer.define("private", Common).filterBy(["password"]);
 gameServer.listen(port);
 
-console.log(`Listening on ws://localhost:${port}`);
-// app.use(express.static(__dirname + "/../frontend/public"));
+// console.log(`Listening on ws://localhost:${port}`);

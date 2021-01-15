@@ -1,5 +1,6 @@
 import model from "../model/model";
 import lobbyView from "../views/lobby/lobbyView";
+import preGameView from "../views/lobby/preGameView";
 import svgDefsView from "../views/svg/svgDefsView";
 
 export type TControlPickSkin = (props: {
@@ -19,15 +20,15 @@ export const controlPickSkin: TControlPickSkin = ({ type, item }) => {
 
   // oppponent has already picked ahead and recieved confirmation from server, so no need WAIT confirmation from the server
   if (type === "color" && opponentPlayer.color) {
-    console.log("controlPickSkin", mainPlayer);
+    // console.log("controlPickSkin", mainPlayer);
     model.setPlayerCurrentColor({ player: mainPlayer, color: item });
     svgDefsView.updateShapeColors(model.state.players);
-    lobbyView.setData({ mainPlayer });
-    lobbyView.transitionPickSkin({ type: "shape" });
+    preGameView.setData({ mainPlayer });
+    preGameView.transitionPickSkin({ type: "shape" });
   }
 
   if (type === "shape" && opponentPlayer.shape) {
-    lobbyView.transitionPreGameStage({ type: "preparing-game" });
+    preGameView.transitionPreGameStage({ type: "preparing-game" });
   }
 
   // setTimeout(() => {

@@ -201,7 +201,7 @@ const defsCollection: TDefsCollection = {
   kite: `
     <linearGradient id="a">
     <stop class="color-secondary" offset="0" stop-color="#5fd"/>
-      <stop class="color-primary" offset="1" stop-color="#0cf"/>
+     <stop class="color-primary" offset="1" stop-color="#0cf"/>
     </linearGradient>
     <linearGradient xlink:href="#a" id="g" gradientUnits="userSpaceOnUse" gradientTransform="rotate(45 45.101 49.789)" x1="20.896" y1="8.919" x2="13.883" y2="6.051"/>
     <linearGradient xlink:href="#a" id="f" gradientUnits="userSpaceOnUse" gradientTransform="rotate(135 31.877 12.388)" x1="14.14" y1="10.931" x2="14.156" y2="4.928"/>
@@ -230,8 +230,8 @@ const shapesDefs = [
   "circle",
   "triangle",
   "heart",
-  "square",
-  "kite",
+  // "square",
+  // "kite",
   "primaryColor",
   "secondaryColor",
 ];

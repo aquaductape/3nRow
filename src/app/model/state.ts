@@ -84,8 +84,8 @@ export type TShapes = {
   cross: string;
   triangle: string;
   heart: string;
-  square: string;
-  kite: string;
+  // square: string;
+  // kite: string;
   [key: string]: string;
 };
 

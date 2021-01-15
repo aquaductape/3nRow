@@ -1,19 +1,13 @@
-import {
-  TControlCreateRoom,
-  TControlJoinRoom,
-} from "../../controllers/onlineMultiplayer";
 import { TControlPlayAgain, TControlStartGame } from "../../controllers/menu";
 import { TControlSettings } from "../../controllers/settings";
 import { TPlayer } from "../../model/state";
-import boardView from "../board/boardView";
-import { shapes, svg } from "../constants/constants";
+import { svg } from "../constants/constants";
 import gameContainerView from "../gameContainer/gameContainerView";
-import LobbyView, { TLobbyType } from "../lobby/lobbyView";
+import { TLobbyType } from "../lobby/lobbyView";
 import {
   clickEventFiredByKeyboard,
   convertObjPropsToHTMLAttr,
   createHTMLFromString,
-  transitionHideThenShow,
 } from "../utils/index";
 import View from "../View";
 import menuBtns, { TGameMenuState } from "./menuBtns";
@@ -22,9 +16,12 @@ import svgDefsView from "../svg/svgDefsView";
 import { hideElement, showElement } from "../utils/animation";
 
 type TSections = keyof TGameMenuState;
+type TData = {
+  players: TPlayer[];
+};
 
 class GameMenuView extends View {
-  protected data: TPlayer[];
+  protected data: TData;
   private menuState: TGameMenuState;
   private currentSection: TSections | null;
   private renderInit: boolean;
@@ -35,7 +32,9 @@ class GameMenuView extends View {
   private handlerSettings: TControlSettings;
   constructor() {
     super({ root: "#game-menu" });
-    this.data = [] as TPlayer[];
+    this.data = {
+      players: [],
+    };
 
     this.currentSection = "start";
     this.renderInit = true;
@@ -48,7 +47,7 @@ class GameMenuView extends View {
   }
 
   markupDidGenerate() {
-    this.updatePlayersMark(this.data);
+    this.updatePlayersMark(this.data.players);
     this.renderInit = false;
 
     this.parentEl.addEventListener("click", (e) => {
@@ -88,7 +87,7 @@ class GameMenuView extends View {
             value: false,
           });
         }
-        this.updatePlayersMark(this.data);
+        this.updatePlayersMark(this.data.players);
       }
 
       if (transitionTo) {
@@ -120,15 +119,15 @@ class GameMenuView extends View {
           backBtnSelected: false,
           clicked: true,
           replaceWith: () => {
-            const players = this.data;
+            const { players } = this.data;
 
             lobbyView.render({
               type: lobbyType,
               mainPlayer: players[0],
               firstPlayer: players[0],
               players,
-              preGameType: "connect-server",
             });
+
             this.changeMenuTheme("lobby");
           },
         });
@@ -382,7 +381,7 @@ class GameMenuView extends View {
   }
 
   updatePlayersMark(data: TPlayer[]) {
-    this.data = data;
+    this.data.players = data;
     const players = data;
 
     players.forEach((player) => this.updatePlayerMark(player));
@@ -633,7 +632,7 @@ class GameMenuView extends View {
     this.handlerPlayAgain({ triggeredByClick });
   }
 
-  render(data: TPlayer[]) {
+  render(data: TData) {
     super.render(data);
   }
 }

@@ -433,7 +433,7 @@ export default class DropdownOptionsView extends View {
     ) as HTMLElement;
 
     const currentOtherSkinValue = currentItemOtherSkin.dataset.value;
-    console.log({ currentOtherSkinValue });
+    // console.log({ currentOtherSkinValue });
 
     if (type === "shape") {
       otherSkinGroup.find((item) => {
@@ -463,7 +463,7 @@ export default class DropdownOptionsView extends View {
 
         if (toolTip) {
           toolTip.enable();
-          console.log("correct update");
+          // console.log("correct update");
           toolTip.updateTooltip({
             message: this.radioToolTipMessage({ type }),
           });
@@ -511,10 +511,10 @@ export default class DropdownOptionsView extends View {
   }
 
   collapseDropdown(removeActiveBtn: Function) {
-    if (this.reducedAnimation) {
-      throw new Error("reduced animation");
-      return;
-    }
+    // if (this.reducedAnimation) {
+    //   throw new Error("reduced animation");
+    //   return;
+    // }
 
     this.dropdownExpando.play({
       mode: "collapse",
@@ -530,10 +530,10 @@ export default class DropdownOptionsView extends View {
   }
 
   expandDropdown() {
-    if (this.reducedAnimation) {
-      throw new Error("reduced animation");
-      return;
-    }
+    // if (this.reducedAnimation) {
+    //   throw new Error("reduced animation");
+    //   return;
+    // }
 
     this.dropdownExpando.play({
       mode: "expand",

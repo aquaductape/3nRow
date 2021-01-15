@@ -12,7 +12,7 @@ import { moveAi, controlMovePlayer } from "./move";
 import { controlPlayerColor, controlPlayerShape } from "./playerOptions";
 import { controlPlayAgain, controlStartGame } from "./menu";
 import {
-  controlExistMultiplayer,
+  controlExitMultiplayer,
   controlCreateRoom,
   controlJoinRoom,
 } from "./onlineMultiplayer";
@@ -30,7 +30,7 @@ export const init = () => {
   svgDefsView.render(model.state.players);
   playerBtnGroupView.render(model.state);
   boardView.render(model.state);
-  gameMenuView.render(model.state.players);
+  gameMenuView.render({ players: model.state.players });
   skipToGameMenu.render();
   settingsView.render(model.state);
   // messageView.render("Player 1 has Won!");
@@ -50,7 +50,7 @@ export const init = () => {
     handlerJoinRoom: controlJoinRoom,
     handlerStartGame: () => {},
     handlerPickSkin: controlPickSkin,
-    handlerExitMultiplayer: controlExistMultiplayer,
+    handlerExitMultiplayer: controlExitMultiplayer,
   });
   settingsView.addHandlers({
     handlerSettings: controlSettings,

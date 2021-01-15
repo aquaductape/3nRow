@@ -30,6 +30,7 @@ const _hideElement = ({
    * Fires when transition is finished. When there are multiple transitions, it will fire until all of them are finished
    */
   onEnd?: (el: HTMLElement, e?: TransitionEvent) => void;
+  onCollision?: (props: { el: HTMLElement; cancel: boolean }) => void;
   onCancel?: (el: HTMLElement) => void;
   resolve: (value: boolean | PromiseLike<boolean>) => void;
 }) => {
@@ -273,6 +274,8 @@ const manageInstances = ({
       return true;
     }
   });
+
+  // onInterrupt -> {abort, el}
 
   if (alreadyRunningInstance) {
     const { element, transition, onCancel } = alreadyRunningInstance;

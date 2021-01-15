@@ -56,7 +56,7 @@ export default class View {
   protected markupDidGenerate() {}
 
   renderFallback() {
-    console.log(this.generateFallback());
+    // console.log(this.generateFallback());
     this.clear();
     this.parentEl.insertAdjacentHTML("afterbegin", this.generateFallback());
   }
@@ -68,7 +68,7 @@ export default class View {
   render(data?: any) {
     if (!this.parentEl) {
       this.parentEl = getElement(this.root);
-      console.log("doesn't exist", this.root, this.parentEl);
+      // console.log("doesn't exist", this.root, this.parentEl);
     }
 
     if (!this.parentEl) return;

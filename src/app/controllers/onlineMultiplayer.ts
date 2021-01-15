@@ -4,8 +4,10 @@ import model from "../model/model";
 import { TRoomClient } from "../ts/colyseusTypes";
 import gameMenuView from "../views/gameMenu/gameMenuView";
 import lobbyView from "../views/lobby/lobbyView";
+import preGameView from "../views/lobby/preGameView";
 import playerBtnGroupView from "../views/playerOptions/playerBtnGroupView";
 import svgDefsView from "../views/svg/svgDefsView";
+import { controlPlayAgain } from "./menu";
 import { controlMovePlayer } from "./move";
 
 // I think it's appropriate to place the multiplayer websocket listeners as Controller
@@ -16,17 +18,17 @@ export type TControlJoinRoom = (props: {
   password?: string;
 }) => void;
 export const controlJoinRoom: TControlJoinRoom = ({ type, password }) => {
-  const client = new Colyseus.Client("ws://localhost:3000");
+  const client = new Colyseus.Client("ws://secure-sea-54690.herokuapp.com/");
   let room: TRoomClient;
 
   if (type === "public") {
     room = client.joinOrCreate(type).then((room) => {
-      console.log("client sucess PUBLIC joined: ", room.sessionId);
+      // console.log("client sucess PUBLIC joined: ", room.sessionId);
 
       model.setRoom(room as any);
       roomActions({ room: room as any, type });
 
-      lobbyView.transitionPreGameStage({ type: "find-players" });
+      preGameView.transitionPreGameStage({ type: "find-players" });
     }) as any;
   }
 
@@ -36,12 +38,12 @@ export const controlJoinRoom: TControlJoinRoom = ({ type, password }) => {
         password,
       })
       .then((room) => {
-        console.log("client sucess PRIVATE joined: ", room.sessionId);
+        // console.log("client sucess PRIVATE joined: ", room.sessionId);
 
         model.setRoom(room as any);
         roomActions({ room: room as any, type });
 
-        lobbyView.transitionPreGameStage({ type: "find-players" });
+        preGameView.transitionPreGameStage({ type: "find-players" });
       }) as any;
   }
 };
@@ -56,7 +58,7 @@ export const controlCreateRoom: TControlCreateRoom = ({ type, password }) => {
 
   if (type === "public") {
     room = client.create(type).then((room) => {
-      console.log("client sucess PUBLIC joined: ", room.sessionId);
+      // console.log("client sucess PUBLIC joined: ", room.sessionId);
 
       model.setRoom(room as any);
       roomActions({ room: room as any, type });
@@ -69,7 +71,7 @@ export const controlCreateRoom: TControlCreateRoom = ({ type, password }) => {
         password,
       })
       .then((room) => {
-        console.log("client sucess PRIVATE joined: ", room.sessionId);
+        // console.log("client sucess PRIVATE joined: ", room.sessionId);
         model.setRoom(room as any);
         roomActions({ room: room as any, type });
       }) as any;
@@ -77,7 +79,7 @@ export const controlCreateRoom: TControlCreateRoom = ({ type, password }) => {
 };
 
 export type TControlExitMultiplayer = () => void;
-export const controlExistMultiplayer: TControlExitMultiplayer = () => {
+export const controlExitMultiplayer: TControlExitMultiplayer = () => {
   const { room } = model.state.onlineMultiplayer;
   if (!room) return;
 
@@ -93,45 +95,57 @@ const roomActions = ({
   type: "private" | "public";
 }) => {
   room.onMessage("move", ({ column, row }) => {
-    console.log("onMessage: ");
     controlMovePlayer({ column, row, userActionFromServer: true });
   });
 
   room.state.listen("skinChange", (foo) => {
-    // still allow ui to update without confirmation of the server
-    // but source of truth is in server
-    // worse case scenario: player skin visually, will not be synced, but listener from the server will correct it, so there will be a flash change
+    // upon selection, don't change skin, still show as selected, but show spinner loader (the same one from lobby), then upon confirmation, change skin. If already claimed, focus on previous item
+  });
+
+  room.onMessage("playAgain", ({ firstMovePlayer }) => {
+    let timeout = 2000;
+
+    if (document.visibilityState === "visible") {
+      gameMenuView.playAgainAndHideMenu();
+      return;
+    }
+
+    document.addEventListener("visibilitychange", function visible() {
+      if (document.visibilityState === "visible") {
+        setTimeout(() => {
+          gameMenuView.playAgainAndHideMenu();
+        }, timeout);
+        document.removeEventListener("visibilitychange", visible);
+      }
+    });
+    // controlPlayAgain({ triggeredByClick: false, firstMovePlayer });
   });
 
   // late pick
   room.onMessage("pickSkin", ({ success, skin, finishedFirst, playerId }) => {
-    console.log("onpickskin", playerId, skin);
+    // console.log("onpickskin", playerId, skin);
     const player = model.getPlayerById(playerId)!;
 
     const mainPlayerClaim = () => {
       if (!success) {
-        lobbyView.failedPick({ type: skin.type, value: skin.value });
+        preGameView.failedPick({ type: skin.type, value: skin.value });
         return;
       }
 
       if (skin.type === "color") {
-        console.log(
-          "mainPlayerClaim: ",
-          playerId,
-          model.getPlayerById(playerId)
-        );
+        // console.log( "mainPlayerClaim: ", playerId, model.getPlayerById(playerId));
         model.setPlayerCurrentColor({ player, color: skin.value });
         svgDefsView.updateShapeColors(model.state.players);
         lobbyView.setData({ mainPlayer: model.getPlayerById(playerId) });
-        lobbyView.transitionPickSkin({ type: "shape" });
+        preGameView.transitionPickSkin({ type: "shape" });
         return;
       }
 
       if (skin.type === "shape") {
         if (finishedFirst) {
-          lobbyView.transitionPreGameStage({ type: "wait-for-opponent" });
+          preGameView.transitionPreGameStage({ type: "wait-for-opponent" });
         } else {
-          lobbyView.transitionPreGameStage({ type: "preparing-game" });
+          preGameView.transitionPreGameStage({ type: "preparing-game" });
         }
       }
     };
@@ -142,7 +156,7 @@ const roomActions = ({
 
       if (pickedItems[skin.type]) {
         if (pickedItems[skin.type] === skin.value) {
-          lobbyView.failedPick({ type: skin.type, value: skin.value });
+          preGameView.failedPick({ type: skin.type, value: skin.value });
         } else {
           // client picked item will not conflict other player, go ahead and transition to next stage
           if (skin.type === "color") {
@@ -161,21 +175,19 @@ const roomActions = ({
               }),
             });
 
-            lobbyView.transitionPickSkin({ type: "shape" });
+            preGameView.transitionPickSkin({ type: "shape" });
             return;
           }
 
           if (skin.type === "shape") {
-            lobbyView.transitionPreGameStage({
+            preGameView.transitionPreGameStage({
               type: "preparing-game",
             });
           }
         }
       }
 
-      console.log("opponent already claimed");
-
-      lobbyView.showOpponentClaimedPick({
+      preGameView.showOpponentClaimedPick({
         type: skin.type,
         item: skin.value,
       });
@@ -197,44 +209,46 @@ const roomActions = ({
   });
 
   room.onMessage("countDownPickSkin", (counter) => {
-    lobbyView.updateCountDown(counter);
+    preGameView.updateCountDown(counter);
     if (counter === 0) {
       room.send("prepareGame", true);
-      lobbyView.transitionPreGameStage({ type: "preparing-game" });
+      preGameView.transitionPreGameStage({ type: "preparing-game" });
     }
   });
 
-  room.onMessage("readyPlayers", (ids) => {
-    console.log("ready?", ids[room.sessionId]);
-    let mainPlayer = "";
-    let opponentPlayer = "";
+  room.onMessage("readyPlayers", (id) => {
+    const mainPlayerId = id;
+    const opponentPlayerId = id === "P1" ? "P2" : "P1";
+    const playerIds = [mainPlayerId, opponentPlayerId];
 
-    for (const id in ids) {
-      const playerId = ids[id];
+    playerIds.forEach((playerId) => {
       const player = model.getPlayerById(playerId)!;
-
       model.setPlayerCurrentColor({ player, color: "" });
       model.setPlayerCurrentShape({ player, shape: "" });
-      if (id === room.sessionId) {
-        mainPlayer = playerId;
-      } else {
-        opponentPlayer = playerId;
-      }
-    }
-    model.setMultiplayerPlayers({ mainPlayer, opponentPlayer });
+    });
+
+    model.setMultiplayerPlayers({
+      mainPlayer: mainPlayerId,
+      opponentPlayer: opponentPlayerId,
+    });
 
     lobbyView.setData({
       players: model.state.players,
-      mainPlayer: model.getPlayerById(mainPlayer),
+      mainPlayer: model.getPlayerById(mainPlayerId),
     });
-    lobbyView.transitionPreGameStage({ type: "pick-skins" });
+    preGameView.setData({
+      players: model.state.players,
+      mainPlayer: model.getPlayerById(mainPlayerId),
+    });
+
+    preGameView.transitionPreGameStage({ type: "found-players" });
+    preGameView.transitionPreGameStage({ type: "pick-skins" });
     playerBtnGroupView.hideSvgMarks();
   });
 
   // pesky global variable
   let hasDeclaredPlayers = false;
   room.onMessage("declarePlayers", (players) => {
-    console.log("declare-players");
     if (hasDeclaredPlayers) return;
     hasDeclaredPlayers = true;
     if (!players) return;
@@ -245,7 +259,6 @@ const roomActions = ({
     for (const playerId in players) {
       const { color, shape } = players[playerId];
       const player = model.getPlayerById(playerId)!;
-      console.log(player);
 
       model.setPlayerCurrentColor({ color, player });
       model.setPlayerCurrentShape({ shape, player });
@@ -263,14 +276,19 @@ const roomActions = ({
     svgDefsView.updateDropShadow("rgba(0,0,0, 0.3)");
     gameMenuView.changeMenuTheme("menu");
     gameMenuView.hideBtnNavigationBack();
-    lobbyView.transitionPreGameStage({ type: "declare-players" });
+    preGameView.transitionPreGameStage({ type: "declare-players" });
+
+    // TODO use promise
+    setTimeout(() => {
+      lobbyView.removeEventListeners();
+      gameMenuView.startGameAndHideMenu({ firstMovePlayer: "P1" });
+    }, 3300);
   });
 
   room.onMessage("busyPlayers", (players) => {
-    console.log("busy players: ", players);
     if (players <= 1) return;
 
-    lobbyView.updateBusyPlayers(players);
+    preGameView.updateBusyPlayers(players);
     // update players count on lobbyView
   });
 };

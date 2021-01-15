@@ -7,12 +7,42 @@ import skipToGameMenuView from "../views/skipContentBtn/skipToGameMenuView";
 import svgDefsView from "../views/svg/svgDefsView";
 import { moveAi } from "./move";
 
-export type TControlPlayAgain = (prop: { triggeredByClick: boolean }) => void;
+export type TControlVotePlayAgain = (prop: {
+  triggeredByClick: boolean;
+}) => void;
+export const controlVotePlayAgain: TControlVotePlayAgain = ({
+  triggeredByClick,
+}) => {
+  // TODO
+  // rematch has a countdown and both players must agree to play right away instead of waiting for timer that upon closing will start the game.
+};
+
+export type TControlPlayAgainNow = (prop: {
+  triggeredByClick: boolean;
+}) => void;
+export const controlPlayAgainNow: TControlPlayAgainNow = ({
+  triggeredByClick,
+}) => {
+  const { room } = model.state.onlineMultiplayer;
+  if (!room) return;
+
+  // show spinner
+  room.send("playAgainNow", true);
+};
+
+export type TControlPlayAgain = (prop: {
+  triggeredByClick: boolean;
+  firstMovePlayer?: string;
+}) => void;
 export const controlPlayAgain: TControlPlayAgain = async ({
   triggeredByClick = true,
+  firstMovePlayer,
 }) => {
+  if (model.state.onlineMultiplayer.active) {
+    controlPlayAgainNow({ triggeredByClick });
+  }
   // Model
-  model.setNextPlayerForFirstMove();
+  model.setNextPlayerForFirstMove({ firstMovePlayer });
   model.resetForNextGame();
   // View
   boardView.clearBoard();
@@ -46,16 +76,21 @@ export const controlPlayAgain: TControlPlayAgain = async ({
     });
   }
 
-  if (
-    currentPlayer.isAI ||
-    model.state.onlineMultiplayer.opponentPlayer === currentPlayer.id
-  ) {
+  if (currentPlayer.isAI) {
     boardView.preventPlayerToSelect();
   } else {
     boardView.allowPlayerToSelect();
   }
 
-  if (model.getCurrentPlayer().isAI) {
+  if (model.state.onlineMultiplayer.active) {
+    if (currentPlayer.id === model.state.onlineMultiplayer.mainPlayer) {
+      boardView.allowPlayerToSelect();
+    } else {
+      boardView.preventPlayerToSelect();
+    }
+  }
+
+  if (currentPlayer.isAI) {
     playerBtnGroupView.updatePlayerIndicator(model.getAiPlayer());
     await moveAi();
     playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
@@ -63,7 +98,7 @@ export const controlPlayAgain: TControlPlayAgain = async ({
   }
 
   // if human starts game
-  playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());
+  playerBtnGroupView.updatePlayerIndicator(currentPlayer);
 };
 
 export type TControlStartGame = (prop: {
@@ -84,17 +119,29 @@ export const controlStartGame: TControlStartGame = ({
   // as of now, only 2nd player is hard coded as ai
   model.setPlayerAsHumanOrAI({ id: "P2", ai });
   model.setAiDifficulty({ id: "P2", difficulty });
-  model.setCurrentPlayer(firstMovePlayer);
+  // in multiplayer, P1 is always first. This solves race condition when tab is inactive then revisted
+  if (!model.state.onlineMultiplayer.active) {
+    model.setCurrentPlayer(firstMovePlayer);
+  }
 
   playerBtnGroupView.updatePlayerBtnsOnGameStart();
   boardView.startingGameTriggeredByKeyboard = !triggeredByClick;
   boardView.startGame();
   svgDefsView.updateDropShadow("rgba(0, 0, 0, 0.35)");
 
-  if (ai || model.state.onlineMultiplayer.opponentPlayer === firstMovePlayer) {
+  if (ai) {
     boardView.preventPlayerToSelect();
   } else {
     boardView.allowPlayerToSelect();
+  }
+
+  const currentPlayer = model.getCurrentPlayer().id;
+  if (model.state.onlineMultiplayer.active) {
+    if (currentPlayer === model.state.onlineMultiplayer.mainPlayer) {
+      boardView.allowPlayerToSelect();
+    } else {
+      boardView.preventPlayerToSelect();
+    }
   }
 
   playerBtnGroupView.updatePlayerIndicator(model.getCurrentPlayer());

@@ -9,12 +9,18 @@ import {
 } from "../../../src/app/ts/colyseusTypes";
 import { getByValue } from "../utils";
 
+const BOARD_WIDTH = 3;
 const HumanId = new _HumanId();
 let busyPublicPlayersCount = 0;
 
 class Move extends Schema {
   @type("number") column: number = 0;
   @type("number") row: number = 0;
+}
+
+class Player extends Schema {
+  @type("string") playerId: string;
+  @type("boolean") ready = false;
 }
 
 const getRandomPlayerId = (arr: string[]) => {
@@ -25,10 +31,25 @@ const getRandomPlayerId = (arr: string[]) => {
 const playerIds = ["P1", "P2"];
 
 class State extends Schema {
-  @type("number") foo: number;
+  @type("boolean") isGameOver = false;
   @type("boolean") ready = false;
-  @type("string") currentTurn: string;
-  @type({ map: "string" }) players = new MapSchema<string>();
+  @type("boolean") gameStarted = false;
+  @type("string") firstMovePlayer = "P1";
+  @type("string") firstMove: "alternate" | "winner" | "loser" = "alternate";
+  @type("string") winner = "";
+  @type("string") loser = "";
+  @type("string") currentTurn = "P1";
+  @type(["number"]) board: number[] = new ArraySchema<number>(
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  );
   @type({ map: "string" }) shapes = new MapSchema<string>({
     cross: "",
     circle: "",
@@ -67,6 +88,7 @@ export class Common extends Room<State> {
   humanId = "";
   maxClients = 2;
   randomMoveTimeout: Delayed;
+  players = new Map<string, { playerId: string; ready: boolean }>();
   public delayedInterval!: Delayed;
 
   onCreate(options: { password: string }) {
@@ -84,18 +106,57 @@ export class Common extends Room<State> {
     this.onMessage<TPickSkin>("pickSkin", (client, message) => {
       this.playerPickSkin(client, message);
     });
+    this.onMessage<any>("votePlayAgain", (client, msg) => {
+      this.votePlayAgain(client);
+    });
+    this.onMessage<any>("playAgainNow", (client, msg) => {
+      this.playAgainNow(client);
+    });
     this.onMessage<boolean>("prepareGame", (client, msg) => {
       // setTimeout(() => {
-      this.declarePlayers(client);
+      this.declarePlayers();
       // }, 5000);
     });
   }
 
-  onJoin(client: Client, options: { password: string }) {
-    this.state.players.set(
-      client.sessionId,
-      getRandomPlayerId(this.state.playerIdsSlots)
+  playAgainNow(client: Client) {
+    this.playAgain(client);
+  }
+
+  votePlayAgain(client: Client) {
+    if (!this.state.isGameOver) return;
+
+    const player = this.players.get(client.sessionId);
+    player.ready = true;
+    const readyArr: boolean[] = [];
+
+    for (const [_, { ready }] of this.players) {
+      readyArr.push(ready);
+    }
+    if (readyArr.every((ready) => ready)) {
+      this.playAgain(client);
+    }
+  }
+
+  playAgain(client: Client) {
+    if (!this.state.isGameOver) return;
+
+    this.resetGame();
+    this.broadcast(
+      "playAgain",
+      {
+        firstMovePlayer: this.state.firstMovePlayer,
+      },
+      { except: client }
     );
+  }
+
+  onJoin(client: Client, options: { password: string }) {
+    this.players.set(client.sessionId, {
+      playerId: getRandomPlayerId(this.state.playerIdsSlots),
+      // playerId: this.state.playerIdsSlots.pop(),
+      ready: false,
+    });
 
     if (options.password) {
       if (options.password === this.humanId) this.readyGame();
@@ -105,38 +166,44 @@ export class Common extends Room<State> {
     busyPublicPlayersCount++;
     this.broadcast("busyPlayers", busyPublicPlayersCount - 1);
 
-    // console.log("onJoin: ", client.sessionId);
-
-    if (this.state.players.size === 2) {
+    if (this.players.size === 2) {
       this.readyGame();
     }
   }
 
   onLeave(client: Client) {
-    this.state.players.delete(client.sessionId);
+    this.players.delete(client.sessionId);
     busyPublicPlayersCount--;
-    console.log("remove player");
 
-    const remainingPlayerIds = Array.from(this.state.players.keys());
-    if (remainingPlayerIds.length > 0) {
-      // this.state.winner = remainingPlayerIds[0];
-    }
+    // const remainingPlayerIds = Array.from(this.state.players.keys());
+    // if (remainingPlayerIds.length > 0) {
+    //   // this.state.winner = remainingPlayerIds[0];
+    // }
   }
 
   readyGame() {
     // lock this room for new users
     this.lock();
-    this.broadcast("readyPlayers", this.state.players);
+    // this.broadcast("readyPlayers", this.state.players, {});
+    this.clients.forEach((client) => {
+      client.send("readyPlayers", this.players.get(client.id).playerId);
+    });
+
+    // this.send(this.clients[0], 'msgType', msg)
+    // client.send('type', msg, { // ??? })
+    // this.send(, )
+    // this.send(, 'readyPlayers', {})
+    // this.clients[0];
 
     // this.startClock();
-    this.startPickSkin();
+    this.startPickSkinCountdown();
   }
 
   endCountdown() {
     this.broadcast("endCountdown", true);
   }
 
-  declarePlayers(client: Client) {
+  declarePlayers() {
     const pickRandomSkinForLatePlayers = () => {
       playerIds.forEach((playerId) => {
         const skins = ["colors", "shapes"];
@@ -157,7 +224,6 @@ export class Common extends Room<State> {
             filtered[Math.floor(Math.random() * filtered.length)][0];
           // @ts-ignore
           this.state[skin].set(randomKey, playerId);
-          // @ts-ignore
         });
       });
     };
@@ -166,7 +232,7 @@ export class Common extends Room<State> {
       pickRandomSkinForLatePlayers();
     }
 
-    console.log("DECLARE!!!");
+    this.state.gameStarted = true;
     this.broadcast("declarePlayers", {
       P1: {
         color: getByValue(this.state.colors, "P1"),
@@ -176,40 +242,81 @@ export class Common extends Room<State> {
         color: getByValue(this.state.colors, "P2"),
         shape: getByValue(this.state.shapes, "P2"),
       },
-    }); // send skins as well
-    // client.send("declarePlayers", {
-    //   P1: {
-    //     color: getByValue(this.state.colors, "P1"),
-    //     shape: getByValue(this.state.shapes, "P1"),
-    //   },
-    //   P2: {
-    //     color: getByValue(this.state.colors, "P2"),
-    //     shape: getByValue(this.state.shapes, "P2"),
-    //   },
-    // });
+    });
   }
 
-  startPickSkin() {
-    this.startClock();
+  startPickSkinCountdown() {
+    const time = 16_000;
+    let counter = 15;
+    // let counter = 0;
+    this.startClock({
+      time,
+      onInterval: (ref) => {
+        if (counter >= 0) {
+          counter--;
+          const counterDisplay = counter <= 15 ? counter : 15;
+          this.broadcast("countDownPickSkin", counterDisplay);
+        }
+      },
+      // onEnd: () => {
+      //   // console.log({ alreadyEnded });
+      //   if (!alreadyEnded) {
+      //     this.broadcast("countDownPickSkin", 0);
+      //   }
+      // },
+    });
   }
 
-  startClock() {
-    const time = 15;
-    let counter = time;
+  startPlayAgainCountdown() {
+    const time = 10_000;
+    this.startClock({
+      time,
+      onEnd: () => {
+        // this.playAgain();
+      },
+    });
+  }
+
+  startPlayerTurnCountDown() {
+    const time = 80_000;
+
+    this.startClock({
+      time,
+    });
+  }
+
+  startClock({
+    onInterval,
+    onEnd,
+    time,
+  }: {
+    /**milliseconds */
+    time: number;
+    onInterval?: (props: { counter: number }) => void;
+    onEnd?: Function;
+  }) {
+    const ref = {
+      counter: time,
+    };
     this.clock.start();
     // Set an interval and store a reference to it
     // so that we may clear it later
-    this.delayedInterval = this.clock.setInterval(() => {
-      if (counter >= 0) this.broadcast("countDownPickSkin", --counter);
-    }, 1000);
+
+    if (onInterval) {
+      this.delayedInterval = this.clock.setInterval(() => {
+        onInterval(ref);
+      }, 1000);
+    }
 
     // After 15 seconds clear the timeout;
     // this will *stop and destroy* the timeout completely
     this.clock.setTimeout(() => {
       this.delayedInterval.clear();
-      counter = time;
+      ref.counter = time;
+      this.stopClock();
+      onEnd && onEnd();
       // this.endCountdown();
-    }, (time + 1) * 1000);
+    }, time);
   }
 
   stopClock() {
@@ -274,13 +381,11 @@ export class Common extends Room<State> {
       playerIds.every((playerId) => {
         const hasColorItem = getByValue(this.state.colors, playerId);
         const hasShapeItem = getByValue(this.state.shapes, playerId);
-        console.log(playerId, { hasColorItem, hasShapeItem });
         return hasColorItem && hasShapeItem;
       })
     ) {
-      console.log("STOP clock");
       this.stopClock();
-      this.declarePlayers(client);
+      this.declarePlayers();
       this.state.bothPickedSkins = true;
     }
 
@@ -299,17 +404,169 @@ export class Common extends Room<State> {
     });
   }
 
+  isMoveValid(playerId: string, message: TMovePosition) {
+    try {
+      const isPosValid = (pos: number) => {
+        return pos >= 0 && pos <= 2;
+      };
+      const index = message.column + BOARD_WIDTH * message.row;
+
+      if (!this.state.gameStarted || this.state.isGameOver) return false;
+
+      if (this.state.currentTurn !== playerId) return false;
+
+      if (!isPosValid(message.column) || !isPosValid(message.row)) return false;
+
+      if (this.state.board[index] !== 0) return false;
+    } catch (err) {
+      return false;
+    }
+    return true;
+  }
+
   playerMove(client: Client, message: TMovePosition) {
-    // console.log("sessionId: ", client.sessionId, "id: ", client.id);
-    // const oppositePlayer = Array.from(this.state.players).filter(
-    //   (arr) => arr[0] !== client.sessionId
-    // )[0][0];
-    // client.send(oppositePlayer, message);
-    // this.state.move.column = message.column;
-    // this.state.move.row = message.row;
-    // console.log(this.state.move.column, this.state.move.row);
+    const playerId = this.players.get(client.sessionId).playerId;
+    if (!this.isMoveValid(playerId, message)) {
+      this.doRandomMove({ client, playerId });
+      return;
+    }
+
+    this.fillCell({ playerId, ...message });
+
+    if (this.checkWin({ ...message, playerId: playerId === "P1" ? 1 : 2 })) {
+      this.gameOver();
+    }
+    // x has to be column
+
+    this.state.currentTurn = this.getOppositePlayer({ playerId });
+
     this.broadcast("move", message, { except: client });
-    console.log("server playerMove", message);
-    return "";
+  }
+
+  gameOver() {
+    this.state.firstMovePlayer = this.getOppositePlayer({
+      playerId: this.state.firstMovePlayer,
+    });
+    this.state.isGameOver = true;
+  }
+
+  checkBoardComplete() {
+    return this.state.board.filter((item) => item === 0).length === 0;
+  }
+
+  resetGame() {
+    this.state.isGameOver = false;
+    this.state.currentTurn = this.state.firstMovePlayer;
+    this.state.board = new ArraySchema(0, 0, 0, 0, 0, 0, 0, 0, 0);
+  }
+
+  fillCell({
+    column,
+    row,
+    playerId,
+  }: {
+    playerId: string;
+    column: number;
+    row: number;
+  }) {
+    const index = column + BOARD_WIDTH * row;
+    if (this.state.board[index] !== 0) return;
+    this.state.board[index] = playerId === "P1" ? 1 : 2;
+  }
+
+  doRandomMove({ client, playerId }: { playerId: string; client: Client }) {
+    for (let x = 0; x < BOARD_WIDTH; x++) {
+      for (let y = 0; y < BOARD_WIDTH; y++) {
+        const index = x + BOARD_WIDTH * y;
+
+        this.fillCell({ playerId, column: x, row: y });
+        this.broadcast("move", { row: x, column: y }, { except: client });
+
+        if (
+          this.checkWin({
+            row: y,
+            column: x,
+            playerId: playerId === "P1" ? 1 : 2,
+          })
+        ) {
+          this.gameOver();
+          return;
+        }
+
+        return;
+      }
+    }
+  }
+
+  checkWin({
+    playerId,
+    column,
+    row,
+  }: {
+    row: number;
+    column: number;
+    playerId: number;
+  }) {
+    let won = false;
+    let board = this.state.board;
+
+    // horizontal
+    for (let y = 0; y < BOARD_WIDTH; y++) {
+      const i = column + BOARD_WIDTH * y;
+      if (board[i] !== playerId) break;
+      if (y == BOARD_WIDTH - 1) {
+        won = true;
+      }
+    }
+
+    // vertical
+    for (let x = 0; x < BOARD_WIDTH; x++) {
+      const i = x + BOARD_WIDTH * row;
+      if (board[i] !== playerId) break;
+      if (x == BOARD_WIDTH - 1) {
+        won = true;
+      }
+    }
+
+    // cross forward
+    if (row === column) {
+      for (let xy = 0; xy < BOARD_WIDTH; xy++) {
+        const i = xy + BOARD_WIDTH * xy;
+        if (board[i] !== playerId) break;
+        if (xy == BOARD_WIDTH - 1) {
+          won = true;
+        }
+      }
+    }
+
+    // cross backward
+    for (let x = 0; x < BOARD_WIDTH; x++) {
+      const y = BOARD_WIDTH - 1 - x;
+      const i = x + BOARD_WIDTH * y;
+      if (board[i] !== playerId) break;
+      if (x == BOARD_WIDTH - 1) {
+        won = true;
+      }
+    }
+
+    return won;
+  }
+
+  getOppositePlayer({
+    sessionId,
+    playerId,
+  }: {
+    playerId?: string;
+    sessionId?: string;
+  }) {
+    for (let [a_sessionId, { playerId: a_playerId }] of this.players) {
+      if (sessionId && sessionId !== a_sessionId) {
+        return a_playerId;
+      }
+      if (playerId && playerId !== a_playerId) {
+        return a_playerId;
+      }
+    }
+    return null;
   }
 }

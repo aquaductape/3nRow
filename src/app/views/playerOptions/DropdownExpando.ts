@@ -159,7 +159,7 @@ export class DropdownExpando {
     onEnd?: (props: TAnimationState) => void;
     mode: "collapse" | "expand";
   }) {
-    console.log(mode);
+    // console.log(mode);
     if (
       this.animationPlayState[mode].running ||
       this.animationPlayState[mode].interrupted
@@ -335,7 +335,7 @@ export class DropdownExpando {
       const target = e.target as HTMLElement;
       if (target !== this.maskEl && target !== this.innerEl) return;
     }
-    console.log("fire");
+    // console.log("fire");
 
     this.onEnd && this.onEnd(this.animationPlayState);
 

@@ -17,8 +17,7 @@ import { TLobbyType } from "./lobbyView";
 import { btnItem, toolTipMarkup } from "./skinBtns";
 
 type TProps = {
-  type: TLobbyType;
-  preGameType?: TPreGameType;
+  preGameType: TPreGameType;
   mainPlayer: TPlayer;
   firstPlayer: TPlayer;
   players: TPlayer[];
@@ -27,11 +26,11 @@ type TProps = {
 export type TPreGameType =
   | "connect-server"
   | "find-players"
+  | "found-players"
   | "pick-skins"
   | "preparing-game"
   | "declare-players"
-  | "wait-for-opponent"
-  | "found-players";
+  | "wait-for-opponent";
 
 // Pre-game TIMELINE
 //
@@ -47,17 +46,23 @@ export type TPreGameType =
 // DeclarePlayers
 //  who's who, and who goes first
 // Start Game
-class JoinPublicGameView extends View {
-  protected data: TProps;
+class PreGameView extends View {
+  protected data: TProps = { preGameType: "connect-server" } as TProps;
   private hasSelectedSkin = false;
+  private transitionQueue: TPreGameType[] = [];
+  private transitionRunning = false;
+  private transitionMarkupReplaced = false;
   private currentPreGame: TPreGameType = "connect-server";
   private onJoinRoom: TControlJoinRoom = () => {};
   private onCreateRoom: TControlCreateRoom = () => {};
   private onPickSkin: TControlPickSkin = () => {};
   private onExitMultiplayer: TControlExitMultiplayer = () => {};
   private onStartGame: Function = () => {};
+  private countDownEl = {} as HTMLElement;
+  private navigationBackBtnForeign = {} as HTMLElement;
   private addedEventListeners = false;
   private loaderPickSkinTimeoutID = 0;
+  private onTransitionEndPreGameStageType: TPreGameType = "connect-server";
   private opponentPickedSkin: {
     color: string;
     shape: string;
@@ -69,59 +74,71 @@ class JoinPublicGameView extends View {
 
   constructor() {
     super({ root: "#game-menu .lobby" });
-    this.data = { type: "join-public-game" } as TProps;
   }
 
   protected markupDidGenerate() {
     const acendantElForeign = this.parentEl.parentElement
       ?.parentElement as HTMLElement;
-    const navigationBackBtnForeign = acendantElForeign.querySelector(
+    this.navigationBackBtnForeign = acendantElForeign.querySelector(
       ".btn-navigation-back"
     ) as HTMLElement;
 
-    const onLobbyEvents = (e: Event) => {
-      const target = e.target as HTMLElement;
-      const btn = target.closest("button") as HTMLElement;
-
-      if (!btn) return;
-
-      const color = btn.dataset.color;
-      const shape = btn.dataset.shape;
-      const disabled = btn.dataset.disabled === "true";
-
-      if (disabled || this.hasSelectedSkin) return;
-
-      if (color) {
-        this.onPickSkin({ type: "color", item: color });
-        // show loader
-        this.freezeBtnsAndAwaitConfirmation({ pickedBtn: btn });
-      }
-
-      if (shape) {
-        this.onPickSkin({ type: "shape", item: shape });
-        // show loader
-        this.freezeBtnsAndAwaitConfirmation({ pickedBtn: btn });
-      }
-    };
-
-    const onNavigationBackBtnForeign = () => {
-      this.onExitMultiplayer();
-      // also restore single player shapes from LS
-      playerBtnGroupView.showSvgMarks();
-
-      this.parentEl.removeEventListener("click", onLobbyEvents);
-      navigationBackBtnForeign.removeEventListener(
-        "click",
-        onNavigationBackBtnForeign
-      );
-    };
-
-    navigationBackBtnForeign.addEventListener(
+    this.navigationBackBtnForeign.addEventListener(
       "click",
-      onNavigationBackBtnForeign
+      this.onNavigationBackBtnForeign
     );
 
-    this.parentEl.addEventListener("click", onLobbyEvents);
+    this.parentEl.addEventListener("click", this.onLobbyEvents);
+  }
+
+  private onNavigationBackBtnForeign = () => {
+    this.onExitMultiplayer();
+    // also restore single player shapes from LS
+    playerBtnGroupView.showSvgMarks();
+
+    this.parentEl.removeEventListener("click", this.onLobbyEvents);
+    this.navigationBackBtnForeign.removeEventListener(
+      "click",
+      this.onNavigationBackBtnForeign
+    );
+  };
+
+  private onLobbyEvents = (e: Event) => {
+    const target = e.target as HTMLElement;
+    const btn = target.closest("button") as HTMLElement;
+
+    if (!btn) return;
+
+    const color = btn.dataset.color;
+    const shape = btn.dataset.shape;
+    const disabled = btn.dataset.disabled === "true";
+
+    if (disabled || this.hasSelectedSkin) return;
+
+    if (color) {
+      this.onPickSkin({ type: "color", item: color });
+      // show loader
+      this.freezeBtnsAndAwaitConfirmation({ pickedBtn: btn });
+    }
+
+    if (shape) {
+      this.onPickSkin({ type: "shape", item: shape });
+      // show loader
+      this.freezeBtnsAndAwaitConfirmation({ pickedBtn: btn });
+    }
+  };
+
+  removeEventListeners() {
+    this.navigationBackBtnForeign.removeEventListener(
+      "click",
+      this.onNavigationBackBtnForeign
+    );
+    this.parentEl.removeEventListener("click", this.onLobbyEvents);
+  }
+
+  protected generateMarkup() {
+    const { preGameType } = this.data;
+    return this.preGameMarkup({ type: preGameType });
   }
 
   private colorsMarkup() {
@@ -166,7 +183,6 @@ class JoinPublicGameView extends View {
     const content =
       type === "color" ? this.colorsMarkup() : this.shapesMarkup();
     return `
-    <div>
 
     <div class="pick-skin">
       <div class="title">Pick a ${capitalize(type)}</div>
@@ -175,14 +191,13 @@ class JoinPublicGameView extends View {
       </div>
     </div>
 
-    </div>
     `;
   }
 
   private waitForOpponentMarkup() {
     return `
     <div class="section delayed-reveal">
-    <div class="title">Waiting for Opponent ${loaderEllipsis()}</div>
+      <div class="title">Waiting for Opponent ${loaderEllipsis()}</div>
     </div>
     `;
   }
@@ -190,7 +205,7 @@ class JoinPublicGameView extends View {
   private preparingGameMarkup() {
     return `
     <div class="section delayed-reveal">
-    <div class="title">Preparing Game ${loaderEllipsis()}</div>
+      <div class="title">Preparing Game ${loaderEllipsis()}</div>
     </div>
     
     `;
@@ -205,9 +220,22 @@ class JoinPublicGameView extends View {
     `;
   }
 
-  private foundPlayersMarkup() {
+  private foundPlayersMarkup({
+    mode,
+  }: {
+    mode: "public-join" | "private-create" | "private-join";
+  }) {
+    let msg = "Found an Opponent!";
+    if (mode === "private-create") {
+      msg = "Your Buddy Joined the Game!";
+    }
+
+    if (mode === "private-join") {
+      msg = "You have Joined your Buddy's Game!";
+    }
+
     return `
-     <div>Found an Opponent!</div>
+     <div class="title">${msg}</div>
      `;
   }
 
@@ -234,7 +262,7 @@ class JoinPublicGameView extends View {
       <div class="countdown">15</div>
     </div>
     `;
-    this.parentEl.insertAdjacentHTML("beforebegin", timerMarkup);
+    this.parentEl.parentElement?.insertAdjacentHTML("beforebegin", timerMarkup);
     gameContainerView.scaleElementsToProportionToBoard({
       type: "player-pick-skin-countdown",
     });
@@ -256,7 +284,7 @@ class JoinPublicGameView extends View {
       case "find-players":
         return this.findPlayersMarkup();
       case "found-players":
-        return this.foundPlayersMarkup();
+        return this.foundPlayersMarkup({ mode: "public-join" });
       case "pick-skins":
         if (!this.countDownElHidden) this.generateCountDownMarkp();
         return this.pickSkinsMarkup({ type: "color" });
@@ -276,11 +304,45 @@ class JoinPublicGameView extends View {
   }
 
   transitionPreGameStage({ type }: { type: TPreGameType }) {
-    console.log("transitionPreGameStage: ", type);
-
     if (this.data.preGameType === type) return;
-
     this.data.preGameType = type;
+
+    // pause then resume
+    if (type === "found-players" || type === "declare-players") {
+      if (!this.transitionRunning) {
+        this._transitionPreGameStage({ type });
+        return;
+      }
+    }
+
+    if (type === "pick-skins" && this.transitionRunning) {
+      setTimeout(() => {
+        this.onTransitionEndPreGameStageType = type;
+        this._transitionPreGameStage({ type });
+      }, 1000);
+      return;
+    }
+
+    if (this.transitionRunning && !this.transitionMarkupReplaced) {
+      this.onTransitionEndPreGameStageType = type;
+      return;
+    }
+    // overrides
+    this.onTransitionEndPreGameStageType = type;
+    this._transitionPreGameStage({ type });
+
+    // hide
+    // onEnd markup <----- hijack
+    //    onStart reveal
+  }
+
+  private _transitionPreGameStage({ type }: { type: TPreGameType }) {
+    // if transitioning, wait till it's done. Then pop item, clear queue, and run item transition
+    this.currentPreGame = type;
+    // exceptions
+
+    this.transitionRunning = true;
+    this.transitionMarkupReplaced = false;
     let onStart: ((el: HTMLElement) => void) | undefined = undefined;
     let onEndClearStyle: ((el: HTMLElement) => void) | undefined = undefined;
     let onEnd: (el: HTMLElement) => void = (el) => {
@@ -289,7 +351,16 @@ class JoinPublicGameView extends View {
 
       onEndClearStyle && onEndClearStyle(el);
       el.style.display = "none";
-      el.innerHTML = this.preGameMarkup({ type });
+
+      if (this.onTransitionEndPreGameStageType === "declare-players") {
+        onDeclarePlayers(el);
+        return;
+      }
+
+      el.innerHTML = this.preGameMarkup({
+        type: this.onTransitionEndPreGameStageType,
+      });
+      this.transitionMarkupReplaced = true;
       // hideOnEnd finished
 
       showElement({
@@ -298,12 +369,43 @@ class JoinPublicGameView extends View {
           // showAnimation is running
         },
         onEnd: () => {
+          this.transitionRunning = false;
           // showAnimation finished
         },
       });
     };
 
-    if (type === "preparing-game") {
+    const onDeclarePlayers = (el: HTMLElement) => {
+      this.clearChildren(el);
+
+      el.style.display = "none";
+      // repaceMarkup
+      el.innerHTML = this.preGameMarkup({
+        type: this.onTransitionEndPreGameStageType,
+      });
+      gameContainerView.declarePlayersAnimationRunning = true;
+      gameContainerView.scaleElementsToProportionToBoard({
+        type: "declare-players",
+      });
+      this.transitionMarkupReplaced = true;
+
+      setTimeout(() => {
+        const { firstPlayer } = this.data;
+
+        playerBtnGroupView.updatePlayerIndicator(firstPlayer);
+      }, 500);
+
+      showElement({
+        el,
+        delay: 200,
+        transition: "200ms",
+        onEnd: (el) => {
+          this.transitionRunning = false;
+        },
+      });
+    };
+
+    if (type === "preparing-game" || type === "wait-for-opponent") {
       onStart = (el) => {
         el.style.transition = "transform 200ms, opacity 200ms";
         this.reflow();
@@ -318,30 +420,7 @@ class JoinPublicGameView extends View {
     }
 
     if (type === "declare-players") {
-      onEnd = (el) => {
-        this.clearChildren(el);
-
-        el.style.display = "none";
-        el.innerHTML = this.preGameMarkup({ type });
-        gameContainerView.declarePlayersAnimationRunning = true;
-        gameContainerView.scaleElementsToProportionToBoard({
-          type: "declare-players",
-        });
-
-        setTimeout(() => {
-          const { firstPlayer } = this.data;
-
-          playerBtnGroupView.activateColorSvgMark(firstPlayer.id);
-          playerBtnGroupView.updatePlayerIndicator(firstPlayer);
-        }, 500);
-
-        showElement({
-          el,
-          delay: 200,
-          transition: "200ms",
-          onEnd: (el) => {},
-        });
-      };
+      onEnd = onDeclarePlayers;
     }
 
     hideElement({
@@ -354,21 +433,20 @@ class JoinPublicGameView extends View {
   updateCountDown(counter: number) {
     const counterStart = 15;
     const strokeDash = 37;
-    const counterContainer = this.parentEl.parentElement?.querySelector(
-      ".countdown-container"
-    ) as HTMLElement;
 
     if (counter === 0) {
       this.countDownElHidden = true;
       this.hideAndRemoveCountDownMarkup({ delay: 100 });
     }
 
-    if (!counterContainer) return;
+    const acendantElForeign = this.parentEl.parentElement?.parentElement!;
 
-    const counterEl = counterContainer.querySelector(
+    const counterEl = acendantElForeign.querySelector(
       ".countdown"
     ) as HTMLElement;
-    const circle = counterContainer.querySelector("circle") as SVGElement;
+    const circle = acendantElForeign.querySelector("circle") as SVGElement;
+
+    if (!counterEl) return;
 
     counterEl.textContent = `${counter}`;
     circle.style.strokeDasharray = `${strokeDash}px`;
@@ -377,8 +455,8 @@ class JoinPublicGameView extends View {
     }px`;
   }
 
-  transitionPickSkin({ type }: { type: "color" | "shape" }) {
-    hideElement({
+  async transitionPickSkin({ type }: { type: "color" | "shape" }) {
+    await hideElement({
       el: this.parentEl,
       // delay: 100,
       onStart: (el) => {
@@ -396,15 +474,15 @@ class JoinPublicGameView extends View {
         el.style.display = "none";
         el.innerHTML = this.pickSkinsMarkup({ type });
         this.hasSelectedSkin = false;
+      },
+    });
 
-        showElement({
-          el,
-          delay: 200,
-          transition: "1000ms",
-          onEnd: (el) => {
-            el.style.display = "";
-          },
-        });
+    await showElement({
+      el: this.parentEl,
+      delay: 200,
+      transition: "1000ms",
+      onEnd: (el) => {
+        el.style.display = "";
       },
     });
   }
@@ -421,11 +499,9 @@ class JoinPublicGameView extends View {
   ) {
     if (!this.parentEl) return;
 
-    const foreignParent = this.parentEl.parentElement as HTMLElement;
+    const acendantElForeign = this.parentEl.parentElement?.parentElement!;
 
-    if (!foreignParent) return;
-
-    const countDownEl = foreignParent.querySelector(
+    const countDownEl = acendantElForeign.querySelector(
       ".countdown-container"
     ) as HTMLElement;
 
@@ -497,7 +573,6 @@ class JoinPublicGameView extends View {
       `;
       itemInner.insertAdjacentHTML("beforeend", markup);
     };
-    console.log("pick loader fired");
 
     // this.loaderPickSkinTimeoutID = (setTimeout(() => {
     generateLoader();
@@ -599,4 +674,4 @@ class JoinPublicGameView extends View {
   }
 }
 
-export default new JoinPublicGameView();
+export default new PreGameView();
