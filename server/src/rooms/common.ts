@@ -246,8 +246,8 @@ export class Common extends Room<State> {
   }
 
   startPickSkinCountdown() {
-    const time = 16_000;
-    let counter = 15;
+    const time = 17_000;
+    let counter = 16;
     // let counter = 0;
     this.startClock({
       time,
@@ -411,8 +411,6 @@ export class Common extends Room<State> {
       };
       const index = message.column + BOARD_WIDTH * message.row;
 
-      if (!this.state.gameStarted || this.state.isGameOver) return false;
-
       if (this.state.currentTurn !== playerId) return false;
 
       if (!isPosValid(message.column) || !isPosValid(message.row)) return false;
@@ -425,6 +423,8 @@ export class Common extends Room<State> {
   }
 
   playerMove(client: Client, message: TMovePosition) {
+    if (!this.state.gameStarted || this.state.isGameOver) return;
+
     const playerId = this.players.get(client.sessionId).playerId;
     if (!this.isMoveValid(playerId, message)) {
       this.doRandomMove({ client, playerId });
@@ -433,10 +433,12 @@ export class Common extends Room<State> {
 
     this.fillCell({ playerId, ...message });
 
-    if (this.checkWin({ ...message, playerId: playerId === "P1" ? 1 : 2 })) {
+    if (
+      this.checkWin({ ...message, playerId: playerId === "P1" ? 1 : 2 }) ||
+      this.isBoardComplete()
+    ) {
       this.gameOver();
     }
-    // x has to be column
 
     this.state.currentTurn = this.getOppositePlayer({ playerId });
 
@@ -450,7 +452,7 @@ export class Common extends Room<State> {
     this.state.isGameOver = true;
   }
 
-  checkBoardComplete() {
+  isBoardComplete() {
     return this.state.board.filter((item) => item === 0).length === 0;
   }
 

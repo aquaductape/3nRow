@@ -60,8 +60,8 @@ module.exports = {
   externals: [nodeExternals()],
   plugins: [
     new CleanWebpackPlugin(),
-    // new WebpackShellPlugin({
-    //   onBuildEnd: ["yarn run:dev"],
-    // }),
+    new WebpackShellPlugin({
+      onBuildEnd: ["yarn run:dev"],
+    }),
   ],
 };
