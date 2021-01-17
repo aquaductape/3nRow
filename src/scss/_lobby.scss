@@ -102,7 +102,7 @@
 
     .color-item,
     .shape-item {
-      transition: filter 100ms;
+      transition: filter 100ms 200ms;
       // media @345px
       // title -> font-size: 25px
       // height: 44px;
