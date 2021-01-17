@@ -17,34 +17,33 @@ export type TControlJoinRoom = (props: {
   type: "private" | "public";
   password?: string;
 }) => void;
-export const controlJoinRoom: TControlJoinRoom = ({ type, password }) => {
-  const client = new Colyseus.Client("ws://secure-sea-54690.herokuapp.com/");
-  let room: TRoomClient;
+export const controlJoinRoom: TControlJoinRoom = async ({ type, password }) => {
+  try {
+    const client = new Colyseus.Client(
+      `ws://${process.env.MULTIPLAYER_ENDPOINT || "localhost:3000"}`
+    );
+    // const client = new Colyseus.Client("ws://localhost:3000");
 
-  if (type === "public") {
-    room = client.joinOrCreate(type).then((room) => {
-      // console.log("client sucess PUBLIC joined: ", room.sessionId);
+    if (type === "public") {
+      const room = (await client.joinOrCreate(type)) as any;
+      model.setRoom(room as any);
+      roomActions({ room: room as any, type });
+
+      preGameView.transitionPreGameStage({ type: "find-players" });
+    }
+
+    if (type === "private") {
+      const room = await client.join(type, {
+        password,
+      });
 
       model.setRoom(room as any);
       roomActions({ room: room as any, type });
 
       preGameView.transitionPreGameStage({ type: "find-players" });
-    }) as any;
-  }
-
-  if (type === "private") {
-    room = client
-      .join(type, {
-        password,
-      })
-      .then((room) => {
-        // console.log("client sucess PRIVATE joined: ", room.sessionId);
-
-        model.setRoom(room as any);
-        roomActions({ room: room as any, type });
-
-        preGameView.transitionPreGameStage({ type: "find-players" });
-      }) as any;
+    }
+  } catch (err) {
+    preGameView;
   }
 };
 
@@ -95,7 +94,25 @@ const roomActions = ({
   type: "private" | "public";
 }) => {
   room.onMessage("move", ({ column, row }) => {
-    controlMovePlayer({ column, row, userActionFromServer: true });
+    if (model.state.game.gameOver) {
+      let timeout = 1500;
+
+      if (document.visibilityState === "visible") {
+        controlMovePlayer({ column, row, userActionFromServer: true });
+        return;
+      }
+
+      document.addEventListener("visibilitychange", function onVisible() {
+        if (document.visibilityState === "visible") {
+          setTimeout(() => {
+            controlMovePlayer({ column, row, userActionFromServer: true });
+          }, timeout);
+          document.removeEventListener("visibilitychange", onVisible);
+        }
+      });
+    } else {
+      controlMovePlayer({ column, row, userActionFromServer: true });
+    }
   });
 
   room.state.listen("skinChange", (foo) => {
@@ -103,22 +120,21 @@ const roomActions = ({
   });
 
   room.onMessage("playAgain", ({ firstMovePlayer }) => {
-    let timeout = 2000;
+    let timeout = 1000;
 
     if (document.visibilityState === "visible") {
       gameMenuView.playAgainAndHideMenu();
       return;
     }
 
-    document.addEventListener("visibilitychange", function visible() {
+    document.addEventListener("visibilitychange", function onVisible() {
       if (document.visibilityState === "visible") {
         setTimeout(() => {
           gameMenuView.playAgainAndHideMenu();
         }, timeout);
-        document.removeEventListener("visibilitychange", visible);
+        document.removeEventListener("visibilitychange", onVisible);
       }
     });
-    // controlPlayAgain({ triggeredByClick: false, firstMovePlayer });
   });
 
   // late pick
