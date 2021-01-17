@@ -1,5 +1,4 @@
 import { getElement, reflow } from ".";
-import { uuidv4 } from "../../utils";
 
 type TInstance = {
   element: HTMLElement;

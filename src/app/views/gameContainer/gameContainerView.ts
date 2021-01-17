@@ -37,6 +37,7 @@ class GameContainerView extends View {
   playerDropdownContentHeight: number;
   private debouncedGetSelectors: Function;
   private debouncedResizeAnimation: Function;
+  private animationId = 0;
 
   constructor() {
     super({ root: ".game-container" });
@@ -613,25 +614,16 @@ class GameContainerView extends View {
     }
 
     if (type === "declare-players") {
-      // this will probably fail in safari
+      const styleSheet = document.getElementById(
+        "slide-declare-players-animation"
+      )!;
       const declarePlayersShape = this.parentEl.querySelector(
         ".lobby .player-shape"
       ) as HTMLElement;
       const declarePlayersDeclaration = this.parentEl.querySelector(
         ".lobby .declaration"
       ) as HTMLElement;
-      document.documentElement.style.setProperty(
-        "--declareAfterStop",
-        px(-(boardWidth * 0.025))
-      );
-      document.documentElement.style.setProperty(
-        "--declareBeforeStop",
-        px(boardWidth * 0.025)
-      );
-      document.documentElement.style.setProperty(
-        "--declarePlayerShape",
-        px(boardWidth / 2)
-      );
+      const animationName = `DeclarePlayerDeclaration-${++this.animationId}`;
 
       scaleStyles({
         el: declarePlayersShape,
@@ -653,6 +645,32 @@ class GameContainerView extends View {
             boardWidth < 500 ? px(boardWidth / 11) : px(boardWidth / 16.1325),
         },
       });
+
+      if (this.declarePlayersAnimationRunning) return;
+
+      const styleContent = `
+      @keyframes ${animationName}  {
+        0% {
+          opacity: 0;
+          transform: translateX(${px(boardWidth / 2)});
+        }
+        10% {
+          opacity: 1;
+          transform: translateX(${px(boardWidth * 0.025)});
+        }
+        90% {
+          opacity: 1;
+          transform: translateX(${px(-(boardWidth * 0.025))});
+        }
+        100% {
+          opacity: 0;
+          transform: translateX(${px(-(boardWidth / 2))});
+        }
+      }
+      `;
+      styleSheet.textContent = styleContent;
+      declarePlayersShape.style.animationName = animationName;
+      declarePlayersDeclaration.style.animationName = animationName;
     }
 
     if (type === "game-over-title") {

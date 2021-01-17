@@ -153,10 +153,14 @@
     color: #cac7e0;
     font-size: 40px;
 
+    circle {
+      display: none;
+    }
+
     .player-shape {
       height: 275px;
       width: 275px;
-      animation: DeclarePlayerShape 3000ms linear normal forwards;
+      animation: DeclarePlayerShape-1 3000ms linear normal forwards;
     }
 
     .which-player {
@@ -165,7 +169,7 @@
     }
 
     .declaration {
-      animation: DeclarePlayerDeclaration 3000ms linear reverse forwards;
+      animation: DeclarePlayerDeclaration-1 3000ms linear reverse forwards;
     }
   }
 }
