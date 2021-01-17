@@ -1,4 +1,6 @@
 const path = require("path");
+const webpack = require("webpack");
+const dotenv = require("dotenv").config({ path: __dirname + "/.env" });
 const common = require("./webpack.common");
 const merge = require("webpack-merge");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
@@ -33,5 +35,8 @@ module.exports = merge(common, {
   plugins: [
     new MiniExtractCssPlugin({ filename: "[name].[contentHash].css" }),
     new CleanWebpackPlugin(),
+    new webpack.DefinePlugin({
+      "process.env": JSON.stringify(dotenv.parsed),
+    }),
   ],
 });
