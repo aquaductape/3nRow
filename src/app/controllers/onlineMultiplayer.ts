@@ -1,5 +1,4 @@
 import { getOppositePlayer } from "../model/actions/player";
-import Colyseus from "../model/colyseus";
 import model from "../model/model";
 import { TRoomClient } from "../ts/colyseusTypes";
 import gameMenuView from "../views/gameMenu/gameMenuView";
@@ -19,6 +18,9 @@ export type TControlJoinRoom = (props: {
 }) => void;
 export const controlJoinRoom: TControlJoinRoom = async ({ type, password }) => {
   try {
+    const Colyseus = await import(
+      /* webpackChunkName: "colyseus" */ "colyseus.js"
+    );
     const client = new Colyseus.Client(
       `ws://${process.env.MULTIPLAYER_ENDPOINT || "localhost:3000"}`
     );
@@ -52,29 +54,30 @@ export type TControlCreateRoom = (props: {
   password?: string;
 }) => void;
 export const controlCreateRoom: TControlCreateRoom = ({ type, password }) => {
-  const client = new Colyseus.Client("ws://localhost:3000");
-  let room: TRoomClient;
-
-  if (type === "public") {
-    room = client.create(type).then((room) => {
-      // console.log("client sucess PUBLIC joined: ", room.sessionId);
-
-      model.setRoom(room as any);
-      roomActions({ room: room as any, type });
-    }) as any;
-  }
-
-  if (type === "private") {
-    room = client
-      .create(type, {
-        password,
-      })
-      .then((room) => {
-        // console.log("client sucess PRIVATE joined: ", room.sessionId);
-        model.setRoom(room as any);
-        roomActions({ room: room as any, type });
-      }) as any;
-  }
+  // const Colyseus =  await import(/* webpackChunkName: "colyseus" */ 'colyseus.js')
+  //   const client = new Colyseus.Client("ws://localhost:3000");
+  //   let room: TRoomClient;
+  //
+  //   if (type === "public") {
+  //     room = client.create(type).then((room) => {
+  //       // console.log("client sucess PUBLIC joined: ", room.sessionId);
+  //
+  //       model.setRoom(room as any);
+  //       roomActions({ room: room as any, type });
+  //     }) as any;
+  //   }
+  //
+  //   if (type === "private") {
+  //     room = client
+  //       .create(type, {
+  //         password,
+  //       })
+  //       .then((room) => {
+  //         // console.log("client sucess PRIVATE joined: ", room.sessionId);
+  //         model.setRoom(room as any);
+  //         roomActions({ room: room as any, type });
+  //       }) as any;
+  //   }
 };
 
 export type TControlExitMultiplayer = () => void;
