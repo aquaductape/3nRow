@@ -669,8 +669,8 @@ class GameContainerView extends View {
       }
       `;
       styleSheet.textContent = styleContent;
-      declarePlayersShape.style.animationName = animationName;
-      declarePlayersDeclaration.style.animationName = animationName;
+      declarePlayersShape.style.animationName = `${animationName} 3000ms linear normal forwards`;
+      declarePlayersDeclaration.style.animationName = `${animationName} 3000ms linear normal reverse forwards`;
     }
 
     if (type === "game-over-title") {
