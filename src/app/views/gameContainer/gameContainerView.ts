@@ -646,7 +646,7 @@ class GameContainerView extends View {
         },
       });
 
-      if (this.declarePlayersAnimationRunning) return;
+      // if (this.declarePlayersAnimationRunning) return;
 
       const styleContent = `
       @keyframes ${animationName}  {
