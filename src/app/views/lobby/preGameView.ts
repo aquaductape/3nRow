@@ -312,6 +312,7 @@ class PreGameView extends View {
     // pause then resume
     if (type === "declare-players") {
       if (!this.transitionRunning) {
+        this.onTransitionEndPreGameStageType = type;
         this._transitionPreGameStage({ type });
         return;
       }
