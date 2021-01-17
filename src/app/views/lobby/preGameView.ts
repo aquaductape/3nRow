@@ -277,6 +277,8 @@ class PreGameView extends View {
     `;
   }
 
+  private showErrorMarkup() {}
+
   preGameMarkup({ type }: { type: TPreGameType }) {
     switch (type) {
       case "connect-server":
@@ -308,7 +310,7 @@ class PreGameView extends View {
     this.data.preGameType = type;
 
     // pause then resume
-    if (type === "found-players" || type === "declare-players") {
+    if (type === "declare-players") {
       if (!this.transitionRunning) {
         this._transitionPreGameStage({ type });
         return;
@@ -330,10 +332,6 @@ class PreGameView extends View {
     // overrides
     this.onTransitionEndPreGameStageType = type;
     this._transitionPreGameStage({ type });
-
-    // hide
-    // onEnd markup <----- hijack
-    //    onStart reveal
   }
 
   private _transitionPreGameStage({ type }: { type: TPreGameType }) {
