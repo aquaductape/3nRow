@@ -646,7 +646,7 @@ class GameContainerView extends View {
         },
       });
 
-      // if (this.declarePlayersAnimationRunning) return;
+      if (this.declarePlayersAnimationRunning) return;
 
       const styleContent = `
       @keyframes ${animationName}  {
@@ -670,7 +670,7 @@ class GameContainerView extends View {
       `;
       styleSheet.textContent = styleContent;
       declarePlayersShape.style.animation = `${animationName} 3000ms linear normal forwards`;
-      declarePlayersDeclaration.style.animation = `${animationName} 3000ms linear normal reverse forwards`;
+      declarePlayersDeclaration.style.animation = `${animationName} 3000ms linear reverse forwards`;
     }
 
     if (type === "game-over-title") {

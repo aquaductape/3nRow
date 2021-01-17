@@ -385,7 +385,8 @@ class PreGameView extends View {
       gameContainerView.scaleElementsToProportionToBoard({
         type: "declare-players",
       });
-      // gameContainerView.declarePlayersAnimationRunning = true;
+      this.reflow();
+      gameContainerView.declarePlayersAnimationRunning = true;
       this.transitionMarkupReplaced = true;
 
       setTimeout(() => {
@@ -394,9 +395,9 @@ class PreGameView extends View {
         playerBtnGroupView.updatePlayerIndicator(firstPlayer);
       }, 500);
 
-      // setTimeout(() => {
-      //   gameContainerView.declarePlayersAnimationRunning = false;
-      // }, 1000);
+      setTimeout(() => {
+        gameContainerView.declarePlayersAnimationRunning = false;
+      }, 1000);
 
       showElement({
         el,
