@@ -279,7 +279,7 @@ class PreGameView extends View {
 
   private showErrorMarkup() {}
 
-  preGameMarkup({ type }: { type: TPreGameType }) {
+  private preGameMarkup({ type }: { type: TPreGameType }) {
     switch (type) {
       case "connect-server":
         return this.connectServerMarkup();
@@ -359,6 +359,12 @@ class PreGameView extends View {
       el.innerHTML = this.preGameMarkup({
         type: this.onTransitionEndPreGameStageType,
       });
+
+      if (type === "pick-skins") {
+        gameContainerView.scaleElementsToProportionToBoard({
+          type: "pick-skin",
+        });
+      }
       this.transitionMarkupReplaced = true;
       // hideOnEnd finished
 
@@ -478,6 +484,10 @@ class PreGameView extends View {
         el.style.transition = "";
         el.style.display = "none";
         el.innerHTML = this.pickSkinsMarkup({ type });
+
+        gameContainerView.scaleElementsToProportionToBoard({
+          type: "pick-skin",
+        });
         this.hasSelectedSkin = false;
       },
     });

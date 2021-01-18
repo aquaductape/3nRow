@@ -15,10 +15,6 @@
     color: #22156d;
     font-size: 28px;
 
-    .countdown {
-      margin-right: -2px;
-    }
-
     .countdown-circle {
       position: absolute;
       top: 0;
@@ -37,6 +33,7 @@
       font-size: 30px;
       margin-bottom: 30px;
       letter-spacing: normal;
+      line-height: unset;
     }
 
     .items {

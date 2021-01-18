@@ -32,6 +32,7 @@ class GameContainerView extends View {
     gameOverPlayerShape: HTMLElement;
     gameOverPlayerResult: HTMLElement;
     playerPickSkinCountDown: HTMLElement;
+    pickSkinBtnsGroup: HTMLElement;
   };
   declarePlayersAnimationRunning: boolean;
   playerDropdownContentHeight: number;
@@ -118,6 +119,9 @@ class GameContainerView extends View {
     ) as HTMLElement;
     dom.playerPickSkinCountDown = this.parentEl.querySelector(
       ".player-pick-skin-countdown"
+    ) as HTMLElement;
+    dom.pickSkinBtnsGroup = this.parentEl.querySelector(
+      ".pick-skin .btns-group"
     ) as HTMLElement;
     dom.gameOverPlayerShape = this.parentEl.querySelector(
       ".game-over-title .player-shape"
@@ -469,8 +473,12 @@ class GameContainerView extends View {
     matchDropdownWidthToBoard();
     matchFakePlayerBtnWidthToBtnParent();
     if (this.declarePlayersAnimationRunning) {
-      this.scaleElementsToProportionToBoard({ type: "declare-players" });
+      this.scaleElementsToProportionToBoard({
+        type: "declare-players",
+        boardWidth,
+      });
     }
+    this.scaleElementsToProportionToBoard({ type: "pick-skin", boardWidth });
     // this.reflow();
     matchDropdownOuterSizeFromInnerContent();
   }
@@ -558,14 +566,18 @@ class GameContainerView extends View {
 
   scaleElementsToProportionToBoard({
     type,
+    boardWidth: arg_boardWidth,
   }: {
     type:
       | "menuBtns"
       | "declare-players"
       | "player-pick-skin-countdown"
-      | "game-over-title";
+      | "game-over-title"
+      | "pick-skin";
+    boardWidth?: number;
   }) {
-    const boardWidth = this.parentEl.clientWidth;
+    const boardWidth =
+      arg_boardWidth == null ? this.parentEl.clientWidth : arg_boardWidth;
 
     if (type === "menuBtns") {
       const gameMenuBtns = Array.from(
@@ -723,6 +735,25 @@ class GameContainerView extends View {
           width: 8.06625,
           fontSize: 20.1612,
         },
+      });
+    }
+
+    if (type === "pick-skin") {
+      const pickSkinEl = this.parentEl.querySelector(".pick-skin")!;
+      if (!pickSkinEl || boardWidth > 285) return;
+
+      const title = pickSkinEl.querySelector(".title") as HTMLElement;
+      const btnsGroup = pickSkinEl.querySelector(".btns-group") as HTMLElement;
+      const items = Array.from(
+        pickSkinEl.querySelectorAll(".color-item, .shape-item")
+      ) as HTMLElement[];
+
+      title.style.fontSize = "22px";
+      btnsGroup.style.width = "calc(100% + 30px)";
+      btnsGroup.style.marginLeft = "-15px";
+      items.forEach((item) => {
+        item.style.width = "45px";
+        item.style.height = "45px";
       });
     }
   }

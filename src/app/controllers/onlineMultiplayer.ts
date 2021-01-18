@@ -24,60 +24,45 @@ export const controlJoinRoom: TControlJoinRoom = async ({ type, password }) => {
     const client = new Colyseus.Client(
       `ws://${process.env.MULTIPLAYER_ENDPOINT || "localhost:3000"}`
     );
-    // const client = new Colyseus.Client("ws://localhost:3000");
+    let room = (null as unknown) as TRoomClient;
 
     if (type === "public") {
-      const room = (await client.joinOrCreate(type)) as any;
-      model.setRoom(room as any);
-      roomActions({ room: room as any, type });
-
-      preGameView.transitionPreGameStage({ type: "find-players" });
+      room = (await client.joinOrCreate(type)) as TRoomClient;
     }
 
     if (type === "private") {
-      const room = await client.join(type, {
+      room = (await client.join(type, {
         password,
-      });
-
-      model.setRoom(room as any);
-      roomActions({ room: room as any, type });
-
-      preGameView.transitionPreGameStage({ type: "find-players" });
+      })) as TRoomClient;
     }
+
+    model.setRoom(room);
+    roomActions({ room });
+
+    preGameView.transitionPreGameStage({ type: "find-players" });
   } catch (err) {
-    preGameView;
+    // preGameView;
+    // show error in preGameView
   }
 };
 
-export type TControlCreateRoom = (props: {
-  type: "private" | "public";
-  password?: string;
-}) => void;
-export const controlCreateRoom: TControlCreateRoom = ({ type, password }) => {
-  // const Colyseus =  await import(/* webpackChunkName: "colyseus" */ 'colyseus.js')
-  //   const client = new Colyseus.Client("ws://localhost:3000");
-  //   let room: TRoomClient;
-  //
-  //   if (type === "public") {
-  //     room = client.create(type).then((room) => {
-  //       // console.log("client sucess PUBLIC joined: ", room.sessionId);
-  //
-  //       model.setRoom(room as any);
-  //       roomActions({ room: room as any, type });
-  //     }) as any;
-  //   }
-  //
-  //   if (type === "private") {
-  //     room = client
-  //       .create(type, {
-  //         password,
-  //       })
-  //       .then((room) => {
-  //         // console.log("client sucess PRIVATE joined: ", room.sessionId);
-  //         model.setRoom(room as any);
-  //         roomActions({ room: room as any, type });
-  //       }) as any;
-  //   }
+export type TControlCreateRoom = () => void;
+export const controlCreateRoom: TControlCreateRoom = async () => {
+  try {
+    const Colyseus = await import(
+      /* webpackChunkName: "colyseus" */ "colyseus.js"
+    );
+    const client = new Colyseus.Client(
+      `ws://${process.env.MULTIPLAYER_ENDPOINT || "localhost:3000"}`
+    );
+
+    const room = (await client.create("private", {
+      isPrivate: true,
+    })) as TRoomClient;
+
+    model.setRoom(room);
+    roomActions({ room });
+  } catch (err) {}
 };
 
 export type TControlExitMultiplayer = () => void;
@@ -89,13 +74,7 @@ export const controlExitMultiplayer: TControlExitMultiplayer = () => {
   model.exitMultiplayer();
 };
 
-const roomActions = ({
-  room,
-  type,
-}: {
-  room: TRoomClient;
-  type: "private" | "public";
-}) => {
+const roomActions = ({ room }: { room: TRoomClient }) => {
   room.onMessage("move", ({ column, row }) => {
     if (model.state.game.gameOver) {
       let timeout = 1500;
@@ -238,13 +217,6 @@ const roomActions = ({
   room.onMessage("readyPlayers", (id) => {
     const mainPlayerId = id;
     const opponentPlayerId = id === "P1" ? "P2" : "P1";
-    const playerIds = [mainPlayerId, opponentPlayerId];
-
-    playerIds.forEach((playerId) => {
-      const player = model.getPlayerById(playerId)!;
-      model.setPlayerCurrentColor({ player, color: "" });
-      model.setPlayerCurrentShape({ player, shape: "" });
-    });
 
     model.setMultiplayerPlayers({
       mainPlayer: mainPlayerId,
