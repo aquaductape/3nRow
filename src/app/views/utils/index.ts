@@ -25,14 +25,14 @@ export const clearChildren = (element: HTMLElement) => {
   }
 };
 
-export const debounce = (
-  cb: Function,
+export const debounce = <T>(
+  cb: T,
   {
     time,
     leading = false,
     throttle = null,
   }: { time: number; leading: boolean; throttle?: number | null }
-) => {
+): T => {
   let timeoutCb = 0;
   let throttleTimeStamp: number | null = null;
   let fire = true;
@@ -40,6 +40,7 @@ export const debounce = (
 
   const debounced = (...args: any[]) => {
     if (leading && fire) {
+      // @ts-ignore
       cb(...args);
       fire = false;
     }
@@ -50,6 +51,7 @@ export const debounce = (
       }
 
       if (Date.now() - throttleTimeStamp! >= throttle) {
+        // @ts-ignore
         cb(...args);
         throttleTimeStamp = null;
         throttleFired = true;
@@ -64,12 +66,13 @@ export const debounce = (
 
     clearTimeout(timeoutCb);
     timeoutCb = window.setTimeout(() => {
+      // @ts-ignore
       if (!leading) cb(...args);
       fire = true;
     }, time);
   };
 
-  return debounced;
+  return (debounced as unknown) as T;
 };
 
 export const randomRoundAmount = (rounds: number = 0) => {

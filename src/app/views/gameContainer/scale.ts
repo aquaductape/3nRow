@@ -1,33 +1,44 @@
 import { round } from "../../utils/index";
+import { TDomOptions } from "./gameContainerView";
 
 const px = (num: number, decimal: number = 1) => `${round(num, decimal)}px`;
 
 type CustomStyle = Partial<
   Exclude<Omit<CSSStyleDeclaration, "length" | "parentRule">, number>
 >;
-export const scaleStyles = ({
-  el,
-  numerator,
-  styleRatio,
-}: {
-  el: HTMLElement | HTMLElement[];
+
+type TStyleRatio = {
+  [key in keyof CustomStyle]:
+    | {
+        ratio: number;
+        decimalPlaces: number;
+      }
+    | number
+    | ((el: HTMLElement) => string);
+};
+
+type TScaleStyles<T> = {
+  name: TDomOptions<T>;
   numerator: number;
-  styleRatio: {
-    [key in keyof CustomStyle]:
-      | {
-          ratio: number;
-          decimalPlaces: number;
-        }
-      | number
-      | ((el: HTMLElement) => string);
-  };
-}) => {
+  precisionDecimal?: number;
+  styleRatio: TStyleRatio;
+};
+
+export const scaleStyles = <T = HTMLElement>({
+  name,
+  numerator,
+  precisionDecimal,
+  styleRatio,
+}: TScaleStyles<T>) => {
+  if (!name.present) return;
+  const { el } = name;
+
   if (!el || (Array.isArray(el) && !el.length)) return;
 
   for (const key in styleRatio) {
     const value = styleRatio[key];
     let ratio = 0;
-    let decimalPlaces = 1;
+    let decimalPlaces = precisionDecimal == null ? 1 : precisionDecimal;
 
     if (value != null && typeof value === "object") {
       ratio = value.ratio;
@@ -47,11 +58,12 @@ export const scaleStyles = ({
       continue;
     }
 
+    const _el = (el as unknown) as HTMLElement;
     if (typeof value === "function") {
-      el.style[key] = value(el);
+      _el.style[key] = value(_el);
       continue;
     }
 
-    el.style[key] = px(numerator / ratio, decimalPlaces);
+    _el.style[key] = px(numerator / ratio, decimalPlaces);
   }
 };

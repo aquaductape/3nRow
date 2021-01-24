@@ -3,6 +3,7 @@ import { Room } from "colyseus.js";
 
 import { TPosition } from ".";
 
+export type TRoomCode = string;
 export type TMovePosition = TPosition;
 export type TOnMove = (props: TMovePosition) => void;
 export type TOnSkinChange = (props: string) => void;
@@ -55,5 +56,6 @@ export type TRoomClient = {
     (listener: "move", props: (props: TMovePosition) => void): void;
     (listener: "countDownPickSkin", props: (props: number) => void): void;
     (listener: "playAgain", props: (props: TPlayAgainResult) => void): void;
+    (listener: "roomCode", props: (props: TRoomCode) => void): void;
   };
 } & Omit<Room<unknown>, "send">;

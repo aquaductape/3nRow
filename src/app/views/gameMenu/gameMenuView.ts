@@ -166,7 +166,6 @@ class GameMenuView extends View {
       <div class="section">
       ${this.menuMarkup({ sectionType: "start" })}
       </div>
-      ${this.playAgainMarkup()}
     </div>
     `;
   }
@@ -180,16 +179,6 @@ class GameMenuView extends View {
   private backgroundSVGMarkup() {
     return `
     <div class="background-svg">${svg.menuBg}</div>
-    `;
-  }
-
-  private playAgainMarkup() {
-    return `
-      <div class="play-again-container hidden">
-        <button class="btn btn-primary btn-play-again" aria-label="play again" title="play again" data-play-against="again">
-          ${svg.playAgainCircleBtn}
-        </button>
-      </div>
     `;
   }
 
@@ -230,7 +219,7 @@ class GameMenuView extends View {
     const titleMarkupId = titleId ? `id="${titleId}"` : "";
     const titleMarkup = title
       ? `
-    <div ${titleMarkupId} class="title" ${ariaLabel}>${title}</div> 
+    <div ${titleMarkupId} class="menu-title" ${ariaLabel}>${title}</div> 
     `
       : "";
 
@@ -259,9 +248,13 @@ class GameMenuView extends View {
     this.reflow();
     this.parentEl.classList.remove("onExit");
 
-    gameContainerView.scaleElementsToProportionToBoard({ type: "menuBtns" });
     gameContainerView.scaleElementsToProportionToBoard({
-      type: "game-over-title",
+      selectors: [
+        "gameMenu",
+        "gameMenuTitle",
+        "gameOverPlayerResult",
+        "gameOverPlayerShape",
+      ],
     });
 
     const showSection = () => {
@@ -483,9 +476,12 @@ class GameMenuView extends View {
         if (typeof replaceWith === "string") sectionEl.innerHTML = replaceWith;
         if (typeof replaceWith === "function") replaceWith();
         if (type === "section") {
-          // sectionEl.innerHTML = this.menuMarkup({ sectionType });
           gameContainerView.scaleElementsToProportionToBoard({
-            type: "menuBtns",
+            selectors: [
+              "gameMenuBtns",
+              "gameMenuTitle",
+              "gameMenuBtnPickPlayer",
+            ],
           });
         }
       },

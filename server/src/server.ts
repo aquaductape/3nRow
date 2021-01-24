@@ -22,4 +22,8 @@ gameServer.define("public", Common);
 gameServer.define("private", Common).filterBy(["password"]);
 gameServer.listen(port);
 
+app.get("/", (req, res) => {
+  res.send("connected");
+});
+
 console.log(`Listening on ws://localhost:${port}`);

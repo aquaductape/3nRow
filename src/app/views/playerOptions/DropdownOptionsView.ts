@@ -127,17 +127,6 @@ export default class DropdownOptionsView extends View {
     disabledEls.forEach((disabledItemEl) => {
       this.prepareTooltip({ disabledItemEl });
     });
-
-    //     this.parentEl.addEventListener("click", (e) => {
-    //       const target = e.target as HTMLElement;
-    //       const disabledItemEl = target.closest(
-    //         '[data-disabled="true"]'
-    //       ) as HTMLElement;
-    //
-    //       if (!disabledItemEl) return;
-    //
-    //       this.showTooltip({ triggeredBy: "click", disabledItemEl });
-    //     });
   }
 
   private prepareTooltip({ disabledItemEl }: { disabledItemEl: HTMLElement }) {

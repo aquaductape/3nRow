@@ -38,6 +38,16 @@ body {
   }
 }
 
+::-moz-selection {
+  color: #fff;
+  background: blue;
+}
+
+::selection {
+  color: #fff;
+  background: blue;
+}
+
 .delayed-reveal {
   opacity: 0;
   animation: Show 500ms 500ms forwards;

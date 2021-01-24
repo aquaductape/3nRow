@@ -2,6 +2,7 @@ import { getOppositePlayer } from "../model/actions/player";
 import model from "../model/model";
 import { TRoomClient } from "../ts/colyseusTypes";
 import gameMenuView from "../views/gameMenu/gameMenuView";
+import createPrivateGameView from "../views/lobby/createPrivateGameView";
 import lobbyView from "../views/lobby/lobbyView";
 import preGameView from "../views/lobby/preGameView";
 import playerBtnGroupView from "../views/playerOptions/playerBtnGroupView";
@@ -31,6 +32,7 @@ export const controlJoinRoom: TControlJoinRoom = async ({ type, password }) => {
     }
 
     if (type === "private") {
+      console.log("private", password);
       room = (await client.join(type, {
         password,
       })) as TRoomClient;
@@ -41,6 +43,7 @@ export const controlJoinRoom: TControlJoinRoom = async ({ type, password }) => {
 
     preGameView.transitionPreGameStage({ type: "find-players" });
   } catch (err) {
+    console.error(err);
     // preGameView;
     // show error in preGameView
   }
@@ -75,6 +78,11 @@ export const controlExitMultiplayer: TControlExitMultiplayer = () => {
 };
 
 const roomActions = ({ room }: { room: TRoomClient }) => {
+  room.onMessage("roomCode", (roomCode) => {
+    createPrivateGameView.setData({ roomCode });
+    createPrivateGameView.transitionStages({ type: "room-created" });
+  });
+
   room.onMessage("move", ({ column, row }) => {
     if (model.state.game.gameOver) {
       let timeout = 1500;

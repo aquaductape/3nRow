@@ -89,6 +89,9 @@ class PreGameView extends View {
     );
 
     this.parentEl.addEventListener("click", this.onLobbyEvents);
+    gameContainerView.scaleElementsToProportionToBoard({
+      selectors: ["lobbyTitle"],
+    });
   }
 
   private onNavigationBackBtnForeign = () => {
@@ -129,11 +132,16 @@ class PreGameView extends View {
   };
 
   removeEventListeners() {
+    if (!this.parentEl) return;
+
+    this.parentEl.removeEventListener("click", this.onLobbyEvents);
+
+    if (!this.navigationBackBtnForeign) return;
+
     this.navigationBackBtnForeign.removeEventListener(
       "click",
       this.onNavigationBackBtnForeign
     );
-    this.parentEl.removeEventListener("click", this.onLobbyEvents);
   }
 
   protected generateMarkup() {
@@ -185,7 +193,7 @@ class PreGameView extends View {
     return `
 
     <div class="pick-skin">
-      <div class="title">Pick a ${capitalize(type)}</div>
+      <div class="lobby-title">Pick a ${capitalize(type)}</div>
       <div class="btns-group">
         ${content}
       </div>
@@ -197,7 +205,7 @@ class PreGameView extends View {
   private waitForOpponentMarkup() {
     return `
     <div class="section delayed-reveal">
-      <div class="title">Waiting for Opponent ${loaderEllipsis()}</div>
+      <div class="lobby-title">Waiting for Opponent ${loaderEllipsis()}</div>
     </div>
     `;
   }
@@ -205,7 +213,7 @@ class PreGameView extends View {
   private preparingGameMarkup() {
     return `
     <div class="section delayed-reveal">
-      <div class="title">Preparing Game ${loaderEllipsis()}</div>
+      <div class="lobby-title">Preparing Game ${loaderEllipsis()}</div>
     </div>
     
     `;
@@ -214,7 +222,7 @@ class PreGameView extends View {
   private findPlayersMarkup() {
     return `
     <div class="section delayed-reveal">
-      <div class="title">Looking for Opponents ${loaderEllipsis()}</div>
+      <div class="lobby-title">Searching for Opponents ${loaderEllipsis()}</div>
       <div class="busy-players">1 player online and it's YOU!</div>
     </div>
     `;
@@ -235,7 +243,7 @@ class PreGameView extends View {
     }
 
     return `
-     <div class="title">${msg}</div>
+     <div class="lobby-title">${msg}</div>
      `;
   }
 
@@ -264,7 +272,8 @@ class PreGameView extends View {
     `;
     this.parentEl.parentElement?.insertAdjacentHTML("beforebegin", timerMarkup);
     gameContainerView.scaleElementsToProportionToBoard({
-      type: "player-pick-skin-countdown",
+      // type: "player-pick-skin-countdown",
+      selectors: ["playerPickSkinCountDown"],
     });
   }
 
@@ -272,7 +281,7 @@ class PreGameView extends View {
     this.onJoinRoom({ type: "public" });
     return `
     <div class="section delayed-reveal">
-      <div class="title">Connecting to Server ${loaderEllipsis()}</div>
+      <div class="lobby-title">Connecting to Server ${loaderEllipsis()}</div>
     </div>
     `;
   }
@@ -360,9 +369,18 @@ class PreGameView extends View {
         type: this.onTransitionEndPreGameStageType,
       });
 
+      gameContainerView.scaleElementsToProportionToBoard({
+        selectors: ["lobbyTitle"],
+      });
       if (type === "pick-skins") {
         gameContainerView.scaleElementsToProportionToBoard({
-          type: "pick-skin",
+          // type: "pick-skin",
+          selectors: [
+            "pickSkin",
+            "pickSkinBtnsGroup",
+            "pickSkinItems",
+            "pickSkinTitle",
+          ],
         });
       }
       this.transitionMarkupReplaced = true;
@@ -390,7 +408,8 @@ class PreGameView extends View {
       });
       this.reflow();
       gameContainerView.scaleElementsToProportionToBoard({
-        type: "declare-players",
+        // type: "declare-players",
+        selectors: ["declarePlayersDeclaration", "declarePlayersShape"],
       });
       this.reflow();
       gameContainerView.declarePlayersAnimationRunning = true;
@@ -486,7 +505,13 @@ class PreGameView extends View {
         el.innerHTML = this.pickSkinsMarkup({ type });
 
         gameContainerView.scaleElementsToProportionToBoard({
-          type: "pick-skin",
+          // type: "pick-skin",
+          selectors: [
+            "pickSkin",
+            "pickSkinBtnsGroup",
+            "pickSkinItems",
+            "pickSkinTitle",
+          ],
         });
         this.hasSelectedSkin = false;
       },

@@ -36,19 +36,20 @@ const codeChars = [
   "9",
 ];
 
-export default class HumanId {
-  // if you find three repeating alpha characters, replace last one with 2
+export default class RoomReadibleId {
+  // if you find three repeating alpha characters, replace last one with "2", or with repeating number characters, with "F"
   // ex AAAAA => AA2AA
   // ex 33333 => 33F33
-  id = "A".repeat(5);
+  private _sourceId = "A".repeat(5);
+  id = this._sourceId;
 
   incrementId() {
     const charMapCount: { [key: string]: number } = {};
-    let displayId = this.id.split("");
+    let displayId = this._sourceId.split("");
 
     // rotate
     displayId = this.rotateId(displayId).split("");
-    this.id = displayId.join("");
+    this._sourceId = displayId.join("");
 
     displayId.some((char, idx) => {
       if (!charMapCount[char]) {
@@ -98,6 +99,9 @@ export default class HumanId {
       return idArr.join("");
     }
 
-    return this.rotateId(idArr, idx - 1);
+    const result = this.rotateId(idArr, idx - 1);
+    // this.id = result;
+    return result;
+    // this.id = result
   };
 }

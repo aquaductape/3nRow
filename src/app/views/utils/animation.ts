@@ -112,6 +112,7 @@ export const hideElement = ({
   onEnd,
 }: {
   el: string | HTMLElement;
+  /** Default `200ms` */
   transition?: string;
   duration?: number;
   delay?: number;

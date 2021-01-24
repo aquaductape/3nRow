@@ -15,6 +15,7 @@ export const FireFox = userAgent(/firefox/i);
 export const Safari =
   userAgent(/safari/i) && !userAgent(/chrome/i) && !userAgent(/android/i);
 export const ChromeForAndroid = userAgent(/chrome/i) && userAgent(/android/i);
+export const Android = userAgent(/android/i);
 export const IOS = userAgent(/iP(ad|od|hone)/i);
 export const IOS13 =
   typeof window !== "undefined"

@@ -56,10 +56,8 @@ class LobbyView extends View {
     // also restore single player shapes from LS
     playerBtnGroupView.showSvgMarks();
 
-    this.navigationBackBtnForeign.removeEventListener(
-      "click",
-      this.onNavigationBackBtnForeign
-    );
+    createPrivateGameView.removeOnlineCircle();
+    this.removeEventListeners();
   };
 
   removeEventListeners() {
@@ -68,6 +66,7 @@ class LobbyView extends View {
       this.onNavigationBackBtnForeign
     );
     preGameView.removeEventListeners();
+    createPrivateGameView.removeEventListeners();
   }
 
   protected renderLobbyType() {

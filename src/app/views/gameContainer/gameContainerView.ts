@@ -4,55 +4,283 @@ import { debounce } from "../utils/index";
 import View from "../View";
 import { scaleStyles } from "./scale";
 
+type TGetSelectorsProps = {
+  all?: boolean;
+  pick?: TDomPropNames[];
+};
+
+export type TDomOptions<T = HTMLElement> = {
+  el?: T;
+  selector: string;
+  present: boolean;
+  queryAll?: boolean;
+  getById?: boolean;
+  parent?: TDomPropNames;
+};
+
+type TDomPropNames = keyof TDom;
+export type TGameContainerSelectors = TDomPropNames[];
+
+type TDom = {
+  // playerOptionsView
+  playerBtnGroup: TDomOptions;
+  playerBtns: TDomOptions<HTMLElement[]>;
+  p1BtnOptions: TDomOptions;
+  fakePlayerBtns: TDomOptions<HTMLElement[]>;
+  playerDropdowns: TDomOptions<HTMLElement[]>;
+  playerDropdownInners: TDomOptions<HTMLElement[]>;
+  playerDropdownShells: TDomOptions<HTMLElement[]>;
+  playerDropdownShellShadows: TDomOptions<HTMLElement[]>;
+  playerDropdownMasks: TDomOptions<HTMLElement[]>;
+  playerIndicators: TDomOptions<HTMLElement[]>;
+  // boardView
+  rows: TDomOptions<HTMLElement[]>;
+  cells: TDomOptions<HTMLElement[]>;
+  board: TDomOptions;
+  boardBackground: TDomOptions;
+  // gameMenuView
+  gameMenu: TDomOptions;
+  gameMenuTitle: TDomOptions;
+  gameMenuBtns: TDomOptions<HTMLElement[]>;
+  gameMenuBtnPickPlayer: TDomOptions<HTMLElement[]>;
+  gameOverPlayerShape: TDomOptions;
+  gameOverPlayerResult: TDomOptions;
+  navigationBackBtn: TDomOptions;
+  // settingsView
+  settingsBtn: TDomOptions;
+  settings: TDomOptions;
+  // lobbyView
+  declarePlayersShape: TDomOptions;
+  declarePlayersDeclaration: TDomOptions;
+  playerPickSkinCountDown: TDomOptions;
+  lobbyTitle: TDomOptions;
+  pickSkin: TDomOptions;
+  pickSkinBtnsGroup: TDomOptions;
+  pickSkinTitle: TDomOptions;
+  pickSkinItems: TDomOptions<HTMLElement[]>;
+  slideDeclarePlayersStylesheet: TDomOptions;
+  onlineCircle: TDomOptions;
+  onlineCirclePulse: TDomOptions;
+  onlineCircleCircle: TDomOptions;
+  codeTitle: TDomOptions;
+  codeContent: TDomOptions;
+  roomCard: TDomOptions;
+  btnCopyLink: TDomOptions;
+};
+
+// btnCopyLink
+const dom: TDom = {
+  // playerOptionsView
+  playerBtnGroup: {
+    selector: ".player-btn-group",
+    present: true,
+  },
+  playerBtns: {
+    selector: ".player-btn-options",
+    present: true,
+    queryAll: true,
+  },
+  p1BtnOptions: {
+    selector: "#P1-btn-options",
+    present: true,
+  },
+  fakePlayerBtns: {
+    selector: ".fake-player-btn",
+    present: true,
+    queryAll: true,
+  },
+  playerDropdowns: {
+    selector: ".dropdown-options",
+    present: true,
+    queryAll: true,
+  },
+  playerDropdownInners: {
+    selector: ".dropdown-options-inner",
+    present: true,
+    queryAll: true,
+  },
+  playerDropdownShells: {
+    selector: ".dropdown-options-shell",
+    present: true,
+    queryAll: true,
+  },
+  playerDropdownShellShadows: {
+    selector: ".dropdown-options-shell .shell-shadow",
+    present: true,
+    queryAll: true,
+  },
+  playerDropdownMasks: {
+    selector: ".dropdown-options-mask",
+    present: true,
+    queryAll: true,
+  },
+  playerIndicators: {
+    selector: ".player-current-indicator",
+    present: true,
+    queryAll: true,
+  },
+  // boardView
+  board: {
+    selector: ".board",
+    present: true,
+  },
+  rows: {
+    selector: ".row",
+    present: true,
+    parent: "board",
+    queryAll: true,
+  },
+  cells: {
+    selector: ".cell",
+    present: true,
+    parent: "board",
+    queryAll: true,
+  },
+  boardBackground: {
+    selector: ".board-background",
+    present: true,
+    parent: "gameMenu",
+  },
+  // gameMenuView
+  gameMenu: {
+    selector: "#game-menu",
+    present: true,
+  },
+  gameMenuTitle: {
+    selector: ".menu-title",
+    present: true,
+    parent: "gameMenu",
+  },
+  gameMenuBtns: {
+    selector: ".btn-pick, .btn-leave",
+    present: true,
+    parent: "gameMenu",
+    queryAll: true,
+  },
+  gameMenuBtnPickPlayer: {
+    selector: ".btn-pick-player",
+    present: false,
+    parent: "gameMenu",
+    queryAll: true,
+  },
+  gameOverPlayerShape: {
+    selector: ".game-over-title .player-shape",
+    present: false,
+    parent: "gameMenu",
+  },
+  gameOverPlayerResult: {
+    selector: ".game-over-title .player-result",
+    present: false,
+    parent: "gameMenu",
+  },
+  navigationBackBtn: {
+    selector: ".btn-navigation-back",
+    present: true,
+    parent: "gameMenu",
+  },
+  // settingsView
+  settings: {
+    selector: "#settings",
+    present: true,
+  },
+  settingsBtn: {
+    selector: ".settings-btn",
+    present: true,
+    parent: "settings",
+  },
+  // lobbyView
+  pickSkin: {
+    selector: ".pick-skin",
+    present: false,
+  },
+  pickSkinBtnsGroup: {
+    selector: ".btns-group",
+    present: false,
+    parent: "pickSkin",
+  },
+  pickSkinTitle: {
+    selector: ".title",
+    present: false,
+    parent: "pickSkin",
+  },
+  pickSkinItems: {
+    selector: ".color-item, .shape-item",
+    present: false,
+    queryAll: true,
+    parent: "pickSkin",
+  },
+  declarePlayersShape: {
+    selector: ".lobby .player-shape",
+    present: false,
+  },
+  declarePlayersDeclaration: {
+    selector: ".lobby .declaration",
+    present: false,
+  },
+  playerPickSkinCountDown: {
+    selector: ".player-pick-skin-countdown",
+    present: false,
+  },
+  slideDeclarePlayersStylesheet: {
+    selector: "slide-declare-players-animation",
+    present: false,
+    getById: true,
+  },
+  lobbyTitle: {
+    selector: ".lobby-title",
+    present: false,
+  },
+  roomCard: {
+    selector: ".room-card",
+    present: false,
+  },
+  codeTitle: {
+    selector: ".code-title",
+    parent: "roomCard",
+    present: false,
+  },
+  codeContent: {
+    selector: ".code-content",
+    parent: "roomCard",
+    present: false,
+  },
+  onlineCircle: {
+    selector: ".online-circle",
+    present: false,
+  },
+  onlineCircleCircle: {
+    selector: ".circle",
+    parent: "onlineCircle",
+    present: false,
+  },
+  onlineCirclePulse: {
+    selector: ".pulse",
+    parent: "onlineCircle",
+    present: false,
+  },
+  btnCopyLink: {
+    selector: ".btn-copy-link",
+    present: false,
+  },
+};
+
+type TGetSelectors = (props: TGetSelectorsProps) => void;
 class GameContainerView extends View {
-  private dom: {
-    playerBtnGroup: HTMLElement;
-    playerBtns: HTMLElement[];
-    p1BtnOptions: HTMLElement;
-    fakePlayerBtns: HTMLElement[];
-    playerDropdowns: HTMLElement[];
-    playerDropdownInners: HTMLElement[];
-    playerDropdownShells: HTMLElement[];
-    playerDropdownShellShadows: HTMLElement[];
-    playerDropdownMasks: HTMLElement[];
-    playerIndicators: HTMLElement[];
-    rows: HTMLElement[];
-    cells: HTMLElement[];
-    board: HTMLElement;
-    boardBackground: HTMLElement;
-    gameMenu: HTMLElement;
-    settingsBtn: HTMLElement;
-    settings: HTMLElement;
-    playAgainBtn: HTMLElement;
-    gameMenuBtns: HTMLElement[];
-    gameMenuBtnPickPlayer: HTMLElement[];
-    navigationBackBtn: HTMLElement;
-    declarePlayersShape: HTMLElement;
-    declarePlayersDeclaration: HTMLElement;
-    gameOverPlayerShape: HTMLElement;
-    gameOverPlayerResult: HTMLElement;
-    playerPickSkinCountDown: HTMLElement;
-    pickSkinBtnsGroup: HTMLElement;
-  };
-  declarePlayersAnimationRunning: boolean;
-  playerDropdownContentHeight: number;
-  private debouncedGetSelectors: Function;
-  private debouncedResizeAnimation: Function;
+  private dom: TDom = dom as TDom;
+  private debouncedGetSelectors: TGetSelectors = () => {};
+  private debouncedResizeAnimation = () => {};
   private animationId = 0;
+  declarePlayersAnimationRunning = false;
+  playerDropdownContentHeight = 0;
 
   constructor() {
     super({ root: ".game-container" });
-    this.dom = {} as any;
-    this.debouncedGetSelectors = () => {};
-    this.debouncedResizeAnimation = () => {};
-    this.declarePlayersAnimationRunning = false;
-    this.playerDropdownContentHeight = 0;
     this.init();
   }
 
   protected init() {
     this.debouncedGetSelectors = debounce(this.getSelectors.bind(this), {
-      time: 200,
+      time: 500,
       leading: true,
     });
     this.debouncedResizeAnimation = debounce(this.resizeAnimation.bind(this), {
@@ -61,86 +289,80 @@ class GameContainerView extends View {
     });
   }
 
-  private getSelectors() {
+  private getSelectors({ all, pick }: TGetSelectorsProps) {
     const { dom } = this;
+    const getSelector = (
+      item: TDomOptions<HTMLElement> | TDomOptions<HTMLElement[]>
+    ) => {
+      if (!item.present) return;
 
-    dom.playerBtnGroup = this.parentEl.querySelector(
-      ".player-btn-group"
-    ) as HTMLElement;
-    dom.p1BtnOptions = this.parentEl.querySelector(
-      "#P1-btn-options"
-    ) as HTMLElement;
-    dom.rows = Array.from(this.parentEl.querySelectorAll(".row"));
-    dom.cells = Array.from(this.parentEl.querySelectorAll(".cell"));
-    dom.playerBtns = Array.from(
-      this.parentEl.querySelectorAll(".player-btn-options")
-    );
-    dom.playerIndicators = Array.from(
-      this.parentEl.querySelectorAll(".player-current-indicator")
-    );
-    dom.playerDropdownMasks = Array.from(
-      this.parentEl.querySelectorAll(".dropdown-options-mask")
-    );
-    dom.playerDropdownShells = Array.from(
-      this.parentEl.querySelectorAll(".dropdown-options-shell")
-    );
-    dom.playerDropdownShellShadows = Array.from(
-      this.parentEl.querySelectorAll(".dropdown-options-shell .shell-shadow")
-    );
-    dom.playerDropdownInners = Array.from(
-      this.parentEl.querySelectorAll(".dropdown-options-inner")
-    );
-    dom.fakePlayerBtns = Array.from(
-      this.parentEl.querySelectorAll(".fake-player-btn")
-    );
-    dom.playerDropdowns = Array.from(
-      this.parentEl.querySelectorAll(".dropdown-options")
-    );
-    dom.board = this.parentEl.querySelector(".board") as HTMLElement;
-    dom.boardBackground = this.parentEl.querySelector(
-      ".board-background"
-    ) as HTMLElement;
-    dom.gameMenu = this.parentEl.querySelector("#game-menu") as HTMLElement;
-    dom.gameMenuBtns = Array.from(
-      dom.gameMenu.querySelectorAll(".btn-pick, .btn-leave")
-    );
-    dom.gameMenuBtnPickPlayer = Array.from(
-      dom.gameMenu.querySelectorAll(".btn-pick-player")
-    );
-    dom.settingsBtn = this.parentEl.querySelector(
-      "#settings .settings-btn"
-    ) as HTMLElement;
-    dom.settings = this.parentEl.querySelector("#settings") as HTMLElement;
-    dom.playAgainBtn = this.parentEl.querySelector(
-      ".btn-play-again"
-    ) as HTMLElement;
-    dom.navigationBackBtn = this.parentEl.querySelector(
-      ".btn-navigation-back"
-    ) as HTMLElement;
-    dom.playerPickSkinCountDown = this.parentEl.querySelector(
-      ".player-pick-skin-countdown"
-    ) as HTMLElement;
-    dom.pickSkinBtnsGroup = this.parentEl.querySelector(
-      ".pick-skin .btns-group"
-    ) as HTMLElement;
-    dom.gameOverPlayerShape = this.parentEl.querySelector(
-      ".game-over-title .player-shape"
-    ) as HTMLElement;
-    dom.gameOverPlayerResult = this.parentEl.querySelector(
-      ".game-over-title .player-result"
-    ) as HTMLElement;
+      let parent: HTMLElement = this.parentEl;
+
+      if (item.parent) {
+        const itemParent = dom[item.parent].el;
+        if (!itemParent) return;
+        // if (itemParent) {
+        parent = itemParent as HTMLElement;
+        // }
+      }
+
+      if (item.getById) {
+        item.el = document.getElementById(item.selector) as HTMLElement;
+        return;
+      }
+
+      if (item.queryAll) {
+        item.el = Array.from(
+          parent.querySelectorAll(item.selector)
+        ) as HTMLElement[];
+        return;
+      }
+
+      item.el = parent.querySelector(item.selector) as HTMLElement;
+    };
+
+    const getAll = () => {
+      for (const key in dom) {
+        const item = dom[key as TDomPropNames];
+        getSelector(item);
+      }
+    };
+
+    const pickItems = () => {
+      for (const str of pick!) {
+        const item = dom[str];
+        item.present = true;
+        getSelector(item);
+      }
+    };
+
+    if (all) {
+      getAll();
+      return;
+    }
+
+    if (pick) {
+      pickItems();
+      return;
+    }
   }
 
-  private resizeElements(boardWidth: number) {
-    this.debouncedGetSelectors();
+  private resizeElements(boardWidth: number, { all }: { all: boolean }) {
+    if (all) {
+      this.debouncedGetSelectors({ all: true });
+    }
+    // console.log(this.dom);
+    // debugger;
 
     const {
+      // boardView
       board,
-      boardBackground,
-      settings,
-      settingsBtn,
       rows,
       cells,
+      // settingsView
+      settings,
+      settingsBtn,
+      // playerOptionsView
       playerBtnGroup,
       playerIndicators,
       playerBtns,
@@ -151,44 +373,62 @@ class GameContainerView extends View {
       playerDropdownInners,
       playerDropdownMasks,
       fakePlayerBtns,
+      // gameMenuView
       gameMenu,
+      gameMenuTitle,
       gameMenuBtns,
       gameMenuBtnPickPlayer,
-      playAgainBtn,
       navigationBackBtn,
+      boardBackground,
+      // lobbyView
+      lobbyTitle,
+      pickSkin,
+      pickSkinBtnsGroup,
+      pickSkinItems,
+      pickSkinTitle,
+      slideDeclarePlayersStylesheet,
+      declarePlayersDeclaration,
+      declarePlayersShape,
       playerPickSkinCountDown,
       gameOverPlayerResult,
       gameOverPlayerShape,
+      roomCard,
+      codeTitle,
+      codeContent,
+      onlineCircle,
+      onlineCircleCircle,
+      onlineCirclePulse,
+      btnCopyLink,
     } = this.dom;
 
-    board.style.transition = "";
+    // board.el!.style.transition = "";
 
     const matchDropdownWidthToBoard = () => {
-      playerDropdowns.forEach((playerDropdown) => {
+      playerDropdowns.el!.forEach((playerDropdown) => {
         playerDropdown.style.width = px(boardWidth);
       });
-      playerDropdownShells.forEach((playerDropdownShell) => {
+      playerDropdownShells.el!.forEach((playerDropdownShell) => {
         playerDropdownShell.style.width = px(boardWidth);
       });
     };
 
     const matchFakePlayerBtnWidthToBtnParent = () => {
-      const playerBtnWidth = playerBtns[0].clientWidth;
+      const playerBtnWidth = playerBtns.el![0].clientWidth;
       const width = px(boardWidth / 37 + playerBtnWidth);
 
-      fakePlayerBtns.forEach((fakePlayerBtn) => {
+      fakePlayerBtns.el!.forEach((fakePlayerBtn) => {
         fakePlayerBtn.style.width = width;
       });
     };
 
     const matchDropdownOuterSizeFromInnerContent = () => {
       // should run after width is set from boardWidth, which would update dropdown content's layout
-      const playerBtnHeight = playerBtns[0].getBoundingClientRect().height;
-      const playerDropdownWidth = playerDropdowns[0].getBoundingClientRect()
+      const playerBtnHeight = playerBtns.el![0].getBoundingClientRect().height;
+      const playerDropdownWidth = playerDropdowns.el![0].getBoundingClientRect()
         .width;
-      const playerDropdownHeight = playerDropdowns[0].getBoundingClientRect()
+      const playerDropdownHeight = playerDropdowns.el![0].getBoundingClientRect()
         .height;
-      const playerDropdownMaskHeight = playerDropdownMasks[0].getBoundingClientRect()
+      const playerDropdownMaskHeight = playerDropdownMasks.el![0].getBoundingClientRect()
         .height;
       const shadowHeight = boardWidth / 35.5;
       const totalNewPlayerDropdownHeight =
@@ -196,28 +436,29 @@ class GameContainerView extends View {
 
       this.playerDropdownContentHeight = totalNewPlayerDropdownHeight;
 
-      playerDropdownInners.forEach((playerDropdownInner) => {
+      playerDropdownInners.el!.forEach((playerDropdownInner) => {
         playerDropdownInner.style.height = px(
           playerDropdownHeight + shadowHeight + playerDropdownMaskHeight * 2
         );
         playerDropdownInner.style.width = px(playerDropdownWidth);
       });
-      playerDropdownShells.forEach((playerDropdownShell) => {
+      playerDropdownShells.el!.forEach((playerDropdownShell) => {
         playerDropdownShell.style.height = px(totalNewPlayerDropdownHeight);
       });
-      playerDropdownShellShadows.forEach((playerDropdownShellShadow) => {
+      playerDropdownShellShadows.el!.forEach((playerDropdownShellShadow) => {
         playerDropdownShellShadow.style.height = px(
           playerDropdownHeight * 0.95
         );
       });
     };
 
-    const scaleBoardFromWidth = () => {
+    const scaleBoardFromWidth = (boardWidth: number) => {
       if (boardWidth > 1600) boardWidth *= 0.7;
       if (boardWidth > 700) boardWidth *= 0.8;
 
+      // ************* boardView ****************
       scaleStyles({
-        el: board,
+        name: board,
         numerator: boardWidth,
         styleRatio: {
           gap: { ratio: 46.25, decimalPlaces: 0 },
@@ -227,35 +468,22 @@ class GameContainerView extends View {
         },
       });
       scaleStyles({
-        el: gameMenu,
-        numerator: boardWidth,
-        styleRatio: {
-          borderRadius: 12.33,
-        },
-      });
-      scaleStyles({
-        el: boardBackground,
-        numerator: boardWidth,
-        styleRatio: {
-          top: 52.85,
-        },
-      });
-      scaleStyles({
-        el: rows,
+        name: rows,
         numerator: boardWidth,
         styleRatio: {
           gap: { ratio: 46.25, decimalPlaces: 0 },
         },
       });
       scaleStyles({
-        el: cells,
+        name: cells,
         numerator: boardWidth,
         styleRatio: {
           borderRadius: 37,
         },
       });
+      // ************* playerOptionsView ****************
       scaleStyles({
-        el: playerBtnGroup,
+        name: playerBtnGroup,
         numerator: boardWidth,
         styleRatio: {
           height: 5.692,
@@ -263,7 +491,7 @@ class GameContainerView extends View {
         },
       });
       scaleStyles({
-        el: playerBtns,
+        name: playerBtns,
         numerator: boardWidth,
         styleRatio: {
           padding: 37,
@@ -272,7 +500,7 @@ class GameContainerView extends View {
         },
       });
       scaleStyles({
-        el: playerIndicators,
+        name: playerIndicators,
         numerator: boardWidth,
         styleRatio: {
           top: 74,
@@ -281,14 +509,14 @@ class GameContainerView extends View {
         },
       });
       scaleStyles({
-        el: p1BtnOptions,
+        name: p1BtnOptions,
         numerator: boardWidth,
         styleRatio: {
           marginRight: 14.8,
         },
       });
       scaleStyles({
-        el: playerDropdownMasks,
+        name: playerDropdownMasks,
         numerator: boardWidth,
         styleRatio: {
           top: 8.06625,
@@ -297,7 +525,7 @@ class GameContainerView extends View {
         },
       });
       scaleStyles({
-        el: playerDropdowns,
+        name: playerDropdowns,
         numerator: boardWidth,
         styleRatio: {
           borderRadius: 12.33,
@@ -314,7 +542,7 @@ class GameContainerView extends View {
         },
       });
       scaleStyles({
-        el: playerDropdownShellShadows,
+        name: playerDropdownShellShadows,
         numerator: boardWidth,
         styleRatio: {
           borderRadius: 12.33,
@@ -331,7 +559,7 @@ class GameContainerView extends View {
         },
       });
       scaleStyles({
-        el: fakePlayerBtns,
+        name: fakePlayerBtns,
         numerator: boardWidth,
         styleRatio: {
           top: -10.5097,
@@ -343,9 +571,9 @@ class GameContainerView extends View {
             el.classList.contains("P2-player-btn-highlight") ? "0" : "",
         },
       });
-
+      // ************* settingsView ****************
       scaleStyles({
-        el: settingsBtn,
+        name: settingsBtn,
         numerator: boardWidth,
         styleRatio: {
           height: boardWidth > 400 ? 14.08 : 8.08,
@@ -359,16 +587,25 @@ class GameContainerView extends View {
       });
 
       scaleStyles({
-        el: settings,
+        name: settings,
         numerator: boardWidth,
         styleRatio: {
           marginBottom: 20.533,
         },
       });
 
+      // ************* gameMenuView ****************
       // stop at 420px for quickstart btns
       scaleStyles({
-        el: gameMenuBtns,
+        name: gameMenuTitle,
+        numerator: boardWidth,
+        styleRatio: {
+          fontSize: () => (boardWidth > 320 ? "28px" : "20px"),
+          margin: () => (boardWidth > 320 ? "15px 0" : "5px 0"),
+        },
+      });
+      scaleStyles({
+        name: gameMenuBtns,
         numerator: boardWidth,
         styleRatio: {
           paddingLeft: 21,
@@ -384,16 +621,15 @@ class GameContainerView extends View {
             return "";
           },
           fontSize: (el) => {
-            if (!el.classList.contains("btn-multiplayer")) return "";
+            // if (!el.classList.contains("btn-multiplayer")) return "";
             if (boardWidth < 250) return px(13);
             if (boardWidth < 320) return px(15);
-            return "";
+            return px(20);
           },
         },
       });
-
       scaleStyles({
-        el: gameMenuBtnPickPlayer,
+        name: gameMenuBtnPickPlayer,
         numerator: boardWidth,
         styleRatio: {
           paddingTop: () => "0px",
@@ -406,17 +642,7 @@ class GameContainerView extends View {
         },
       });
       scaleStyles({
-        el: playAgainBtn,
-        numerator: boardWidth,
-        styleRatio: {
-          height: () =>
-            boardWidth > 300 ? px(boardWidth / 3.47) : px(boardWidth / 2.5),
-          width: () =>
-            boardWidth > 300 ? px(boardWidth / 3.47) : px(boardWidth / 2.5),
-        },
-      });
-      scaleStyles({
-        el: navigationBackBtn,
+        name: navigationBackBtn,
         numerator: boardWidth,
         styleRatio: {
           top: 21.5,
@@ -428,7 +654,68 @@ class GameContainerView extends View {
         },
       });
       scaleStyles({
-        el: playerPickSkinCountDown,
+        name: gameMenu,
+        numerator: boardWidth,
+        styleRatio: {
+          borderRadius: 12.33,
+        },
+      });
+      scaleStyles({
+        name: boardBackground,
+        numerator: boardWidth,
+        styleRatio: {
+          top: 52.85,
+        },
+      });
+      scaleStyles({
+        name: gameOverPlayerResult,
+        numerator: boardWidth,
+        styleRatio: {
+          fontSize: 12.906,
+          marginBottom: () =>
+            boardWidth < 270
+              ? px(boardWidth / -54)
+              : boardWidth < 434
+              ? px(boardWidth / 17.0866)
+              : px(boardWidth / 8.604),
+          marginTop: () => (boardWidth < 270 ? px(boardWidth / -54) : ""),
+        },
+      });
+
+      scaleStyles({
+        name: gameOverPlayerShape,
+        numerator: boardWidth,
+        styleRatio: {
+          width: () =>
+            boardWidth < 434 ? px(boardWidth / 4.265) : px(boardWidth / 3.2265),
+          height: () =>
+            boardWidth < 434 ? px(boardWidth / 4.265) : px(boardWidth / 3.2265),
+        },
+      });
+
+      // ************* lobbyView ****************
+      scaleStyles({
+        name: lobbyTitle,
+        numerator: boardWidth,
+        styleRatio: {
+          fontSize: () => {
+            if (boardWidth < 250) return "16px";
+            if (boardWidth < 320) return "20px";
+
+            return "28px";
+          },
+          margin: () => (boardWidth > 320 ? "15px 0" : "5px 0"),
+        },
+      });
+      scaleStyles({
+        name: roomCard,
+        numerator: boardWidth,
+        styleRatio: {
+          margin: () => `${px(boardWidth / 12.9059)} 0`,
+        },
+      });
+      scaleStyles({
+        name: playerPickSkinCountDown,
         numerator: boardWidth,
         styleRatio: {
           top: 21.5,
@@ -438,53 +725,157 @@ class GameContainerView extends View {
           fontSize: 20.1612,
         },
       });
+
+      scaleStyles({
+        name: declarePlayersShape,
+        numerator: boardWidth,
+        styleRatio: {
+          width: 2.3465,
+          height: 2.3465,
+        },
+      });
+      scaleStyles({
+        name: declarePlayersDeclaration,
+        numerator: boardWidth,
+        styleRatio: {
+          margin: () =>
+            boardWidth < 500
+              ? `${px(boardWidth / 18.333)} 0`
+              : `${px(boardWidth / 25.8119)} 0`,
+          fontSize: () =>
+            boardWidth < 500 ? px(boardWidth / 11) : px(boardWidth / 16.1325),
+        },
+      });
+
+      scaleStyles({
+        name: codeContent,
+        numerator: boardWidth,
+        styleRatio: {
+          padding: 10.7549,
+          fontSize: 12.906,
+          borderBottomLeftRadius: 21.509,
+          borderBottomRightRadius: 21.509,
+        },
+      });
+
+      scaleStyles({
+        name: codeTitle,
+        numerator: boardWidth,
+        styleRatio: {
+          padding: 32.265,
+          fontSize: 21.509,
+          borderTopWidth: 80.6625,
+          borderRightWidth: 80.6625,
+          borderLeftWidth: 80.6625,
+          borderTopLeftRadius: 21.509,
+          borderTopRightRadius: 21.509,
+        },
+      });
+      scaleStyles({
+        name: onlineCircle,
+        numerator: boardWidth,
+        styleRatio: {
+          top: 11.7327,
+          right: 7.5917,
+        },
+      });
+
+      scaleStyles({
+        name: onlineCircleCircle,
+        numerator: boardWidth,
+        precisionDecimal: 0,
+        styleRatio: {
+          width: 20.1656,
+          height: 20.1656,
+          boxShadow: () => `0px 0px 0px ${px(boardWidth / 161.325, 0)} #15a415`,
+        },
+      });
+
+      scaleStyles({
+        name: onlineCirclePulse,
+        numerator: boardWidth,
+        precisionDecimal: 0,
+        styleRatio: {
+          width: 20.1656,
+          height: 20.1656,
+        },
+      });
+      scaleStyles({
+        name: btnCopyLink,
+        numerator: boardWidth,
+        styleRatio: {
+          height: () => (boardWidth < 465 ? "45px" : "55px"),
+          width: () => (boardWidth < 465 ? "160%" : ""),
+          marginLeft: () => (boardWidth < 465 ? "-30%" : ""),
+        },
+      });
+
+      if (pickSkin.present && boardWidth <= 285) {
+        console.log("pick skin ran");
+        pickSkinTitle.el!.style.fontSize = "22px";
+        pickSkinBtnsGroup.el!.style.width = "calc(100% + 30px)";
+        pickSkinBtnsGroup.el!.style.marginLeft = "-15px";
+        pickSkinItems.el!.forEach((item) => {
+          item.style.width = "45px";
+          item.style.height = "45px";
+        });
+      }
+
+      if (this.declarePlayersAnimationRunning) {
+        console.log("declare player ran");
+        const animationName = `DeclarePlayerDeclaration-${++this.animationId}`;
+
+        const styleContent = `
+              @keyframes ${animationName}  {
+                0% {
+                  opacity: 0;
+                  transform: translateX(${px(boardWidth / 2)});
+                }
+                10% {
+                  opacity: 1;
+                  transform: translateX(${px(boardWidth * 0.025)});
+                }
+                90% {
+                  opacity: 1;
+                  transform: translateX(${px(-(boardWidth * 0.025))});
+                }
+                100% {
+                  opacity: 0;
+                  transform: translateX(${px(-(boardWidth / 2))});
+                }
+              }
+              `;
+
+        slideDeclarePlayersStylesheet.el!.textContent = styleContent;
+        declarePlayersShape.el!.style.animation = `${animationName} 3000ms linear normal forwards`;
+        declarePlayersDeclaration.el!.style.animation = `${animationName} 3000ms linear reverse forwards`;
+      }
     };
 
-    scaleStyles({
-      el: gameOverPlayerResult,
-      numerator: boardWidth,
-      styleRatio: {
-        fontSize: 12.906,
-        marginBottom: () =>
-          boardWidth < 270
-            ? px(boardWidth / -54)
-            : boardWidth < 434
-            ? px(boardWidth / 17.0866)
-            : px(boardWidth / 8.604),
-        marginTop: () => (boardWidth < 270 ? px(boardWidth / -54) : ""),
-      },
-    });
-
-    scaleStyles({
-      el: gameOverPlayerShape,
-      numerator: boardWidth,
-      styleRatio: {
-        width: () =>
-          boardWidth < 434 ? px(boardWidth / 4.265) : px(boardWidth / 3.2265),
-        height: () =>
-          boardWidth < 434 ? px(boardWidth / 4.265) : px(boardWidth / 3.2265),
-      },
-    });
-
-    // font
-    // 20.1612
-
-    scaleBoardFromWidth();
+    scaleBoardFromWidth(boardWidth);
+    if (!all) return;
     matchDropdownWidthToBoard();
     matchFakePlayerBtnWidthToBtnParent();
-    if (this.declarePlayersAnimationRunning) {
-      this.scaleElementsToProportionToBoard({
-        type: "declare-players",
-        boardWidth,
-      });
-    }
-    this.scaleElementsToProportionToBoard({ type: "pick-skin", boardWidth });
     // this.reflow();
     matchDropdownOuterSizeFromInnerContent();
   }
 
   private resizeAnimation() {
     playerBtnGroupView.recalculateDropdownAnimations();
+  }
+
+  scaleElementsToProportionToBoard({
+    selectors,
+    boardWidth: arg_boardWidth,
+  }: {
+    selectors: TDomPropNames[];
+    boardWidth?: number;
+  }) {
+    const boardWidth =
+      arg_boardWidth == null ? this.parentEl.clientWidth : arg_boardWidth;
+
+    this.getSelectors({ pick: selectors });
+    this.resizeElements(boardWidth, { all: false });
   }
 
   runResizeListener() {
@@ -509,7 +900,7 @@ class GameContainerView extends View {
 
         gameContainer.style.maxWidth = px(boardWidth);
 
-        this.resizeElements(boardWidth);
+        this.resizeElements(boardWidth, { all: true });
         this.debouncedResizeAnimation();
       }
       // viewport has greater height
@@ -519,7 +910,7 @@ class GameContainerView extends View {
 
         gameContainer.style.maxWidth = px(boardWidth);
 
-        this.resizeElements(boardWidth);
+        this.resizeElements(boardWidth, { all: true });
         this.debouncedResizeAnimation();
       }
     };
@@ -548,7 +939,7 @@ class GameContainerView extends View {
       this.parentEl.style.opacity = "1";
       const { playerBtns } = this.dom;
 
-      playerBtns.forEach((playerBtn) => {
+      playerBtns.el!.forEach((playerBtn) => {
         playerBtn.style.background = "";
         playerBtn.style.transition = "none";
       });
@@ -557,205 +948,11 @@ class GameContainerView extends View {
         this.parentEl.style.transition = "";
         this.parentEl.style.opacity = "";
 
-        playerBtns.forEach((playerBtn) => {
+        playerBtns.el!.forEach((playerBtn) => {
           playerBtn.style.transition = "";
         });
       }, 100);
     });
-  }
-
-  scaleElementsToProportionToBoard({
-    type,
-    boardWidth: arg_boardWidth,
-  }: {
-    type:
-      | "menuBtns"
-      | "declare-players"
-      | "player-pick-skin-countdown"
-      | "game-over-title"
-      | "pick-skin";
-    boardWidth?: number;
-  }) {
-    const boardWidth =
-      arg_boardWidth == null ? this.parentEl.clientWidth : arg_boardWidth;
-
-    if (type === "menuBtns") {
-      const gameMenuBtns = Array.from(
-        this.parentEl.querySelectorAll(".btn-pick, .btn-leave")
-      ) as HTMLElement[];
-      const gameMenuBtnPickPlayer = Array.from(
-        this.parentEl.querySelectorAll(".btn-pick-player")
-      ) as HTMLElement[];
-
-      scaleStyles({
-        el: gameMenuBtns,
-        numerator: boardWidth,
-        styleRatio: {
-          paddingLeft: 21,
-          paddingRight: 21,
-          paddingTop: 28,
-          paddingBottom: 28,
-          maxWidth: () =>
-            boardWidth > 500 ? px(boardWidth / 2.1538) : px(boardWidth / 1.5),
-          borderRadius: 42,
-          marginTop: (el) => {
-            if (!el.dataset.firstItem) return "";
-            if (boardWidth < 320) return px(30);
-            return "";
-          },
-          fontSize: (el) => {
-            if (!el.classList.contains("btn-multiplayer")) return "";
-            if (boardWidth < 250) return px(13);
-            if (boardWidth < 320) return px(15);
-            return "";
-          },
-        },
-      });
-      scaleStyles({
-        el: gameMenuBtnPickPlayer,
-        numerator: boardWidth,
-        styleRatio: {
-          paddingTop: () => "0px",
-          paddingBottom: () => "0px",
-          height: () =>
-            boardWidth > 500
-              ? px(boardWidth / 10.082)
-              : px(boardWidth / 5.5875),
-        },
-      });
-    }
-
-    if (type === "declare-players") {
-      const styleSheet = document.getElementById(
-        "slide-declare-players-animation"
-      )!;
-      const declarePlayersShape = this.parentEl.querySelector(
-        ".lobby .player-shape"
-      ) as HTMLElement;
-      const declarePlayersDeclaration = this.parentEl.querySelector(
-        ".lobby .declaration"
-      ) as HTMLElement;
-      const animationName = `DeclarePlayerDeclaration-${++this.animationId}`;
-
-      scaleStyles({
-        el: declarePlayersShape,
-        numerator: boardWidth,
-        styleRatio: {
-          width: 2.3465,
-          height: 2.3465,
-        },
-      });
-      scaleStyles({
-        el: declarePlayersDeclaration,
-        numerator: boardWidth,
-        styleRatio: {
-          margin: () =>
-            boardWidth < 500
-              ? `${px(boardWidth / 18.333)} 0`
-              : `${px(boardWidth / 25.8119)} 0`,
-          fontSize: () =>
-            boardWidth < 500 ? px(boardWidth / 11) : px(boardWidth / 16.1325),
-        },
-      });
-
-      if (this.declarePlayersAnimationRunning) return;
-
-      const styleContent = `
-      @keyframes ${animationName}  {
-        0% {
-          opacity: 0;
-          transform: translateX(${px(boardWidth / 2)});
-        }
-        10% {
-          opacity: 1;
-          transform: translateX(${px(boardWidth * 0.025)});
-        }
-        90% {
-          opacity: 1;
-          transform: translateX(${px(-(boardWidth * 0.025))});
-        }
-        100% {
-          opacity: 0;
-          transform: translateX(${px(-(boardWidth / 2))});
-        }
-      }
-      `;
-      styleSheet.textContent = styleContent;
-      declarePlayersShape.style.animation = `${animationName} 3000ms linear normal forwards`;
-      declarePlayersDeclaration.style.animation = `${animationName} 3000ms linear reverse forwards`;
-    }
-
-    if (type === "game-over-title") {
-      const gameOverPlayerShape = this.parentEl.querySelector(
-        ".game-over-title .player-shape"
-      ) as HTMLElement;
-      const gameOverPlayerResult = this.parentEl.querySelector(
-        ".game-over-title .player-result"
-      ) as HTMLElement;
-
-      scaleStyles({
-        el: gameOverPlayerResult,
-        numerator: boardWidth,
-        styleRatio: {
-          fontSize: 12.906,
-          marginBottom: () =>
-            boardWidth < 270
-              ? px(boardWidth / -54)
-              : boardWidth < 434
-              ? px(boardWidth / 17.0866)
-              : px(boardWidth / 8.604),
-          marginTop: () => (boardWidth < 270 ? px(boardWidth / -54) : ""),
-        },
-      });
-
-      scaleStyles({
-        el: gameOverPlayerShape,
-        numerator: boardWidth,
-        styleRatio: {
-          width: () =>
-            boardWidth < 434 ? px(boardWidth / 4.265) : px(boardWidth / 3.2265),
-          height: () =>
-            boardWidth < 434 ? px(boardWidth / 4.265) : px(boardWidth / 3.2265),
-        },
-      });
-    }
-
-    if (type === "player-pick-skin-countdown") {
-      const playerPickSkinCountDown = this.parentEl.querySelector(
-        ".player-pick-skin-countdown"
-      ) as HTMLElement;
-
-      scaleStyles({
-        el: playerPickSkinCountDown,
-        numerator: boardWidth,
-        styleRatio: {
-          top: 21.5,
-          right: 21.5,
-          height: 8.06625,
-          width: 8.06625,
-          fontSize: 20.1612,
-        },
-      });
-    }
-
-    if (type === "pick-skin") {
-      const pickSkinEl = this.parentEl.querySelector(".pick-skin")!;
-      if (!pickSkinEl || boardWidth > 285) return;
-
-      const title = pickSkinEl.querySelector(".title") as HTMLElement;
-      const btnsGroup = pickSkinEl.querySelector(".btns-group") as HTMLElement;
-      const items = Array.from(
-        pickSkinEl.querySelectorAll(".color-item, .shape-item")
-      ) as HTMLElement[];
-
-      title.style.fontSize = "22px";
-      btnsGroup.style.width = "calc(100% + 30px)";
-      btnsGroup.style.marginLeft = "-15px";
-      items.forEach((item) => {
-        item.style.width = "45px";
-        item.style.height = "45px";
-      });
-    }
   }
   // overrides to do nothing
   render() {

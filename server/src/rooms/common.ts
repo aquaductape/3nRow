@@ -1,16 +1,17 @@
 import { Room, Delayed, Client } from "colyseus";
 import { type, Schema, MapSchema, ArraySchema } from "@colyseus/schema";
-import _HumanId from "../HumanId";
+import _RoomReadibleId from "../RoomReadibleId";
 import {
   TOnMove,
   TOnSkinChange,
   TMovePosition,
   TPickSkin,
+  TRoomCode,
 } from "../../../src/app/ts/colyseusTypes";
 import { getByValue } from "../utils";
 
 const BOARD_WIDTH = 3;
-const HumanId = new _HumanId();
+const RoomReadibleId = new _RoomReadibleId();
 let busyPublicPlayersCount = 0;
 
 class Move extends Schema {
@@ -85,16 +86,16 @@ class State extends Schema {
 // Start Game
 
 export class Common extends Room<State> {
-  humanId = "";
+  roomReadibleId = "";
   maxClients = 2;
   randomMoveTimeout: Delayed;
   players = new Map<string, { playerId: string; ready: boolean }>();
   public delayedInterval!: Delayed;
 
-  onCreate(options: { password: string }) {
-    if (options.password) {
-      this.humanId = HumanId.id;
-      HumanId.incrementId();
+  onCreate(options: { isPrivate: boolean }) {
+    if (options.isPrivate) {
+      this.roomReadibleId = RoomReadibleId.incrementId();
+      console.log(this.clients, this.roomReadibleId, this.roomId);
     }
 
     this.setState(new State());
@@ -117,6 +118,48 @@ export class Common extends Room<State> {
       this.declarePlayers();
       // }, 5000);
     });
+  }
+  // request
+
+  onJoin(client: Client, options: { password: string; isPrivate: boolean }) {
+    console.log("searching", this.clients.length, this.roomName, {
+      password: options.password,
+    });
+    const setPlayers = () => {
+      this.players.set(client.sessionId, {
+        playerId: getRandomPlayerId(this.state.playerIdsSlots),
+        // playerId: this.state.playerIdsSlots.pop(),
+        ready: false,
+      });
+    };
+
+    if (options.password && typeof options.password !== "boolean") {
+      if (options.password === this.roomReadibleId) {
+        setPlayers();
+        this.readyGame();
+      }
+      return;
+    }
+
+    if (options.isPrivate) {
+      setPlayers();
+      // this.internalState
+
+      // @ts-ignore
+      this.listing.password = this.roomReadibleId;
+      console.log(this.listing);
+      client.send("roomCode", this.roomReadibleId);
+      return;
+    }
+
+    setPlayers();
+
+    busyPublicPlayersCount++;
+    this.broadcast("busyPlayers", busyPublicPlayersCount - 1);
+
+    if (this.players.size === 2) {
+      this.readyGame();
+    }
   }
 
   playAgainNow(client: Client) {
@@ -149,26 +192,6 @@ export class Common extends Room<State> {
       },
       { except: client }
     );
-  }
-
-  onJoin(client: Client, options: { password: string }) {
-    this.players.set(client.sessionId, {
-      playerId: getRandomPlayerId(this.state.playerIdsSlots),
-      // playerId: this.state.playerIdsSlots.pop(),
-      ready: false,
-    });
-
-    if (options.password) {
-      if (options.password === this.humanId) this.readyGame();
-      return;
-    }
-
-    busyPublicPlayersCount++;
-    this.broadcast("busyPlayers", busyPublicPlayersCount - 1);
-
-    if (this.players.size === 2) {
-      this.readyGame();
-    }
   }
 
   onLeave(client: Client) {

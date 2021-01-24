@@ -5,12 +5,12 @@ const parentEl = document.querySelector(".tooltips-container") as HTMLElement;
 
 export class Tooltip {
   private message = "";
-  private tooltipTargetEl = {} as HTMLElement;
-  private tooltipContainerEl = {} as HTMLElement;
-  private tooltipShellEl = {} as HTMLElement;
-  private tooltipEl = {} as HTMLElement;
-  private tooltipArrowEl = {} as HTMLElement;
-  private debouncedOnMousemoveTargetEl = () => {};
+  private tooltipTargetEl: HTMLElement | null = null;
+  private tooltipContainerEl: HTMLElement | null = null;
+  private tooltipShellEl: HTMLElement | null = null;
+  private tooltipEl: HTMLElement | null = null;
+  private tooltipArrowEl: HTMLElement | null = null;
+  private debouncedOnMousemoveTargetEl = (e: MouseEvent) => {};
   private tooltipFocusOutEvent = null as TManualExit | null;
   private startinScrollX = 0;
   private startinScrollY = 0;
@@ -36,7 +36,7 @@ export class Tooltip {
     const { scrollX, scrollY } = window;
     const x = (scrollX - this.startinScrollX) * -1;
     const y = (scrollY - this.startinScrollY) * -1;
-    this.tooltipContainerEl.style.transform = `translate(${x}px, ${y}px)`;
+    this.tooltipContainerEl!.style.transform = `translate(${x}px, ${y}px)`;
   };
 
   private addScrollEventUpdatePosition() {
@@ -64,12 +64,11 @@ export class Tooltip {
     const el = document.elementFromPoint(e.clientX, e.clientY);
 
     if (
-      this.tooltipTargetEl.contains(el) ||
-      this.tooltipContainerEl.contains(el)
+      this.tooltipTargetEl!.contains(el) ||
+      this.tooltipContainerEl!.contains(el)
     ) {
       return;
     }
-    // console.log("remove by mousemove");
 
     this.removeTooltip();
     document.removeEventListener(
@@ -93,16 +92,16 @@ export class Tooltip {
   };
 
   private addTooltipTargetEvents() {
-    this.tooltipTargetEl.addEventListener("click", this.onClickTargetEl);
-    this.tooltipTargetEl.addEventListener(
+    this.tooltipTargetEl!.addEventListener("click", this.onClickTargetEl);
+    this.tooltipTargetEl!.addEventListener(
       "mouseenter",
       this.onMouseenterTargetEl
     );
   }
 
   private removeTooltipTargetEvents() {
-    this.tooltipTargetEl.removeEventListener("click", this.onClickTargetEl);
-    this.tooltipTargetEl.removeEventListener(
+    this.tooltipTargetEl!.removeEventListener("click", this.onClickTargetEl);
+    this.tooltipTargetEl!.removeEventListener(
       "mouseenter",
       this.onMouseenterTargetEl
     );
@@ -132,18 +131,18 @@ export class Tooltip {
   }
 
   private onTransitionend = (e: Event) => {
-    // console.log("ontransitionend");
     if (e.target !== this.tooltipContainerEl) return;
 
-    this.tooltipContainerEl.classList.remove("active");
-    this.tooltipContainerEl.removeEventListener(
+    this.tooltipContainerEl!.classList.remove("active");
+    this.tooltipContainerEl!.removeEventListener(
       "transitionend",
       this.onTransitionend
     );
   };
 
   private hideTooltip() {
-    // console.log("hide");
+    if (!this.tooltipContainerEl) return;
+
     this.tooltipContainerEl.classList.remove("visible");
     this.tooltipContainerEl.addEventListener(
       "transitionend",
@@ -152,13 +151,12 @@ export class Tooltip {
   }
 
   private revealTooltip() {
-    // console.log("reveal");
-    this.tooltipContainerEl.removeEventListener(
+    this.tooltipContainerEl!.removeEventListener(
       "transitionend",
       this.onTransitionend
     );
-    this.tooltipContainerEl.classList.add("active");
-    this.tooltipContainerEl.classList.add("visible");
+    this.tooltipContainerEl!.classList.add("active");
+    this.tooltipContainerEl!.classList.add("visible");
   }
 
   private createTooltip() {
@@ -182,50 +180,50 @@ export class Tooltip {
   }
 
   private calculatePosition() {
-    const targetElBCR = this.tooltipTargetEl.getBoundingClientRect();
-    const tooltipShellBCR = this.tooltipShellEl.getBoundingClientRect();
+    const targetElBCR = this.tooltipTargetEl!.getBoundingClientRect();
+    const tooltipShellBCR = this.tooltipShellEl!.getBoundingClientRect();
     const overlapBuffer = 3;
 
-    this.tooltipContainerEl.style.top = `${
+    this.tooltipContainerEl!.style.top = `${
       targetElBCR.bottom - overlapBuffer
     }px`;
-    this.tooltipContainerEl.style.left = `${
+    this.tooltipContainerEl!.style.left = `${
       targetElBCR.left - tooltipShellBCR.width / 2 + targetElBCR.width / 2
     }px`;
   }
 
   private calculatePositionToWithinViewport() {
     // position updated, now check if it's within viewport
-    const tooltipShellBCR = this.tooltipShellEl.getBoundingClientRect();
+    const tooltipShellBCR = this.tooltipShellEl!.getBoundingClientRect();
     const windowInnerHeight = window.innerHeight;
     const windowInnerWidth = window.innerWidth;
     const padding = 10;
 
     if (tooltipShellBCR.left < 0 + padding) {
-      this.tooltipEl.style.left = `${Math.abs(
+      this.tooltipEl!.style.left = `${Math.abs(
         tooltipShellBCR.left - padding * 2
       )}px`;
     } else if (tooltipShellBCR.right > windowInnerWidth - padding) {
-      this.tooltipEl.style.left = `${
+      this.tooltipEl!.style.left = `${
         tooltipShellBCR.right - windowInnerWidth - padding * 2
       }px`;
     } else {
-      this.tooltipEl.style.left = "";
+      this.tooltipEl!.style.left = "";
     }
 
     // bottom not in view
     if (tooltipShellBCR.bottom > windowInnerHeight - padding) {
-      this.tooltipShellEl.classList.add("top");
-      this.tooltipArrowEl.classList.remove("arrow-up");
-      this.tooltipArrowEl.classList.add("arrow-down");
+      this.tooltipShellEl!.classList.add("top");
+      this.tooltipArrowEl!.classList.remove("arrow-up");
+      this.tooltipArrowEl!.classList.add("arrow-down");
       return;
     }
 
     // top not in view
     if (tooltipShellBCR.top < 0 + padding) {
-      this.tooltipShellEl.classList.remove("top");
-      this.tooltipArrowEl.classList.add("arrow-up");
-      this.tooltipArrowEl.classList.remove("arrow-down");
+      this.tooltipShellEl!.classList.remove("top");
+      this.tooltipArrowEl!.classList.add("arrow-up");
+      this.tooltipArrowEl!.classList.remove("arrow-down");
     }
   }
 
@@ -250,10 +248,8 @@ export class Tooltip {
     if (triggeredBy === "click") this.activatedByClick = true;
     if (triggeredBy === "hover") this.activatedByHover = true;
 
-    // console.log("bypass");
-
     this.tooltipFocusOutEvent = onFocusOut({
-      button: this.tooltipTargetEl,
+      button: this.tooltipTargetEl!,
       allow: [".tooltip-shell"],
       run: () => {
         if (!this.tooltipGenerated) {
@@ -287,7 +283,7 @@ export class Tooltip {
     }
 
     if (change) {
-      change(this.tooltipEl);
+      change(this.tooltipEl!);
     }
   }
 
@@ -310,11 +306,6 @@ export class Tooltip {
       "mousemove",
       this.debouncedOnMousemoveTargetEl
     );
-    // console.log("remove");
-    if (!this.tooltipContainerEl.isConnected) {
-      // console.log("is not connected: remove");
-      return;
-    }
   }
 
   enable() {
@@ -327,5 +318,14 @@ export class Tooltip {
     this.removeTooltip();
     this.removeTooltipTargetEvents();
     this.removeScrollEventUpdatePosition();
+  }
+
+  destroy() {
+    this._removeTooltip();
+    this.removeScrollEventUpdatePosition();
+    this.removeTooltipTargetEvents();
+    if (this.tooltipContainerEl) {
+      this.tooltipContainerEl.remove();
+    }
   }
 }

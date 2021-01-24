@@ -66,10 +66,10 @@ export default class View {
    * @param data any
    */
   render(data?: any) {
-    if (!this.parentEl) {
-      this.parentEl = getElement(this.root);
-      // console.log("doesn't exist", this.root, this.parentEl);
-    }
+    // if (!this.parentEl) {
+    this.parentEl = getElement(this.root);
+    // console.log("doesn't exist", this.root, this.parentEl);
+    // }
 
     if (!this.parentEl) return;
 
