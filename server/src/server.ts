@@ -7,7 +7,7 @@ import { Common } from "./rooms/common";
 const app = express();
 const port = Number(process.env.PORT || 3000);
 const corsOptions: CorsOptions = {
-  origin: process.env.ORIGIN_URL,
+  origin: process.env.ORIGIN_URL || "http://localhost:8080",
 };
 
 app.use(cors(corsOptions));
@@ -22,8 +22,8 @@ gameServer.define("public", Common);
 gameServer.define("private", Common).filterBy(["password"]);
 gameServer.listen(port);
 
-app.get("/", (req, res) => {
-  res.send("connected");
+app.get("/is-online", (req, res) => {
+  res.send({ success: true });
 });
 
 console.log(`Listening on ws://localhost:${port}`);

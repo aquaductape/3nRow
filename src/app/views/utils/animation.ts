@@ -3,23 +3,32 @@ import { getElement, reflow } from ".";
 type TInstance = {
   element: HTMLElement;
   transition: Function;
+  resolve: (value: boolean | PromiseLike<boolean>) => void;
   onCancel?: Function;
+};
+
+type TSentry = {
+  cancel: Function;
 };
 // needed when removing transition events when canceled
 const hideInstances: TInstance[] = [];
 const showInstances: TInstance[] = [];
 
-const _hideElement = ({
+const _hideElement = async ({
   el,
+  displayNone,
   transition = "200ms",
   duration = 200,
   useTransitionEvent = true,
+  delay,
   onStart,
   onEnd,
   onCancel,
+  onSentry,
   resolve,
 }: {
   el: string | HTMLElement;
+  displayNone?: boolean;
   transition?: string;
   duration?: number;
   delay?: number;
@@ -31,6 +40,7 @@ const _hideElement = ({
   onEnd?: (el: HTMLElement, e?: TransitionEvent) => void;
   onCollision?: (props: { el: HTMLElement; cancel: boolean }) => void;
   onCancel?: (el: HTMLElement) => void;
+  onSentry?: TSentry;
   resolve: (value: boolean | PromiseLike<boolean>) => void;
 }) => {
   const getTransitionsAmount = () => {
@@ -49,10 +59,14 @@ const _hideElement = ({
 
     element.removeEventListener("transitionend", onTransitionEnd);
 
+    if (displayNone) {
+      element.style.display = "none";
+      element.style.opacity = "";
+    }
     onEnd && onEnd(element, e);
 
+    removeInstance({ element, instances: hideInstances });
     element.style.pointerEvents = "";
-    element.style.opacity = "";
     resolve(true);
   };
 
@@ -61,6 +75,7 @@ const _hideElement = ({
 
   const timeOut = () => {
     setTimeout(() => {
+      if (displayNone) element.style.display = "none";
       onEnd && onEnd(element);
 
       element.style.pointerEvents = "";
@@ -76,6 +91,8 @@ const _hideElement = ({
     instances: hideInstances,
     onTransitionEnd,
     onCancel,
+    onSentry,
+    resolve,
   });
 
   let transitionCount = 0;
@@ -86,12 +103,15 @@ const _hideElement = ({
   element.style.pointerEvents = "none";
 
   if (onStart) {
+    if (delay) await delayP(delay);
+
     onStart(element);
     if (!useTransitionEvent) return timeOut();
     addTransitionListener();
     return;
   }
 
+  if (delay) await delayP(delay);
   element.style.opacity = "1";
   element.style.webkitTransition = transition;
   element.style.transition = transition;
@@ -103,6 +123,7 @@ const _hideElement = ({
 
 export const hideElement = ({
   el,
+  displayNone,
   transition = "200ms",
   duration = 200,
   useTransitionEvent = true,
@@ -110,8 +131,10 @@ export const hideElement = ({
   onCancel,
   onStart,
   onEnd,
+  onSentry,
 }: {
   el: string | HTMLElement;
+  displayNone?: boolean;
   /** Default `200ms` */
   transition?: string;
   duration?: number;
@@ -123,15 +146,18 @@ export const hideElement = ({
    */
   onEnd?: (el: HTMLElement, e?: TransitionEvent) => void;
   onCancel?: (el: HTMLElement) => void;
+  onSentry?: TSentry;
 }) =>
   new Promise<boolean>((resolve) =>
     _hideElement({
       el,
+      displayNone,
       delay,
       duration,
       onCancel,
       onEnd,
       onStart,
+      onSentry,
       transition,
       useTransitionEvent,
       resolve,
@@ -140,22 +166,24 @@ export const hideElement = ({
 
 const _showElement = async ({
   el,
-  display = "block",
+  removeDisplayNone,
   transition = "200ms",
   delay = 0,
+  onSentry,
   onStart,
   onEnd,
   onCancel,
   resolve,
 }: {
   el: string | HTMLElement;
-  display?: string;
+  removeDisplayNone?: boolean;
   onStart?: (el: HTMLElement) => void;
   /**
    * Fires when transition is finished. When there are multiple transitions, it will fire until all of them are finished
    */
   onEnd?: (el: HTMLElement) => void;
   onCancel?: (el: HTMLElement) => void;
+  onSentry?: TSentry;
   delay?: number;
   transition?: string;
   // TODO
@@ -180,10 +208,12 @@ const _showElement = async ({
     if (transitionCount < getTransitionsAmount()) return;
 
     element.removeEventListener("transitionend", onTransitionEnd);
+
     if (onEnd) onEnd(element);
     element.style.opacity = "";
     element.style.webkitTransition = "";
     element.style.transition = "";
+    removeInstance({ element, instances: showInstances });
     resolve(true);
   };
 
@@ -197,6 +227,8 @@ const _showElement = async ({
     instances: showInstances,
     onTransitionEnd,
     onCancel,
+    onSentry,
+    resolve,
   });
 
   transition = transition + " opacity";
@@ -205,8 +237,10 @@ const _showElement = async ({
 
   if (onStart) {
     if (delay) await delayP(delay);
-    element.style.display = display;
-    reflow();
+    if (removeDisplayNone) {
+      element.style.display = "";
+      reflow();
+    }
     onStart(element);
     addTransitionListener();
     return;
@@ -214,10 +248,10 @@ const _showElement = async ({
 
   if (delay) await delayP(delay);
 
+  if (removeDisplayNone) element.style.display = "";
   element.style.opacity = "0";
   element.style.webkitTransition = transition;
   element.style.transition = transition;
-  element.style.display = display;
   reflow();
   element.style.opacity = "1";
   addTransitionListener();
@@ -225,33 +259,36 @@ const _showElement = async ({
 
 export const showElement = ({
   el,
-  display = "block",
+  removeDisplayNone,
   transition = "200ms",
   delay = 0,
+  onSentry,
   onStart,
   onCancel,
   onEnd,
 }: {
   el: string | HTMLElement;
-  display?: string;
+  removeDisplayNone?: boolean;
   onStart?: (el: HTMLElement) => void;
   /**
    * Fires when transition is finished. When there are multiple transitions, it will fire until all of them are finished
    */
   onEnd?: (el: HTMLElement) => void;
   onCancel?: (el: HTMLElement) => void;
+  onSentry?: TSentry;
   delay?: number;
   transition?: string;
 }) =>
   new Promise<boolean>((resolve) =>
     _showElement({
       el,
+      removeDisplayNone,
       resolve,
       delay,
-      display,
       onEnd,
       onStart,
       onCancel,
+      onSentry,
       transition,
     })
   );
@@ -261,11 +298,59 @@ const manageInstances = ({
   element,
   onTransitionEnd,
   onCancel,
+  onSentry,
+  resolve,
 }: {
   instances: TInstance[];
   element: HTMLElement;
   onTransitionEnd: Function;
   onCancel?: (el: HTMLElement) => void;
+  onSentry?: TSentry;
+  resolve: (value: boolean | PromiseLike<boolean>) => void;
+}) => {
+  manageSingleInstances({ element, instances: hideInstances });
+  manageSingleInstances({ element, instances: showInstances });
+  const instance = { element, transition: onTransitionEnd, onCancel, resolve };
+
+  const runCancel = () => {
+    if (!instance) return;
+    const { element, resolve, transition, onCancel } = instance;
+    removeInstance({ element, instances });
+
+    element.removeEventListener("transitionend", transition as any);
+    onCancel && onCancel(element);
+    resolve(true);
+
+    onSentry!.cancel = () => {};
+  };
+
+  instances.push(instance);
+  if (onSentry) onSentry.cancel = runCancel;
+};
+
+const manageSingleInstances = ({
+  element,
+  instances,
+}: {
+  instances: TInstance[];
+  element: HTMLElement;
+}) => {
+  const alreadyRunningInstance = removeInstance({ element, instances });
+
+  if (alreadyRunningInstance) {
+    const { element, transition, onCancel, resolve } = alreadyRunningInstance;
+    element.removeEventListener("transitionend", transition as any);
+    onCancel && onCancel(element);
+    resolve(true);
+  }
+};
+
+const removeInstance = ({
+  element,
+  instances,
+}: {
+  element: HTMLElement;
+  instances: TInstance[];
 }) => {
   let alreadyRunningIndex = 0;
   const alreadyRunningInstance = instances.find((instance, idx) => {
@@ -274,18 +359,12 @@ const manageInstances = ({
       return true;
     }
   });
-
-  // onInterrupt -> {abort, el}
-
   if (alreadyRunningInstance) {
-    const { element, transition, onCancel } = alreadyRunningInstance;
-    element.removeEventListener("transitionend", transition as any);
     instances.splice(alreadyRunningIndex, 1);
-
-    onCancel && onCancel(element);
+    return alreadyRunningInstance;
   }
 
-  instances.push({ element, transition: onTransitionEnd });
+  return null;
 };
 
 const delayP = (delay: number) =>

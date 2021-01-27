@@ -1,4 +1,5 @@
 import { TLobbyType } from "../lobby/lobbyView";
+import { TJoinBy } from "../lobby/preGameView";
 
 type TBtn = {
   id?: string;
@@ -6,6 +7,7 @@ type TBtn = {
   content: string;
   dataAttributes: {
     lobbyType?: TLobbyType;
+    joinBy?: TJoinBy;
     [key: string]: string | undefined;
   };
   aria: {
@@ -109,21 +111,21 @@ const menuBtns: TGameMenuState = {
     section: "multiplayer",
     listBtns: [
       {
-        content: "Local",
+        content: "Same Device",
         aria: {
-          "aria-label": "Local: Play against a Friend next to You",
+          "aria-label": "Same Device: Play against a Friend next to You",
         },
         dataAttributes: {
           transitionTo: "goFirst",
           focus: "true",
         },
-        toolTip: "Play against a Friend next to You",
         classNames: ["btn", "btn-primary", "btn-pick"],
       },
       {
         content: "Online",
         aria: {
-          "aria-label": "Online: Play against an online buddy",
+          "aria-label":
+            "Online: Play against an online people or create private games to play with your friends",
         },
         dataAttributes: {
           transitionTo: "multiplayerChoices",
@@ -133,41 +135,52 @@ const menuBtns: TGameMenuState = {
     ],
   },
   multiplayerChoices: {
-    title: "",
+    title: "Lobby",
     section: "multiplayerChoices",
     listBtns: [
       {
-        content:
-          "Join <span style='text-decoration: underline;'>Public</span> Game",
+        content: "Battle Random Player",
+        // content:
+        //   "Join <span style='text-decoration: underline;'>Public</span>",
         dataAttributes: {
           open: "lobby",
-          lobbyType: "join-public-game",
+          lobbyType: "enter-pre-game",
+          joinBy: "public",
           focus: "true",
           firstItem: "true",
         },
-        aria: {},
+        aria: {
+          "aria-label":
+            "Join Public Game. You'll be matched with a random opponent",
+        },
         classNames: ["btn", "btn-primary", "btn-pick", "btn-multiplayer"],
       },
-      // {
-      //   content:
-      //     "Join <span style='text-decoration: underline;'>Private</span> Game",
-      //   dataAttributes: {
-      //     open: "lobby",
-      //     lobbyType: "join-private-game",
-      //   },
-      //   aria: {},
-      //   classNames: ["btn", "btn-primary", "btn-pick", "btn-multiplayer"],
-      // },
-      // {
-      //   content:
-      //     "Create <span style='text-decoration: underline;'>Private</span> Game", // when clicked generates simple code to share
-      //   dataAttributes: {
-      //     open: "lobby",
-      //     lobbyType: "create-private-game",
-      //   },
-      //   aria: {},
-      //   classNames: ["btn", "btn-primary", "btn-pick", "btn-multiplayer"],
-      // },
+      {
+        content:
+          "Join <span style='text-decoration: underline;'>Private</span>",
+        dataAttributes: {
+          open: "lobby",
+          lobbyType: "join-private-game",
+          joinBy: "private",
+        },
+        aria: {
+          "aria-label": "join private game",
+        },
+        classNames: ["btn", "btn-primary", "btn-pick", "btn-multiplayer"],
+      },
+      {
+        content:
+          "Create <span style='text-decoration: underline;'>Private</span>", // when clicked generates simple code to share
+        dataAttributes: {
+          open: "lobby",
+          lobbyType: "create-private-game",
+          joinBy: "created-private",
+        },
+        aria: {
+          "aria-label": "create private game",
+        },
+        classNames: ["btn", "btn-primary", "btn-pick", "btn-multiplayer"],
+      },
     ],
   },
   goFirst: {

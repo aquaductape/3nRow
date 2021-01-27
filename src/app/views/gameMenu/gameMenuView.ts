@@ -14,6 +14,7 @@ import menuBtns, { TGameMenuState } from "./menuBtns";
 import lobbyView from "../lobby/lobbyView";
 import svgDefsView from "../svg/svgDefsView";
 import { hideElement, showElement } from "../utils/animation";
+import { TJoinBy } from "../lobby/preGameView";
 
 type TSections = keyof TGameMenuState;
 type TData = {
@@ -65,6 +66,7 @@ class GameMenuView extends View {
       const transitionTo = btn.dataset.transitionTo as TSections;
       const currentSection = btn.dataset.section! as TSections;
       const lobbyType = btn.dataset.lobbyType as TLobbyType;
+      const joinBy = btn.dataset.joinBy as TJoinBy;
       const open = btn.dataset.open!;
       const vs = btn.dataset.vs!;
 
@@ -123,6 +125,7 @@ class GameMenuView extends View {
 
             lobbyView.render({
               type: lobbyType,
+              joinBy,
               mainPlayer: players[0],
               firstPlayer: players[0],
               players,
@@ -260,8 +263,11 @@ class GameMenuView extends View {
     const showSection = () => {
       showElement({
         el: section,
-        onEnd(el) {
+        onStart: (el) => {
           el.classList.remove("hidden");
+          el.style.transition = "opacity 200ms";
+          this.reflow();
+          el.style.opacity = "1";
         },
       });
     };
@@ -469,11 +475,11 @@ class GameMenuView extends View {
 
     await hideElement({
       el: sectionEl,
+      displayNone: true,
       onEnd: (el) => {
-        el.style.display = "none";
-        this.clearChildren(sectionEl);
+        this.clearChildren(el);
 
-        if (typeof replaceWith === "string") sectionEl.innerHTML = replaceWith;
+        if (typeof replaceWith === "string") el.innerHTML = replaceWith;
         if (typeof replaceWith === "function") replaceWith();
         if (type === "section") {
           gameContainerView.scaleElementsToProportionToBoard({
@@ -489,9 +495,8 @@ class GameMenuView extends View {
 
     await showElement({
       el: sectionEl,
-      onEnd: (el) => {
-        el.style.display = "";
-
+      removeDisplayNone: true,
+      onEnd: () => {
         if (type === "lobby") return;
         if (backBtnSelected) return;
 

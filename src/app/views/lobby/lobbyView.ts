@@ -6,19 +6,21 @@ import {
 } from "../../controllers/onlineMultiplayer";
 import { TPlayer } from "../../model/state";
 import playerBtnGroupView from "../playerOptions/playerBtnGroupView";
+import { hideElement, showElement } from "../utils/animation";
 import View from "../View";
 import createPrivateGameView from "./createPrivateGameView";
 import joinPrivateGameView from "./joinPrivateGameView";
-import preGameView, { TPreGameType } from "./preGameView";
+import preGameView, { TJoinBy, TPreGameType } from "./preGameView";
 import { btnItem, toolTipMarkup } from "./skinBtns";
 
 export type TLobbyType =
-  | "join-public-game"
+  | "enter-pre-game"
   | "create-private-game"
   | "join-private-game";
 
 type TProps = {
   type: TLobbyType;
+  joinBy: TJoinBy;
   mainPlayer: TPlayer;
   firstPlayer: TPlayer;
   players: TPlayer[];
@@ -32,10 +34,11 @@ type TProps = {
 class LobbyView extends View {
   protected data: TProps;
   private navigationBackBtnForeign = {} as HTMLElement;
+  private onExitMultiplayer: TControlExitMultiplayer = () => {};
 
   constructor() {
     super({ root: "#game-menu .section" });
-    this.data = { type: "join-public-game" } as TProps;
+    this.data = { type: "enter-pre-game" } as TProps;
   }
 
   protected markupDidGenerate() {
@@ -56,7 +59,13 @@ class LobbyView extends View {
     // also restore single player shapes from LS
     playerBtnGroupView.showSvgMarks();
 
-    createPrivateGameView.removeOnlineCircle();
+    this.onExitMultiplayer();
+
+    this.navigationBackBtnForeign.removeEventListener(
+      "click",
+      this.onNavigationBackBtnForeign
+    );
+    // this.destroy();
     this.removeEventListeners();
   };
 
@@ -69,13 +78,40 @@ class LobbyView extends View {
     createPrivateGameView.removeEventListeners();
   }
 
-  protected renderLobbyType() {
-    const { type, firstPlayer, mainPlayer, players } = this.data;
+  async transitionLobbyType({ type }: { type: TLobbyType }) {
+    this.data.type = type;
+    await hideElement({
+      el: this.parentEl,
+      onEnd: () => {
+        this.renderLobbyType();
+      },
+    });
+
+    await showElement({
+      el: this.parentEl,
+    });
+  }
+
+  private renderLobbyType() {
+    const { type, firstPlayer, mainPlayer, players, joinBy } = this.data;
+
+    this.parentEl.innerHTML = this.generateMarkup();
+
+    if (createPrivateGameView.hasRendered) {
+      createPrivateGameView.destroy();
+    }
+    if (preGameView.hasRendered) {
+      preGameView.destroy();
+    }
+    if (joinPrivateGameView.hasRendered) {
+      joinPrivateGameView.destroy();
+    }
 
     switch (type) {
-      case "join-public-game":
+      case "enter-pre-game":
         preGameView.render({
           preGameType: "connect-server",
+          joinBy,
           firstPlayer,
           mainPlayer,
           players,
@@ -131,22 +167,25 @@ class LobbyView extends View {
     handlerPickSkin: TControlPickSkin;
     handlerExitMultiplayer: TControlExitMultiplayer;
   }) {
+    this.onExitMultiplayer = handlerExitMultiplayer;
+
     preGameView.addHandlers({
-      handlerExitMultiplayer,
       handlerJoinRoom,
       handlerPickSkin,
       handlerStartGame,
     });
     joinPrivateGameView.addHandlers({
-      handlerExitMultiplayer,
       handlerJoinRoom,
-      handlerStartGame,
     });
     createPrivateGameView.addHandlers({
       handlerCreateRoom,
-      handlerExitMultiplayer,
-      handlerStartGame,
     });
+  }
+
+  destroy() {
+    this.removeEventListeners();
+    this.hideAndRemoveCountDownMarkup();
+    super.destroy();
   }
 
   render(data: TProps) {

@@ -6,12 +6,18 @@ export const loaderSquare = () => {
   `;
 };
 
-export const loaderEllipsis = () => {
+export const loaderEllipsis = ({ delay }: { delay?: number } = {}) => {
+  let styleContent = (additional: number) => "";
+
+  if (delay != null) {
+    styleContent = (additional: number) =>
+      `animation-delay: ${delay + additional}ms;`;
+  }
   return `
   <div class="loader-ellipsis-container">
-    <div class="dot-1"></div>
-    <div class="dot-2"></div>
-    <div class="dot-3"></div>
+    <div class="dot-1" style="${styleContent(0)}"></div>
+    <div class="dot-2" style="${styleContent(100)}"></div>
+    <div class="dot-3" style="${styleContent(200)}"></div>
   </div>
   `;
 };

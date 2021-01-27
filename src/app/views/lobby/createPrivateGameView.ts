@@ -1,10 +1,7 @@
-import { TControlPickSkin } from "../../controllers/lobby";
 import {
   TControlCreateRoom,
   TControlExitMultiplayer,
-  TControlJoinRoom,
 } from "../../controllers/onlineMultiplayer";
-import { Android, IOS } from "../../lib/onFocusOut/browserInfo";
 import { TPlayer } from "../../model/state";
 import { loaderEllipsis } from "../components/loaders";
 import { Tooltip } from "../components/Tooltip/Tooltip";
@@ -28,9 +25,6 @@ type TStages = "connect-server" | "generating-room" | "room-created";
 class CreatePrivateGameView extends View {
   protected data: TProps;
   private onCreateRoom: TControlCreateRoom = () => {};
-  private onPickSkin: TControlPickSkin = () => {};
-  private onStartGame: Function = () => {};
-  private handlerExitMultiplayer: TControlExitMultiplayer = () => {};
   private copyLinkText = "";
   private copyLinkTimeout = 0;
   private onlineCircleTooltip: Tooltip | null = null;
@@ -48,6 +42,7 @@ class CreatePrivateGameView extends View {
     ) as HTMLElement;
 
     const onNavigationBackBtnForeign = () => {
+      this.removeOnlineCircle();
       navigationBackBtnForeign.removeEventListener(
         "click",
         onNavigationBackBtnForeign
@@ -64,6 +59,8 @@ class CreatePrivateGameView extends View {
     gameContainerView.scaleElementsToProportionToBoard({
       selectors: ["lobbyTitle"],
     });
+
+    console.log("created room");
 
     this.onCreateRoom();
   }
@@ -248,7 +245,6 @@ class CreatePrivateGameView extends View {
     });
 
     await showElement({
-      display: "flex",
       el: fakeBtn,
     });
   };
@@ -272,21 +268,22 @@ class CreatePrivateGameView extends View {
   }
 
   removeEventListeners() {
+    if (!this.parentEl) return;
     this.parentEl.removeEventListener("click", this.onClickLobby);
   }
 
   addHandlers({
     handlerCreateRoom,
-    handlerExitMultiplayer,
-    handlerStartGame,
   }: {
     handlerCreateRoom: TControlCreateRoom;
-    handlerExitMultiplayer: TControlExitMultiplayer;
-    handlerStartGame: Function;
   }) {
     this.onCreateRoom = handlerCreateRoom;
-    this.onStartGame = handlerStartGame;
-    this.handlerExitMultiplayer = handlerExitMultiplayer;
+  }
+
+  destroy() {
+    this.removeEventListeners();
+    this.removeOnlineCircle();
+    super.destroy();
   }
 
   render(data: TProps) {

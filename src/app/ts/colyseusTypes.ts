@@ -3,6 +3,12 @@ import { Room } from "colyseus.js";
 
 import { TPosition } from ".";
 
+export type TReadyPlayersResult = {
+  id: string;
+  roomType: "public" | "private";
+  /** the player that created private room */
+  isHost: boolean;
+};
 export type TRoomCode = string;
 export type TMovePosition = TPosition;
 export type TOnMove = (props: TMovePosition) => void;
@@ -49,7 +55,10 @@ export type TRoomClient = {
     (action: "playAgainNow", props: any): void;
   };
   onMessage: {
-    (listener: "readyPlayers", props: (props: string) => void): void;
+    (
+      listener: "readyPlayers",
+      props: (props: TReadyPlayersResult) => void
+    ): void;
     (listener: "pickSkin", props: TOnPickSkin): void;
     (listener: "declarePlayers", props: (props: TDeclarePlayers) => void): void;
     (listener: "busyPlayers", props: (props: number) => void): void;

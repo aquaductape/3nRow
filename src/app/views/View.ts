@@ -18,8 +18,8 @@ export default class View {
   protected data = {};
   protected parentEl: HTMLElement;
   protected root: string | HTMLElement;
+  hasRendered = false;
   constructor({ root }: { root: string | HTMLElement }) {
-    this.data = {};
     this.parentEl = getElement(root);
     this.root = root;
   }
@@ -52,6 +52,12 @@ export default class View {
     reflow();
   }
 
+  destroy() {
+    this.hasRendered = false;
+    this.parentEl.remove();
+    this.parentEl = null as any;
+  }
+
   // grab elements that are based from string markup, after they are generated
   protected markupDidGenerate() {}
 
@@ -77,6 +83,7 @@ export default class View {
     this.clear();
     this.parentEl.insertAdjacentHTML("afterbegin", this.generateMarkup());
     this.markupDidGenerate();
+    this.hasRendered = true;
   }
 
   update(markup: string) {

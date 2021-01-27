@@ -7,6 +7,7 @@ import {
   TMovePosition,
   TPickSkin,
   TRoomCode,
+  TReadyPlayersResult,
 } from "../../../src/app/ts/colyseusTypes";
 import { getByValue } from "../utils";
 
@@ -95,7 +96,7 @@ export class Common extends Room<State> {
   onCreate(options: { isPrivate: boolean }) {
     if (options.isPrivate) {
       this.roomReadibleId = RoomReadibleId.incrementId();
-      console.log(this.clients, this.roomReadibleId, this.roomId);
+      console.log("created");
     }
 
     this.setState(new State());
@@ -147,7 +148,6 @@ export class Common extends Room<State> {
 
       // @ts-ignore
       this.listing.password = this.roomReadibleId;
-      console.log(this.listing);
       client.send("roomCode", this.roomReadibleId);
       return;
     }
@@ -197,19 +197,20 @@ export class Common extends Room<State> {
   onLeave(client: Client) {
     this.players.delete(client.sessionId);
     busyPublicPlayersCount--;
-
-    // const remainingPlayerIds = Array.from(this.state.players.keys());
-    // if (remainingPlayerIds.length > 0) {
-    //   // this.state.winner = remainingPlayerIds[0];
-    // }
+    console.log("left, players:", this.players.size);
   }
 
   readyGame() {
     // lock this room for new users
     this.lock();
     // this.broadcast("readyPlayers", this.state.players, {});
-    this.clients.forEach((client) => {
-      client.send("readyPlayers", this.players.get(client.id).playerId);
+    this.clients.forEach((client, idx) => {
+      const result: TReadyPlayersResult = {
+        id: this.players.get(client.id).playerId,
+        isHost: idx === 0,
+        roomType: this.roomName as any,
+      };
+      client.send("readyPlayers", result);
     });
 
     // this.send(this.clients[0], 'msgType', msg)

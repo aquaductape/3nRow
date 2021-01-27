@@ -595,13 +595,22 @@ class GameContainerView extends View {
       });
 
       // ************* gameMenuView ****************
-      // stop at 420px for quickstart btns
       scaleStyles({
         name: gameMenuTitle,
         numerator: boardWidth,
         styleRatio: {
-          fontSize: () => (boardWidth > 320 ? "28px" : "20px"),
-          margin: () => (boardWidth > 320 ? "15px 0" : "5px 0"),
+          fontSize: () => {
+            if (boardWidth < 250) return "20px";
+            if (boardWidth < 320) return "22px";
+            if (boardWidth < 420) return "28px";
+            return "38px";
+          },
+          margin: () => {
+            if (boardWidth < 250) return "5px 0";
+            if (boardWidth < 320) return "15px 0";
+            if (boardWidth < 420) return "25px 0";
+            return "40px 0";
+          },
         },
       });
       scaleStyles({
@@ -615,16 +624,11 @@ class GameContainerView extends View {
           maxWidth: () =>
             boardWidth > 500 ? px(boardWidth / 2.1538) : px(boardWidth / 1.5),
           borderRadius: 42,
-          marginTop: (el) => {
-            if (!el.dataset.firstItem) return "";
-            if (boardWidth < 320) return px(30);
-            return "";
-          },
           fontSize: (el) => {
             // if (!el.classList.contains("btn-multiplayer")) return "";
-            if (boardWidth < 250) return px(13);
-            if (boardWidth < 320) return px(15);
-            return px(20);
+            if (boardWidth < 250) return px(15);
+            if (boardWidth < 320) return px(18);
+            return px(22);
           },
         },
       });
@@ -700,11 +704,17 @@ class GameContainerView extends View {
         styleRatio: {
           fontSize: () => {
             if (boardWidth < 250) return "16px";
+            if (boardWidth < 290) return "18px";
             if (boardWidth < 320) return "20px";
-
-            return "28px";
+            if (boardWidth < 420) return "28px";
+            return "38px";
           },
-          margin: () => (boardWidth > 320 ? "15px 0" : "5px 0"),
+          margin: () => {
+            if (boardWidth < 250) return "5px 0";
+            if (boardWidth < 320) return "15px 0";
+            if (boardWidth < 420) return "25px 0";
+            return "40px 0";
+          },
         },
       });
       scaleStyles({

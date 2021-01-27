@@ -1,9 +1,5 @@
 import { TControlPickSkin } from "../../controllers/lobby";
-import {
-  TControlCreateRoom,
-  TControlExitMultiplayer,
-  TControlJoinRoom,
-} from "../../controllers/onlineMultiplayer";
+import { TControlJoinRoom } from "../../controllers/onlineMultiplayer";
 import { TPlayer } from "../../model/state";
 import { capitalize } from "../../utils";
 import { loaderCircle, loaderEllipsis } from "../components/loaders";
@@ -13,7 +9,6 @@ import playerBtnGroupView from "../playerOptions/playerBtnGroupView";
 import { removeElement } from "../utils";
 import { hideElement, showElement } from "../utils/animation";
 import View from "../View";
-import { TLobbyType } from "./lobbyView";
 import { btnItem, toolTipMarkup } from "./skinBtns";
 
 type TProps = {
@@ -21,6 +16,7 @@ type TProps = {
   mainPlayer: TPlayer;
   firstPlayer: TPlayer;
   players: TPlayer[];
+  joinBy?: TJoinBy;
 };
 
 export type TPreGameType =
@@ -32,6 +28,7 @@ export type TPreGameType =
   | "declare-players"
   | "wait-for-opponent";
 
+export type TJoinBy = "private" | "created-private" | "public";
 // Pre-game TIMELINE
 //
 // FindPlayers
@@ -47,16 +44,17 @@ export type TPreGameType =
 //  who's who, and who goes first
 // Start Game
 class PreGameView extends View {
-  protected data: TProps = { preGameType: "connect-server" } as TProps;
+  protected data: TProps = {
+    preGameType: "connect-server",
+    joinBy: "public",
+  } as TProps;
   private hasSelectedSkin = false;
-  private transitionQueue: TPreGameType[] = [];
   private transitionRunning = false;
   private transitionMarkupReplaced = false;
+  private joinBy: TJoinBy = "public";
   private currentPreGame: TPreGameType = "connect-server";
   private onJoinRoom: TControlJoinRoom = () => {};
-  private onCreateRoom: TControlCreateRoom = () => {};
   private onPickSkin: TControlPickSkin = () => {};
-  private onExitMultiplayer: TControlExitMultiplayer = () => {};
   private onStartGame: Function = () => {};
   private countDownEl = {} as HTMLElement;
   private navigationBackBtnForeign = {} as HTMLElement;
@@ -77,6 +75,7 @@ class PreGameView extends View {
   }
 
   protected markupDidGenerate() {
+    const { joinBy } = this.data;
     const acendantElForeign = this.parentEl.parentElement
       ?.parentElement as HTMLElement;
     this.navigationBackBtnForeign = acendantElForeign.querySelector(
@@ -92,18 +91,17 @@ class PreGameView extends View {
     gameContainerView.scaleElementsToProportionToBoard({
       selectors: ["lobbyTitle"],
     });
+
+    if (joinBy === "public") {
+      this.onJoinRoom({ type: "public" });
+    }
   }
 
   private onNavigationBackBtnForeign = () => {
-    this.onExitMultiplayer();
     // also restore single player shapes from LS
     playerBtnGroupView.showSvgMarks();
 
-    this.parentEl.removeEventListener("click", this.onLobbyEvents);
-    this.navigationBackBtnForeign.removeEventListener(
-      "click",
-      this.onNavigationBackBtnForeign
-    );
+    this.destroy();
   };
 
   private onLobbyEvents = (e: Event) => {
@@ -223,22 +221,18 @@ class PreGameView extends View {
     return `
     <div class="section delayed-reveal">
       <div class="lobby-title">Searching for Opponents ${loaderEllipsis()}</div>
-      <div class="busy-players">1 player online and it's YOU!</div>
     </div>
     `;
   }
 
-  private foundPlayersMarkup({
-    mode,
-  }: {
-    mode: "public-join" | "private-create" | "private-join";
-  }) {
+  private foundPlayersMarkup() {
+    const { joinBy } = this.data;
     let msg = "Found an Opponent!";
-    if (mode === "private-create") {
-      msg = "Your Buddy Joined the Game!";
+    if (joinBy === "created-private") {
+      msg = "Your Buddy has Joined the Game!";
     }
 
-    if (mode === "private-join") {
+    if (joinBy === "private") {
       msg = "You have Joined your Buddy's Game!";
     }
 
@@ -278,15 +272,12 @@ class PreGameView extends View {
   }
 
   private connectServerMarkup() {
-    this.onJoinRoom({ type: "public" });
     return `
     <div class="section delayed-reveal">
       <div class="lobby-title">Connecting to Server ${loaderEllipsis()}</div>
     </div>
     `;
   }
-
-  private showErrorMarkup() {}
 
   private preGameMarkup({ type }: { type: TPreGameType }) {
     switch (type) {
@@ -295,7 +286,7 @@ class PreGameView extends View {
       case "find-players":
         return this.findPlayersMarkup();
       case "found-players":
-        return this.foundPlayersMarkup({ mode: "public-join" });
+        return this.foundPlayersMarkup();
       case "pick-skins":
         if (!this.countDownElHidden) this.generateCountDownMarkp();
         return this.pickSkinsMarkup({ type: "color" });
@@ -318,6 +309,7 @@ class PreGameView extends View {
     if (this.data.preGameType === type) return;
     this.data.preGameType = type;
 
+    console.log("run pregame transition ", type);
     // pause then resume
     if (type === "declare-players") {
       if (!this.transitionRunning) {
@@ -336,6 +328,7 @@ class PreGameView extends View {
     }
 
     if (this.transitionRunning && !this.transitionMarkupReplaced) {
+      console.log("override type with ", type);
       this.onTransitionEndPreGameStageType = type;
       return;
     }
@@ -358,7 +351,7 @@ class PreGameView extends View {
       this.clearChildren(el);
 
       onEndClearStyle && onEndClearStyle(el);
-      el.style.display = "none";
+      this.reflow();
 
       if (this.onTransitionEndPreGameStageType === "declare-players") {
         onDeclarePlayers(el);
@@ -374,7 +367,6 @@ class PreGameView extends View {
       });
       if (type === "pick-skins") {
         gameContainerView.scaleElementsToProportionToBoard({
-          // type: "pick-skin",
           selectors: [
             "pickSkin",
             "pickSkinBtnsGroup",
@@ -388,12 +380,9 @@ class PreGameView extends View {
 
       showElement({
         el,
-        onStart: () => {
-          // showAnimation is running
-        },
+        removeDisplayNone: true,
         onEnd: () => {
           this.transitionRunning = false;
-          // showAnimation finished
         },
       });
     };
@@ -401,18 +390,22 @@ class PreGameView extends View {
     const onDeclarePlayers = (el: HTMLElement) => {
       this.clearChildren(el);
 
-      el.style.display = "none";
-      // repaceMarkup
+      // replaceMarkup
       el.innerHTML = this.preGameMarkup({
         type: this.onTransitionEndPreGameStageType,
       });
-      this.reflow();
+      gameContainerView.declarePlayersAnimationRunning = true;
       gameContainerView.scaleElementsToProportionToBoard({
         // type: "declare-players",
-        selectors: ["declarePlayersDeclaration", "declarePlayersShape"],
+        selectors: [
+          "declarePlayersDeclaration",
+          "declarePlayersShape",
+          "slideDeclarePlayersStylesheet",
+        ],
       });
+      gameContainerView.declarePlayersAnimationRunning = false;
+      el.style.display = "";
       this.reflow();
-      gameContainerView.declarePlayersAnimationRunning = true;
       this.transitionMarkupReplaced = true;
 
       setTimeout(() => {
@@ -421,13 +414,10 @@ class PreGameView extends View {
         playerBtnGroupView.updatePlayerIndicator(firstPlayer);
       }, 500);
 
-      setTimeout(() => {
-        gameContainerView.declarePlayersAnimationRunning = false;
-      }, 1000);
-
       showElement({
         el,
         delay: 200,
+        removeDisplayNone: true,
         transition: "200ms",
         onEnd: (el) => {
           this.transitionRunning = false;
@@ -455,6 +445,7 @@ class PreGameView extends View {
 
     hideElement({
       el: this.parentEl,
+      displayNone: true,
       onStart,
       onEnd,
     });
@@ -488,6 +479,7 @@ class PreGameView extends View {
   async transitionPickSkin({ type }: { type: "color" | "shape" }) {
     await hideElement({
       el: this.parentEl,
+      displayNone: true,
       // delay: 100,
       onStart: (el) => {
         el.style.opacity = "1";
@@ -501,11 +493,9 @@ class PreGameView extends View {
         el.style.transform = "";
         el.style.opacity = "";
         el.style.transition = "";
-        el.style.display = "none";
         el.innerHTML = this.pickSkinsMarkup({ type });
 
         gameContainerView.scaleElementsToProportionToBoard({
-          // type: "pick-skin",
           selectors: [
             "pickSkin",
             "pickSkinBtnsGroup",
@@ -521,9 +511,7 @@ class PreGameView extends View {
       el: this.parentEl,
       delay: 200,
       transition: "1000ms",
-      onEnd: (el) => {
-        el.style.display = "";
-      },
+      removeDisplayNone: true,
     });
   }
 
@@ -690,19 +678,22 @@ class PreGameView extends View {
     // handlerCreateRoom,
     handlerStartGame,
     handlerPickSkin,
-    handlerExitMultiplayer,
   }: {
     handlerJoinRoom: TControlJoinRoom;
     // handlerCreateRoom: TControlCreateRoom;
     handlerStartGame: Function;
     handlerPickSkin: TControlPickSkin;
-    handlerExitMultiplayer: TControlExitMultiplayer;
   }) {
     this.onJoinRoom = handlerJoinRoom;
     // this.onCreateRoom = handlerCreateRoom;
     this.onStartGame = handlerStartGame;
     this.onPickSkin = handlerPickSkin;
-    this.onExitMultiplayer = handlerExitMultiplayer;
+  }
+
+  destroy() {
+    this.removeEventListeners();
+    this.hideAndRemoveCountDownMarkup();
+    super.destroy();
   }
 
   render(data: TProps) {

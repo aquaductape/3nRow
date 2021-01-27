@@ -206,7 +206,7 @@ class SettingsView extends View {
     <button class="btn settings-btn" aria-label="open settings" title="open settings">${
       svg.cevron
     }</button>
-    <div class="settings-dropdown" role="dialog" aria-label="settings" aria-hidden="true" tabindex="-1">
+    <div class="settings-dropdown" style="display: none;" role="dialog" aria-label="settings" aria-hidden="true" tabindex="-1">
       <div class="settings-inner">
         ${this.settingsMarkup()}
         ${this.btnCloseMarkup()}
@@ -220,7 +220,7 @@ class SettingsView extends View {
 
     showElement({
       el: settingsDropdown,
-      display: "block",
+      removeDisplayNone: true,
       onStart: (el) => {
         el.classList.add("active");
       },
@@ -235,11 +235,9 @@ class SettingsView extends View {
 
     hideElement({
       el: settingsDropdown,
+      displayNone: true,
       onStart: (el) => {
         el.classList.remove("active");
-      },
-      onEnd: (el) => {
-        el.style.display = "none";
       },
     });
     overlayView.hide();

@@ -3,11 +3,11 @@ import model from "../model/model";
 import { TRoomClient } from "../ts/colyseusTypes";
 import gameMenuView from "../views/gameMenu/gameMenuView";
 import createPrivateGameView from "../views/lobby/createPrivateGameView";
+import joinPrivateGameView from "../views/lobby/joinPrivateGameView";
 import lobbyView from "../views/lobby/lobbyView";
 import preGameView from "../views/lobby/preGameView";
 import playerBtnGroupView from "../views/playerOptions/playerBtnGroupView";
 import svgDefsView from "../views/svg/svgDefsView";
-import { controlPlayAgain } from "./menu";
 import { controlMovePlayer } from "./move";
 
 // I think it's appropriate to place the multiplayer websocket listeners as Controller
@@ -41,11 +41,25 @@ export const controlJoinRoom: TControlJoinRoom = async ({ type, password }) => {
     model.setRoom(room);
     roomActions({ room });
 
+    if (type === "private") {
+      return;
+    }
+
     preGameView.transitionPreGameStage({ type: "find-players" });
   } catch (err) {
     console.error(err);
-    // preGameView;
-    // show error in preGameView
+    if (type === "private") {
+      const errMsg = (err = "no rooms found with provided criteria"
+        ? "Room doesn't exist"
+        : "Server Error");
+      joinPrivateGameView.setData({ isLocating: false });
+      // With what I built, running new animation on an already transitioning animation is very fragile and broken,
+      setTimeout(() => {
+        joinPrivateGameView.displayRoomError(errMsg);
+        joinPrivateGameView.displaySubmitArea({ type: "join-btn" });
+      }, 500);
+      return;
+    }
   }
 };
 
@@ -215,6 +229,7 @@ const roomActions = ({ room }: { room: TRoomClient }) => {
   });
 
   room.onMessage("countDownPickSkin", (counter) => {
+    if (!preGameView.hasRendered) return;
     preGameView.updateCountDown(counter);
     if (counter === 0) {
       room.send("prepareGame", true);
@@ -222,9 +237,19 @@ const roomActions = ({ room }: { room: TRoomClient }) => {
     }
   });
 
-  room.onMessage("readyPlayers", (id) => {
+  room.onMessage("readyPlayers", async (result) => {
+    console.log(result);
+    const { id, isHost, roomType } = result;
     const mainPlayerId = id;
     const opponentPlayerId = id === "P1" ? "P2" : "P1";
+    console.log("readyPlayers");
+    const playerIds = [mainPlayerId, opponentPlayerId];
+
+    playerIds.forEach((playerId) => {
+      const player = model.getPlayerById(playerId)!;
+      model.setPlayerCurrentColor({ player, color: "" });
+      model.setPlayerCurrentShape({ player, shape: "" });
+    });
 
     model.setMultiplayerPlayers({
       mainPlayer: mainPlayerId,
@@ -236,10 +261,25 @@ const roomActions = ({ room }: { room: TRoomClient }) => {
       mainPlayer: model.getPlayerById(mainPlayerId),
     });
     preGameView.setData({
+      joinBy: "public",
       players: model.state.players,
       mainPlayer: model.getPlayerById(mainPlayerId),
     });
 
+    if (roomType === "private") {
+      if (isHost) {
+        preGameView.setData({
+          joinBy: "created-private",
+        });
+      } else {
+        preGameView.setData({
+          joinBy: "private",
+        });
+      }
+
+      await lobbyView.transitionLobbyType({ type: "enter-pre-game" });
+    }
+    console.log("skips");
     preGameView.transitionPreGameStage({ type: "found-players" });
     preGameView.transitionPreGameStage({ type: "pick-skins" });
     playerBtnGroupView.hideSvgMarks();
@@ -251,6 +291,7 @@ const roomActions = ({ room }: { room: TRoomClient }) => {
     if (hasDeclaredPlayers) return;
     hasDeclaredPlayers = true;
     if (!players) return;
+    console.log("declarePlayers");
     const mainPlayer = model.getPlayerById(
       model.state.onlineMultiplayer.mainPlayer
     );
