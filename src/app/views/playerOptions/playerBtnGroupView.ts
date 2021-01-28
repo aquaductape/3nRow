@@ -46,6 +46,14 @@ class PlayerBtnGroup extends View {
     playerBtn.removeAttribute("disabled");
   }
 
+  enableBtns() {
+    const { players } = this.data;
+
+    players.forEach((player) => {
+      this.enableBtn(player.id);
+    });
+  }
+
   disableBtns() {
     const { players } = this.data;
 

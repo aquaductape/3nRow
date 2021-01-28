@@ -111,6 +111,7 @@ class LobbyView extends View {
       playerBtnGroupView.showInnerBtn({
         selectors: ["playerMark", "playerOptionsIcon"],
       });
+      playerBtnGroupView.enableBtns();
       this.handlerExitMultiplayer();
 
       return;
