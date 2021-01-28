@@ -8,6 +8,7 @@ const app = express();
 const port = Number(process.env.PORT || 3000);
 const corsOptions: CorsOptions = {
   origin: process.env.ORIGIN_URL || "http://localhost:8080",
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
