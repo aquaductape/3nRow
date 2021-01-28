@@ -11,6 +11,11 @@ export const exitMultiplayer = () => {
   resetMultiplayer();
 };
 
+export const setRoomCodeFromUrlParams = () => {
+  const params = new URLSearchParams(location.search.slice(1));
+  state.onlineMultiplayer.roomCode = params.get("code");
+};
+
 const resetMultiplayer = () => {
   state.onlineMultiplayer.room = null;
   state.onlineMultiplayer.pickedItems = { color: "", shape: "" };

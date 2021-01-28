@@ -152,14 +152,17 @@ export class DropdownExpando {
 
   play({
     mode,
+    duration,
     onEnd,
     onStart,
   }: {
     onStart?: Function;
     onEnd?: (props: TAnimationState) => void;
     mode: "collapse" | "expand";
+    duration?: number;
   }) {
     // console.log(mode);
+    this.duration = duration != null ? duration : this.duration;
     if (
       this.animationPlayState[mode].running ||
       this.animationPlayState[mode].interrupted

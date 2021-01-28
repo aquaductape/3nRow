@@ -14,6 +14,14 @@ type TSentry = {
 const hideInstances: TInstance[] = [];
 const showInstances: TInstance[] = [];
 
+/**
+ * if transition duration is very low such as 10ms, it fails to fire transitionend event.
+ */
+const transitionDurationTooLow = (transition: string) => {
+  const result = Number(transition.match(/\d+/)![0]);
+  return result < 50;
+};
+
 const _hideElement = async ({
   el,
   displayNone,
@@ -50,13 +58,7 @@ const _hideElement = async ({
     return transitionsAmount.length + 1;
   };
 
-  const onTransitionEnd = (e: TransitionEvent) => {
-    const target = e.target;
-    if (target !== element) return;
-    // fire when all transition properties are done
-    transitionCount++;
-    if (transitionCount < getTransitionsAmount()) return;
-
+  const fireOnEnd = (e?: TransitionEvent) => {
     element.removeEventListener("transitionend", onTransitionEnd);
 
     if (displayNone) {
@@ -68,6 +70,16 @@ const _hideElement = async ({
     removeInstance({ element, instances: hideInstances });
     element.style.pointerEvents = "";
     resolve(true);
+  };
+
+  const onTransitionEnd = (e: TransitionEvent) => {
+    const target = e.target;
+    if (target !== element) return;
+    // fire when all transition properties are done
+    transitionCount++;
+    if (transitionCount < getTransitionsAmount()) return;
+
+    fireOnEnd(e);
   };
 
   const addTransitionListener = () =>
@@ -108,6 +120,10 @@ const _hideElement = async ({
     onStart(element);
     if (!useTransitionEvent) return timeOut();
     addTransitionListener();
+
+    if (transitionDurationTooLow(transition)) {
+      fireOnEnd();
+    }
     return;
   }
 
@@ -116,9 +132,13 @@ const _hideElement = async ({
   element.style.webkitTransition = transition;
   element.style.transition = transition;
   reflow();
-  addTransitionListener();
 
   element.style.opacity = "0";
+  addTransitionListener();
+
+  if (transitionDurationTooLow(transition)) {
+    fireOnEnd();
+  }
 };
 
 export const hideElement = ({
@@ -200,13 +220,7 @@ const _showElement = async ({
     return transitionsAmount.length + 1;
   };
 
-  const onTransitionEnd = (e: TransitionEvent) => {
-    const target = e.target;
-    if (target !== element) return;
-
-    transitionCount++;
-    if (transitionCount < getTransitionsAmount()) return;
-
+  const fireOnEnd = (e?: TransitionEvent) => {
     element.removeEventListener("transitionend", onTransitionEnd);
 
     if (onEnd) onEnd(element);
@@ -215,6 +229,16 @@ const _showElement = async ({
     element.style.transition = "";
     removeInstance({ element, instances: showInstances });
     resolve(true);
+  };
+
+  const onTransitionEnd = (e: TransitionEvent) => {
+    const target = e.target;
+    if (target !== element) return;
+
+    transitionCount++;
+    if (transitionCount < getTransitionsAmount()) return;
+
+    fireOnEnd(e);
   };
 
   const addTransitionListener = () =>
@@ -243,6 +267,9 @@ const _showElement = async ({
     }
     onStart(element);
     addTransitionListener();
+    if (transitionDurationTooLow(transition)) {
+      fireOnEnd();
+    }
     return;
   }
 
@@ -255,6 +282,9 @@ const _showElement = async ({
   reflow();
   element.style.opacity = "1";
   addTransitionListener();
+  if (transitionDurationTooLow(transition)) {
+    fireOnEnd();
+  }
 };
 
 export const showElement = ({
@@ -367,7 +397,7 @@ const removeInstance = ({
   return null;
 };
 
-const delayP = (delay: number) =>
+export const delayP = (delay: number) =>
   new Promise((resolve) => {
     setTimeout(() => {
       return resolve(true);

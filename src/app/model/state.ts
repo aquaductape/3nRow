@@ -1,6 +1,8 @@
 import { TRoomClient } from "../ts/colyseusTypes";
 import { TPosition } from "../ts/index";
 
+const serverDomain = process.env.MULTIPLAYER_ENDPOINT || "localhost:3000";
+
 export const state: TState = {
   players: [
     {
@@ -61,9 +63,13 @@ export const state: TState = {
     },
   },
   onlineMultiplayer: {
+    serverDomain,
+    serverUrl: `${location.protocol}//${serverDomain}`,
+    serverWS: `ws://${serverDomain}`,
     active: false,
     password: "",
     room: null,
+    roomCode: null,
     mainPlayer: "P1",
     opponentPlayer: "P2",
     hasPickedSkin: false,
@@ -133,8 +139,12 @@ export type TGame = {
 
 type TOnlineMultiplayer = {
   active: boolean;
+  serverDomain: string;
+  serverUrl: string;
+  serverWS: string;
   password: string;
   room: null | TRoomClient;
+  roomCode: null | string;
   mainPlayer: string; // Player id
   opponentPlayer: string; // Player id
   hasPickedSkin: boolean;

@@ -75,6 +75,10 @@
   transition: 250ms background-color, 250ms box-shadow;
   z-index: 2;
 
+  &:disabled {
+    cursor: auto;
+  }
+
   &.pre-game {
     background: var(--blue-bg);
 
@@ -96,7 +100,7 @@
     }
   }
 
-  &:hover,
+  &:hover:not(:disabled),
   &.noFocusClick:focus,
   &.active {
     color: #fff;

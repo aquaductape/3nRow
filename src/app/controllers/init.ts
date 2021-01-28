@@ -17,20 +17,30 @@ import {
   controlJoinRoom,
 } from "./onlineMultiplayer";
 import lobbyView from "../views/lobby/lobbyView";
-import { controlPickSkin } from "./lobby";
+import { controlConnectServer, controlPickSkin } from "./lobby";
+import joinPrivateGameView from "../views/lobby/joinPrivateGameView";
 
 export const init = () => {
   localStorage.clear();
 
   // model
   model.updateStateFromLS();
+  model.setRoomCodeFromUrlParams();
   model.setShapes(buildShapesForPlayers(model.state.players));
+
+  // setData
+  joinPrivateGameView.setData({
+    roomCode: model.state.onlineMultiplayer.roomCode,
+  });
 
   // render views
   svgDefsView.render(model.state.players);
   playerBtnGroupView.render(model.state);
   boardView.render(model.state);
-  gameMenuView.render({ players: model.state.players });
+  gameMenuView.render({
+    players: model.state.players,
+    roomCode: model.state.onlineMultiplayer.roomCode,
+  });
   skipToGameMenu.render();
   settingsView.render(model.state);
   // messageView.render("Player 1 has Won!");
@@ -44,13 +54,14 @@ export const init = () => {
     handlerStartGame: controlStartGame,
     handlerPlayAgain: controlPlayAgain,
     handlerSettings: controlSettings,
+    handlerExitMultiplayer: controlExitMultiplayer,
   });
   lobbyView.addHandlers({
     handlerCreateRoom: controlCreateRoom,
     handlerJoinRoom: controlJoinRoom,
-    handlerStartGame: () => {},
     handlerPickSkin: controlPickSkin,
     handlerExitMultiplayer: controlExitMultiplayer,
+    handlerConnectServer: controlConnectServer,
   });
   settingsView.addHandlers({
     handlerSettings: controlSettings,

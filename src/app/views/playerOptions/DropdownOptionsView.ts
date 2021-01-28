@@ -2,8 +2,6 @@ import {
   TControlPlayerColor,
   TControlPlayerShape,
 } from "../../controllers/playerOptions";
-import { IOS, IOS13, Safari } from "../../lib/onFocusOut/browserInfo";
-import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TPlayer } from "../../model/state";
 import { TSkin } from "../../ts";
 import { Tooltip } from "../components/Tooltip/Tooltip";
@@ -500,13 +498,16 @@ export default class DropdownOptionsView extends View {
   }
 
   collapseDropdown(removeActiveBtn: Function) {
-    // if (this.reducedAnimation) {
-    //   throw new Error("reduced animation");
-    //   return;
-    // }
+    let duration = 600;
+    if (this.reducedAnimation) {
+      duration = 0;
+      // throw new Error("reduced animation");
+      // return;
+    }
 
     this.dropdownExpando.play({
       mode: "collapse",
+      duration,
       onStart: () => {
         this.shellShadowEl.style.transition = "";
         this.shellShadowEl.style.opacity = "";
@@ -519,13 +520,17 @@ export default class DropdownOptionsView extends View {
   }
 
   expandDropdown() {
-    // if (this.reducedAnimation) {
-    //   throw new Error("reduced animation");
-    //   return;
-    // }
+    let duration = 600;
+    if (this.reducedAnimation) {
+      duration = 0;
+      // throw new Error("reduced animation");
+      // this.
+      // return;
+    }
 
     this.dropdownExpando.play({
       mode: "expand",
+      duration,
       onStart: () => {
         this.parentEl.classList.add("active");
       },

@@ -13,6 +13,7 @@ type TProps = {
   firstPlayer: TPlayer;
   players: TPlayer[];
   isLocating?: boolean;
+  roomCode?: null | string;
 };
 
 type TStages = "connect-server" | "join-room";
@@ -29,10 +30,14 @@ class JoinPrivateGameView extends View {
 
   constructor() {
     super({ root: "#game-menu .lobby" });
-    this.data = { isLocating: false } as TProps;
+    this.data = { isLocating: false, roomCode: null } as TProps;
+    console.log(this.data);
   }
 
   protected markupDidGenerate() {
+    const { roomCode } = this.data;
+    console.log(this.data);
+
     this.codeInputEl = this.parentEl.querySelector(
       ".room-code-input"
     ) as HTMLInputElement;
@@ -50,7 +55,11 @@ class JoinPrivateGameView extends View {
       ".room-error span"
     ) as HTMLElement;
 
-    const parentForeign = this.parentEl.parentElement
+    if (roomCode) {
+      this.codeInputEl.value = roomCode;
+    }
+
+    const parentForeign = this.parentEl.parentElement?.parentElement
       ?.parentElement as HTMLElement;
     this.formEl = this.parentEl.querySelector("form") as HTMLElement;
     const navigationBackBtnForeign = parentForeign.querySelector(
@@ -58,6 +67,7 @@ class JoinPrivateGameView extends View {
     ) as HTMLElement;
 
     const onNavigationBackBtnForeign = () => {
+      window.history.replaceState("", "", location.origin);
       this.destroy();
       navigationBackBtnForeign.removeEventListener(
         "click",
@@ -81,12 +91,18 @@ class JoinPrivateGameView extends View {
   private onSubmit = async (e: Event) => {
     const { isLocating } = this.data;
     e.preventDefault();
+    e.stopPropagation();
+
     if (isLocating) return;
+
     const value = this.codeInputEl.value;
+
     if (!this.validateForm(value)) return;
+
     this.data.isLocating = true;
     this.displaySubmitArea({ type: "locating-room-text" });
     this.onJoinRoom({ type: "private", password: value });
+    window.history.replaceState("", "", location.origin);
   };
 
   private onKeydownCleanCodeInput = (e: Event) => {
@@ -136,7 +152,7 @@ class JoinPrivateGameView extends View {
 
   private joinRoomMarkup = () => {
     return `
-    <div class="room-section join-private-room delayed-reveal">
+    <div class="room-section join-private-room">
       <div class="lobby-title">Join Private Room</div>
       ${this.roomErrorMarkup()}
       <form aria-label="Enter Private Room by Room Code">
@@ -260,7 +276,7 @@ class JoinPrivateGameView extends View {
     super.destroy();
   }
 
-  render(data: TProps) {
+  render(data?: TProps) {
     super.render(data);
   }
 

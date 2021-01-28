@@ -5,13 +5,17 @@ import {
   TControlJoinRoom,
 } from "../../controllers/onlineMultiplayer";
 import { TPlayer } from "../../model/state";
+import { loaderEllipsis } from "../components/loaders";
+import gameContainerView from "../gameContainer/gameContainerView";
+import gameMenuView from "../gameMenu/gameMenuView";
 import playerBtnGroupView from "../playerOptions/playerBtnGroupView";
+import { convertObjPropsToHTMLAttr } from "../utils";
 import { hideElement, showElement } from "../utils/animation";
 import View from "../View";
 import createPrivateGameView from "./createPrivateGameView";
 import joinPrivateGameView from "./joinPrivateGameView";
-import preGameView, { TJoinBy, TPreGameType } from "./preGameView";
-import { btnItem, toolTipMarkup } from "./skinBtns";
+import lobbyMenuBtns from "./lobbyMenuBtns";
+import preGameView, { TJoinBy } from "./preGameView";
 
 export type TLobbyType =
   | "enter-pre-game"
@@ -19,8 +23,9 @@ export type TLobbyType =
   | "join-private-game";
 
 type TProps = {
-  type: TLobbyType;
-  joinBy: TJoinBy;
+  type?: TLobbyType;
+  joinBy?: TJoinBy;
+  jumpIntoSection?: boolean;
   mainPlayer: TPlayer;
   firstPlayer: TPlayer;
   players: TPlayer[];
@@ -34,51 +39,144 @@ type TProps = {
 class LobbyView extends View {
   protected data: TProps;
   private navigationBackBtnForeign = {} as HTMLElement;
-  private onExitMultiplayer: TControlExitMultiplayer = () => {};
+  private menuBtns = lobbyMenuBtns;
+  private handlerExitMultiplayer: TControlExitMultiplayer = () => {};
+  private handlerConnectServer: Function = () => {};
+  private lobbyEl = {} as HTMLElement;
 
   constructor() {
-    super({ root: "#game-menu .section" });
+    // super({ root: "#game-menu .section" });
+    super({ root: "#game-menu .lobby-container" });
     this.data = { type: "enter-pre-game" } as TProps;
   }
 
   protected markupDidGenerate() {
-    const parentForeign = this.parentEl.parentElement as HTMLElement;
+    const { jumpIntoSection } = this.data;
+    const parentForeign = this.parentEl.parentElement
+      ?.parentElement as HTMLElement;
     this.navigationBackBtnForeign = parentForeign.querySelector(
       ".btn-navigation-back"
     ) as HTMLElement;
+    this.lobbyEl = this.parentEl.querySelector(".lobby") as HTMLElement;
 
     this.navigationBackBtnForeign.addEventListener(
       "click",
       this.onNavigationBackBtnForeign
     );
+    this.parentEl.addEventListener("click", this.onLobbyClick);
 
-    this.renderLobbyType();
+    if (jumpIntoSection) {
+      setTimeout(() => {
+        this.transitionSection({ type: "lobbyRoom" });
+      }, 200);
+      return;
+    }
+
+    gameContainerView.scaleElementsToProportionToBoard({
+      selectors: ["gameMenuTitle", "gameMenuBtns", "lobbyTitle"],
+    });
+    // this.renderLobbyType();
+    this.handlerConnectServer();
   }
 
-  private onNavigationBackBtnForeign = () => {
-    // also restore single player shapes from LS
-    playerBtnGroupView.showSvgMarks();
+  private onLobbyClick = async (e: MouseEvent) => {
+    e.stopPropagation();
+    const target = e.target as HTMLElement;
+    const btn = target.closest(".btn") as HTMLElement;
+    let clicked = true;
+    if (e.detail === 0) clicked = false;
+    if (!btn) return;
 
-    this.onExitMultiplayer();
+    const lobbyType = btn.dataset.lobbyType as TLobbyType;
+    const joinBy = btn.dataset.joinBy as TJoinBy;
+    if (!lobbyType && !joinBy) return;
+    this.data.type = lobbyType;
+    this.data.joinBy = joinBy;
 
-    this.navigationBackBtnForeign.removeEventListener(
-      "click",
-      this.onNavigationBackBtnForeign
-    );
-    // this.destroy();
-    this.removeEventListeners();
+    this.transitionSection({ type: "lobbyRoom" });
   };
 
-  removeEventListeners() {
+  private onNavigationBackBtnForeign = (e: MouseEvent) => {
+    // also restore single player shapes from LS
+    const haveLobbySectionsRendered = [
+      createPrivateGameView.hasRendered,
+      preGameView.hasRendered,
+      joinPrivateGameView.hasRendered,
+    ];
+
+    if (haveLobbySectionsRendered.some((section) => section)) {
+      e.stopPropagation();
+
+      this.transitionSection({ type: "menuBtns" });
+      playerBtnGroupView.showInnerBtn({
+        selectors: ["playerMark", "playerOptionsIcon"],
+      });
+      this.handlerExitMultiplayer();
+
+      return;
+    }
+
     this.navigationBackBtnForeign.removeEventListener(
       "click",
       this.onNavigationBackBtnForeign
     );
-    preGameView.removeEventListeners();
-    createPrivateGameView.removeEventListeners();
+
+    this.destroy();
+  };
+
+  /**  Why not fire destroy inside child Views when their backBtn is fired?
+   * 
+   Because events are fired based on the order they are registered, 
+   this means that this lobbyView backBtn will fire before its inner child View backBtn does.
+   *
+   I could keep the intended order by taking advantage of event bubbling, where the event is registered in a layered containered markup of backBtn, but that requires markup changes of backBtn, and the mechanism relies heavily on markup.
+  */
+  destoryLobbyRooms() {
+    if (createPrivateGameView.hasRendered) {
+      createPrivateGameView.destroy();
+    }
+    if (preGameView.hasRendered) {
+      preGameView.destroy();
+    }
+    if (joinPrivateGameView.hasRendered) {
+      joinPrivateGameView.destroy();
+    }
   }
 
-  async transitionLobbyType({ type }: { type: TLobbyType }) {
+  transitionSection({ type }: { type: "menuBtns" | "lobbyRoom" }) {
+    let theme: "menu" | "lobby" = "menu";
+    let render: Function = () => {
+      this.destoryLobbyRooms();
+      // this.parentEl.innerHTML = this.generateMarkup();
+      this.parentEl.innerHTML = `
+      <div class="lobby">
+        ${this.lobbyMenuMarkup()}
+      </div>
+      `;
+      gameContainerView.scaleElementsToProportionToBoard({
+        selectors: ["gameMenuTitle", "gameMenuBtns"],
+      });
+    };
+    if (type === "lobbyRoom") {
+      theme = "lobby";
+      render = () => this.renderLobbyType();
+    }
+    console.log("transitionLobby");
+    hideElement({
+      el: this.parentEl,
+      onEnd: (el) => {
+        render();
+        console.log("transitionLobby changetheme");
+        gameMenuView.changeMenuTheme(theme);
+
+        showElement({
+          el,
+        });
+      },
+    });
+  }
+
+  async transitionBetweenLobbyTypes({ type }: { type: TLobbyType }) {
     this.data.type = type;
     await hideElement({
       el: this.parentEl,
@@ -95,17 +193,9 @@ class LobbyView extends View {
   private renderLobbyType() {
     const { type, firstPlayer, mainPlayer, players, joinBy } = this.data;
 
-    this.parentEl.innerHTML = this.generateMarkup();
+    this.destoryLobbyRooms();
 
-    if (createPrivateGameView.hasRendered) {
-      createPrivateGameView.destroy();
-    }
-    if (preGameView.hasRendered) {
-      preGameView.destroy();
-    }
-    if (joinPrivateGameView.hasRendered) {
-      joinPrivateGameView.destroy();
-    }
+    this.parentEl.innerHTML = '<div class="lobby"></div>';
 
     switch (type) {
       case "enter-pre-game":
@@ -118,11 +208,12 @@ class LobbyView extends View {
         });
         return;
       case "join-private-game":
-        joinPrivateGameView.render({
+        joinPrivateGameView.setData({
           firstPlayer,
           mainPlayer,
           players,
         });
+        joinPrivateGameView.render();
         return;
       case "create-private-game":
         createPrivateGameView.render({
@@ -134,11 +225,67 @@ class LobbyView extends View {
     }
   }
 
+  private lobbyMenuMarkup() {
+    const { titleId, listBtns: btns, title, section } = this.menuBtns;
+    const btnsMarkup = btns
+      .map((item) => {
+        const dataAttributes = convertObjPropsToHTMLAttr({
+          type: "data",
+          obj: item.dataAttributes,
+        });
+        const ariaAttributes = convertObjPropsToHTMLAttr({
+          type: "aria",
+          obj: item.aria,
+        });
+
+        return `
+        <li class="menu-item">
+          <a 
+            class="${item.classNames.join(" ")}"
+            ${dataAttributes}
+            ${ariaAttributes}
+            data-section="${section}"
+            href="javascript:void(0)"
+          >
+            ${item.content}
+          </a>
+        </li>
+      `;
+      })
+      .join("");
+
+    const ariaLabel =
+      title === "Difficulty" ? 'aria-label="Computer Difficulty"' : "";
+    const titleMarkupId = titleId ? `id="${titleId}"` : "";
+    const titleMarkup = title
+      ? `
+    <div ${titleMarkupId} class="menu-title lobby-menu-title" ${ariaLabel}>${title}</div> 
+    `
+      : "";
+
+    return `
+      ${titleMarkup}
+      <ul class="menu-buttons">
+        ${btnsMarkup}
+      </ul>
+    `;
+  }
+
+  private connectServerMarkup() {
+    return `
+    <div class="section delayed-reveal">
+      <div class="lobby-title lobby-menu-title">Connecting to Server ${loaderEllipsis()}</div>
+    </div>
+    `;
+  }
+
   protected generateMarkup() {
     return `
     <div class="lobby">
+      ${this.connectServerMarkup()}
     </div>
     `;
+    // ${this.lobbyMenuMarkup()}
   }
 
   hideAndRemoveCountDownMarkup(
@@ -157,22 +304,22 @@ class LobbyView extends View {
   addHandlers({
     handlerJoinRoom,
     handlerCreateRoom,
-    handlerStartGame,
     handlerPickSkin,
     handlerExitMultiplayer,
+    handlerConnectServer,
   }: {
     handlerJoinRoom: TControlJoinRoom;
     handlerCreateRoom: TControlCreateRoom;
-    handlerStartGame: Function;
     handlerPickSkin: TControlPickSkin;
     handlerExitMultiplayer: TControlExitMultiplayer;
+    handlerConnectServer: Function;
   }) {
-    this.onExitMultiplayer = handlerExitMultiplayer;
+    this.handlerExitMultiplayer = handlerExitMultiplayer;
+    this.handlerConnectServer = handlerConnectServer;
 
     preGameView.addHandlers({
       handlerJoinRoom,
       handlerPickSkin,
-      handlerStartGame,
     });
     joinPrivateGameView.addHandlers({
       handlerJoinRoom,
@@ -183,8 +330,11 @@ class LobbyView extends View {
   }
 
   destroy() {
-    this.removeEventListeners();
-    this.hideAndRemoveCountDownMarkup();
+    this.navigationBackBtnForeign.removeEventListener(
+      "click",
+      this.onNavigationBackBtnForeign
+    );
+    this.destoryLobbyRooms();
     super.destroy();
   }
 

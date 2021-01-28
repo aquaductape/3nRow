@@ -31,11 +31,25 @@ export const controlPickSkin: TControlPickSkin = ({ type, item }) => {
     preGameView.transitionPreGameStage({ type: "preparing-game" });
   }
 
-  // setTimeout(() => {
   room.send("pickSkin", {
     type,
     value: item,
     playerId: model.state.onlineMultiplayer.mainPlayer,
   });
-  // }, 5000);
+};
+
+export const controlConnectServer = async () => {
+  const url = `${model.state.onlineMultiplayer.serverUrl}/is-online`;
+  try {
+    const res = await fetch(url);
+    const result = await res.json();
+
+    if (!result.success) throw new Error();
+    if (!lobbyView.hasRendered) return;
+
+    lobbyView.transitionSection({ type: "menuBtns" });
+  } catch {
+    if (!lobbyView.hasRendered) return;
+    // render error and try again button
+  }
 };

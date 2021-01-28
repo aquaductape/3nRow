@@ -66,5 +66,6 @@ export type TRoomClient = {
     (listener: "countDownPickSkin", props: (props: number) => void): void;
     (listener: "playAgain", props: (props: TPlayAgainResult) => void): void;
     (listener: "roomCode", props: (props: TRoomCode) => void): void;
+    (listener: "opponentLeft", props: (props: boolean) => void): void;
   };
 } & Omit<Room<unknown>, "send">;

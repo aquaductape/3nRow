@@ -54,6 +54,7 @@ export default class View {
 
   destroy() {
     this.hasRendered = false;
+    if (!this.parentEl) return;
     this.parentEl.remove();
     this.parentEl = null as any;
   }
@@ -79,7 +80,7 @@ export default class View {
 
     if (!this.parentEl) return;
 
-    this.data = data;
+    if (data) this.data = data;
     this.clear();
     this.parentEl.insertAdjacentHTML("afterbegin", this.generateMarkup());
     this.markupDidGenerate();

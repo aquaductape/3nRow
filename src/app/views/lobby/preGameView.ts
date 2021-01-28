@@ -6,7 +6,7 @@ import { loaderCircle, loaderEllipsis } from "../components/loaders";
 import { colors, shapes, svg } from "../constants/constants";
 import gameContainerView from "../gameContainer/gameContainerView";
 import playerBtnGroupView from "../playerOptions/playerBtnGroupView";
-import { removeElement } from "../utils";
+import { createHTMLFromString, removeElement } from "../utils";
 import { hideElement, showElement } from "../utils/animation";
 import View from "../View";
 import { btnItem, toolTipMarkup } from "./skinBtns";
@@ -55,9 +55,8 @@ class PreGameView extends View {
   private currentPreGame: TPreGameType = "connect-server";
   private onJoinRoom: TControlJoinRoom = () => {};
   private onPickSkin: TControlPickSkin = () => {};
-  private onStartGame: Function = () => {};
-  private countDownEl = {} as HTMLElement;
-  private navigationBackBtnForeign = {} as HTMLElement;
+  private countDownEl = (null as unknown) as HTMLElement;
+  private navigationBackBtnForeign = (null as unknown) as HTMLElement;
   private addedEventListeners = false;
   private loaderPickSkinTimeoutID = 0;
   private onTransitionEndPreGameStageType: TPreGameType = "connect-server";
@@ -76,7 +75,7 @@ class PreGameView extends View {
 
   protected markupDidGenerate() {
     const { joinBy } = this.data;
-    const acendantElForeign = this.parentEl.parentElement
+    const acendantElForeign = this.parentEl.parentElement?.parentElement
       ?.parentElement as HTMLElement;
     this.navigationBackBtnForeign = acendantElForeign.querySelector(
       ".btn-navigation-back"
@@ -99,7 +98,9 @@ class PreGameView extends View {
 
   private onNavigationBackBtnForeign = () => {
     // also restore single player shapes from LS
-    playerBtnGroupView.showSvgMarks();
+    playerBtnGroupView.showInnerBtn({
+      selectors: ["playerMark", "playerOptionsIcon"],
+    });
 
     this.destroy();
   };
@@ -264,9 +265,11 @@ class PreGameView extends View {
       <div class="countdown">15</div>
     </div>
     `;
-    this.parentEl.parentElement?.insertAdjacentHTML("beforebegin", timerMarkup);
+    this.countDownEl = createHTMLFromString(timerMarkup) as HTMLElement;
+    this.parentEl.parentElement?.parentElement?.parentElement?.appendChild(
+      this.countDownEl
+    );
     gameContainerView.scaleElementsToProportionToBoard({
-      // type: "player-pick-skin-countdown",
       selectors: ["playerPickSkinCountDown"],
     });
   }
@@ -460,16 +463,13 @@ class PreGameView extends View {
       this.hideAndRemoveCountDownMarkup({ delay: 100 });
     }
 
-    const acendantElForeign = this.parentEl.parentElement?.parentElement!;
-
-    const counterEl = acendantElForeign.querySelector(
+    if (!this.countDownEl) return;
+    const countDownTxt = this.countDownEl.querySelector(
       ".countdown"
     ) as HTMLElement;
-    const circle = acendantElForeign.querySelector("circle") as SVGElement;
+    const circle = this.countDownEl.querySelector("circle") as SVGElement;
 
-    if (!counterEl) return;
-
-    counterEl.textContent = `${counter}`;
+    countDownTxt.textContent = `${counter}`;
     circle.style.strokeDasharray = `${strokeDash}px`;
     circle.style.strokeDashoffset = `${
       ((counterStart - counter) / counterStart) * strokeDash
@@ -527,20 +527,14 @@ class PreGameView extends View {
   ) {
     if (!this.parentEl) return;
 
-    const acendantElForeign = this.parentEl.parentElement?.parentElement!;
-
-    const countDownEl = acendantElForeign.querySelector(
-      ".countdown-container"
-    ) as HTMLElement;
-
-    if (!countDownEl) return;
+    if (!this.countDownEl) return;
 
     hideElement({
-      el: countDownEl,
+      el: this.countDownEl,
       transition: `${duration}ms ${delay}ms`,
       onEnd: (el) => {
         el.style.display = "none";
-        removeElement(el);
+        this.countDownEl.remove();
       },
     });
   }
@@ -676,17 +670,14 @@ class PreGameView extends View {
   addHandlers({
     handlerJoinRoom,
     // handlerCreateRoom,
-    handlerStartGame,
     handlerPickSkin,
   }: {
     handlerJoinRoom: TControlJoinRoom;
     // handlerCreateRoom: TControlCreateRoom;
-    handlerStartGame: Function;
     handlerPickSkin: TControlPickSkin;
   }) {
     this.onJoinRoom = handlerJoinRoom;
     // this.onCreateRoom = handlerCreateRoom;
-    this.onStartGame = handlerStartGame;
     this.onPickSkin = handlerPickSkin;
   }
 

@@ -19,37 +19,62 @@ import { TJoinBy } from "../lobby/preGameView";
 type TSections = keyof TGameMenuState;
 type TData = {
   players: TPlayer[];
+  roomCode: null | string;
 };
 
 class GameMenuView extends View {
   protected data: TData;
-  private menuState: TGameMenuState;
-  private currentSection: TSections | null;
-  private renderInit: boolean;
-  private vsPlayer: string;
-  private navigationHistory: TSections[];
-  private handlerStartGame: TControlStartGame;
-  private handlerPlayAgain: TControlPlayAgain;
-  private handlerSettings: TControlSettings;
+  private menuState: TGameMenuState = menuBtns;
+  private currentSection: TSections | null = "start";
+  private renderInit = true;
+  private vsPlayer = "ai";
+  private navigationHistory: TSections[] = [];
+  private handlerStartGame: TControlStartGame = () => {};
+  private handlerPlayAgain: TControlPlayAgain = () => {};
+  private handlerSettings: TControlSettings = () => {};
+  private handlerExitMultiplayer: Function = () => {};
   constructor() {
     super({ root: "#game-menu" });
     this.data = {
       players: [],
+      roomCode: null,
     };
+  }
 
-    this.currentSection = "start";
-    this.renderInit = true;
-    this.vsPlayer = "ai";
-    this.navigationHistory = [];
-    this.menuState = menuBtns;
-    this.handlerStartGame = () => {};
-    this.handlerPlayAgain = () => {};
-    this.handlerSettings = () => {};
+  private generateLobbyRootMarkup() {
+    const markup = '<div class="lobby-container"></div>';
+    this.parentEl
+      .querySelector(".section")!
+      .insertAdjacentHTML("beforeend", markup);
   }
 
   markupDidGenerate() {
-    this.updatePlayersMark(this.data.players);
+    const { players, roomCode } = this.data;
+    this.updatePlayersMark(players);
     this.renderInit = false;
+
+    if (roomCode) {
+      this.navigationHistory = ["start", "multiplayer"];
+      this.showBtnNavigationBack();
+
+      this.transtionToNextGeneralSection({
+        type: "lobby",
+        backBtnSelected: false,
+        clicked: true,
+        replaceWith: () => {
+          this.generateLobbyRootMarkup();
+
+          lobbyView.render({
+            type: "join-private-game",
+            joinBy: "private",
+            jumpIntoSection: true,
+            mainPlayer: players[0],
+            firstPlayer: players[0],
+            players,
+          });
+        },
+      });
+    }
 
     this.parentEl.addEventListener("click", (e) => {
       const target = e.target as HTMLElement;
@@ -69,6 +94,11 @@ class GameMenuView extends View {
       const joinBy = btn.dataset.joinBy as TJoinBy;
       const open = btn.dataset.open!;
       const vs = btn.dataset.vs!;
+      const exitMultiplayer = btn.dataset.exitMultiplayer;
+
+      if (exitMultiplayer) {
+        this.handlerExitMultiplayer();
+      }
 
       if (difficulty) {
         this.handlerSettings({
@@ -123,15 +153,13 @@ class GameMenuView extends View {
           replaceWith: () => {
             const { players } = this.data;
 
+            this.generateLobbyRootMarkup();
+
             lobbyView.render({
-              type: lobbyType,
-              joinBy,
               mainPlayer: players[0],
               firstPlayer: players[0],
               players,
             });
-
-            this.changeMenuTheme("lobby");
           },
         });
       }
@@ -254,6 +282,7 @@ class GameMenuView extends View {
     gameContainerView.scaleElementsToProportionToBoard({
       selectors: [
         "gameMenu",
+        "gameMenuBtns",
         "gameMenuTitle",
         "gameOverPlayerResult",
         "gameOverPlayerShape",
@@ -391,7 +420,7 @@ class GameMenuView extends View {
     player,
     tie,
   }: {
-    tie: boolean;
+    tie?: boolean;
     declare: "winner" | "loser";
     player: TPlayer;
   }) {
@@ -408,7 +437,7 @@ class GameMenuView extends View {
     player,
     tie,
   }: {
-    tie: boolean;
+    tie?: boolean;
     declare: "winner" | "loser";
     player?: TPlayer;
   }) {
@@ -585,14 +614,17 @@ class GameMenuView extends View {
     handlerPlayAgain,
     handlerStartGame,
     handlerSettings,
+    handlerExitMultiplayer,
   }: {
     handlerStartGame: TControlStartGame;
     handlerPlayAgain: TControlPlayAgain;
     handlerSettings: TControlSettings;
+    handlerExitMultiplayer: Function;
   }) {
     this.handlerStartGame = handlerStartGame;
     this.handlerPlayAgain = handlerPlayAgain;
     this.handlerSettings = handlerSettings;
+    this.handlerExitMultiplayer = handlerExitMultiplayer;
   }
 
   async startGameAndHideMenu({

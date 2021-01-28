@@ -6,7 +6,7 @@ import onFocusOut from "../../lib/onFocusOut/onFocusOut";
 import { TPlayer, TState } from "../../model/state";
 import { TSkin, TSkinProps } from "../../ts/index";
 import { colorMap, svg } from "../constants/constants";
-import { hideElement } from "../utils/animation";
+import { hideElement, showElement } from "../utils/animation";
 import { createHTMLFromString, getOppositePlayer } from "../utils/index";
 import View from "../View";
 import DropdownOptionsView from "./DropdownOptionsView";
@@ -17,6 +17,7 @@ type TPlayerDom = {
     playerBtn: HTMLElement;
     playerMark: HTMLElement;
     playerScore: HTMLElement;
+    playerOptionsIcon: HTMLElement;
     playerCurrentIndicator: HTMLElement;
     dropdownOptionsMenu: HTMLElement;
     dropdownOptionsView: DropdownOptionsView;
@@ -35,38 +36,70 @@ class PlayerBtnGroup extends View {
     this.playerDom = <TPlayerDom>{};
   }
 
-  private hideSvgMark(playerId: string) {
-    const { playerMark } = this.playerDom[playerId];
+  disableBtn(playerId: string) {
+    const { playerBtn } = this.playerDom[playerId];
+    playerBtn.setAttribute("disabled", "true");
+  }
 
-    hideElement({
-      el: playerMark,
-      onStart: (el) => {
-        el.style.opacity = "1";
-        el.style.transform = "scale(1)";
-        el.style.transition = "500ms transform, 250ms 250ms opacity";
-        this.reflow();
-        el.style.opacity = "0";
-        el.style.transform = "scale(0)";
-      },
+  enableBtn(playerId: string) {
+    const { playerBtn } = this.playerDom[playerId];
+    playerBtn.removeAttribute("disabled");
+  }
+
+  disableBtns() {
+    const { players } = this.data;
+
+    players.forEach((player) => {
+      this.disableBtn(player.id);
     });
   }
 
-  private showSvgMark(playerId: string) {
-    const { playerMark } = this.playerDom[playerId];
+  private _hideInnerBtn({
+    playerId,
+    selectors,
+  }: {
+    playerId: string;
+    selectors: ("playerMark" | "playerOptionsIcon")[];
+  }) {
+    selectors.forEach((selector) => {
+      const el = this.playerDom[playerId][selector];
+      hideElement({
+        el,
+        onStart: (el) => {
+          el.style.opacity = "1";
+          el.style.transform = "scale(1)";
+          el.style.transition = "500ms transform, 250ms 250ms opacity";
+          this.reflow();
+          el.style.opacity = "0";
+          el.style.transform = "scale(0)";
+        },
+      });
+    });
+  }
+  private _showInnerBtn({
+    playerId,
+    selectors,
+  }: {
+    playerId: string;
+    selectors: ("playerMark" | "playerOptionsIcon")[];
+  }) {
+    selectors.forEach((selector) => {
+      const el = this.playerDom[playerId][selector];
 
-    hideElement({
-      el: playerMark,
-      onStart: (el) => {
-        el.style.transition = "500ms transform, 250ms 250ms opacity";
-        this.reflow();
-        el.style.opacity = "1";
-        el.style.transform = "scale(1)";
-      },
-      onEnd: (el) => {
-        el.style.opacity = "";
-        el.style.transform = "";
-        el.style.transition = "";
-      },
+      showElement({
+        el,
+        onStart: (el) => {
+          el.style.transition = "500ms transform, 250ms 250ms opacity";
+          this.reflow();
+          el.style.opacity = "1";
+          el.style.transform = "scale(1)";
+        },
+        onEnd: (el) => {
+          el.style.opacity = "";
+          el.style.transform = "";
+          el.style.transition = "";
+        },
+      });
     });
   }
 
@@ -270,6 +303,9 @@ class PlayerBtnGroup extends View {
       const playerScore = <HTMLElement>(
         playerContainer.querySelector(".player-score")
       );
+      const playerOptionsIcon = <HTMLElement>(
+        playerContainer.querySelector(".player-options")
+      );
       const playerCurrentIndicator = <HTMLElement>(
         playerContainer.querySelector(".player-current-indicator")
       );
@@ -285,6 +321,7 @@ class PlayerBtnGroup extends View {
       });
 
       this.playerDom[id] = {
+        playerOptionsIcon,
         playerContainer,
         playerMark,
         playerScore,
@@ -314,16 +351,39 @@ class PlayerBtnGroup extends View {
     this.generatePlayerMark({ id, svgMark });
   }
 
-  showSvgMarks() {
-    const { players } = this.data;
+  showInnerBtn({
+    playerId,
+    selectors,
+  }: {
+    playerId?: string;
+    selectors: ("playerMark" | "playerOptionsIcon")[];
+  }) {
+    if (playerId) {
+      this._showInnerBtn({ playerId, selectors });
+      return;
+    }
 
-    players.forEach(({ id }) => this.showSvgMark(id));
+    const { players } = this.data;
+    players.forEach((player) => {
+      this._showInnerBtn({ playerId: player.id, selectors });
+    });
   }
+  hideInnerBtn({
+    playerId,
+    selectors,
+  }: {
+    playerId?: string;
+    selectors: ("playerMark" | "playerOptionsIcon")[];
+  }) {
+    if (playerId) {
+      this._hideInnerBtn({ playerId, selectors });
+      return;
+    }
 
-  hideSvgMarks() {
     const { players } = this.data;
-
-    players.forEach(({ id }) => this.hideSvgMark(id));
+    players.forEach((player) => {
+      this._hideInnerBtn({ playerId: player.id, selectors });
+    });
   }
 
   activateColorShape(playerId: string) {

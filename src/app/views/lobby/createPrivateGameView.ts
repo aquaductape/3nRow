@@ -28,6 +28,8 @@ class CreatePrivateGameView extends View {
   private copyLinkText = "";
   private copyLinkTimeout = 0;
   private onlineCircleTooltip: Tooltip | null = null;
+  private onlineCircleEl = (null as unknown) as HTMLElement;
+  private navigationBackBtnForeign = {} as HTMLElement;
 
   constructor() {
     super({ root: "#game-menu .lobby" });
@@ -35,21 +37,21 @@ class CreatePrivateGameView extends View {
   }
 
   protected markupDidGenerate() {
-    const parentForeign = this.parentEl.parentElement
+    const parentForeign = this.parentEl.parentElement?.parentElement
       ?.parentElement as HTMLElement;
-    const navigationBackBtnForeign = parentForeign.querySelector(
+    this.navigationBackBtnForeign = parentForeign.querySelector(
       ".btn-navigation-back"
     ) as HTMLElement;
 
     const onNavigationBackBtnForeign = () => {
       this.removeOnlineCircle();
-      navigationBackBtnForeign.removeEventListener(
+      this.navigationBackBtnForeign.removeEventListener(
         "click",
         onNavigationBackBtnForeign
       );
     };
 
-    navigationBackBtnForeign.addEventListener(
+    this.navigationBackBtnForeign.addEventListener(
       "click",
       onNavigationBackBtnForeign
     );
@@ -66,6 +68,7 @@ class CreatePrivateGameView extends View {
   }
 
   private onClickLobby = async (e: Event) => {
+    e.stopPropagation();
     const target = e.target as HTMLElement;
     const btnCopyLink = target.closest(".btn-copy-link");
     if (!btnCopyLink) return;
@@ -114,11 +117,15 @@ class CreatePrivateGameView extends View {
   }
 
   private generateOnlineCircle() {
-    const onlineCircleEl = createHTMLFromString(
+    this.onlineCircleEl = createHTMLFromString(
       this.onlineCircleMarkup()
     ) as HTMLElement;
-    this.parentEl.parentElement?.parentElement?.appendChild(onlineCircleEl);
-    const circleEl = onlineCircleEl.querySelector(".circle") as HTMLElement;
+    this.parentEl.parentElement?.parentElement?.parentElement?.appendChild(
+      this.onlineCircleEl
+    );
+    const circleEl = this.onlineCircleEl.querySelector(
+      ".circle"
+    ) as HTMLElement;
 
     this.onlineCircleTooltip = new Tooltip({
       message: "Room is Online. <br/> Share code and wait here.",
@@ -127,11 +134,8 @@ class CreatePrivateGameView extends View {
   }
 
   removeOnlineCircle() {
-    const liveCircleEl = this.parentEl.parentElement?.parentElement?.querySelector(
-      ".online-circle"
-    );
-    if (!liveCircleEl) return;
-    liveCircleEl?.remove();
+    if (!this.onlineCircleEl) return;
+    this.onlineCircleEl.remove();
 
     if (this.onlineCircleTooltip) {
       this.onlineCircleTooltip.destroy();

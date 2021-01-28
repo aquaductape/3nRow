@@ -8,6 +8,7 @@ type TBtn = {
   dataAttributes: {
     lobbyType?: TLobbyType;
     joinBy?: TJoinBy;
+    open?: "lobby";
     [key: string]: string | undefined;
   };
   aria: {
@@ -128,14 +129,15 @@ const menuBtns: TGameMenuState = {
             "Online: Play against an online people or create private games to play with your friends",
         },
         dataAttributes: {
-          transitionTo: "multiplayerChoices",
+          // transitionTo: "multiplayerChoices",
+          open: "lobby",
         },
         classNames: ["btn", "btn-primary", "btn-pick"],
       },
     ],
   },
   multiplayerChoices: {
-    title: "Lobby",
+    title: "Lobby", // lobby-room-choices-title
     section: "multiplayerChoices",
     listBtns: [
       {
@@ -237,6 +239,7 @@ const menuBtns: TGameMenuState = {
         },
         dataAttributes: {
           transitionTo: "start",
+          exitMultiplayer: "true",
           focus: "true",
         },
         classNames: ["btn", "btn-primary", "btn-leave"],

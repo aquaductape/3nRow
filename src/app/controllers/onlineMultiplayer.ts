@@ -1,6 +1,7 @@
 import { getOppositePlayer } from "../model/actions/player";
 import model from "../model/model";
 import { TRoomClient } from "../ts/colyseusTypes";
+import boardView from "../views/board/boardView";
 import gameMenuView from "../views/gameMenu/gameMenuView";
 import createPrivateGameView from "../views/lobby/createPrivateGameView";
 import joinPrivateGameView from "../views/lobby/joinPrivateGameView";
@@ -8,6 +9,7 @@ import lobbyView from "../views/lobby/lobbyView";
 import preGameView from "../views/lobby/preGameView";
 import playerBtnGroupView from "../views/playerOptions/playerBtnGroupView";
 import svgDefsView from "../views/svg/svgDefsView";
+import { delayP } from "../views/utils/animation";
 import { controlMovePlayer } from "./move";
 
 // I think it's appropriate to place the multiplayer websocket listeners as Controller
@@ -22,9 +24,7 @@ export const controlJoinRoom: TControlJoinRoom = async ({ type, password }) => {
     const Colyseus = await import(
       /* webpackChunkName: "colyseus" */ "colyseus.js"
     );
-    const client = new Colyseus.Client(
-      `ws://${process.env.MULTIPLAYER_ENDPOINT || "localhost:3000"}`
-    );
+    const client = new Colyseus.Client(model.state.onlineMultiplayer.serverWS);
     let room = (null as unknown) as TRoomClient;
 
     if (type === "public") {
@@ -277,12 +277,16 @@ const roomActions = ({ room }: { room: TRoomClient }) => {
         });
       }
 
-      await lobbyView.transitionLobbyType({ type: "enter-pre-game" });
+      await lobbyView.transitionBetweenLobbyTypes({ type: "enter-pre-game" });
     }
     console.log("skips");
     preGameView.transitionPreGameStage({ type: "found-players" });
     preGameView.transitionPreGameStage({ type: "pick-skins" });
-    playerBtnGroupView.hideSvgMarks();
+    playerBtnGroupView.hideInnerBtn({
+      selectors: ["playerMark", "playerOptionsIcon"],
+    });
+    playerBtnGroupView.disableBtns();
+    // must close already open dropdown
   });
 
   // pesky global variable
@@ -294,7 +298,10 @@ const roomActions = ({ room }: { room: TRoomClient }) => {
     console.log("declarePlayers");
     const mainPlayer = model.getPlayerById(
       model.state.onlineMultiplayer.mainPlayer
-    );
+    )!;
+    const opponentPlayer = model.getPlayerById(
+      model.state.onlineMultiplayer.opponentPlayer
+    )!;
 
     for (const playerId in players) {
       const { color, shape } = players[playerId];
@@ -307,7 +314,17 @@ const roomActions = ({ room }: { room: TRoomClient }) => {
 
     svgDefsView.updateShapeColors(model.state.players);
     lobbyView.hideAndRemoveCountDownMarkup({ duration: 50 });
-    playerBtnGroupView.showSvgMarks();
+
+    playerBtnGroupView.enableBtn(mainPlayer.id);
+    playerBtnGroupView.showInnerBtn({
+      playerId: mainPlayer.id,
+      selectors: ["playerMark", "playerOptionsIcon"],
+    });
+    playerBtnGroupView.showInnerBtn({
+      playerId: opponentPlayer.id,
+      selectors: ["playerMark"],
+    });
+    playerBtnGroupView.disableBtn(opponentPlayer.id);
     lobbyView.setData({
       players: model.state.players,
       mainPlayer,
@@ -320,7 +337,8 @@ const roomActions = ({ room }: { room: TRoomClient }) => {
 
     // TODO use promise
     setTimeout(() => {
-      lobbyView.removeEventListeners();
+      // lobbyView.removeEventListenersAndOtherUI();
+      lobbyView.destroy();
       gameMenuView.startGameAndHideMenu({ firstMovePlayer: "P1" });
     }, 3300);
   });
@@ -330,5 +348,44 @@ const roomActions = ({ room }: { room: TRoomClient }) => {
 
     preGameView.updateBusyPlayers(players);
     // update players count on lobbyView
+  });
+
+  room.onMessage("opponentLeft", () => {
+    const transitionTimeout = 800;
+    // const mainPlayer = model.getPlayerById(
+    //   model.state.onlineMultiplayer.mainPlayer
+    // )!;
+    const winnerPlayer = model.getWinner()!;
+    const loserPlayer = model.getLoser()!;
+    let player = winnerPlayer;
+    let declare = "winner" as "winner" | "loser";
+
+    model.runGameOver();
+    boardView.preventPlayerToSelect();
+    playerBtnGroupView.resetPlayerIndicators();
+
+    //   if (!model.state.game.gameTie) {
+    //     model.increaseWinnerScore();
+    //     playerBtnGroupView.updatePlayerScore(winnerPlayer);
+    //   }
+    //
+    //   if (model.state.game.hasAI && model.getAiPlayer() === winnerPlayer) {
+    //     declare = "loser";
+    //     player = loserPlayer;
+    //   }
+    //
+    //   if (model.state.onlineMultiplayer.active && mainPlayer !== winnerPlayer) {
+    //     declare = "loser";
+    //     player = loserPlayer;
+    //   }
+
+    setTimeout(() => {
+      gameMenuView.renderGameOverMenu({
+        declare,
+        player,
+      });
+      boardView.preGame();
+      playerBtnGroupView.updatePlayerBtnsOnPreGame();
+    }, transitionTimeout);
   });
 };

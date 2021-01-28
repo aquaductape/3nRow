@@ -945,7 +945,7 @@ class GameContainerView extends View {
    */
   revealAfterPageLoad() {
     requestAnimationFrame(() => {
-      this.parentEl.style.transition = "opacity 200ms";
+      this.parentEl.style.transition = "opacity 100ms";
       this.parentEl.style.opacity = "1";
       const { playerBtns } = this.dom;
 
@@ -955,6 +955,7 @@ class GameContainerView extends View {
       });
 
       setTimeout(() => {
+        document.body.style.overflow = "";
         this.parentEl.style.transition = "";
         this.parentEl.style.opacity = "";
 

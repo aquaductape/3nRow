@@ -198,6 +198,9 @@ export class Common extends Room<State> {
     this.players.delete(client.sessionId);
     busyPublicPlayersCount--;
     console.log("left, players:", this.players.size);
+    this.stopClock();
+
+    this.broadcast("opponentLeft", true);
   }
 
   readyGame() {
