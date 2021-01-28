@@ -39,7 +39,7 @@ export const controlPickSkin: TControlPickSkin = ({ type, item }) => {
 };
 
 export const controlConnectServer = async () => {
-  const url = `${model.state.onlineMultiplayer.serverUrl}is-online`;
+  const url = `${model.state.onlineMultiplayer.serverUrl}/is-online`;
   try {
     const res = await fetch(url);
     const result = await res.json();
