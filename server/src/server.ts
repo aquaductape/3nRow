@@ -8,7 +8,6 @@ const app = express();
 const port = Number(process.env.PORT || 3000);
 const corsOptions: CorsOptions = {
   origin: process.env.ORIGIN_URL || "http://localhost:8080",
-  credentials: true,
 };
 
 app.use(cors(corsOptions));
@@ -27,4 +26,4 @@ app.get("/is-online", (req, res) => {
   res.send({ success: true });
 });
 
-console.log(`Listening on ws://localhost:${port}`);
+console.log(`Listening on port ${port}  👁  ...️`);

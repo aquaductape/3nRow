@@ -170,7 +170,9 @@ class CreatePrivateGameView extends View {
   private copyLinkBtnMarkup() {
     let { roomCode } = this.data;
     roomCode = roomCode || "AA2AA";
-    const copyLinkContent = `${window.location.origin}/?code=${roomCode}`;
+    const copyLinkContent = `${
+      window.location.origin + window.location.pathname
+    }?code=${roomCode}`;
     this.copyLinkText = copyLinkContent;
 
     return `
