@@ -102,7 +102,7 @@ class JoinPrivateGameView extends View {
     this.data.isLocating = true;
     this.displaySubmitArea({ type: "locating-room-text" });
     this.onJoinRoom({ type: "private", password: value });
-    window.history.replaceState("", "", location.origin);
+    window.history.replaceState("", "", location.origin + location.pathname);
   };
 
   private onKeydownCleanCodeInput = (e: Event) => {
