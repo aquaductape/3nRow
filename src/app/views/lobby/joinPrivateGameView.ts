@@ -67,7 +67,7 @@ class JoinPrivateGameView extends View {
     ) as HTMLElement;
 
     const onNavigationBackBtnForeign = () => {
-      window.history.replaceState("", "", location.origin);
+      window.history.replaceState("", "", location.origin + location.pathname);
       this.destroy();
       navigationBackBtnForeign.removeEventListener(
         "click",

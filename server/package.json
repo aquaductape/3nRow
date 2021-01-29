@@ -5,13 +5,15 @@
   "main": "index.js",
   "scripts": {
     "compile-ts": "tsc --watch",
-    "start": "NODE_ENV=development webpack ",
+    "start": "NODE_ENV=development webpack",
     "start:dev": "NODE_ENV=development webpack",
-    "run:dev": "NODE_ENV=development nodemon dist/index.js"
+    "run:dev": "NODE_ENV=development nodemon dist/index.js",
+    "build:dev": "webpack",
+    "deploy": "yarn build:dev && git add . && git commit -m 'update' && git push heroku master"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@types/cors": "^2.8.9",
     "@types/express": "^4.17.9",

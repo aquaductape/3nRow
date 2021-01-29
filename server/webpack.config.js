@@ -21,11 +21,6 @@ module.exports = {
   plugins: [new CleanWebpackPlugin()],
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
-    // plugins: [
-    //   new TsconfigPathsPlugin({
-    //     configFile: "./generate/quiz/tsconfig.json",
-    //   }),
-    // ],
   },
   output: {
     filename: "index.js",
@@ -35,7 +30,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new WebpackShellPlugin({
-      onBuildEnd: ["yarn run:dev"],
+      onBuildEnd: NODE_ENV === "development" ? ["yarn run:dev"] : [],
     }),
   ],
 };
