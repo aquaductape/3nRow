@@ -68,7 +68,6 @@ class CreatePrivateGameView extends View {
   }
 
   private onClickLobby = async (e: Event) => {
-    e.stopPropagation();
     const target = e.target as HTMLElement;
     const btnCopyLink = target.closest(".btn-copy-link");
     if (!btnCopyLink) return;

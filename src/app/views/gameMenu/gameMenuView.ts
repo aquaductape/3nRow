@@ -77,6 +77,7 @@ class GameMenuView extends View {
     }
 
     this.parentEl.addEventListener("click", (e) => {
+      if (lobbyView.hasRendered) return;
       const target = e.target as HTMLElement;
       const btn = target.closest(".btn") as HTMLElement;
       let clicked = true;

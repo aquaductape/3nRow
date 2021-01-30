@@ -9,7 +9,7 @@ import {
   TRoomCode,
   TReadyPlayersResult,
 } from "../../../src/app/ts/colyseusTypes";
-import { getByValue } from "../utils";
+import { getByValue, capitalize } from "../utils";
 
 const BOARD_WIDTH = 3;
 const RoomReadibleId = new _RoomReadibleId();
@@ -96,7 +96,6 @@ export class Common extends Room<State> {
   onCreate(options: { isPrivate: boolean }) {
     if (options.isPrivate) {
       this.roomReadibleId = RoomReadibleId.incrementId();
-      console.log("created");
     }
 
     this.setState(new State());
@@ -106,7 +105,7 @@ export class Common extends Room<State> {
     });
     this.onMessage<TOnSkinChange>("skinChange", (client, message) => {});
     this.onMessage<TPickSkin>("pickSkin", (client, message) => {
-      this.playerPickSkin(client, message);
+      this.playerPickSkinDuringCountdown(client, message);
     });
     this.onMessage<any>("votePlayAgain", (client, msg) => {
       this.votePlayAgain(client);
@@ -123,9 +122,6 @@ export class Common extends Room<State> {
   // request
 
   onJoin(client: Client, options: { password: string; isPrivate: boolean }) {
-    console.log("searching", this.clients.length, this.roomName, {
-      password: options.password,
-    });
     const setPlayers = () => {
       this.players.set(client.sessionId, {
         playerId: getRandomPlayerId(this.state.playerIdsSlots),
@@ -197,7 +193,6 @@ export class Common extends Room<State> {
   onLeave(client: Client) {
     this.players.delete(client.sessionId);
     busyPublicPlayersCount--;
-    console.log("left, players:", this.players.size);
     this.stopClock();
 
     this.broadcast("opponentLeft", true);
@@ -258,6 +253,8 @@ export class Common extends Room<State> {
     if (!this.state.bothPickedSkins) {
       pickRandomSkinForLatePlayers();
     }
+
+    if (this.state.gameStarted) return;
 
     this.state.gameStarted = true;
     this.broadcast("declarePlayers", {
@@ -353,55 +350,67 @@ export class Common extends Room<State> {
 
   playerSkinChange(client: Client, message: string) {}
 
-  playerPickSkin(client: Client, message: TPickSkin) {
+  playerPickSkin({
+    type,
+    playerId,
+    value,
+  }: {
+    type: string;
+    playerId: string;
+    value: string;
+  }) {
+    // @ts-ignore
+    const skin = this.state[type + "s"] as MapSchema<string>;
+    // @ts-ignore
+    const prevItem = getByValue(skin, playerId);
+    const currentItem = skin.get(value);
+
+    if (currentItem && currentItem !== playerId) return;
+
+    if (!prevItem) {
+      skin.set(value, playerId);
+      return;
+    }
+    skin.set(prevItem, "");
+    skin.set(value, playerId);
+  }
+
+  alreadyPicked({
+    playerId,
+    type,
+    value,
+  }: {
+    type: string;
+    playerId: string;
+    value: string;
+  }) {
+    // @ts-ignore
+    const skin = this.state[type + "s"] as MapSchema<string>;
+    // @ts-ignore
+    const currentItem = skin.get(value);
+
+    return currentItem && currentItem !== playerId;
+  }
+
+  playerPickSkinDuringCountdown(client: Client, message: TPickSkin) {
     const { value, playerId, type } = message;
     const skin = { type, value };
+    const claimedFirstItemProp = `claimed${capitalize(type)}First`;
     let claimedFirst = false;
-    let success = false;
+    let success = true;
 
-    if (type === "color") {
-      const prevColorItem = getByValue(this.state.colors, playerId);
-      const currentColorItem = this.state.colors.get(value);
-
-      if (currentColorItem && currentColorItem !== playerId) {
-        // item was already picked by another player
-        // no need to send error, earlier broadcast sent by other player will arrive earlier
-        return;
-      }
-
-      if (!prevColorItem) {
-        if (!this.state.claimedColorFirst) {
-          this.state.claimedColorFirst = playerId;
-          claimedFirst = true;
-        }
-        this.state.colors.set(value, playerId);
-      }
-      this.state.colors.set(prevColorItem, "");
-      this.state.colors.set(value, playerId);
-      success = true;
+    // @ts-ignore
+    if (!this.state[claimedFirstItemProp]) {
+      // @ts-ignore
+      this.state[claimedFirstItemProp] = playerId;
+      claimedFirst = true;
     }
 
-    if (type === "shape") {
-      const prevShapeItem = getByValue(this.state.shapes, playerId);
-      const currentShapeItem = this.state.shapes.get(value);
+    // item was already picked by another player
+    // no need to send error, earlier broadcast sent by other player will arrive earlier
+    if (this.alreadyPicked({ type, playerId, value })) return;
 
-      if (currentShapeItem && currentShapeItem !== playerId) {
-        // item was already picked by another player
-        // no need to send error, earlier broadcast sent by other player will arrive earlier
-        return;
-      }
-
-      if (!prevShapeItem) {
-        if (!this.state.claimedShapeFirst) {
-          this.state.claimedShapeFirst = playerId;
-          claimedFirst = true;
-        }
-        this.state.shapes.set(value, playerId);
-      }
-      this.state.shapes.set(prevShapeItem, "");
-      this.state.shapes.set(value, playerId);
-      success = true;
-    }
+    this.playerPickSkin({ type, playerId, value });
 
     // both players picked all skins before countdown
     if (
@@ -424,7 +433,7 @@ export class Common extends Room<State> {
     }
 
     this.broadcast("pickSkin", {
-      success,
+      success: true,
       skin,
       finishedFirst: claimedFirst,
       playerId,

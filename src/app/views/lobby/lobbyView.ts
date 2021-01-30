@@ -80,7 +80,7 @@ class LobbyView extends View {
   }
 
   private onLobbyClick = async (e: MouseEvent) => {
-    e.stopPropagation();
+    if (createPrivateGameView.hasRendered) return;
     const target = e.target as HTMLElement;
     const btn = target.closest(".btn") as HTMLElement;
     let clicked = true;

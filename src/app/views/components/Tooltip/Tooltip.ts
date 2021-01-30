@@ -180,6 +180,7 @@ export class Tooltip {
   }
 
   private calculatePosition() {
+    this.tooltipContainerEl!.style.transform = "";
     const targetElBCR = this.tooltipTargetEl!.getBoundingClientRect();
     const tooltipShellBCR = this.tooltipShellEl!.getBoundingClientRect();
     const overlapBuffer = 3;
@@ -200,12 +201,12 @@ export class Tooltip {
     const padding = 10;
 
     if (tooltipShellBCR.left < 0 + padding) {
-      this.tooltipEl!.style.left = `${Math.abs(
-        tooltipShellBCR.left - padding * 2
-      )}px`;
+      this.tooltipEl!.style.left = `${
+        Math.abs(tooltipShellBCR.left) + padding * 2
+      }px`;
     } else if (tooltipShellBCR.right > windowInnerWidth - padding) {
       this.tooltipEl!.style.left = `${
-        tooltipShellBCR.right - windowInnerWidth - padding * 2
+        windowInnerWidth - padding * 2 - tooltipShellBCR.right
       }px`;
     } else {
       this.tooltipEl!.style.left = "";

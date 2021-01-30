@@ -289,13 +289,8 @@ const roomActions = ({ room }: { room: TRoomClient }) => {
     // must close already open dropdown
   });
 
-  // pesky global variable
-  let hasDeclaredPlayers = false;
   room.onMessage("declarePlayers", (players) => {
-    if (hasDeclaredPlayers) return;
-    hasDeclaredPlayers = true;
     if (!players) return;
-    console.log("declarePlayers");
     const mainPlayer = model.getPlayerById(
       model.state.onlineMultiplayer.mainPlayer
     )!;
