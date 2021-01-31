@@ -31,7 +31,7 @@ export const controlPickSkin: TControlPickSkin = ({ type, item }) => {
     preGameView.transitionPreGameStage({ type: "preparing-game" });
   }
 
-  room.send("pickSkin", {
+  room.send("pickSkinPreGame", {
     type,
     value: item,
     playerId: model.state.onlineMultiplayer.mainPlayer,

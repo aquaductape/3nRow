@@ -1,4 +1,3 @@
-import { getOppositePlayer } from "../model/actions/player";
 import model from "../model/model";
 import boardView from "../views/board/boardView";
 import playerBtnGroupView from "../views/playerOptions/playerBtnGroupView";
@@ -55,10 +54,7 @@ export const controlPlayAgain: TControlPlayAgain = async ({
 
   // change ai skin
   if (model.state.game.hasAI) {
-    const otherPlayer = getOppositePlayer({
-      id: aiPlayer.id,
-      players: model.state.players,
-    });
+    const otherPlayer = model.getOppositePlayer(aiPlayer.id);
     model.randomChangePlayerSkin(aiPlayer);
     // update View shape and color
     svgDefsView.updateShapeColors(model.state.players);

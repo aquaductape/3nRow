@@ -8,6 +8,7 @@ import {
   clickEventFiredByKeyboard,
   convertObjPropsToHTMLAttr,
   createHTMLFromString,
+  transitionHideThenShow,
 } from "../utils/index";
 import View from "../View";
 import menuBtns, { TGameMenuState } from "./menuBtns";
@@ -33,6 +34,8 @@ class GameMenuView extends View {
   private handlerPlayAgain: TControlPlayAgain = () => {};
   private handlerSettings: TControlSettings = () => {};
   private handlerExitMultiplayer: Function = () => {};
+  private theme: "menu" | "lobby" = "menu";
+
   constructor() {
     super({ root: "#game-menu" });
     this.data = {
@@ -336,6 +339,9 @@ class GameMenuView extends View {
   }
 
   changeMenuTheme(theme: "menu" | "lobby") {
+    if (theme === this.theme) return;
+    this.theme = theme;
+
     const gameBoard = document.querySelector(".game") as HTMLElement;
     const board = document.querySelector(".board") as HTMLElement;
 

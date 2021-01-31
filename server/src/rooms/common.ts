@@ -3,8 +3,8 @@ import { type, Schema, MapSchema, ArraySchema } from "@colyseus/schema";
 import _RoomReadibleId from "../RoomReadibleId";
 import {
   TOnMove,
-  TOnSkinChange,
   TMovePosition,
+  TPickSkinPreGame,
   TPickSkin,
   TRoomCode,
   TReadyPlayersResult,
@@ -103,9 +103,11 @@ export class Common extends Room<State> {
     this.onMessage<TMovePosition>("move", (client, message) => {
       return this.playerMove(client, message);
     });
-    this.onMessage<TOnSkinChange>("skinChange", (client, message) => {});
     this.onMessage<TPickSkin>("pickSkin", (client, message) => {
-      this.playerPickSkinDuringCountdown(client, message);
+      this.playerPickSkin(client, message);
+    });
+    this.onMessage<TPickSkinPreGame>("pickSkinPreGame", (client, message) => {
+      this.playerPickSkinDuringPreGame(client, message);
     });
     this.onMessage<any>("votePlayAgain", (client, msg) => {
       this.votePlayAgain(client);
@@ -196,6 +198,11 @@ export class Common extends Room<State> {
     this.stopClock();
 
     this.broadcast("opponentLeft", true);
+    if (this.players.size === 1) {
+      setTimeout(() => {
+        this.unlock();
+      }, 1000);
+    }
   }
 
   readyGame() {
@@ -348,9 +355,7 @@ export class Common extends Room<State> {
     this.delayedInterval.clear();
   }
 
-  playerSkinChange(client: Client, message: string) {}
-
-  playerPickSkin({
+  _playerPickSkin({
     type,
     playerId,
     value,
@@ -392,7 +397,7 @@ export class Common extends Room<State> {
     return currentItem && currentItem !== playerId;
   }
 
-  playerPickSkinDuringCountdown(client: Client, message: TPickSkin) {
+  playerPickSkinDuringPreGame(client: Client, message: TPickSkinPreGame) {
     const { value, playerId, type } = message;
     const skin = { type, value };
     const claimedFirstItemProp = `claimed${capitalize(type)}First`;
@@ -410,7 +415,7 @@ export class Common extends Room<State> {
     // no need to send error, earlier broadcast sent by other player will arrive earlier
     if (this.alreadyPicked({ type, playerId, value })) return;
 
-    this.playerPickSkin({ type, playerId, value });
+    this._playerPickSkin({ type, playerId, value });
 
     // both players picked all skins before countdown
     if (
@@ -432,10 +437,34 @@ export class Common extends Room<State> {
       if (this.state.claimedShapeFirst !== playerId) return;
     }
 
-    this.broadcast("pickSkin", {
+    this.broadcast("pickSkinPreGame", {
       success: true,
       skin,
       finishedFirst: claimedFirst,
+      playerId,
+    });
+  }
+
+  playerPickSkin(client: Client, message: TPickSkin) {
+    const { value, prevValue, playerId, type } = message;
+    const skin = { type, value };
+
+    if (this.alreadyPicked({ type, playerId, value })) {
+      skin.value = prevValue;
+
+      client.send("pickSkin", {
+        success: false,
+        skin,
+        playerId,
+      });
+      return;
+    }
+
+    this._playerPickSkin({ type, playerId, value });
+
+    this.broadcast("pickSkin", {
+      success: true,
+      skin,
       playerId,
     });
   }

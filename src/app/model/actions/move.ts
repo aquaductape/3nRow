@@ -69,10 +69,7 @@ const checkBoardForWinner = () => {
       game.winPosition = `ROW_${row}`;
       game.gameOver = true;
       game.winner = player.id;
-      game.loser = getOppositePlayer({
-        id: player.id,
-        players: state.players,
-      }).id;
+      game.loser = getOppositePlayer(player.id).id;
       return;
     }
 
@@ -86,10 +83,7 @@ const checkBoardForWinner = () => {
           game.winPosition = `COL_${item}`;
           game.gameOver = true;
           game.winner = player.id;
-          game.loser = getOppositePlayer({
-            id: player.id,
-            players: state.players,
-          }).id;
+          game.loser = getOppositePlayer(player.id).id;
           return;
         }
       }
@@ -108,10 +102,7 @@ const checkBoardForWinner = () => {
         game.winPosition = "DIAG_TOP_LEFT";
         game.gameOver = true;
         game.winner = player.id;
-        game.loser = getOppositePlayer({
-          id: player.id,
-          players: state.players,
-        }).id;
+        game.loser = getOppositePlayer(player.id).id;
         return;
       }
     }
@@ -121,10 +112,7 @@ const checkBoardForWinner = () => {
         game.winPosition = "DIAG_BOT_LEFT";
         game.gameOver = true;
         game.winner = player.id;
-        game.loser = getOppositePlayer({
-          id: player.id,
-          players: state.players,
-        }).id;
+        game.loser = getOppositePlayer(player.id).id;
         return;
       }
     }

@@ -1,4 +1,5 @@
 import { getElement, reflow } from ".";
+import { clamp } from "../../utils";
 
 type TInstance = {
   element: HTMLElement;
@@ -403,3 +404,16 @@ export const delayP = (delay: number) =>
       return resolve(true);
     }, delay);
   });
+
+export const ease = (v: number, pow = 4) => {
+  v = clamp(v, 0, 1);
+
+  return 1 - Math.pow(1 - v, pow);
+};
+
+export const easeInOutQuad = (x: number) =>
+  x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+// expand: call other function and listen to it, if called again, interrupt current function and either end or start again
+const expand = (elementRadius: number) => {
+  for (let i = 0; i <= 100; i++) {}
+};

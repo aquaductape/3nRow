@@ -12,7 +12,6 @@ export type TReadyPlayersResult = {
 export type TRoomCode = string;
 export type TMovePosition = TPosition;
 export type TOnMove = (props: TMovePosition) => void;
-export type TOnSkinChange = (props: string) => void;
 export type TOnPickSkin = (props: {
   success: boolean;
   finishedFirst: boolean;
@@ -20,11 +19,12 @@ export type TOnPickSkin = (props: {
   playerId: string;
 }) => void;
 export type TOnReady = (props: string) => void;
-export type TPickSkin = {
+export type TPickSkinPreGame = {
   type: "color" | "shape";
   value: string;
   playerId: string;
 };
+export type TPickSkin = TPickSkinPreGame & { prevValue: string };
 export type TDeclarePlayers = {
   P1: {
     color: string;
@@ -41,15 +41,10 @@ type TPlayAgainResult = {
 };
 
 export type TRoomClient = {
-  state: {
-    listen: {
-      (listener: "skinChange", props: TOnSkinChange): void;
-    };
-  };
   send: {
     (action: "move", props: TMovePosition): void;
-    (action: "skinChange", props: string): void;
     (action: "pickSkin", props: TPickSkin): void;
+    (action: "pickSkinPreGame", props: TPickSkinPreGame): void;
     (action: "prepareGame", props: boolean): void;
     (action: "votePlayAgain", props: any): void;
     (action: "playAgainNow", props: any): void;
@@ -59,6 +54,7 @@ export type TRoomClient = {
       listener: "readyPlayers",
       props: (props: TReadyPlayersResult) => void
     ): void;
+    (listener: "pickSkinPreGame", props: TOnPickSkin): void;
     (listener: "pickSkin", props: TOnPickSkin): void;
     (listener: "declarePlayers", props: (props: TDeclarePlayers) => void): void;
     (listener: "busyPlayers", props: (props: number) => void): void;

@@ -1,4 +1,5 @@
 import model from "../model/model";
+import playerBtnGroupView from "../views/playerOptions/playerBtnGroupView";
 import settingsView from "../views/settings/settingsView";
 
 export type TControlSettings = (prop: {
@@ -18,6 +19,9 @@ export const controlSettings: TControlSettings = ({
     });
   }
   if (type === "aiEnabled") {
+    playerBtnGroupView.updatePlayAgainst({
+      type: value ? "vsAi" : "vsHuman",
+    });
     model.setPlayerAsHumanOrAI({
       id: "P2",
       ai: value as boolean,

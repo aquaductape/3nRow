@@ -75,13 +75,8 @@ export const getCurrentPlayer = () =>
 export const getAiPlayer = () => state.players.find(({ isAI }) => isAI)!;
 export const getPlayerById = (id: string) =>
   state.players.find((player) => player.id === id);
-export const getOppositePlayer = ({
-  players,
-  id,
-}: {
-  id: string;
-  players: TPlayer[];
-}) => players.filter((player) => player.id !== id)[0];
+export const getOppositePlayer = (id: string) =>
+  state.players.filter((player) => player.id !== id)[0];
 export const getWinner = () => getPlayerById(state.game.winner!);
 export const getLoser = () => getPlayerById(state.game.loser!);
 export const increaseWinnerScore = () => {
@@ -149,7 +144,7 @@ export const setNextPlayerForFirstMove = ({
   }
 
   if (firstMove === "alternate") {
-    const nextPlayer = getOppositePlayer({ id: firstMovePlayer, players }).id;
+    const nextPlayer = getOppositePlayer(firstMovePlayer).id;
 
     game.playerTurn = nextPlayer;
     game.firstMovePlayer = nextPlayer;
@@ -174,7 +169,7 @@ export const setNextPlayerForFirstMove = ({
       return;
     }
 
-    const nextPlayer = getOppositePlayer({ id: winner!, players }).id;
+    const nextPlayer = getOppositePlayer(winner!).id;
     game.playerTurn = nextPlayer!;
     game.firstMovePlayer = nextPlayer!;
   }

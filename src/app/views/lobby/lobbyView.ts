@@ -162,12 +162,10 @@ class LobbyView extends View {
       theme = "lobby";
       render = () => this.renderLobbyType();
     }
-    console.log("transitionLobby");
     hideElement({
       el: this.parentEl,
       onEnd: (el) => {
         render();
-        console.log("transitionLobby changetheme");
         gameMenuView.changeMenuTheme(theme);
 
         showElement({
@@ -201,7 +199,7 @@ class LobbyView extends View {
     switch (type) {
       case "enter-pre-game":
         preGameView.render({
-          preGameType: "connect-server",
+          preGameType: "find-players",
           joinBy,
           firstPlayer,
           mainPlayer,

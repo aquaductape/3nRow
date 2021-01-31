@@ -9,7 +9,7 @@ import { colorMap, svg } from "../constants/constants";
 import { hideElement, showElement } from "../utils/animation";
 import { createHTMLFromString, getOppositePlayer } from "../utils/index";
 import View from "../View";
-import DropdownOptionsView from "./DropdownOptionsView";
+import DropdownOptionsView, { TPlayAgainst } from "./DropdownOptionsView";
 
 type TPlayerDom = {
   [key: string]: {
@@ -290,6 +290,14 @@ class PlayerBtnGroup extends View {
     dropdownOptionsView.updatePlayerSkinDisabled({
       type,
       value: oppositePlayer[type],
+    });
+  }
+
+  updatePlayAgainst({ type }: { type: TPlayAgainst }) {
+    const { players } = this.data;
+    players.forEach((player) => {
+      const { dropdownOptionsView } = this.playerDom[player.id];
+      dropdownOptionsView.setPlayAgainst({ type });
     });
   }
 

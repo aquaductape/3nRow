@@ -3,13 +3,14 @@ import { TControlJoinRoom } from "../../controllers/onlineMultiplayer";
 import { TPlayer } from "../../model/state";
 import { capitalize } from "../../utils";
 import { loaderCircle, loaderEllipsis } from "../components/loaders";
+import { Tooltip } from "../components/Tooltip/Tooltip";
 import { colors, shapes, svg } from "../constants/constants";
 import gameContainerView from "../gameContainer/gameContainerView";
 import playerBtnGroupView from "../playerOptions/playerBtnGroupView";
 import { createHTMLFromString, removeElement } from "../utils";
 import { hideElement, showElement } from "../utils/animation";
 import View from "../View";
-import { btnItem, toolTipMarkup } from "./skinBtns";
+import { btnItem } from "./skinBtns";
 
 type TProps = {
   preGameType: TPreGameType;
@@ -20,13 +21,18 @@ type TProps = {
 };
 
 export type TPreGameType =
-  | "connect-server"
   | "find-players"
   | "found-players"
   | "pick-skins"
   | "preparing-game"
   | "declare-players"
-  | "wait-for-opponent";
+  | "wait-for-opponent"
+  | "player-left";
+
+// player leaves during pre-game
+//  announce player left
+//    private: go back to lobby
+//    public: stay and change to find-players stage
 
 export type TJoinBy = "private" | "created-private" | "public";
 // Pre-game TIMELINE
@@ -45,21 +51,19 @@ export type TJoinBy = "private" | "created-private" | "public";
 // Start Game
 class PreGameView extends View {
   protected data: TProps = {
-    preGameType: "connect-server",
+    preGameType: "find-players",
     joinBy: "public",
   } as TProps;
   private hasSelectedSkin = false;
   private transitionRunning = false;
   private transitionMarkupReplaced = false;
-  private joinBy: TJoinBy = "public";
-  private currentPreGame: TPreGameType = "connect-server";
+  private currentPreGame: TPreGameType = "find-players";
   private onJoinRoom: TControlJoinRoom = () => {};
   private onPickSkin: TControlPickSkin = () => {};
   private countDownEl = (null as unknown) as HTMLElement;
   private navigationBackBtnForeign = (null as unknown) as HTMLElement;
-  private addedEventListeners = false;
   private loaderPickSkinTimeoutID = 0;
-  private onTransitionEndPreGameStageType: TPreGameType = "connect-server";
+  private onTransitionEndPreGameStageType: TPreGameType = "find-players";
   private opponentPickedSkin: {
     color: string;
     shape: string;
@@ -68,6 +72,7 @@ class PreGameView extends View {
     shape: "",
   };
   private countDownElHidden = false;
+  private tooltips: Tooltip[] = [];
 
   constructor() {
     super({ root: "#game-menu .lobby" });
@@ -258,6 +263,14 @@ class PreGameView extends View {
     </div>
     `;
   }
+
+  private playerLeftMarkup() {
+    return `
+    <div class="section">
+      <div class="lobby-title">Opponent Left!</div>
+    </div>
+    `;
+  }
   private generateCountDownMarkp() {
     const timerMarkup = `
     <div class="player-pick-skin-countdown countdown-container">
@@ -274,18 +287,8 @@ class PreGameView extends View {
     });
   }
 
-  private connectServerMarkup() {
-    return `
-    <div class="section delayed-reveal">
-      <div class="lobby-title">Connecting to Server ${loaderEllipsis()}</div>
-    </div>
-    `;
-  }
-
   private preGameMarkup({ type }: { type: TPreGameType }) {
     switch (type) {
-      case "connect-server":
-        return this.connectServerMarkup();
       case "find-players":
         return this.findPlayersMarkup();
       case "found-players":
@@ -299,6 +302,8 @@ class PreGameView extends View {
         return this.waitForOpponentMarkup();
       case "preparing-game":
         return this.preparingGameMarkup();
+      case "player-left":
+        return this.playerLeftMarkup();
     }
   }
 
@@ -312,7 +317,6 @@ class PreGameView extends View {
     if (this.data.preGameType === type) return;
     this.data.preGameType = type;
 
-    console.log("run pregame transition ", type);
     // pause then resume
     if (type === "declare-players") {
       if (!this.transitionRunning) {
@@ -331,7 +335,6 @@ class PreGameView extends View {
     }
 
     if (this.transitionRunning && !this.transitionMarkupReplaced) {
-      console.log("override type with ", type);
       this.onTransitionEndPreGameStageType = type;
       return;
     }
@@ -434,6 +437,7 @@ class PreGameView extends View {
         this.reflow();
         el.style.transform = "translateY(-50px)";
         el.style.opacity = "0";
+        this.tooltips.forEach((tooltip) => tooltip.hide());
       };
 
       onEndClearStyle = (el) => {
@@ -494,6 +498,13 @@ class PreGameView extends View {
         el.style.opacity = "";
         el.style.transition = "";
         el.innerHTML = this.pickSkinsMarkup({ type });
+
+        if (this.opponentPickedSkin[type]) {
+          this.showOpponentClaimedPick({
+            type,
+            item: this.opponentPickedSkin[type],
+          });
+        }
 
         gameContainerView.scaleElementsToProportionToBoard({
           selectors: [
@@ -619,7 +630,7 @@ class PreGameView extends View {
 
     this.cancelOrHidePickLoader();
     this.unfreezeBtns();
-    this.updateTooltip({ type, pickedBtn: btn });
+    this.generateTooltip({ type, pickedBtn: btn });
   }
 
   showOpponentClaimedPick({
@@ -645,26 +656,25 @@ class PreGameView extends View {
     btn.classList.add("disabled");
 
     // set tooltip
-    this.updateTooltip({ type, pickedBtn: btn });
+    this.generateTooltip({ type, pickedBtn: btn });
   }
 
-  private updateTooltip({
+  private generateTooltip({
     type,
     pickedBtn,
   }: {
     type: "color" | "shape";
     pickedBtn: HTMLElement;
   }) {
-    // tooltip-container
-    const parentBtn = pickedBtn.parentElement as HTMLElement;
-    const tooltipEl = parentBtn.querySelector(
-      ".tooltip-container"
-    ) as HTMLElement;
-    removeElement(tooltipEl);
-    parentBtn.insertAdjacentHTML(
-      "beforeend",
-      toolTipMarkup({ type, enabled: true })
-    );
+    const message = `Opponent already has this <strong>${type}</strong>`;
+    // the button is disabled, which results `mouseenter` and `click` events to be ignored which enables tooltip. So targetEl is its child
+    const tooltipTargetEl = pickedBtn.firstElementChild as HTMLElement;
+
+    const tooltip = new Tooltip({
+      message,
+      tooltipTargetEl,
+    });
+    this.tooltips.push(tooltip);
   }
 
   addHandlers({
@@ -684,6 +694,7 @@ class PreGameView extends View {
   destroy() {
     this.removeEventListeners();
     this.hideAndRemoveCountDownMarkup();
+    // this.tooltips.forEach((tooltip) => tooltip.destroy());
     super.destroy();
   }
 

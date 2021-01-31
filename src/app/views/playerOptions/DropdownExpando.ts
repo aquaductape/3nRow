@@ -1,4 +1,4 @@
-import { easeInOutQuad } from "./animation";
+import { easeInOutQuad } from "../utils/animation";
 
 type TAnimationStateOptions = {
   interrupted: boolean;

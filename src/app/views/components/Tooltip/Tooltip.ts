@@ -70,7 +70,7 @@ export class Tooltip {
       return;
     }
 
-    this.removeTooltip();
+    this.hide();
     document.removeEventListener(
       "mousemove",
       this.debouncedOnMousemoveTargetEl
@@ -130,36 +130,36 @@ export class Tooltip {
     `;
   }
 
-  private onTransitionend = (e: Event) => {
+  private onTransitionEnd = (e: Event) => {
     if (e.target !== this.tooltipContainerEl) return;
 
     this.tooltipContainerEl!.classList.remove("active");
     this.tooltipContainerEl!.removeEventListener(
       "transitionend",
-      this.onTransitionend
+      this.onTransitionEnd
     );
   };
 
-  private hideTooltip() {
+  private hideAndListenTransitionEnd() {
     if (!this.tooltipContainerEl) return;
 
     this.tooltipContainerEl.classList.remove("visible");
     this.tooltipContainerEl.addEventListener(
       "transitionend",
-      this.onTransitionend
+      this.onTransitionEnd
     );
   }
 
-  private revealTooltip() {
+  private reveal() {
     this.tooltipContainerEl!.removeEventListener(
       "transitionend",
-      this.onTransitionend
+      this.onTransitionEnd
     );
     this.tooltipContainerEl!.classList.add("active");
     this.tooltipContainerEl!.classList.add("visible");
   }
 
-  private createTooltip() {
+  private create() {
     const toolTipContainer = createHTMLFromString(
       this.toolTipMarkup()
     ) as HTMLElement;
@@ -176,7 +176,7 @@ export class Tooltip {
     this.tooltipGenerated = true;
     this.calculatePosition();
     this.calculatePositionToWithinViewport();
-    this.revealTooltip();
+    this.reveal();
   }
 
   private calculatePosition() {
@@ -254,11 +254,11 @@ export class Tooltip {
       allow: [".tooltip-shell"],
       run: () => {
         if (!this.tooltipGenerated) {
-          this.createTooltip();
+          this.create();
         } else {
           this.calculatePosition();
           this.calculatePositionToWithinViewport();
-          this.revealTooltip();
+          this.reveal();
         }
       },
       onExit: () => {
@@ -270,10 +270,10 @@ export class Tooltip {
 
   updateTooltip({
     message,
-    change,
+    updateMarkup,
   }: {
     message?: string;
-    change?: (tooltip?: HTMLElement) => void;
+    updateMarkup?: (tooltip?: HTMLElement) => void;
   }) {
     if (message != null) {
       this.message = message;
@@ -283,12 +283,12 @@ export class Tooltip {
       this.tooltipEl.innerHTML = message;
     }
 
-    if (change) {
-      change(this.tooltipEl!);
+    if (updateMarkup) {
+      updateMarkup(this.tooltipEl!);
     }
   }
 
-  removeTooltip() {
+  hide() {
     if (this.tooltipFocusOutEvent == null) return;
 
     this.tooltipFocusOutEvent.runExit();
@@ -296,7 +296,7 @@ export class Tooltip {
   }
 
   private _removeTooltip() {
-    this.hideTooltip();
+    this.hideAndListenTransitionEnd();
     this.active = false;
     this.activatedByClick = false;
     this.activatedByHover = false;
@@ -316,7 +316,7 @@ export class Tooltip {
   disable() {
     this.active = false;
     this.disabled = true;
-    this.removeTooltip();
+    this.hide();
     this.removeTooltipTargetEvents();
     this.removeScrollEventUpdatePosition();
   }

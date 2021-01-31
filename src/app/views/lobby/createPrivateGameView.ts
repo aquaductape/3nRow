@@ -20,7 +20,7 @@ type TProps = {
   roomCode?: string;
   roomId?: string;
 };
-type TStages = "connect-server" | "generating-room" | "room-created";
+type TStages = "generating-room" | "room-created";
 
 class CreatePrivateGameView extends View {
   protected data: TProps;
@@ -139,7 +139,6 @@ class CreatePrivateGameView extends View {
     if (this.onlineCircleTooltip) {
       this.onlineCircleTooltip.destroy();
     }
-    // this.parentEl.parentElement?.parentElement?.remove
   }
 
   private onlineCircleMarkup() {

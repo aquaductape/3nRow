@@ -1,7 +1,4 @@
-import {
-  TControlExitMultiplayer,
-  TControlJoinRoom,
-} from "../../controllers/onlineMultiplayer";
+import { TControlJoinRoom } from "../../controllers/onlineMultiplayer";
 import { TPlayer } from "../../model/state";
 import { loaderEllipsis } from "../components/loaders";
 import gameContainerView from "../gameContainer/gameContainerView";
@@ -31,12 +28,10 @@ class JoinPrivateGameView extends View {
   constructor() {
     super({ root: "#game-menu .lobby" });
     this.data = { isLocating: false, roomCode: null } as TProps;
-    console.log(this.data);
   }
 
   protected markupDidGenerate() {
     const { roomCode } = this.data;
-    console.log(this.data);
 
     this.codeInputEl = this.parentEl.querySelector(
       ".room-code-input"
@@ -255,7 +250,6 @@ class JoinPrivateGameView extends View {
         onEnd: (el) => {
           el.style.opacity = "";
           el.style.transition = "";
-          console.log("onEnd locationroom: show btnjoinel");
         },
       });
       return;

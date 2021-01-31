@@ -7,14 +7,9 @@ import { TSkin } from "../../ts";
 import { Tooltip } from "../components/Tooltip/Tooltip";
 import { colorMap, colors, shapes, svg } from "../constants/constants";
 import { radioGroup } from "../utils/aria";
-import {
-  debounce,
-  diagonalLengthOfElement,
-  getOppositePlayer,
-} from "../utils/index";
+import { getOppositePlayer } from "../utils/index";
 import View from "../View";
 import matchMediaView from "../windowEvents/matchMediaView";
-import { animateDropdown } from "./animation";
 import { DropdownExpando } from "./DropdownExpando";
 
 type TGroupItem = {
@@ -31,6 +26,8 @@ type TSkinGroups = {
   colors: TGroupItem[];
   shapes: TGroupItem[];
 };
+
+export type TPlayAgainst = "multiplayer" | "vsAi" | "vsHuman";
 
 export default class DropdownOptionsView extends View {
   protected data: { players: TPlayer[]; currentPlayer: TPlayer };
@@ -52,6 +49,7 @@ export default class DropdownOptionsView extends View {
   private onRemoveActiveBtn: Function = () => {};
   private dropdownExpando = {} as DropdownExpando;
   private skinGroups = {} as TSkinGroups;
+  private playAgainst: TPlayAgainst = "vsHuman";
 
   constructor({
     root,
@@ -198,11 +196,23 @@ export default class DropdownOptionsView extends View {
     const oppositePlayer = getOppositePlayer({ id, players });
 
     const svgMark = `<span class="mini-svg-mark" aria-hidden="true">${oppositePlayer.getSvgShape()}</span>`;
+    let tooltipPlayerContent = `Player ${oppositePlayer.id.replace(
+      "P",
+      ""
+    )} ${svgMark}`;
+
+    if (this.playAgainst === "multiplayer") {
+      tooltipPlayerContent = `Opponent ${svgMark}`;
+    }
+
+    if (this.playAgainst === "vsAi") {
+      tooltipPlayerContent = `Computer ${svgMark}`;
+    }
 
     return `
     <span>
       <span class="tooltip-player">
-      Player ${oppositePlayer.id.replace("P", "")} ${svgMark}
+        ${tooltipPlayerContent}
       </span>
       has this <strong>${type}</strong>
     </span>`;
@@ -347,24 +357,26 @@ export default class DropdownOptionsView extends View {
       group: this.shapeGroupEl,
       onSelect: ({ currentElement, prevElement }) => {
         const shape = currentElement.dataset.shape!;
+        const prevShape = prevElement.dataset.shape!;
         prevElement.setAttribute("data-selected", "false");
         prevElement.classList.remove("shape-item--selected");
         currentElement.setAttribute("data-selected", "true");
         currentElement.classList.add("shape-item--selected");
 
-        this.handlerShape({ player, shape });
+        this.handlerShape({ player, shape, prevShape });
       },
     });
     radioGroup({
       group: this.colorGroupEl,
       onSelect: ({ currentElement, prevElement }) => {
         const color = currentElement.dataset.color!;
+        const prevColor = prevElement.dataset.color!;
         prevElement.setAttribute("data-selected", "false");
         prevElement.classList.remove("color-item--selected");
         currentElement.setAttribute("data-selected", "true");
         currentElement.classList.add("color-item--selected");
 
-        this.handlerColor({ player, color });
+        this.handlerColor({ player, color, prevColor });
       },
     });
   }
@@ -471,6 +483,10 @@ export default class DropdownOptionsView extends View {
     newItem.setAttribute("data-disabled", "true");
     newItem.setAttribute("aria-disabled", "true");
     newItem.classList.add("disabled");
+  }
+
+  setPlayAgainst({ type }: { type: TPlayAgainst }) {
+    this.playAgainst = type;
   }
 
   addHandlerChangeShape(handler: TControlPlayerShape) {

@@ -1,7 +1,6 @@
 import { TPlayer } from "../../model/state";
 import { TSkin } from "../../ts";
 import { colorMap } from "../constants/constants";
-import { getOppositePlayer } from "../utils";
 
 type TPlayerData = {
   currentPlayer: TPlayer;
@@ -30,10 +29,6 @@ export const btnItem = ({
     const [primaryColorHex, secondaryColorHex] = colorMap[item];
     const disabled = opponentSkin.color === item;
     // already selected by Opponent
-    const toolTip = toolTipMarkup({
-      type,
-      enabled: disabled,
-    });
     const classBase = "color-item";
     // const classSelected = playerColor === item ? "color-item--selected" : "";
     const classDisabled = disabled ? "disabled" : "";
@@ -56,7 +51,6 @@ export const btnItem = ({
           </div>
         </button>
         
-        ${toolTip}
 
       </li>
         `;
@@ -65,11 +59,6 @@ export const btnItem = ({
   if (type === "shape") {
     // already selected by other player
     const disabled = opponentSkin.shape === item;
-    const toolTip = toolTipMarkup({
-      type,
-      enabled: disabled,
-    });
-
     // const classSelected = playerColor === item ? "color-item--selected" : "";
     const classDisabled = disabled ? "disabled" : "";
     const classBase = "shape-item";
@@ -98,32 +87,8 @@ export const btnItem = ({
           </div>
         </button>
 
-        ${toolTip}
 
       </li>
       `;
   }
-};
-
-const toolTipInnerMarkup = ({ msg }: { msg: string }) => {
-  return `
-      <div class="arrow-up"></div>
-      <div class="tooltip" role="tooltip">${msg}</div>
-    `;
-};
-
-export const toolTipMarkup = ({
-  enabled,
-  type,
-}: {
-  type: "color" | "shape";
-  enabled: boolean;
-}) => {
-  const msg = `Opponent already has this ${type}`;
-  const innerTooltip = toolTipInnerMarkup({ msg });
-  return `
-    <div class="tooltip-container ${enabled ? "ready" : ""}">
-      ${enabled ? innerTooltip : ""}
-    </div>
-    `;
 };
