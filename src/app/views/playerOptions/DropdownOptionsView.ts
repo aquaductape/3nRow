@@ -200,13 +200,15 @@ export default class DropdownOptionsView extends View {
       "P",
       ""
     )} ${svgMark}`;
+    let verb = "has";
 
     if (this.playAgainst === "multiplayer") {
       tooltipPlayerContent = `Opponent ${svgMark}`;
     }
 
     if (this.playAgainst === "vsAi") {
-      tooltipPlayerContent = `Computer ${svgMark}`;
+      tooltipPlayerContent = `${id === "P2" ? "You" : "Computer"} ${svgMark}`;
+      verb = id === "P2" ? "have" : "has";
     }
 
     return `
@@ -214,7 +216,7 @@ export default class DropdownOptionsView extends View {
       <span class="tooltip-player">
         ${tooltipPlayerContent}
       </span>
-      has this <strong>${type}</strong>
+      ${verb} this <strong>${type}</strong>
     </span>`;
   };
 
@@ -405,6 +407,21 @@ export default class DropdownOptionsView extends View {
     newItem.setAttribute("aria-checked", "true");
     newItem.setAttribute("tabindex", "0");
     newItem.classList.add(`${type}-item--selected`);
+  }
+
+  updateTooltipMessage() {
+    const types = ["colors", "shapes"] as ("colors" | "shapes")[];
+    types.forEach((type) => {
+      const skinGroup = this.skinGroups[type];
+      skinGroup.forEach(({ toolTip }) => {
+        if (!toolTip) return;
+        toolTip.updateTooltip({
+          message: this.radioToolTipMessage({
+            type: type === "colors" ? "color" : "shape",
+          }),
+        });
+      });
+    });
   }
 
   updatePlayerSkinDisabled({

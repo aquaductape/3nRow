@@ -241,6 +241,14 @@ class PlayerBtnGroup extends View {
     });
   }
 
+  updateTooltipMessage() {
+    const { players } = this.data;
+    players.forEach(({ id }) => {
+      const { dropdownOptionsView } = this.playerDom[id];
+      dropdownOptionsView.updateTooltipMessage();
+    });
+  }
+
   updateSkinSelectionInDropdown({
     player,
     type,

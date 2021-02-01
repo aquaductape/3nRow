@@ -72,14 +72,12 @@ export const controlPlayerShape: TControlPlayerShape = ({
 }) => {
   if (model.state.onlineMultiplayer.active && !userActionFromServer) {
     const { room } = model.state.onlineMultiplayer;
-    setTimeout(() => {
-      room!.send("pickSkin", {
-        type: "shape",
-        value: shape,
-        prevValue: prevShape!,
-        playerId: player.id,
-      });
-    }, 5000);
+    room!.send("pickSkin", {
+      type: "shape",
+      value: shape,
+      prevValue: prevShape!,
+      playerId: player.id,
+    });
     return;
   }
   // Model

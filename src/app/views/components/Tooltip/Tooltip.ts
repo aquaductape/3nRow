@@ -85,7 +85,7 @@ export class Tooltip {
     this.debouncedOnMousemoveTargetEl = debounce(this.onMousemoveTargetEl, {
       time: 200,
       leading: false,
-      throttle: 1000,
+      throttle: 200,
     });
 
     document.addEventListener("mousemove", this.debouncedOnMousemoveTargetEl);

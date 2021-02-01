@@ -22,25 +22,21 @@
 
 # UI
 
-2. Logo text on quick start menu
-3. try catch with localStorage
-4. close X hover is rounded bg
-5. slide up functionality on settings dropdown
-6. Opponent dropdown items are disabled during multiplayer and his/her taken item will be labled as "Opponent has this item".
-7. disable player buttons, disable dropdowns (provide tooltip), when on multiplayer lobby
-8. shape icon inside any tooltip seems misaligned in IOS
-9. on online multiplayer, the client state, in their point of view, is always player 1
-10. disable opponent dropdown on multiplayer, have a tooltip "Opponent settings cannot be edited"
-11. New idea when game over. Menu background (theme "menu") is restored, see menu-prototype in assets
-12. When it's not your turn and and you tap anyway, show snackbar notification that it's not your turn. It's removed by outside click, timeout or click on close button
-13. in player options during multiplayer, upon selection, don't change skin, still show as selected, but show spinner loader (the same one from lobby), then upon confirmation, change skin.
-14. when opponent leaves in lobby, client stays in lobby and get's rematched with someone else and notification bar pops with "Opponent left. Looking for another player to match".
-15. "First Move" should have a description
-16. change favicon based on player turn, which is based on player shape and color, background is black.
+1. try catch with localStorage
+2. close X hover is rounded bg
+3. slide up functionality on settings dropdown
+4. shape icon inside any tooltip seems misaligned in IOS
+5. Maybe. on online multiplayer, the client state, in their point of view, is always player 1
+6. Maybe, good case in touch devices. disable opponent dropdown on multiplayer, have a tooltip "Opponent settings cannot be edited"
+7. Not sure, trying to avoid "bar" notifications. When it's not your turn and and you tap anyway, show snackbar notification that it's not your turn. It's removed by outside click, timeout or click on close button
+8. Good. in player options during multiplayer, upon selection, don't change skin, still show as selected, but show spinner loader (the same one from lobby), then upon confirmation, change skin.
+9. "First Move" should have a description
+10. Good change favicon based on player turn, which is based on player shape and color, background is black.
     Change document title "Your turn!"
     Only do this when document is not currently viewed
-17. in gameMenu, have server confirmation connection before navigating to multiplayerChoices.
-18. have hash in url navigate to sections. Example https:...#multiplayer => go to multiplayer section, https:...#createprivateroom => go to private room. Why? this solves a tag having empty hrefs which lowers SEO score
+11. have hash in url navigate to sections. Example https:...#multiplayer => go to multiplayer section, https:...#createprivateroom => go to private room. Why? this solves a tag having empty hrefs which lowers SEO score
+12. On tooltip, when selected have a visual state that indicates that it was clicked, the candidate is a "black border" with nested filters `drop-shadow(0px 0px 1px #000) drop-shadow(0px 0px 1px #000) drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.5))`. Headaches, touch devices should never activate this, this feature will only be usefull in mouse driven (desktop).
+13. In "First Move", have temp red alert text that appears underneath that has "Will apply for next game", when selecting choice
 
 # Browser Bug: I'm not sure since it requires thorough knowledge/testing, but listing them anyway
 

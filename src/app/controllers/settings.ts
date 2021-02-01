@@ -22,6 +22,8 @@ export const controlSettings: TControlSettings = ({
     playerBtnGroupView.updatePlayAgainst({
       type: value ? "vsAi" : "vsHuman",
     });
+    playerBtnGroupView.updateTooltipMessage();
+    // playerBtnGroupView.update
     model.setPlayerAsHumanOrAI({
       id: "P2",
       ai: value as boolean,
