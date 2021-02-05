@@ -1,5 +1,5 @@
-export const flattenArr = <T>(arr: T[]): any[] => {
   const flatArr: any[] = [];
+export const flattenArr = <T>(arr: T[]): any[] => {
   arr.forEach((item) => {
     if (Array.isArray(item)) {
       flatArr.push(...flattenArr(item as any));

@@ -2,11 +2,9 @@ import { Room, Delayed, Client } from "colyseus";
 import { type, Schema, MapSchema, ArraySchema } from "@colyseus/schema";
 import _RoomReadibleId from "../RoomReadibleId";
 import {
-  TOnMove,
   TMovePosition,
   TPickSkinPreGame,
   TPickSkin,
-  TRoomCode,
   TReadyPlayersResult,
 } from "../../../src/app/ts/colyseusTypes";
 import { getByValue, capitalize } from "../utils";
@@ -14,16 +12,6 @@ import { getByValue, capitalize } from "../utils";
 const BOARD_WIDTH = 3;
 const RoomReadibleId = new _RoomReadibleId();
 let busyPublicPlayersCount = 0;
-
-class Move extends Schema {
-  @type("number") column: number = 0;
-  @type("number") row: number = 0;
-}
-
-class Player extends Schema {
-  @type("string") playerId: string;
-  @type("boolean") ready = false;
-}
 
 const getRandomPlayerId = (arr: string[]) => {
   if (arr.length === 1) return arr[0];
@@ -66,7 +54,6 @@ class State extends Schema {
     "purple,blue": "",
     "white,grey": "",
   });
-  @type(Move) move: Move = new Move();
   @type("string") claimedColorFirst = "";
   @type("string") claimedShapeFirst = "";
   @type(["string"]) playerIdsSlots = new ArraySchema<string>(...playerIds);
@@ -199,10 +186,42 @@ export class Common extends Room<State> {
 
     this.broadcast("opponentLeft", true);
     if (this.players.size === 1) {
+      if (!this.state.board.every((cell) => cell === 0)) return;
+      this.resetRoomState();
       setTimeout(() => {
         this.unlock();
       }, 1000);
     }
+  }
+
+  resetRoomState() {
+    this.state.isGameOver = false;
+    this.state.ready = false;
+    this.state.gameStarted = false;
+    this.state.firstMovePlayer = "P1";
+    this.state.firstMove = "alternate";
+    this.state.winner = "";
+    this.state.loser = "";
+    this.state.currentTurn = "P1";
+    this.state.board = new ArraySchema<number>(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    this.state.shapes = new MapSchema<string>({
+      cross: "",
+      circle: "",
+      triangle: "",
+      heart: "",
+    });
+    this.state.colors = new MapSchema<string>({
+      "sky_blue,cyan": "",
+      "green,yellow": "",
+      "red,orange": "",
+      "magenta,pink": "",
+      "purple,blue": "",
+      "white,grey": "",
+    });
+    this.state.claimedColorFirst = "";
+    this.state.claimedShapeFirst = "";
+    this.state.playerIdsSlots = new ArraySchema<string>(...playerIds);
+    this.state.bothPickedSkins = false;
   }
 
   readyGame() {
