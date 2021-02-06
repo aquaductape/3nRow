@@ -335,10 +335,10 @@ export default class DropdownOptionsView extends View {
     // inner       - to attach inverse scale animtion in order for circular animtion to work with mask
 
     const markup = `
-    <div class="dropdown-options-shell" aria-hidden="true">
-      <div class="dropdown-options-sub-shell" aria-hidden="true">
-        <div class="dropdown-options-mask" aria-hidden="true">
-          <div class="dropdown-options-inner" aria-hidden="true">
+    <div class="dropdown-options-shell" >
+      <div class="dropdown-options-sub-shell" >
+        <div class="dropdown-options-mask" >
+          <div class="dropdown-options-inner" >
             <!-- btn highlight for player --> 
             ${this.generateBtnHighlight()}
 
