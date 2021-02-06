@@ -28,6 +28,7 @@ type TDom = {
   p1BtnOptions: TDomOptions;
   fakePlayerBtns: TDomOptions<HTMLElement[]>;
   playerDropdowns: TDomOptions<HTMLElement[]>;
+  playerDropdownOptionsContainers: TDomOptions<HTMLElement[]>;
   playerDropdownInners: TDomOptions<HTMLElement[]>;
   playerDropdownShells: TDomOptions<HTMLElement[]>;
   playerDropdownShellShadows: TDomOptions<HTMLElement[]>;
@@ -91,6 +92,11 @@ const dom: TDom = {
   },
   playerDropdowns: {
     selector: ".dropdown-options",
+    present: true,
+    queryAll: true,
+  },
+  playerDropdownOptionsContainers: {
+    selector: ".dropdown-options-container",
     present: true,
     queryAll: true,
   },
@@ -368,6 +374,7 @@ class GameContainerView extends View {
       playerBtns,
       p1BtnOptions,
       playerDropdowns,
+      playerDropdownOptionsContainers,
       playerDropdownShells,
       playerDropdownShellShadows,
       playerDropdownInners,
@@ -422,6 +429,13 @@ class GameContainerView extends View {
     };
 
     const matchDropdownOuterSizeFromInnerContent = () => {
+      playerDropdownOptionsContainers.el?.forEach(
+        (playerDropdownOptionsContainer) => {
+          playerDropdownOptionsContainer.style.display = "block";
+        }
+      );
+      this.reflow();
+      console.log("already ran");
       // should run after width is set from boardWidth, which would update dropdown content's layout
       const playerBtnHeight = playerBtns.el![0].getBoundingClientRect().height;
       const playerDropdownWidth = playerDropdowns.el![0].getBoundingClientRect()
@@ -450,6 +464,12 @@ class GameContainerView extends View {
           playerDropdownHeight * 0.95
         );
       });
+
+      playerDropdownOptionsContainers.el?.forEach(
+        (playerDropdownOptionsContainer) => {
+          playerDropdownOptionsContainer.style.display = ""; // revert to none
+        }
+      );
     };
 
     const scaleBoardFromWidth = (boardWidth: number) => {
@@ -864,6 +884,7 @@ class GameContainerView extends View {
 
     scaleBoardFromWidth(boardWidth);
     if (!all) return;
+
     matchDropdownWidthToBoard();
     matchFakePlayerBtnWidthToBtnParent();
     // this.reflow();

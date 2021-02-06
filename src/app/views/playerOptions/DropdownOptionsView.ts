@@ -2,6 +2,7 @@ import {
   TControlPlayerColor,
   TControlPlayerShape,
 } from "../../controllers/playerOptions";
+import { IOS, Safari } from "../../lib/onFocusOut/browserInfo";
 import { TPlayer } from "../../model/state";
 import { TSkin } from "../../ts";
 import { Tooltip } from "../components/Tooltip/Tooltip";
@@ -518,9 +519,16 @@ export default class DropdownOptionsView extends View {
     const {
       currentPlayer: { id },
     } = this.data;
+    // debugger;
 
+    console.log("calculate");
     if (id === "P1") {
+      this.parentEl.style.display = "block";
+      this.reflow();
+
       this.dropdownExpando.calculate();
+
+      this.parentEl.style.display = ""; // revert to none
     } else {
       this.dropdownExpando.calculate({ updateStylesheet: false });
     }
