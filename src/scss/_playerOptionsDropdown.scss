@@ -11,6 +11,10 @@
   &.active {
     overflow: visible;
     visibility: visible;
+
+    .dropdown-options-shell {
+      visibility: visible;
+    }
   }
 }
 
@@ -21,6 +25,8 @@
   width: 100%;
   max-width: 500px;
   height: 100%;
+  // for some reason in iOS VoiceOver the dropdown can still be read
+  visibility: hidden;
 
   .shell-shadow {
     position: absolute;
