@@ -522,16 +522,16 @@ export default class DropdownOptionsView extends View {
     // debugger;
 
     console.log("calculate");
+    this.parentEl.style.display = "block";
+    this.reflow();
+
     if (id === "P1") {
-      this.parentEl.style.display = "block";
-      this.reflow();
-
       this.dropdownExpando.calculate();
-
-      this.parentEl.style.display = ""; // revert to none
     } else {
       this.dropdownExpando.calculate({ updateStylesheet: false });
     }
+
+    this.parentEl.style.display = ""; // revert to none
   }
 
   removeForwardFillOnFinishedExpanded() {
