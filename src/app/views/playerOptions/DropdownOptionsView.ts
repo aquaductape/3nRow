@@ -300,7 +300,7 @@ export default class DropdownOptionsView extends View {
       <li>
         <div class="options-shape">
           <h2 id="group_label_shape_${id}" class="options-title">Shape</h2>
-          <hr>
+          <hr aria-hidden="true">
           <div role="radiogroup" aria-labelledby="group_label_shape_${id}" class="shape-group">${this.renderGroup(
       { type: "shape" }
     )}</div>
@@ -309,7 +309,7 @@ export default class DropdownOptionsView extends View {
       <li>
       <div class="options-color">
         <h2 id="group_label_color_${id}" class="options-title">Color</h2>
-        <hr>
+        <hr aria-hidden="true">
         <div role="radiogroup" aria-labelledby="group_label_color_${id}" class="color-group">${this.renderGroup(
       { type: "color" }
     )}</div>
@@ -335,10 +335,10 @@ export default class DropdownOptionsView extends View {
     // inner       - to attach inverse scale animtion in order for circular animtion to work with mask
 
     const markup = `
-    <div class="dropdown-options-shell">
-      <div class="dropdown-options-sub-shell">
-        <div class="dropdown-options-mask">
-          <div class="dropdown-options-inner">
+    <div class="dropdown-options-shell" aria-hidden="true">
+      <div class="dropdown-options-sub-shell" aria-hidden="true">
+        <div class="dropdown-options-mask" aria-hidden="true">
+          <div class="dropdown-options-inner" aria-hidden="true">
             <!-- btn highlight for player --> 
             ${this.generateBtnHighlight()}
 
