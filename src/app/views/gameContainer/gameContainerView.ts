@@ -435,7 +435,6 @@ class GameContainerView extends View {
         }
       );
       this.reflow();
-      console.log("already ran");
       // should run after width is set from boardWidth, which would update dropdown content's layout
       const playerBtnHeight = playerBtns.el![0].getBoundingClientRect().height;
       const playerDropdownWidth = playerDropdowns.el![0].getBoundingClientRect()
@@ -841,7 +840,6 @@ class GameContainerView extends View {
       });
 
       if (pickSkin.present && boardWidth <= 285) {
-        console.log("pick skin ran");
         pickSkinTitle.el!.style.fontSize = "22px";
         pickSkinBtnsGroup.el!.style.width = "calc(100% + 30px)";
         pickSkinBtnsGroup.el!.style.marginLeft = "-15px";
@@ -852,7 +850,6 @@ class GameContainerView extends View {
       }
 
       if (this.declarePlayersAnimationRunning) {
-        console.log("declare player ran");
         const animationName = `DeclarePlayerDeclaration-${++this.animationId}`;
 
         const styleContent = `

@@ -1,14 +1,18 @@
-  const flatArr: any[] = [];
 export const flattenArr = <T>(arr: T[]): any[] => {
-  arr.forEach((item) => {
-    if (Array.isArray(item)) {
-      flatArr.push(...flattenArr(item as any));
-    } else {
-      flatArr.push(item);
-    }
-  });
+  const flatArr: any[] = [];
 
-  return flatArr;
+  const runFlattenArr = <T>(arr: T[]): any[] => {
+    arr.forEach((item) => {
+      if (Array.isArray(item)) {
+        runFlattenArr(item as any);
+      } else {
+        flatArr.push(item);
+      }
+    });
+    return flatArr;
+  };
+
+  return runFlattenArr(arr);
 };
 
 export const randomItemFromArr = <T>(arr: T[]) => {
