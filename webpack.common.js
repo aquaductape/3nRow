@@ -44,7 +44,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: "./src/assets/favicon", to: "favicon" },
-        { from: "./src/assets/open-graph", to: "open-graph" },
+        { from: "./src/assets/open-graph", to: "./" },
       ],
     }),
   ],
