@@ -521,7 +521,7 @@ export default class DropdownOptionsView extends View {
     } = this.data;
     // debugger;
 
-    console.log("calculate");
+    // console.log("calculate");
     this.parentEl.style.display = "block";
     this.reflow();
 
