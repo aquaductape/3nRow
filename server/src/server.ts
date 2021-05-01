@@ -1,6 +1,8 @@
 import http from "http";
 import express from "express";
 import cors, { CorsOptions } from "cors";
+import "newrelic";
+import "./lib/newRelic";
 import { Server } from "colyseus";
 import { Common } from "./rooms/common";
 
