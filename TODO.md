@@ -37,6 +37,7 @@
 11. have hash in url navigate to sections. Example https:...#multiplayer => go to multiplayer section, https:...#createprivateroom => go to private room. Why? this solves a tag having empty hrefs which lowers SEO score
 12. On tooltip, when selected have a visual state that indicates that it was clicked, the candidate is a "black border" with nested filters `drop-shadow(0px 0px 1px #000) drop-shadow(0px 0px 1px #000) drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.5))`. Headaches, touch devices should never activate this, this feature will only be usefull in mouse driven (desktop).
 13. In "First Move", have temp red alert text that appears underneath that has "Will apply for next game", when selecting choice
+14. On mobile, for Chrome Android, when input is selected, input is scrolled into view. However since in this app, there's no content to scroll (since the content is sized relative to viewport), the viewport is zoomed out until input is in view. So make sure if input is selected in Chrome Android, don't trigger recalc content, maybe add dummy content to overflow viewport, to enable scroll, and scroll into view.
 
 # Browser Bug: I'm not sure since it requires thorough knowledge/testing, but listing them anyway
 
