@@ -49,6 +49,7 @@
   cursor: pointer;
   outline: none;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
 
   &::before {
     content: "";
@@ -84,14 +85,6 @@
     .animate__right-dot,
     .animate__left-dot {
       opacity: 0 !important;
-    }
-  }
-
-  @media not all and (pointer: coarse) {
-    .cell {
-      &:hover {
-        background: #3c2a6d;
-      }
     }
   }
 
@@ -205,6 +198,14 @@
       animation: Heart-A 1s cubic-bezier(0.4, 0, 1, 1);
       // animation-delay: 0.2s;
       animation-fill-mode: forwards;
+    }
+  }
+}
+
+@media not all and (pointer: coarse) {
+  .cell {
+    &:hover {
+      background: #3c2a6d;
     }
   }
 }

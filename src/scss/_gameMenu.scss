@@ -110,12 +110,8 @@
     border-radius: 10px;
     margin: 0;
     color: #7785c8;
+    -webkit-tap-highlight-color: transparent;
     transition: background 200ms, color 200ms;
-
-    &:hover {
-      color: #a6b0e9;
-      background: #3b4386;
-    }
 
     &.noFocusClick:focus {
       color: #a6b0e9;
@@ -123,6 +119,17 @@
       outline: 2px solid #fff;
       outline-offset: 2px;
       transition: none;
+    }
+  }
+}
+
+@media not all and (pointer: coarse) {
+  #game-menu {
+    .btn-navigation-back {
+      &:hover {
+        color: #a6b0e9;
+        background: #3b4386;
+      }
     }
   }
 }
