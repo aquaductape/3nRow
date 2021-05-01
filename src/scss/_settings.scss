@@ -95,7 +95,7 @@
     &:hover {
       color: #000;
     }
-    &&.noFocusClick:focus {
+    &.noFocusClick:focus {
       outline: 3px solid #000;
     }
   }
