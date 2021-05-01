@@ -56,10 +56,6 @@
     padding-bottom: 100%;
   }
 
-  &:hover {
-    background: #3c2a6d;
-  }
-
   &.noFocusClick:focus {
     background: #2d1d5a;
   }
@@ -88,6 +84,14 @@
     .animate__right-dot,
     .animate__left-dot {
       opacity: 0 !important;
+    }
+  }
+
+  @media not all and (pointer: coarse) {
+    .cell {
+      &:hover {
+        background: #3c2a6d;
+      }
     }
   }
 
