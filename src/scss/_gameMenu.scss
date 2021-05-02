@@ -153,12 +153,6 @@
       justify-content: center;
     }
 
-    &:hover {
-      .btn-svg-mark {
-        filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.5));
-      }
-    }
-
     &.noFocusClick:focus {
       .btn-svg-mark {
         filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.5));
@@ -169,6 +163,18 @@
       height: 100%;
       svg {
         width: auto;
+      }
+    }
+  }
+}
+
+@media not all and (pointer: coarse) {
+  .menu-buttons {
+    .btn-pick-player {
+      &:hover {
+        .btn-svg-mark {
+          filter: drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.5));
+        }
       }
     }
   }

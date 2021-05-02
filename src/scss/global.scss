@@ -121,7 +121,6 @@ button {
   color: #fff7f7;
   border-radius: 25px;
 
-  &:hover,
   &.noFocusClick:focus {
     background: $primary-color-hover;
     color: $primary-txt-color-hover;
@@ -138,7 +137,6 @@ button {
   background: #68788a;
   color: #fff;
 
-  &:hover,
   &.noFocusClick:focus {
     background: #000;
   }
@@ -151,7 +149,6 @@ button {
 .btn-leave {
   background: #e05276;
 
-  &:hover,
   &.noFocusClick:focus {
     background: #fab0c4;
     color: #5d0019;
@@ -288,5 +285,27 @@ input:checked + .slider:before {
     opacity: 0.3;
     pointer-events: all;
     cursor: pointer;
+  }
+}
+
+@media not all and (pointer: coarse) {
+  .btn-primary {
+    &:hover {
+      background: $primary-color-hover;
+      color: $primary-txt-color-hover;
+    }
+  }
+
+  .btn-secondary {
+    &:hover {
+      background: #000;
+    }
+  }
+
+  .btn-leave {
+    &:hover {
+      background: #fab0c4;
+      color: #5d0019;
+    }
   }
 }
