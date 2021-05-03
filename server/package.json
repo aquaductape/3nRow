@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "compile-ts": "tsc --watch",
-    "start": "NODE_ENV=development webpack",
+    "start": "NODE_ENV=development NEW_RELIC_ENABLED=false NEW_RELIC_NO_CONFIG_FILE=true webpack",
     "start:dev": "NODE_ENV=development webpack",
     "run:dev": "NODE_ENV=development nodemon dist/index.js",
     "build:dev": "webpack",
