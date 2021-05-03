@@ -6,8 +6,9 @@ import {
   Safari,
 } from "../../lib/onFocusOut/browserInfo";
 import { TGame, TPlayer, TState } from "../../model/state";
+import { Tooltip } from "../components/Tooltip/Tooltip";
 import { colorMap } from "../constants/constants";
-import { createHTMLFromString } from "../utils/index";
+import { createHTMLFromString, getOppositePlayer } from "../utils/index";
 import View from "../View";
 import { keyboardInteraction } from "./keyboardInteraction";
 import { renderWinnerSlash } from "./renderLine";
@@ -16,6 +17,7 @@ class BoardView extends View {
   protected data: TState;
   private focusableCell: HTMLElement;
   private slashContainer: HTMLElement;
+  private tooltipTalkBubble: Tooltip | null = null;
   private playerCanSelectCell = false;
   private playerCanNavigateCells = false;
   private boardCleared = true;
@@ -30,6 +32,41 @@ class BoardView extends View {
       ".line-svg"
     ) as HTMLElement;
     this.data = {} as TState;
+  }
+
+  private showPlayerTurnTalkBubble() {
+    const { game } = this.data;
+
+    if (game.hasAI) return;
+
+    const selector = `.player-btn-options[data-player-id="${
+      game.getCurrentPlayer().id
+    }"]`;
+    const playerBtn = document.querySelector(selector) as HTMLElement;
+
+    if (this.tooltipTalkBubble) return;
+
+    this.tooltipTalkBubble = new Tooltip({
+      message: "Wait, it's still my turn!",
+      tooltipTargetEl: playerBtn,
+    });
+
+    this.tooltipTalkBubble.show();
+
+    setTimeout(() => {
+      if (!this.tooltipTalkBubble!.active) {
+        this.tooltipTalkBubble!.destroy();
+        this.tooltipTalkBubble = null;
+        return;
+      }
+
+      this.tooltipTalkBubble!.hide();
+
+      setTimeout(() => {
+        this.tooltipTalkBubble!.destroy();
+        this.tooltipTalkBubble = null;
+      }, 200);
+    }, 1500);
   }
 
   private getPositionFromCell(cell: HTMLElement) {
@@ -149,7 +186,12 @@ class BoardView extends View {
 
       cell.setAttribute("tabindex", "0");
 
-      if (!this.playerCanSelectCell) return;
+      if (!this.playerCanSelectCell) {
+        if (this.isCellSelected(cell)) return;
+
+        this.showPlayerTurnTalkBubble();
+        return;
+      }
       if (this.isCellSelected(cell)) return;
 
       this.selectCell({ cell });
@@ -167,7 +209,11 @@ class BoardView extends View {
 
       keyboardInteraction(e, { onFocusNewCell: this.onFocusNewCell });
 
-      if (!this.playerCanSelectCell) return;
+      if (!this.playerCanSelectCell) {
+        if (this.isCellSelected(cell)) return;
+        this.showPlayerTurnTalkBubble();
+        return;
+      }
       if (!keys.includes(e.key) || this.isCellSelected(cell)) return;
 
       this.selectCell({ cell });

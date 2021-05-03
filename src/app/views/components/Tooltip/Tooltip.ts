@@ -17,6 +17,7 @@ export class Tooltip {
   private tooltipGenerated = false;
   private activatedByClick = false;
   private activatedByHover = false;
+  private position: "auto" | "top" | "bottom" = "auto";
   active = false;
   disabled = false;
 
@@ -213,7 +214,10 @@ export class Tooltip {
     }
 
     // bottom not in view
-    if (tooltipShellBCR.bottom > windowInnerHeight - padding) {
+    if (
+      tooltipShellBCR.bottom > windowInnerHeight - padding ||
+      this.position === "top"
+    ) {
       this.tooltipShellEl!.classList.add("top");
       this.tooltipArrowEl!.classList.remove("arrow-up");
       this.tooltipArrowEl!.classList.add("arrow-down");
@@ -221,7 +225,7 @@ export class Tooltip {
     }
 
     // top not in view
-    if (tooltipShellBCR.top < 0 + padding) {
+    if (tooltipShellBCR.top < 0 + padding || this.position === "bottom") {
       this.tooltipShellEl!.classList.remove("top");
       this.tooltipArrowEl!.classList.add("arrow-up");
       this.tooltipArrowEl!.classList.remove("arrow-down");
@@ -268,6 +272,20 @@ export class Tooltip {
     // TODO: before adding allow selectors, first click on tooltipShellEl was eaten somewhere, so nothing happend, when it should've exited according to rules of onFocusOut
   }
 
+  private _removeTooltip() {
+    this.hideAndListenTransitionEnd();
+    this.active = false;
+    this.activatedByClick = false;
+    this.activatedByHover = false;
+    this.tooltipFocusOutEvent = null;
+
+    this.removeScrollEventUpdatePosition();
+    document.removeEventListener(
+      "mousemove",
+      this.debouncedOnMousemoveTargetEl
+    );
+  }
+
   updateTooltip({
     message,
     updateMarkup,
@@ -288,6 +306,14 @@ export class Tooltip {
     }
   }
 
+  show({ position }: { position?: "auto" | "top" | "bottom" } = {}) {
+    if (position) {
+      this.position = position;
+    }
+
+    this.addTooltip({ triggeredBy: "click" });
+  }
+
   hide() {
     if (this.tooltipFocusOutEvent == null) return;
 
@@ -295,24 +321,11 @@ export class Tooltip {
     this.tooltipFocusOutEvent = null;
   }
 
-  private _removeTooltip() {
-    this.hideAndListenTransitionEnd();
-    this.active = false;
-    this.activatedByClick = false;
-    this.activatedByHover = false;
-    this.tooltipFocusOutEvent = null;
-
-    this.removeScrollEventUpdatePosition();
-    document.removeEventListener(
-      "mousemove",
-      this.debouncedOnMousemoveTargetEl
-    );
-  }
-
   enable() {
     this.disabled = false;
     this.addTooltipTargetEvents();
   }
+
   disable() {
     this.active = false;
     this.disabled = true;
