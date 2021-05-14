@@ -437,12 +437,12 @@ class GameContainerView extends View {
       this.reflow();
       // should run after width is set from boardWidth, which would update dropdown content's layout
       const playerBtnHeight = playerBtns.el![0].getBoundingClientRect().height;
-      const playerDropdownWidth = playerDropdowns.el![0].getBoundingClientRect()
-        .width;
-      const playerDropdownHeight = playerDropdowns.el![0].getBoundingClientRect()
-        .height;
-      const playerDropdownMaskHeight = playerDropdownMasks.el![0].getBoundingClientRect()
-        .height;
+      const playerDropdownWidth =
+        playerDropdowns.el![0].getBoundingClientRect().width;
+      const playerDropdownHeight =
+        playerDropdowns.el![0].getBoundingClientRect().height;
+      const playerDropdownMaskHeight =
+        playerDropdownMasks.el![0].getBoundingClientRect().height;
       const shadowHeight = boardWidth / 35.5;
       const totalNewPlayerDropdownHeight =
         playerBtnHeight + playerDropdownHeight + shadowHeight;
@@ -963,9 +963,19 @@ class GameContainerView extends View {
    */
   revealAfterPageLoad() {
     requestAnimationFrame(() => {
-      this.parentEl.style.transition = "opacity 100ms";
-      this.parentEl.style.opacity = "1";
+      //       this.parentEl.style.transition = "opacity 100ms";
+      //       this.parentEl.style.opacity = "1";
       const { playerBtns } = this.dom;
+      //
+      //       playerBtns.el!.forEach((playerBtn) => {
+      //         playerBtn.style.background = "";
+      //         playerBtn.style.transition = "none";
+      //       });
+
+      // setTimeout(() => {
+      document.body.style.overflow = "";
+      this.parentEl.style.transition = "";
+      this.parentEl.style.opacity = "";
 
       playerBtns.el!.forEach((playerBtn) => {
         playerBtn.style.background = "";
@@ -973,14 +983,11 @@ class GameContainerView extends View {
       });
 
       setTimeout(() => {
-        document.body.style.overflow = "";
-        this.parentEl.style.transition = "";
-        this.parentEl.style.opacity = "";
-
         playerBtns.el!.forEach((playerBtn) => {
           playerBtn.style.transition = "";
         });
       }, 100);
+      // }, 0);
     });
   }
   // overrides to do nothing

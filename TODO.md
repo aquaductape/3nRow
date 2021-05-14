@@ -20,6 +20,7 @@
 3. can't interact board in IOS. In VoiceOver columns and rows need to explicit, they are set as zero when implicit
 4. alternate turns doesn't work when Player 2 goes first
 5. after player leaves, the remaining player still has Rematch. Should have player has left
+6. when leave against AI, restart scores
 
 # UI
 
