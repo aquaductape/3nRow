@@ -148,7 +148,6 @@ class BoardView extends View {
         shapeEl.style.animation = "Force-Full-Repaint-Frame 2000ms";
       }
 
-      // remove circle shadow in cross
       cell.appendChild(shapeEl);
 
       // if (EdgeLegacy) {
@@ -183,6 +182,8 @@ class BoardView extends View {
       if (!cell) return;
 
       this.prevCellChangeTabindex();
+
+      this.onFocusNewCell(cell);
 
       cell.setAttribute("tabindex", "0");
 
