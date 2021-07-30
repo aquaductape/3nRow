@@ -47,10 +47,7 @@
 
 .dropdown-options-menu {
   position: relative;
-
-  &:first-child {
-    margin-right: 25px;
-  }
+  width: 47.5%;
 }
 
 .player-btn-options {
@@ -60,6 +57,7 @@
   align-items: center;
   height: 100%;
   padding: 10px;
+  width: 100%;
   // removes padding in safari
   margin: 0;
   appearance: none;

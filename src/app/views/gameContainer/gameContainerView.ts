@@ -25,7 +25,6 @@ type TDom = {
   // playerOptionsView
   playerBtnGroup: TDomOptions;
   playerBtns: TDomOptions<HTMLElement[]>;
-  p1BtnOptions: TDomOptions;
   fakePlayerBtns: TDomOptions<HTMLElement[]>;
   playerDropdowns: TDomOptions<HTMLElement[]>;
   playerDropdownOptionsContainers: TDomOptions<HTMLElement[]>;
@@ -80,10 +79,6 @@ const dom: TDom = {
     selector: ".player-btn-options",
     present: true,
     queryAll: true,
-  },
-  p1BtnOptions: {
-    selector: "#P1-btn-options",
-    present: true,
   },
   fakePlayerBtns: {
     selector: ".fake-player-btn",
@@ -372,8 +367,8 @@ class GameContainerView extends View {
       playerBtnGroup,
       playerIndicators,
       playerBtns,
-      p1BtnOptions,
       playerDropdowns,
+      // playerDropdownOptionsMenus,
       playerDropdownOptionsContainers,
       playerDropdownShells,
       playerDropdownShellShadows,
@@ -525,13 +520,6 @@ class GameContainerView extends View {
           top: 74,
           borderRadius: 37,
           boxShadow: () => `0px ${px(boardWidth / 37)} 0px var(--blue-shadow)`,
-        },
-      });
-      scaleStyles({
-        name: p1BtnOptions,
-        numerator: boardWidth,
-        styleRatio: {
-          marginRight: 14.8,
         },
       });
       scaleStyles({
