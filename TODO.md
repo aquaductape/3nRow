@@ -6,7 +6,6 @@
 # FROM NOW ON to animate SVGS with clipping or masking
 
 1. Animating HTMLElements with clip/mask: Safaria/iOS don't animate with svg, dont bother please
-2. Animating SVG with clip/mask: always use masks, has best browser consistency
 
 # ARIA
 
@@ -19,8 +18,6 @@
 2. aria region, support cheater moves, only says one currently
 3. can't interact board in IOS. In VoiceOver columns and rows need to explicit, they are set as zero when implicit
 4. alternate turns doesn't work when Player 2 goes first
-5. after player leaves, the remaining player still has Rematch. Should have player has left
-6. when leave against AI, restart scores
 
 # UI
 
