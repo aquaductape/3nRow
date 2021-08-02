@@ -1,4 +1,8 @@
-import { TControlPlayAgain, TControlStartGame } from "../../controllers/menu";
+import {
+  TControlLeaveGame,
+  TControlPlayAgain,
+  TControlStartGame,
+} from "../../controllers/menu";
 import { TControlSettings } from "../../controllers/settings";
 import { TPlayer } from "../../model/state";
 import { svg } from "../constants/constants";
@@ -31,6 +35,7 @@ class GameMenuView extends View {
   private vsPlayer = "ai";
   private navigationHistory: TSections[] = [];
   private handlerStartGame: TControlStartGame = () => {};
+  private handlerLeaveGame: TControlLeaveGame = () => {};
   private handlerPlayAgain: TControlPlayAgain = () => {};
   private handlerSettings: TControlSettings = () => {};
   private handlerExitMultiplayer: Function = () => {};
@@ -102,6 +107,7 @@ class GameMenuView extends View {
 
       if (exitMultiplayer) {
         this.handlerExitMultiplayer();
+        this.handlerLeaveGame();
       }
 
       if (difficulty) {
@@ -218,9 +224,12 @@ class GameMenuView extends View {
   }
 
   private menuMarkup({ sectionType }: { sectionType: TSections }) {
-    const { titleId, listBtns: btns, title, section } = this.menuState[
-      sectionType
-    ];
+    const {
+      titleId,
+      listBtns: btns,
+      title,
+      section,
+    } = this.menuState[sectionType];
     this.currentSection = sectionType;
     const btnsMarkup = btns
       .map((item) => {
@@ -426,27 +435,40 @@ class GameMenuView extends View {
     declare,
     player,
     tie,
+    playerLeft,
   }: {
     tie?: boolean;
     declare: "winner" | "loser";
     player: TPlayer;
+    playerLeft?: boolean;
   }) {
     this.menuState.playAgain.title = this.gameOverMenuMarkup({
       declare,
       player,
+      playerLeft,
       tie,
     });
     this.revealGameOverMenu();
+
+    if (playerLeft) {
+      // document.getElementById("playAgain")!.style.display = "none";
+      const el = document.querySelector(
+        "[data-section='playAgain']"
+      ) as HTMLElement;
+      el.style.display = "none";
+    }
   }
 
   private gameOverMenuMarkup({
     declare,
     player,
     tie,
+    playerLeft,
   }: {
     tie?: boolean;
     declare: "winner" | "loser";
     player?: TPlayer;
+    playerLeft?: boolean;
   }) {
     const classMonochrome = declare === "loser" ? "monochrome" : "";
     let declareMessage = declare === "winner" ? "Victory!" : "Defeat!";
@@ -457,6 +479,10 @@ class GameMenuView extends View {
     if (tie) {
       declareMessage = "Tie!";
       playerShapeMarkup = "";
+    }
+
+    if (playerLeft) {
+      declareMessage = "Opponent Left!";
     }
 
     return `
@@ -622,15 +648,18 @@ class GameMenuView extends View {
     handlerStartGame,
     handlerSettings,
     handlerExitMultiplayer,
+    handlerLeaveGame,
   }: {
     handlerStartGame: TControlStartGame;
     handlerPlayAgain: TControlPlayAgain;
     handlerSettings: TControlSettings;
     handlerExitMultiplayer: Function;
+    handlerLeaveGame: TControlLeaveGame;
   }) {
     this.handlerStartGame = handlerStartGame;
     this.handlerPlayAgain = handlerPlayAgain;
     this.handlerSettings = handlerSettings;
+    this.handlerLeaveGame = handlerLeaveGame;
     this.handlerExitMultiplayer = handlerExitMultiplayer;
   }
 

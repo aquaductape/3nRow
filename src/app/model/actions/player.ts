@@ -87,6 +87,12 @@ export const increaseWinnerScore = () => {
   player.score++;
   setLS({ id: player.id, type: "score", value: player.score });
 };
+export const resetPlayersScore = () => {
+  state.players.forEach((player) => {
+    player.score = 0;
+    setLS({ id: player.id, type: "score", value: player.score });
+  });
+};
 
 export const startGame = () => {
   state.game.gameStart = true;

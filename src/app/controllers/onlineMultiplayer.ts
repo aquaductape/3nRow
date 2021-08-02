@@ -26,7 +26,7 @@ export const controlJoinRoom: TControlJoinRoom = async ({ type, password }) => {
       /* webpackChunkName: "colyseus" */ "colyseus.js"
     );
     const client = new Colyseus.Client(model.state.onlineMultiplayer.serverWS);
-    let room = (null as unknown) as TRoomClient;
+    let room = null as unknown as TRoomClient;
 
     if (type === "public") {
       room = (await client.joinOrCreate(type)) as TRoomClient;
@@ -88,7 +88,9 @@ export const controlExitMultiplayer: TControlExitMultiplayer = () => {
   if (!room) return;
 
   room.leave();
+  preGameView.restartOpponentProps();
   model.exitMultiplayer();
+  playerBtnGroupView.showInnerBtn({ selectors: ["playerOptionsIcon"] });
 };
 
 const roomActions = ({ room }: { room: TRoomClient }) => {
@@ -140,17 +142,10 @@ const roomActions = ({ room }: { room: TRoomClient }) => {
   room.onMessage(
     "pickSkinPreGame",
     ({ success, skin, finishedFirst, playerId }) => {
-      // console.log("onpickskin", playerId, skin);
       const player = model.getPlayerById(playerId)!;
 
       const mainPlayerClaim = () => {
-        // if (!success) {
-        //   preGameView.failedPick({ type: skin.type, value: skin.value });
-        //   return;
-        // }
-
         if (skin.type === "color") {
-          // console.log( "mainPlayerClaim: ", playerId, model.getPlayerById(playerId));
           model.setPlayerCurrentColor({ player, color: skin.value });
           svgDefsView.updateShapeColors(model.state.players);
           lobbyView.setData({ mainPlayer: model.getPlayerById(playerId) });
@@ -344,7 +339,6 @@ const roomActions = ({ room }: { room: TRoomClient }) => {
     const oppositePlayer = model.getOppositePlayer(playerId);
     // playerBtnGroupView.
     if (!success) {
-      console.log("unsuccessfull");
       if (skin.type === "color") {
         model.setPlayerCurrentColor({
           player: currentPlayer,
@@ -378,7 +372,6 @@ const roomActions = ({ room }: { room: TRoomClient }) => {
       });
       return;
     }
-    console.log("success");
 
     if (skin.type === "color") {
       controlPlayerColor({
@@ -409,37 +402,22 @@ const roomActions = ({ room }: { room: TRoomClient }) => {
     }
 
     const transitionTimeout = 800;
-    // const mainPlayer = model.getPlayerById(
-    //   model.state.onlineMultiplayer.mainPlayer
-    // )!;
-    const winnerPlayer = model.getWinner()!;
-    const loserPlayer = model.getLoser()!;
-    let player = winnerPlayer;
-    let declare = "winner" as "winner" | "loser";
+
+    const player = model.getPlayerById(
+      model.state.onlineMultiplayer.opponentPlayer
+    )!;
+    const declare = "winner" as "winner" | "loser";
 
     model.runGameOver();
     boardView.preventPlayerToSelect();
-    playerBtnGroupView.resetPlayerIndicators();
 
-    //   if (!model.state.game.gameTie) {
-    //     model.increaseWinnerScore();
-    //     playerBtnGroupView.updatePlayerScore(winnerPlayer);
-    //   }
-    //
-    //   if (model.state.game.hasAI && model.getAiPlayer() === winnerPlayer) {
-    //     declare = "loser";
-    //     player = loserPlayer;
-    //   }
-    //
-    //   if (model.state.onlineMultiplayer.active && mainPlayer !== winnerPlayer) {
-    //     declare = "loser";
-    //     player = loserPlayer;
-    //   }
+    playerBtnGroupView.resetPlayerIndicators();
 
     setTimeout(() => {
       gameMenuView.renderGameOverMenu({
         declare,
         player,
+        playerLeft: true,
       });
       boardView.preGame();
       playerBtnGroupView.updatePlayerBtnsOnPreGame();

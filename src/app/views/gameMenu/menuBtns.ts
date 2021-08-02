@@ -223,6 +223,7 @@ const menuBtns: TGameMenuState = {
     section: "playAgain",
     listBtns: [
       {
+        id: "playAgain",
         content: "Rematch?",
         aria: {
           "aria-label": "Rematch? Play Again?",
