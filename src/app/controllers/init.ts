@@ -10,7 +10,7 @@ import skipToGameMenu from "../views/skipContentBtn/skipToGameMenuView";
 import { controlSettings } from "./settings";
 import { moveAi, controlMovePlayer } from "./move";
 import { controlPlayerColor, controlPlayerShape } from "./playerOptions";
-import { controlPlayAgain, controlStartGame } from "./menu";
+import { controlLeaveGame, controlPlayAgain, controlStartGame } from "./menu";
 import {
   controlExitMultiplayer,
   controlCreateRoom,
@@ -54,6 +54,7 @@ export const init = () => {
     handlerStartGame: controlStartGame,
     handlerPlayAgain: controlPlayAgain,
     handlerSettings: controlSettings,
+    handlerLeaveGame: controlLeaveGame,
     handlerExitMultiplayer: controlExitMultiplayer,
   });
   lobbyView.addHandlers({

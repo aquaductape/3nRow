@@ -60,8 +60,8 @@ class PreGameView extends View {
   private currentPreGame: TPreGameType = "find-players";
   private onJoinRoom: TControlJoinRoom = () => {};
   private onPickSkin: TControlPickSkin = () => {};
-  private countDownEl = (null as unknown) as HTMLElement;
-  private navigationBackBtnForeign = (null as unknown) as HTMLElement;
+  private countDownEl = null as unknown as HTMLElement;
+  private navigationBackBtnForeign = null as unknown as HTMLElement;
   private loaderPickSkinTimeoutID = 0;
   private onTransitionEndPreGameStageType: TPreGameType = "find-players";
   private opponentPickedSkin: {
@@ -76,6 +76,12 @@ class PreGameView extends View {
 
   constructor() {
     super({ root: "#game-menu .lobby" });
+  }
+
+  restartOpponentProps() {
+    this.opponentPickedSkin = { color: "", shape: "" };
+    this.hasSelectedSkin = false;
+    this.countDownElHidden = false;
   }
 
   protected markupDidGenerate() {

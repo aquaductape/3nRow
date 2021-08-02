@@ -147,3 +147,13 @@ export const controlStartGame: TControlStartGame = ({
     moveAi();
   }
 };
+
+export type TControlLeaveGame = () => void;
+export const controlLeaveGame: TControlLeaveGame = () => {
+  model.resetForNextGame();
+  model.resetPlayersScore();
+  boardView.clearBoard();
+  model.state.players.forEach((player) => {
+    playerBtnGroupView.updatePlayerScore(player);
+  });
+};

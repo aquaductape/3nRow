@@ -19,4 +19,5 @@ export const setRoomCodeFromUrlParams = () => {
 const resetMultiplayer = () => {
   state.onlineMultiplayer.room = null;
   state.onlineMultiplayer.pickedItems = { color: "", shape: "" };
+  state.onlineMultiplayer.hasPickedSkin = false;
 };
