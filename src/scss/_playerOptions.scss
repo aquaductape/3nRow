@@ -1,3 +1,5 @@
+@use "variables";
+
 .dropdown {
   position: absolute;
   top: 42px;
@@ -28,7 +30,7 @@
 
   &:hover,
   &.noFocusClick:focus {
-    background: darken($white, 20%);
+    background: darken(variables.$white, 20%);
   }
 }
 

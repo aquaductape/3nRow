@@ -94,6 +94,7 @@ type IGlobalListener = {
 if (IOS && !IOS13) {
   const html = document.querySelector("html")!;
   html.style.cursor = "pointer";
+  // @ts-ignore
   html.style.webkitTapHighlightColor = "rgba(0, 0, 0, 0)";
 }
 

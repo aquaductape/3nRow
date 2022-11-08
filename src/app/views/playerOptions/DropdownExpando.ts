@@ -17,7 +17,7 @@ type CustomStyle = Partial<
 
 type TCustomKeyFrame = {
   offset: number;
-} & CustomStyle;
+} & Omit<CustomStyle, "offset">;
 
 /**
  * global animationId, since both dropdowns have same geometry, it's safe and cost efficent referencing the same keyframes

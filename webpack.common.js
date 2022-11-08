@@ -1,3 +1,4 @@
+const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 
@@ -7,7 +8,11 @@ module.exports = {
     rules: [
       {
         test: /\.html$/,
-        use: ["html-loader"],
+        loader: "html-loader",
+        options: {
+          // Disables attributes processing, kept crashing when it was reading favicon path href in index.html
+          sources: false,
+        },
       },
       {
         test: /\.tsx?$/,
@@ -30,6 +35,12 @@ module.exports = {
     extensions: [".tsx", ".ts", ".js"],
   },
   plugins: [
+    new CopyPlugin({
+      patterns: [
+        { from: "src/assets/favicon", to: "favicon" },
+        { from: "src/assets/open-graph", to: "./" },
+      ],
+    }),
     new HtmlWebpackPlugin({
       template: "./src/index.html",
       minify: {
@@ -40,12 +51,6 @@ module.exports = {
         removeStyleLinkTypeAttributes: true,
         useShortDoctype: true,
       },
-    }),
-    new CopyPlugin({
-      patterns: [
-        { from: "./src/assets/favicon", to: "favicon" },
-        { from: "./src/assets/open-graph", to: "./" },
-      ],
     }),
   ],
 };
