@@ -1,9 +1,11 @@
 # IMPORTANT!!!!!!!!!!!!!!!!!
 
 On Safari two bugs
-Webpack devserver ssl bug, will have to create stackoverflow post since no one experienced this. Workaround is using `--https` flag but is horrible
-Slash line path is hidden due to svg dropshadow filter, dispite that filter working for player shapes.
-Solution is to not use those filters at all since even though they work for player shapes, you have to use brute refresh frames using blur animation. So replace filters with node paths to create shadow effect.
+
+1. Webpack devserver ssl bug, will have to create stackoverflow post since no one experienced this. Workaround is using `--https` flag but is horrible.
+
+2. Slash line path is hidden due to svg dropshadow filter, dispite that filter working for player shapes.
+   Solution is to not use those filters at all since even though they work for player shapes, you have to use brute refresh frames using blur animation. So replace filters with node paths to create shadow effect.
 
 # CODE
 
